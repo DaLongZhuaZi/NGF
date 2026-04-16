@@ -173,28 +173,62 @@ export class SourceRepositoryFacade implements ISourceRepository {
   }
 
   private readText(path: string): string {
-    const file = fs.openSync(path, fs.OpenMode.READ_ONLY);
-    const stat = fs.statSync(path);
-    if (stat.size <= 0) {
-      fs.closeSync(file);
+    let file: fs.File | null = null;
+    try {
+      file = fs.openSync(path, fs.OpenMode.READ_ONLY);
+      const stat = fs.statSync(path);
+      if (stat.size <= 0) {
+        return '';
+      }
+      const buffer = new ArrayBuffer(Number(stat.size));
+      fs.readSync(file.fd, buffer);
+      const decoder = new util.TextDecoder('utf-8');
+      return decoder.decodeToString(new Uint8Array(buffer));
+    } catch (error) {
+      logger.warn(TAG, `读取仓库文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
       return '';
+    } finally {
+      this.closeFileQuietly(file, path);
     }
-    const buffer = new ArrayBuffer(Number(stat.size));
-    fs.readSync(file.fd, buffer);
-    fs.closeSync(file);
-    const decoder = new util.TextDecoder('utf-8');
-    return decoder.decodeToString(new Uint8Array(buffer));
   }
 
   private writeText(path: string, content: string): boolean {
+    let file: fs.File | null = null;
     try {
-      const file = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.WRITE_ONLY | fs.OpenMode.TRUNC);
+      file = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.WRITE_ONLY | fs.OpenMode.TRUNC);
       fs.writeSync(file.fd, content);
-      fs.closeSync(file);
       return true;
-    } catch {
+    } catch (error) {
+      logger.warn(TAG, `写入仓库文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
       return false;
+    } finally {
+      this.closeFileQuietly(file, path);
     }
+  }
+
+  private closeFileQuietly(file: fs.File | null, path: string): void {
+    if (file === null) {
+      return;
+    }
+
+    try {
+      fs.closeSync(file);
+    } catch (error) {
+      logger.warn(TAG, `关闭仓库文件失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+    }
+  }
+
+  private errorToString(error: Object | string | number | boolean): string {
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (typeof error === 'number' || typeof error === 'boolean') {
+      return String(error);
+    }
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return String(error);
   }
 }
 

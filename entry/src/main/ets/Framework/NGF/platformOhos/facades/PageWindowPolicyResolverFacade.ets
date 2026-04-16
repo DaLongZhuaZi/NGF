@@ -16,7 +16,7 @@ export class PageWindowPolicyResolverFacade implements IPageWindowPolicyResolver
 
   register(spec: NGFPageWindowSpec): void {
     this.overrides.set(spec.pageName, spec);
-    logger.info(TAG, `register page policy override: page=${spec.pageName}, policy=${spec.policy}, fallback=${spec.fallbackDisplayMode}`);
+    logger.info(TAG, `register page policy override: page=${spec.pageName}, policy=${spec.policy}, fallback=${spec.fallbackMode}`);
   }
 
   resolve(pageName: string): NGFPageWindowSpec | null {

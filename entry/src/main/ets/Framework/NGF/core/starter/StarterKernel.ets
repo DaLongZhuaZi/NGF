@@ -2,8 +2,15 @@
 import { IEventBus, NGFEventListener, NGFEventPayload } from '../contracts/IEventBus';
 import { IErrorHandler, NGFErrorContext, NGFErrorSeverity } from '../contracts/IErrorHandler';
 import { ILifecycleOrchestrator, NGFPhaseState } from '../contracts/ILifecycleOrchestrator';
+import {
+  NGFFrameworkRuntimeSnapshot,
+  NGFModuleBootstrapReport,
+  NGFModuleRuntimeSnapshot
+} from '../contracts/IModuleBootstrap';
 import { IServiceContainer } from '../contracts/IServiceContainer';
 import { ngfLoggerFacade } from '../facades/LoggerFacade';
+import { NGFModuleBootstrapCoordinator, ngfModuleBootstrapCoordinator } from './ModuleBootstrapCoordinator';
+import { NGFModuleRegistry, ngfModuleRegistry } from './ModuleRegistry';
 
 const LOG_TAG: string = 'NGFStarterCore';
 const MAX_RECENT_ERROR_RECORDS: number = 50;
@@ -14,12 +21,15 @@ export class NGFStarterServiceToken {
   static readonly ERROR_HANDLER: string = 'ngf.core.error_handler';
   static readonly LIFECYCLE: string = 'ngf.core.lifecycle';
   static readonly SERVICE_CONTAINER: string = 'ngf.core.service_container';
+  static readonly MODULE_REGISTRY: string = 'ngf.core.module_registry';
+  static readonly MODULE_BOOTSTRAP_COORDINATOR: string = 'ngf.core.module_bootstrap_coordinator';
 }
 
 export class NGFStarterEventName {
   static readonly CORE_READY: string = 'ngf.starter.core.ready';
   static readonly CORE_STATE_CHANGED: string = 'ngf.starter.core.state_changed';
   static readonly CORE_ERROR: string = 'ngf.starter.core.error';
+  static readonly CORE_MODULES_BOOTSTRAPPED: string = 'ngf.starter.core.modules_bootstrapped';
   static readonly DEMO_EVENT: string = 'ngf.starter.demo.event';
 }
 
@@ -386,7 +396,10 @@ export class NGFStarterKernel {
   readonly errorHandler: IErrorHandler;
   readonly lifecycle: ILifecycleOrchestrator;
   readonly serviceContainer: IServiceContainer;
+  readonly moduleRegistry: NGFModuleRegistry;
+  readonly moduleBootstrapCoordinator: NGFModuleBootstrapCoordinator;
   private bootstrapped: boolean = false;
+  private lastModuleBootstrapReport: NGFModuleBootstrapReport | null = null;
 
   private constructor() {
     this.logger = ngfLoggerFacade;
@@ -394,6 +407,8 @@ export class NGFStarterKernel {
     this.errorHandler = new NGFStarterErrorHandler(this.logger, this.eventBus);
     this.lifecycle = new NGFStarterLifecycleOrchestrator(this.logger);
     this.serviceContainer = new NGFStarterServiceContainer(this.logger);
+    this.moduleRegistry = ngfModuleRegistry;
+    this.moduleBootstrapCoordinator = ngfModuleBootstrapCoordinator;
     this.logger.lifecycle(LOG_TAG, 'NGF starter core constructed');
   }
 
@@ -424,6 +439,11 @@ export class NGFStarterKernel {
 
       this.lifecycle.beginPhase('core_services');
       this.publishCurrentState();
+      const moduleReport = this.moduleBootstrapCoordinator.bootstrapPhase('core_services');
+      this.publishModuleBootstrapReport(moduleReport);
+      if (!moduleReport.success) {
+        throw new Error(`module bootstrap failed: success=${moduleReport.successCount}, failure=${moduleReport.failureCount}`);
+      }
       this.lifecycle.completePhase('core_services');
       this.publishCurrentState();
 
@@ -460,12 +480,53 @@ export class NGFStarterKernel {
     return this.bootstrapped;
   }
 
+  getLastModuleBootstrapReport(): NGFModuleBootstrapReport | null {
+    return this.lastModuleBootstrapReport;
+  }
+
+  getFrameworkRuntimeSnapshot(): NGFFrameworkRuntimeSnapshot {
+    const lifecycleState = this.lifecycle.getCurrentState();
+    const modules = this.moduleBootstrapCoordinator.listModuleSnapshots();
+    let bootstrappedModuleCount: number = 0;
+    let successfulModuleCount: number = 0;
+    let failedModuleCount: number = 0;
+
+    for (let index = 0; index < modules.length; index++) {
+      const moduleSnapshot: NGFModuleRuntimeSnapshot = modules[index];
+      if (moduleSnapshot.isBootstrapped) {
+        bootstrappedModuleCount += 1;
+      }
+      if (moduleSnapshot.hasBootstrapResult) {
+        if (moduleSnapshot.lastSuccess) {
+          successfulModuleCount += 1;
+        } else {
+          failedModuleCount += 1;
+        }
+      }
+    }
+
+    return new NGFFrameworkRuntimeSnapshot(
+      this.bootstrapped,
+      lifecycleState.phaseName,
+      lifecycleState.progress,
+      lifecycleState.isCompleted,
+      modules.length,
+      bootstrappedModuleCount,
+      successfulModuleCount,
+      failedModuleCount,
+      modules,
+      Date.now()
+    );
+  }
+
   private registerCoreServices(): void {
     this.serviceContainer.registerSingleton(NGFStarterServiceToken.LOGGER, 'NGFLoggerFacade');
     this.serviceContainer.registerSingleton(NGFStarterServiceToken.EVENT_BUS, 'NGFStarterEventBus');
     this.serviceContainer.registerSingleton(NGFStarterServiceToken.ERROR_HANDLER, 'NGFStarterErrorHandler');
     this.serviceContainer.registerSingleton(NGFStarterServiceToken.LIFECYCLE, 'NGFStarterLifecycleOrchestrator');
     this.serviceContainer.registerSingleton(NGFStarterServiceToken.SERVICE_CONTAINER, 'NGFStarterServiceContainer');
+    this.serviceContainer.registerSingleton(NGFStarterServiceToken.MODULE_REGISTRY, 'NGFModuleRegistry');
+    this.serviceContainer.registerSingleton(NGFStarterServiceToken.MODULE_BOOTSTRAP_COORDINATOR, 'NGFModuleBootstrapCoordinator');
   }
 
   private publishCurrentState(): void {
@@ -479,10 +540,33 @@ export class NGFStarterKernel {
     this.eventBus.publish(NGFStarterEventName.CORE_STATE_CHANGED, payload);
   }
 
+  private publishModuleBootstrapReport(report: NGFModuleBootstrapReport): void {
+    this.lastModuleBootstrapReport = report;
+    const payload = new NGFEventPayload(
+      'ngf_core_modules_bootstrapped',
+      this.toModuleBootstrapReportJson(report),
+      Date.now()
+    );
+    this.logger.info(LOG_TAG, `publishModuleBootstrapReport: total=${report.totalCount}, success=${report.successCount}, failure=${report.failureCount}`);
+    this.eventBus.publish(NGFStarterEventName.CORE_MODULES_BOOTSTRAPPED, payload);
+  }
+
   private toStateEnvelopeJson(state: NGFPhaseState): string {
     const envelope = new NGFStarterCoreStateEnvelope(state.phaseName, state.progress, state.isCompleted, Date.now());
     try {
       const serialized = JSON.stringify(envelope);
+      if (serialized === undefined) {
+        return '{}';
+      }
+      return serialized;
+    } catch {
+      return '{}';
+    }
+  }
+
+  private toModuleBootstrapReportJson(report: NGFModuleBootstrapReport): string {
+    try {
+      const serialized = JSON.stringify(report);
       if (serialized === undefined) {
         return '{}';
       }

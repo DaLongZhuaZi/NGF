@@ -1,8 +1,14 @@
 import { BusinessError } from '@kit.BasicServicesKit';
+import { uiContextManager } from '../../Framework/Managers/UIContextManager';
 import { NGFErrorContext, NGFErrorSeverity } from '../../Framework/NGF/core/contracts/IErrorHandler';
 import { NGFEventPayload } from '../../Framework/NGF/core/contracts/IEventBus';
 import { NGFLogLevel } from '../../Framework/NGF/core/contracts/ILogger';
 import { NGFPhaseState } from '../../Framework/NGF/core/contracts/ILifecycleOrchestrator';
+import {
+  NGFFrameworkRuntimeSnapshot,
+  NGFModuleBootstrapReport,
+  NGFModuleRuntimeSnapshot
+} from '../../Framework/NGF/core/contracts/IModuleBootstrap';
 import { NGFStarterEventName, ngfStarterKernel } from '../../Framework/NGF/core/starter/index';
 import { HdsComponentsShowcasePage } from './HdsComponentsShowcasePage';
 import { HdsLayoutsShowcasePage } from './HdsLayoutsShowcasePage';
@@ -45,6 +51,48 @@ class NGFStarterDemoPayload {
   }
 }
 
+class NGFStarterModuleBootstrapSummary {
+  phaseName: string;
+  totalCount: number;
+  successCount: number;
+  failureCount: number;
+
+  constructor(phaseName: string, totalCount: number, successCount: number, failureCount: number) {
+    this.phaseName = phaseName;
+    this.totalCount = totalCount;
+    this.successCount = successCount;
+    this.failureCount = failureCount;
+  }
+}
+
+class NGFStarterModuleDetailEntry {
+  id: number;
+  moduleName: string;
+  phaseName: string;
+  dependencyText: string;
+  serviceTokenText: string;
+  statusText: string;
+  messageText: string;
+
+  constructor(
+    id: number,
+    moduleName: string,
+    phaseName: string,
+    dependencyText: string,
+    serviceTokenText: string,
+    statusText: string,
+    messageText: string
+  ) {
+    this.id = id;
+    this.moduleName = moduleName;
+    this.phaseName = phaseName;
+    this.dependencyText = dependencyText;
+    this.serviceTokenText = serviceTokenText;
+    this.statusText = statusText;
+    this.messageText = messageText;
+  }
+}
+
 class NGFHdsDemoRouteParam {
   routeName: string;
   source: string;
@@ -65,6 +113,11 @@ struct NGFStarterMainMenuPage {
   @State private lastEventType: string = '-';
   @State private statusMessage: string = '等待核心启动';
   @State private logs: Array<NGFStarterLogEntry> = [];
+  @State private modulePhaseName: string = '-';
+  @State private moduleTotalCount: number = 0;
+  @State private moduleSuccessCount: number = 0;
+  @State private moduleFailureCount: number = 0;
+  @State private moduleDetails: Array<NGFStarterModuleDetailEntry> = [];
   @State private nextPhaseIndex: number = 0;
 
   private readonly starter = ngfStarterKernel;
@@ -72,19 +125,27 @@ struct NGFStarterMainMenuPage {
   private readonly stateListenerId: string = 'NGFStarterMainMenuPage_State';
   private readonly errorListenerId: string = 'NGFStarterMainMenuPage_Error';
   private readonly demoListenerId: string = 'NGFStarterMainMenuPage_Demo';
+  private readonly moduleListenerId: string = 'NGFStarterMainMenuPage_Modules';
   private eventsAttached: boolean = false;
 
   aboutToAppear(): void {
+    const uiContext = this.getUIContext();
+    if (uiContext) {
+      uiContextManager.bindUIContext(uiContext);
+    }
     this.starter.logger.setLevel(NGFLogLevel.DEBUG);
     this.isCoreReady = this.starter.bootstrap();
     this.lifecycleState = this.starter.lifecycle.getCurrentState();
     this.statusMessage = this.isCoreReady ? '轻核心框架已就绪' : '轻核心框架启动失败';
+    this.syncModuleBootstrapReport();
+    this.syncFrameworkRuntimeSnapshot();
     this.attachStarterEventListeners();
     this.appendLog(this.statusMessage);
   }
 
   aboutToDisappear(): void {
     this.detachStarterEventListeners();
+    uiContextManager.clearUIContext();
   }
 
   private attachStarterEventListeners(): void {
@@ -100,6 +161,7 @@ struct NGFStarterMainMenuPage {
         if (state) {
           this.lifecycleState = state;
           this.lastEventType = payload.payloadType;
+          this.syncFrameworkRuntimeSnapshot();
           this.appendLog(`生命周期状态: ${state.phaseName}, progress=${state.progress}`);
         }
       }
@@ -125,7 +187,22 @@ struct NGFStarterMainMenuPage {
       }
     );
 
-    this.eventsAttached = stateSubscribed || errorSubscribed || demoSubscribed;
+    const moduleSubscribed = this.starter.eventBus.subscribe(
+      NGFStarterEventName.CORE_MODULES_BOOTSTRAPPED,
+      this.moduleListenerId,
+      (payload: NGFEventPayload): void => {
+        const summary = this.parseModuleBootstrapReport(payload.payloadJson);
+        if (summary) {
+          this.applyModuleBootstrapSummary(summary);
+          this.syncFrameworkRuntimeSnapshot();
+          this.lastEventType = payload.payloadType;
+          this.statusMessage = `模块启动: success=${summary.successCount}/${summary.totalCount}`;
+          this.appendLog(`模块启动完成: phase=${summary.phaseName}, success=${summary.successCount}, failure=${summary.failureCount}`);
+        }
+      }
+    );
+
+    this.eventsAttached = stateSubscribed || errorSubscribed || demoSubscribed || moduleSubscribed;
   }
 
   private detachStarterEventListeners(): void {
@@ -135,12 +212,15 @@ struct NGFStarterMainMenuPage {
     this.starter.eventBus.unsubscribe(NGFStarterEventName.CORE_STATE_CHANGED, this.stateListenerId);
     this.starter.eventBus.unsubscribe(NGFStarterEventName.CORE_ERROR, this.errorListenerId);
     this.starter.eventBus.unsubscribe(NGFStarterEventName.DEMO_EVENT, this.demoListenerId);
+    this.starter.eventBus.unsubscribe(NGFStarterEventName.CORE_MODULES_BOOTSTRAPPED, this.moduleListenerId);
     this.eventsAttached = false;
   }
 
   private handleBootstrapTap(): void {
     this.isCoreReady = this.starter.bootstrap();
     this.lifecycleState = this.starter.lifecycle.getCurrentState();
+    this.syncModuleBootstrapReport();
+    this.syncFrameworkRuntimeSnapshot();
     this.statusMessage = this.isCoreReady ? '核心服务重新确认成功' : '核心服务启动失败';
     this.appendLog(this.statusMessage);
   }
@@ -243,7 +323,7 @@ struct NGFStarterMainMenuPage {
       return null;
     }
     try {
-      const parsed = JSON.parse(payloadJson) as Partial<NGFStarterStatePayload>;
+      const parsed = JSON.parse(payloadJson) as NGFStarterStatePayload;
       const phaseName = parsed.phaseName && typeof parsed.phaseName === 'string' ? parsed.phaseName : 'not_started';
       const progress = parsed.progress && typeof parsed.progress === 'number' ? parsed.progress : 0;
       const isCompleted = parsed.isCompleted && typeof parsed.isCompleted === 'boolean' ? parsed.isCompleted : false;
@@ -251,6 +331,109 @@ struct NGFStarterMainMenuPage {
     } catch {
       return null;
     }
+  }
+
+  private syncModuleBootstrapReport(): void {
+    const report = this.starter.getLastModuleBootstrapReport();
+    if (!report) {
+      return;
+    }
+    const summary = new NGFStarterModuleBootstrapSummary(
+      report.phaseName,
+      report.totalCount,
+      report.successCount,
+      report.failureCount
+    );
+    this.applyModuleBootstrapSummary(summary);
+    this.appendLog(`已同步模块启动结果: phase=${summary.phaseName}, success=${summary.successCount}, failure=${summary.failureCount}`);
+  }
+
+  private syncFrameworkRuntimeSnapshot(): void {
+    const snapshot = this.starter.getFrameworkRuntimeSnapshot();
+    this.applyFrameworkRuntimeSnapshot(snapshot);
+  }
+
+  private parseModuleBootstrapReport(payloadJson: string): NGFStarterModuleBootstrapSummary | null {
+    if (payloadJson.trim().length <= 0) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(payloadJson) as NGFModuleBootstrapReport;
+      const phaseName = parsed.phaseName && typeof parsed.phaseName === 'string' ? parsed.phaseName : 'core_services';
+      const totalCount = parsed.totalCount && typeof parsed.totalCount === 'number' ? parsed.totalCount : 0;
+      const successCount = parsed.successCount && typeof parsed.successCount === 'number' ? parsed.successCount : 0;
+      const failureCount = parsed.failureCount && typeof parsed.failureCount === 'number' ? parsed.failureCount : 0;
+      return new NGFStarterModuleBootstrapSummary(phaseName, totalCount, successCount, failureCount);
+    } catch {
+      return null;
+    }
+  }
+
+  private applyModuleBootstrapSummary(summary: NGFStarterModuleBootstrapSummary): void {
+    this.modulePhaseName = summary.phaseName;
+    this.moduleTotalCount = summary.totalCount;
+    this.moduleSuccessCount = summary.successCount;
+    this.moduleFailureCount = summary.failureCount;
+  }
+
+  private applyFrameworkRuntimeSnapshot(snapshot: NGFFrameworkRuntimeSnapshot): void {
+    this.isCoreReady = snapshot.coreReady;
+    this.lifecycleState = new NGFPhaseState(
+      snapshot.lifecyclePhaseName,
+      snapshot.lifecycleProgress,
+      snapshot.lifecycleCompleted
+    );
+    this.moduleTotalCount = snapshot.moduleCount;
+    this.moduleSuccessCount = snapshot.successfulModuleCount;
+    this.moduleFailureCount = snapshot.failedModuleCount;
+    this.moduleDetails = this.buildModuleDetailEntries(snapshot.modules);
+  }
+
+  private buildModuleDetailEntries(modules: Array<NGFModuleRuntimeSnapshot>): Array<NGFStarterModuleDetailEntry> {
+    const entries: Array<NGFStarterModuleDetailEntry> = [];
+    for (let index = 0; index < modules.length; index++) {
+      const moduleSnapshot = modules[index];
+      const dependencyText = this.joinText(moduleSnapshot.dependencies);
+      const serviceTokenText = this.joinText(moduleSnapshot.serviceTokens);
+      const statusText = this.resolveModuleStatusText(moduleSnapshot);
+      entries.push(
+        new NGFStarterModuleDetailEntry(
+          index + 1,
+          moduleSnapshot.moduleName,
+          moduleSnapshot.phaseName,
+          dependencyText,
+          serviceTokenText,
+          statusText,
+          moduleSnapshot.lastMessage
+        )
+      );
+    }
+    return entries;
+  }
+
+  private joinText(values: Array<string>): string {
+    if (values.length <= 0) {
+      return '-';
+    }
+    let result = '';
+    for (let index = 0; index < values.length; index++) {
+      if (index > 0) {
+        result = `${result}, `;
+      }
+      result = `${result}${values[index]}`;
+    }
+    return result;
+  }
+
+  private resolveModuleStatusText(snapshot: NGFModuleRuntimeSnapshot): string {
+    if (!snapshot.hasBootstrapResult) {
+      return snapshot.isBootstrapped ? 'ready_without_report' : 'not_bootstrapped';
+    }
+    if (snapshot.lastSuccess) {
+      return snapshot.isBootstrapped ? 'bootstrapped' : 'reported_success_but_not_ready';
+    }
+    return 'bootstrap_failed';
   }
 
   private appendLog(message: string): void {
@@ -295,6 +478,7 @@ struct NGFStarterMainMenuPage {
           this.buildHdsDemoCard()
           this.buildActionCard()
           this.buildStatusCard()
+          this.buildModuleDetailCard()
           this.buildLogCard()
         }
         .width('100%')
@@ -481,6 +665,74 @@ struct NGFStarterMainMenuPage {
       Text(`错误计数: ${this.starter.errorHandler.getRecentErrorCount()}`)
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
+      Text(`模块阶段: ${this.modulePhaseName}`)
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
+      Text(`模块成功: ${this.moduleSuccessCount}/${this.moduleTotalCount}`)
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
+      Text(`模块失败: ${this.moduleFailureCount}`)
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
+    }
+    .width('100%')
+    .padding(14)
+    .backgroundColor($r('app.color.panel_background'))
+    .borderRadius(14)
+    .border({ width: 1, color: $r('app.color.panel_border') })
+  }
+
+  @Builder
+  private buildModuleDetailCard(): void {
+    Column({ space: 8 }) {
+      Text('模块明细')
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_primary'))
+
+      if (this.moduleDetails.length <= 0) {
+        Text('当前暂无模块运行时快照')
+          .width('100%')
+          .fontSize(12)
+          .fontColor($r('app.color.text_secondary'))
+      } else {
+        Column({ space: 8 }) {
+          ForEach(this.moduleDetails, (entry: NGFStarterModuleDetailEntry) => {
+            Column({ space: 4 }) {
+              Text(`${entry.id}. ${entry.moduleName}`)
+                .width('100%')
+                .fontSize(13)
+                .fontWeight(FontWeight.Medium)
+                .fontColor($r('app.color.text_primary'))
+              Text(`阶段: ${entry.phaseName}`)
+                .width('100%')
+                .fontSize(12)
+                .fontColor($r('app.color.text_secondary'))
+              Text(`状态: ${entry.statusText}`)
+                .width('100%')
+                .fontSize(12)
+                .fontColor($r('app.color.text_secondary'))
+              Text(`依赖: ${entry.dependencyText}`)
+                .width('100%')
+                .fontSize(12)
+                .fontColor($r('app.color.text_secondary'))
+              Text(`服务: ${entry.serviceTokenText}`)
+                .width('100%')
+                .fontSize(12)
+                .fontColor($r('app.color.text_secondary'))
+              Text(`消息: ${entry.messageText}`)
+                .width('100%')
+                .fontSize(12)
+                .fontColor($r('app.color.text_secondary'))
+            }
+            .width('100%')
+            .padding(10)
+            .backgroundColor($r('app.color.background_secondary'))
+            .borderRadius(10)
+          }, (entry: NGFStarterModuleDetailEntry): string => `starter_module_${entry.id}`)
+        }
+        .width('100%')
+      }
     }
     .width('100%')
     .padding(14)

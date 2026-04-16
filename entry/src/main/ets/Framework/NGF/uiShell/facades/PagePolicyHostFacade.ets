@@ -14,7 +14,7 @@ export class PagePolicyHostFacade implements IPagePolicyHost {
       PageWindowCoordinator.applyPagePolicy(pageName, uiContext ?? undefined);
     } catch (error) {
       logger.error(TAG, `applyPolicy failed: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
-      throw error;
+      throw error as Error;
     }
   }
 
@@ -25,7 +25,7 @@ export class PagePolicyHostFacade implements IPagePolicyHost {
       PageWindowCoordinator.reapplyPagePolicy(pageName, uiContext ?? undefined);
     } catch (error) {
       logger.error(TAG, `reapplyPolicy failed: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
-      throw error;
+      throw error as Error;
     }
   }
 

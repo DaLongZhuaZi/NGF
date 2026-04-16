@@ -1,5 +1,6 @@
 import { logger } from '../../../../Utils/Logger';
 import { ContainerLifecycle, DependencyContainer } from '../../../DependencyContainer';
+import { IModuleBootstrap } from '../../core/contracts/IModuleBootstrap';
 import { ngfServiceContainerFacade } from '../../core/facades/ServiceContainerFacade';
 import { ngfNavigationShellFacade } from './NavigationShellFacade';
 import { ngfPagePolicyHostFacade } from './PagePolicyHostFacade';
@@ -18,7 +19,7 @@ class NGFUiShellServiceRegistration {
   }
 }
 
-export class NGFUiShellIntegrationFacade {
+export class NGFUiShellIntegrationFacade implements IModuleBootstrap {
   private bootstrapped: boolean = false;
   private registrations: NGFUiShellServiceRegistration[] = [
     new NGFUiShellServiceRegistration(

@@ -1,5 +1,6 @@
 import { logger } from '../../../../Utils/Logger';
 import { ContainerLifecycle, DependencyContainer } from '../../../DependencyContainer';
+import { IModuleBootstrap } from '../../core/contracts/IModuleBootstrap';
 import { ngfServiceContainerFacade } from '../../core/facades/ServiceContainerFacade';
 import { ngfActionExecutorFacade } from './ActionExecutorFacade';
 import { ngfRateLimitPolicyFacade } from './RateLimitPolicyFacade';
@@ -20,7 +21,7 @@ class NGFContentWorkflowServiceRegistration {
   }
 }
 
-export class NGFContentWorkflowIntegrationFacade {
+export class NGFContentWorkflowIntegrationFacade implements IModuleBootstrap {
   private bootstrapped: boolean = false;
   private registrations: NGFContentWorkflowServiceRegistration[] = [
     new NGFContentWorkflowServiceRegistration(

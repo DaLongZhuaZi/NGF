@@ -46,29 +46,30 @@ export class StorageProviderFacade implements IStorageProvider {
       return '';
     }
 
+    let file: fs.File | null = null;
     try {
       if (!this.exists(path)) {
         return '';
       }
 
-      const file = fs.openSync(path, fs.OpenMode.READ_ONLY);
+      file = fs.openSync(path, fs.OpenMode.READ_ONLY);
       const stat = fs.statSync(path);
       if (stat.size <= 0) {
-        fs.closeSync(file);
         return '';
       }
 
       const buffer = new ArrayBuffer(Number(stat.size));
       fs.readSync(file.fd, buffer);
-      fs.closeSync(file);
 
       const decoder = new util.TextDecoder('utf-8');
       const content = decoder.decodeToString(new Uint8Array(buffer));
       logger.debug(TAG, `读取文本成功: ${path}`);
       return content;
-    } catch {
-      logger.warn(TAG, `璇诲彇鏂囨湰澶辫触: ${path}`);
+    } catch (error) {
+      logger.warn(TAG, `读取文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
       return '';
+    } finally {
+      this.closeFileQuietly(file, path);
     }
   }
 
@@ -78,16 +79,18 @@ export class StorageProviderFacade implements IStorageProvider {
       return false;
     }
 
+    let file: fs.File | null = null;
     try {
       this.ensureParentDirectory(path);
-      const file = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.WRITE_ONLY | fs.OpenMode.TRUNC);
+      file = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.WRITE_ONLY | fs.OpenMode.TRUNC);
       fs.writeSync(file.fd, content);
-      fs.closeSync(file);
       logger.info(TAG, `写入文本成功: ${path}`);
       return true;
-    } catch {
-      logger.warn(TAG, `鍐欏叆鏂囨湰澶辫触: ${path}`);
+    } catch (error) {
+      logger.warn(TAG, `写入文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
       return false;
+    } finally {
+      this.closeFileQuietly(file, path);
     }
   }
 
@@ -142,6 +145,31 @@ export class StorageProviderFacade implements IStorageProvider {
     } catch {
       logger.warn(TAG, `鍒涘缓鐖剁洰褰曞け璐? ${parentDir}`);
     }
+  }
+
+  private closeFileQuietly(file: fs.File | null, path: string): void {
+    if (file === null) {
+      return;
+    }
+
+    try {
+      fs.closeSync(file);
+    } catch (error) {
+      logger.warn(TAG, `关闭文件失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+    }
+  }
+
+  private errorToString(error: Object | string | number | boolean): string {
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (typeof error === 'number' || typeof error === 'boolean') {
+      return String(error);
+    }
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return String(error);
   }
 }
 

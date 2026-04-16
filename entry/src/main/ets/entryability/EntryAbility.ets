@@ -1,12 +1,21 @@
 import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { window } from '@kit.ArkUI';
+import { clearContext, NGFAbilityContextLike, setContext } from '../GlobalContext';
+import { uiContextManager } from '../Framework/Managers/UIContextManager';
+import { ngfStarterKernel } from '../Framework/NGF/core/starter/index';
 import { logger } from '../Framework/NGF/utils/Logger';
 
 const TAG: string = 'EntryAbility';
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    const abilityContext = this.context as NGFAbilityContextLike;
+    setContext(abilityContext);
+    uiContextManager.bindAbilityContext(abilityContext);
+    const bootstrapResult = ngfStarterKernel.bootstrap();
+    logger.startup(TAG, 'NGF starter bootstrap', `success=${bootstrapResult}`);
+
     try {
       this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
     } catch (error) {
@@ -17,6 +26,8 @@ export default class EntryAbility extends UIAbility {
   }
 
   onDestroy(): void {
+    uiContextManager.clearAbilityContext();
+    clearContext();
     logger.lifecycle(TAG, 'onDestroy');
   }
 

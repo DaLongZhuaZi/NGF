@@ -1,5 +1,6 @@
 import { logger } from '../../../../Utils/Logger';
 import { ContainerLifecycle, DependencyContainer } from '../../../DependencyContainer';
+import { IModuleBootstrap } from '../../core/contracts/IModuleBootstrap';
 import { ngfServiceContainerFacade } from '../../core/facades/ServiceContainerFacade';
 import { ngfOhosContextBridgeFacade } from './OhosContextBridgeFacade';
 import { ngfPageWindowPolicyResolverFacade } from './PageWindowPolicyResolverFacade';
@@ -19,7 +20,7 @@ class NGFPlatformServiceRegistration {
   }
 }
 
-export class NGFPlatformOhosIntegrationFacade {
+export class NGFPlatformOhosIntegrationFacade implements IModuleBootstrap {
   private bootstrapped: boolean = false;
   private registrations: NGFPlatformServiceRegistration[] = [
     new NGFPlatformServiceRegistration(

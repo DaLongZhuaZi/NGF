@@ -1,5 +1,6 @@
 import { logger } from '../../../../Utils/Logger';
 import { ContainerLifecycle, DependencyContainer } from '../../../DependencyContainer';
+import { IModuleBootstrap } from '../../core/contracts/IModuleBootstrap';
 import { ngfServiceContainerFacade } from '../../core/facades/ServiceContainerFacade';
 import { ngfCacheStoreFacade } from './CacheStoreFacade';
 import { ngfDataFacade } from './DataFacade';
@@ -21,7 +22,7 @@ class NGFDataServiceRegistration {
   }
 }
 
-export class NGFDataIntegrationFacade {
+export class NGFDataIntegrationFacade implements IModuleBootstrap {
   private bootstrapped: boolean = false;
   private registrations: NGFDataServiceRegistration[] = [
     new NGFDataServiceRegistration(

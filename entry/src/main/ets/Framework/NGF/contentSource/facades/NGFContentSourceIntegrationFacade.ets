@@ -1,5 +1,6 @@
 import { logger } from '../../../../Utils/Logger';
 import { ContainerLifecycle, DependencyContainer } from '../../../DependencyContainer';
+import { IModuleBootstrap } from '../../core/contracts/IModuleBootstrap';
 import { ngfServiceContainerFacade } from '../../core/facades/ServiceContainerFacade';
 import { ngfSourceLoaderFacade } from './SourceLoaderFacade';
 import { ngfSourceRegistryFacade } from './SourceRegistryFacade';
@@ -19,7 +20,7 @@ class NGFContentSourceServiceRegistration {
   }
 }
 
-export class NGFContentSourceIntegrationFacade {
+export class NGFContentSourceIntegrationFacade implements IModuleBootstrap {
   private bootstrapped: boolean = false;
   private registrations: NGFContentSourceServiceRegistration[] = [
     new NGFContentSourceServiceRegistration(

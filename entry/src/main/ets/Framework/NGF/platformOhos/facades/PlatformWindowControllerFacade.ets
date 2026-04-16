@@ -16,7 +16,7 @@ export class PlatformWindowControllerFacade implements IPlatformWindowController
       logger.info(TAG, `display mode applied: mode=${mode}`);
     } catch (error) {
       logger.error(TAG, `setDisplayMode failed: ${this.errorToString(error as Object | string | number | boolean)}`);
-      throw error;
+      throw error as Error;
     }
   }
 
@@ -32,7 +32,7 @@ export class PlatformWindowControllerFacade implements IPlatformWindowController
       WindowManager.reapplyCurrentDisplayMode(delayMs);
     } catch (error) {
       logger.error(TAG, `reapplyCurrentDisplayMode failed: ${this.errorToString(error as Object | string | number | boolean)}`);
-      throw error;
+      throw error as Error;
     }
   }
 

@@ -158,8 +158,9 @@ export class SourceLoaderFacade implements ISourceLoader {
   }
 
   private readText(path: string): string {
-    const file = fs.openSync(path, fs.OpenMode.READ_ONLY);
+    let file: fs.File | null = null;
     try {
+      file = fs.openSync(path, fs.OpenMode.READ_ONLY);
       const stat = fs.statSync(path);
       if (stat.size <= 0) {
         return '';
@@ -168,9 +169,37 @@ export class SourceLoaderFacade implements ISourceLoader {
       fs.readSync(file.fd, buffer);
       const decoder = new util.TextDecoder('utf-8');
       return decoder.decodeToString(new Uint8Array(buffer));
+    } catch (error) {
+      logger.warn(TAG, `读取图源文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      return '';
     } finally {
-      fs.closeSync(file);
+      this.closeFileQuietly(file, path);
     }
+  }
+
+  private closeFileQuietly(file: fs.File | null, path: string): void {
+    if (file === null) {
+      return;
+    }
+
+    try {
+      fs.closeSync(file);
+    } catch (error) {
+      logger.warn(TAG, `关闭图源文件失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+    }
+  }
+
+  private errorToString(error: Object | string | number | boolean): string {
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (typeof error === 'number' || typeof error === 'boolean') {
+      return String(error);
+    }
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return String(error);
   }
 }
 
