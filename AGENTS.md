@@ -257,6 +257,10 @@
 - 页面跳转时，优先沿用目标文件现有导航方式；不要在同一文件中混用多套导航模式。
 - 如果目标文件已经使用 `this.getUIContext().getRouter()`，则在该文件内保持一致。
 - 涉及沉浸式布局、安全区、系统栏、窗口策略时，应优先复用目标模块现有写法与 `platformOhos` 层能力，不要临时手写一套平行规则。
+- `pages/ngf` 下的框架演示页以及后续新增展示页，默认应沿用 `MainMenuPage` 的沉浸式 HDS 顶栏模式：根层使用 `HdsNavigation` 或 `HdsNavDestination`，标题栏通过 `NGFHdsTitleBarOptionsFactory.build(...)` 配置，内容层通过 `NGFImmersiveTopChromeUnderlay` 提供顶部沉浸底板，并为主内容显式设置默认顶部避让。
+- 对于带 `SubHeader`、`Tabs`、筛选条、操作条等多功能顶部区域的页面，这些控件应归属于标题栏下方的内容层，而不是再额外拼装一套自定义标题栏；如页面存在一个或多个实际滚动容器，必须把对应 `Scroller` 绑定到 HDS 导航容器，并按需配置 `ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])` 以保证顶部玻璃模糊与光感效果可见。
+- 对于 `HdsNavDestination` 类页面，如目标是“标题栏本身正确避让系统状态栏、但页面内容底板继续延伸到状态栏区域”，优先采用“标题栏避让 + 内容层扩展”的分离模式：`titleBar` 显式传入 `avoidLayoutSafeArea = true`、`enableComponentSafeArea = false`，页面内容层或顶部底板通过 `expandSafeArea(...)` / 现有沉浸 helper 延伸到顶部安全区，而不要默认把整个 `HdsNavDestination` 根节点都设置为忽略顶部安全区。
+- 新增或重构窗口管理能力时，统一优先接入 `entry/src/main/ets/Framework/NGF/platformOhos/` 的窗口管理器；`EntryAbility` 负责绑定/释放 `WindowStage`，页面层通过页面策略宿主或统一辅助层激活窗口策略，不再把 `entry/src/main/ets/Utils/WindowManager.ets`、`PageWindowCoordinator.ets` 作为新增实现入口。
 - `List` 组件必须显式设置 `width` 和 `height`，避免布局告警。
 
 ### 7.4 UI、动画与组件

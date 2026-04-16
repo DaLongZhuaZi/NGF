@@ -1,5 +1,5 @@
 import { BusinessError } from '@kit.BasicServicesKit';
-import { hdsEffect, hdsMaterial, HdsNavigation, HdsNavigationTitleMode } from '@kit.UIDesignKit';
+import { hdsMaterial, HdsNavigation, HdsNavigationTitleMode } from '@kit.UIDesignKit';
 import { uiContextManager } from '../../Framework/Managers/UIContextManager';
 import { NGFErrorContext, NGFErrorSeverity } from '../../Framework/NGF/core/contracts/IErrorHandler';
 import { NGFEventPayload } from '../../Framework/NGF/core/contracts/IEventBus';
@@ -11,7 +11,9 @@ import {
   NGFModuleRuntimeSnapshot
 } from '../../Framework/NGF/core/contracts/IModuleBootstrap';
 import { NGFStarterEventName, ngfStarterKernel } from '../../Framework/NGF/core/starter/index';
-import { HdsIntegratedShowcasePage } from './HdsIntegratedShowcasePage';
+import { HdsComponentsShowcasePage } from './HdsComponentsShowcasePage';
+import { HdsLayoutsShowcasePage } from './HdsLayoutsShowcasePage';
+import { HdsMotionShowcasePage } from './HdsMotionShowcasePage';
 import {
   HdsNavigationOfficialEffectPage,
   HdsNavigationOfficialMaterialPage,
@@ -20,23 +22,8 @@ import {
 } from './HdsNavigationOfficialShowcasePage';
 import { NGFHdsDemoRouteName } from './HdsDemoRoutes';
 import { NGFHdsTitleBarOptionsFactory } from './HdsNavigationSupport';
-import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFStarterMainMenuPage';
-const NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT: number = 188;
-const NGF_MAIN_MENU_CONTENT_TOP_INSET: number = 112;
-const NGF_MAIN_MENU_HEADER_HEIGHT: number = 356;
-const NGF_MAIN_MENU_HEADER_CONTENT_TOP_PADDING: number = 54;
-
-class NGFMainMenuActionKey {
-  static readonly OPEN_OFFICIAL_NAVIGATION: string = NGFHdsDemoRouteName.OFFICIAL_NAVIGATION;
-  static readonly OPEN_HDS_SHOWCASE: string = NGFHdsDemoRouteName.SHOWCASE;
-  static readonly BOOTSTRAP: string = 'action.bootstrap';
-  static readonly PUBLISH_EVENT: string = 'action.publish_event';
-  static readonly ADVANCE_LIFECYCLE: string = 'action.advance_lifecycle';
-  static readonly SIMULATE_ERROR: string = 'action.simulate_error';
-  static readonly OPEN_LEGACY_MAIN_MENU: string = 'action.open_legacy_main_menu';
-}
 
 class NGFStarterLogEntry {
   id: number;
@@ -124,98 +111,6 @@ class NGFHdsDemoRouteParam {
   }
 }
 
-class NGFMainMenuPointLightOptions implements hdsEffect.PointLightOptions {
-  color?: ResourceColor;
-  intensity?: number;
-  height?: Dimension;
-  bloom?: number;
-
-  constructor(color: ResourceColor, intensity: number, height: Dimension, bloom: number) {
-    this.color = color;
-    this.intensity = intensity;
-    this.height = height;
-    this.bloom = bloom;
-  }
-}
-
-class NGFMainMenuPointLightEffect implements hdsEffect.PointLightEffect {
-  sourceType?: hdsEffect.PointLightSourceType;
-  illuminatedType?: hdsEffect.PointLightIlluminatedType;
-  options?: hdsEffect.PointLightOptions;
-
-  constructor(
-    sourceType: hdsEffect.PointLightSourceType,
-    illuminatedType: hdsEffect.PointLightIlluminatedType,
-    options: hdsEffect.PointLightOptions
-  ) {
-    this.sourceType = sourceType;
-    this.illuminatedType = illuminatedType;
-    this.options = options;
-  }
-}
-
-class NGFMainMenuBackgroundEffectOptions implements BackgroundEffectOptions {
-  radius: number;
-  saturation?: number;
-  brightness?: number;
-  color?: ResourceColor;
-  adaptiveColor?: AdaptiveColor;
-
-  constructor(radius: number, saturation: number, brightness: number, color: ResourceColor) {
-    this.radius = radius;
-    this.saturation = saturation;
-    this.brightness = brightness;
-    this.color = color;
-    this.adaptiveColor = AdaptiveColor.DEFAULT;
-  }
-}
-
-class NGFMainMenuEdgeEffectOptions implements EdgeEffectOptions {
-  alwaysEnabled: boolean;
-
-  constructor(alwaysEnabled: boolean) {
-    this.alwaysEnabled = alwaysEnabled;
-  }
-}
-
-class NGFMainMenuGlassEffectFactory {
-  static buildHeroSurfaceEffect(): VisualEffect {
-    const pointLightOptions = new NGFMainMenuPointLightOptions('#F2FFFFFF', 0.38, 34, 0.26);
-    const pointLightEffect = new NGFMainMenuPointLightEffect(
-      hdsEffect.PointLightSourceType.SOFT,
-      hdsEffect.PointLightIlluminatedType.BORDER_CONTENT,
-      pointLightOptions
-    );
-    return new hdsEffect.HdsEffectBuilder()
-      .pointLight(pointLightEffect)
-      .buildEffect();
-  }
-
-  static buildHeroChipEffect(): VisualEffect {
-    const pointLightOptions = new NGFMainMenuPointLightOptions('#CCFFFFFF', 0.24, 26, 0.18);
-    const pointLightEffect = new NGFMainMenuPointLightEffect(
-      hdsEffect.PointLightSourceType.BRIGHT,
-      hdsEffect.PointLightIlluminatedType.BORDER,
-      pointLightOptions
-    );
-    return new hdsEffect.HdsEffectBuilder()
-      .pointLight(pointLightEffect)
-      .buildEffect();
-  }
-
-  static buildActionButtonEffect(): VisualEffect {
-    const pointLightOptions = new NGFMainMenuPointLightOptions('#F4FFFFFF', 0.32, 28, 0.24);
-    const pointLightEffect = new NGFMainMenuPointLightEffect(
-      hdsEffect.PointLightSourceType.SOFT,
-      hdsEffect.PointLightIlluminatedType.BORDER_CONTENT,
-      pointLightOptions
-    );
-    return new hdsEffect.HdsEffectBuilder()
-      .pointLight(pointLightEffect)
-      .buildEffect();
-  }
-}
-
 @Entry
 @Component
 struct NGFStarterMainMenuPage {
@@ -232,14 +127,7 @@ struct NGFStarterMainMenuPage {
   @State private moduleFailureCount: number = 0;
   @State private moduleDetails: Array<NGFStarterModuleDetailEntry> = [];
   @State private nextPhaseIndex: number = 0;
-  @StorageProp('ngf_window_ready') private windowReady: boolean = false;
-  @StorageProp('ngf_window_active_page') private windowActivePage: string = '';
-  @StorageProp('ngf_window_display_mode') private windowDisplayMode: string = 'default';
-  @StorageProp('ngf_window_status') private windowStatus: string = 'undefined';
-  @StorageProp('ngf_window_snapshot_updated_at') private windowSnapshotUpdatedAt: number = 0;
-  @StorageProp('ngf_window_snapshot_json') private windowSnapshotJson: string = '{}';
 
-  private readonly scroller: Scroller = new Scroller();
   private readonly starter = ngfStarterKernel;
   private readonly phaseOrder: Array<string> = ['context_setup', 'core_services', 'ready'];
   private readonly stateListenerId: string = 'NGFStarterMainMenuPage_State';
@@ -259,7 +147,6 @@ struct NGFStarterMainMenuPage {
     this.statusMessage = this.isCoreReady ? '轻核心框架已就绪' : '轻核心框架启动失败';
     this.syncModuleBootstrapReport();
     this.syncFrameworkRuntimeSnapshot();
-    NGFPageWindowSupport.apply(NGFPageWindowName.MAIN_MENU);
     this.attachStarterEventListeners();
     this.appendLog(this.statusMessage);
   }
@@ -429,37 +316,6 @@ struct NGFStarterMainMenuPage {
     }
   }
 
-  private handleFeatureActionTap(actionKey: string, label: string): void {
-    if (actionKey === NGFMainMenuActionKey.OPEN_OFFICIAL_NAVIGATION ||
-      actionKey === NGFMainMenuActionKey.OPEN_HDS_SHOWCASE) {
-      this.handleOpenHdsDemoTap(actionKey, label);
-      return;
-    }
-
-    if (actionKey === NGFMainMenuActionKey.BOOTSTRAP) {
-      this.handleBootstrapTap();
-      return;
-    }
-    if (actionKey === NGFMainMenuActionKey.PUBLISH_EVENT) {
-      this.handlePublishDemoEventTap();
-      return;
-    }
-    if (actionKey === NGFMainMenuActionKey.ADVANCE_LIFECYCLE) {
-      this.handleAdvanceLifecycleTap();
-      return;
-    }
-    if (actionKey === NGFMainMenuActionKey.SIMULATE_ERROR) {
-      this.handleSimulateErrorTap();
-      return;
-    }
-    if (actionKey === NGFMainMenuActionKey.OPEN_LEGACY_MAIN_MENU) {
-      this.handleEnterLegacyMainMenuTap();
-      return;
-    }
-
-    this.appendLog(`未识别的主页操作: ${actionKey}`);
-  }
-
   private publishLifecycleState(): void {
     const state = this.starter.lifecycle.getCurrentState();
     const payload = new NGFEventPayload(
@@ -624,107 +480,43 @@ struct NGFStarterMainMenuPage {
 
   build() {
     HdsNavigation(this.pathStack) {
-      Stack({ alignContent: Alignment.TopStart }) {
-        this.buildTitleBarUnderlay()
-
-        Scroll(this.scroller) {
-          Column({ space: 12 }) {
-            this.buildHeaderCard()
-            this.buildHdsDemoCard()
-            this.buildActionCard()
-            this.buildStatusCard()
-            this.buildWindowMonitorCard()
-            this.buildModuleDetailCard()
-            this.buildLogCard()
-          }
-          .width('100%')
-          .padding({ left: 16, right: 16, top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 16 })
+      Scroll() {
+        Column({ space: 12 }) {
+          this.buildHeaderCard()
+          this.buildHdsDemoCard()
+          this.buildActionCard()
+          this.buildStatusCard()
+          this.buildModuleDetailCard()
+          this.buildLogCard()
         }
         .width('100%')
-        .height('100%')
-        .scrollBar(BarState.Off)
-        .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
-        .backgroundColor('#00000000')
-        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+        .padding({ left: 16, right: 16, top: 16, bottom: 16 })
       }
       .width('100%')
       .height('100%')
+      .scrollBar(BarState.Auto)
       .backgroundColor($r('app.color.background_primary'))
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
       'NGF MainMenuPage',
       'NGF 运行框架主入口 / HDS 根导航容器',
-      '#08111F',
-      hdsMaterial.MaterialLevel.EXQUISITE,
-      false,
-      false
+      '#0F172A',
+      hdsMaterial.MaterialLevel.GENTLE
     ))
     .titleMode(HdsNavigationTitleMode.FULL)
     .hideBackButton(true)
     .navDestination(this.buildNavDestination)
     .mode(NavigationMode.Stack)
-    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .width('100%')
     .height('100%')
     .backgroundColor($r('app.color.background_primary'))
   }
 
   @Builder
-  private buildTitleBarUnderlay(): void {
-    Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height(NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT)
-        .linearGradient({
-          angle: 150,
-          colors: [
-            ['#07101E', 0],
-            ['#0C2341', 0.38],
-            ['#143964', 0.72],
-            ['#0A1626', 1]
-          ]
-        })
-
-      Column() {}
-        .width(176)
-        .height(176)
-        .borderRadius(176)
-        .backgroundColor('#2854F0E8')
-        .opacity(0.22)
-        .margin({ left: 192, top: 12 })
-        .shadow({ radius: 82, color: '#804A89FF', offsetX: 10, offsetY: 6 })
-
-      Column() {}
-        .width(148)
-        .height(148)
-        .borderRadius(148)
-        .backgroundColor('#32A4F2D8')
-        .opacity(0.18)
-        .margin({ left: 18, top: 28 })
-        .shadow({ radius: 74, color: '#6635D5FF', offsetX: -8, offsetY: 8 })
-
-      Column() {}
-        .width('86%')
-        .height(1)
-        .backgroundColor('#66FFFFFF')
-        .opacity(0.52)
-        .margin({ left: 16, top: 94 })
-
-      Column() {}
-        .width('100%')
-        .height(NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT)
-        .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(42, 1.24, 1.05, '#10FFFFFF'))
-        .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
-    }
-    .width('100%')
-    .height(NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT)
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
-  }
-
-  @Builder
   private buildNavDestination(name: string, _param: Object): void {
-    if (name === NGFHdsDemoRouteName.SHOWCASE) {
-      HdsIntegratedShowcasePage()
+    if (name === NGFHdsDemoRouteName.COMPONENTS) {
+      HdsComponentsShowcasePage()
     } else if (name === NGFHdsDemoRouteName.OFFICIAL_NAVIGATION) {
       HdsNavigationOfficialShowcasePage()
     } else if (name === NGFHdsDemoRouteName.OFFICIAL_NAVIGATION_OVERVIEW) {
@@ -733,349 +525,151 @@ struct NGFStarterMainMenuPage {
       HdsNavigationOfficialMaterialPage()
     } else if (name === NGFHdsDemoRouteName.OFFICIAL_NAVIGATION_EFFECT) {
       HdsNavigationOfficialEffectPage()
+    } else if (name === NGFHdsDemoRouteName.LAYOUTS) {
+      HdsLayoutsShowcasePage()
+    } else if (name === NGFHdsDemoRouteName.MOTION) {
+      HdsMotionShowcasePage()
     }
   }
 
   @Builder
   private buildHeaderCard(): void {
-    Stack({ alignContent: Alignment.BottomStart }) {
-      Column() {}
-        .width('100%')
-        .height(NGF_MAIN_MENU_HEADER_HEIGHT)
-        .linearGradient({
-          angle: 145,
-          colors: [
-            ['#070E1D', 0],
-            ['#0B1E37', 0.32],
-            ['#13345E', 0.68],
-            ['#08111F', 1]
-          ]
-        })
-        .borderRadius(30)
-
-      Column() {}
-        .width(196)
-        .height(196)
-        .borderRadius(196)
-        .backgroundColor('#2F6D7CFF')
-        .opacity(0.32)
-        .margin({ left: 12, top: 26 })
-        .shadow({ radius: 78, color: '#7A55A8FF', offsetX: -12, offsetY: 10 })
-
-      Column() {}
-        .width(164)
-        .height(164)
-        .borderRadius(164)
-        .backgroundColor('#3360F6D5')
-        .opacity(0.28)
-        .margin({ left: 180, top: 54 })
-        .shadow({ radius: 72, color: '#6642D7FF', offsetX: 14, offsetY: -8 })
-
-      Column() {}
-        .width('82%')
-        .height(1)
-        .backgroundColor('#7AFFFFFF')
-        .opacity(0.45)
-        .margin({ left: 18, top: 106 })
-
-      Column({ space: 14 }) {
-        Text('NGF MainMenuPage')
-          .fontSize(28)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFFFF')
-
-        Text('API 23 轻核心入口（日志 / 事件 / 生命周期 / DI / WindowStage 统一窗口管理）')
-          .fontSize(14)
-          .lineHeight(21)
-          .fontColor('#D9F3F7FF')
-
-        Text(this.statusMessage)
-          .fontSize(13)
-          .lineHeight(20)
-          .fontColor('#C7E7F2FF')
-          .maxLines(2)
-
-        Column({ space: 10 }) {
-          Row({ space: 10 }) {
-            this.buildHeaderGlassChip('生命周期', `${this.lifecycleState.phaseName} · ${this.lifecycleState.progress}%`)
-            this.buildHeaderGlassChip('模块', `${this.moduleSuccessCount}/${this.moduleTotalCount}`)
-          }
-          .width('100%')
-
-          Row({ space: 10 }) {
-            this.buildHeaderGlassChip('窗口', `${this.windowDisplayMode} · ${this.windowStatus}`)
-            this.buildHeaderGlassChip('事件', `${this.demoEventCount}`)
-          }
-          .width('100%')
-        }
-        .width('100%')
-      }
-      .width('100%')
-      .padding({ top: NGF_MAIN_MENU_HEADER_CONTENT_TOP_PADDING, right: 20, bottom: 24, left: 20 })
-      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(44, 1.28, 1.06, '#1AFFFFFF'))
-      .borderRadius(30)
-      .border({ width: 1, color: '#3AFFFFFF' })
-      .shadow({ radius: 18, color: '#40000000', offsetX: 0, offsetY: 10 })
-      .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
+    Column({ space: 8 }) {
+      Text('NGF MainMenuPage')
+        .fontSize(26)
+        .fontWeight(FontWeight.Bold)
+        .fontColor($r('app.color.text_primary'))
+      Text('API 21 轻核心入口（日志 / 事件 / 生命周期 / DI）')
+        .fontSize(14)
+        .fontColor($r('app.color.text_secondary'))
+      Text(this.statusMessage)
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
-    .height(NGF_MAIN_MENU_HEADER_HEIGHT)
-  }
-
-  @Builder
-  private buildHeaderGlassChip(label: string, value: string): void {
-    Column({ space: 4 }) {
-      Text(label)
-        .fontSize(11)
-        .fontWeight(FontWeight.Medium)
-        .fontColor('#A9E8F7FF')
-
-      Text(value)
-        .fontSize(12)
-        .fontWeight(FontWeight.Medium)
-        .fontColor('#F7FFFFFF')
-        .maxLines(2)
-    }
-    .width('48%')
-    .padding({ top: 10, right: 12, bottom: 10, left: 12 })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(20, 1.18, 1.03, '#14FFFFFF'))
-    .borderRadius(18)
-    .border({ width: 1, color: '#2BFFFFFF' })
-    .shadow({ radius: 8, color: '#1A000000', offsetX: 0, offsetY: 4 })
-    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroChipEffect())
-  }
-
-  @Builder
-  private buildFeatureActionButton(
-    badge: string,
-    title: string,
-    subtitle: string,
-    accentStart: string,
-    accentEnd: string,
-    glowColor: string,
-    actionKey: string
-  ): void {
-    Button() {
-      Stack({ alignContent: Alignment.Start }) {
-        Column() {}
-          .width(108)
-          .height(108)
-          .borderRadius(108)
-          .backgroundColor(glowColor)
-          .opacity(0.24)
-          .margin({ left: 216, top: -18 })
-          .shadow({ radius: 34, color: glowColor, offsetX: 0, offsetY: 10 })
-
-        Row({ space: 12 }) {
-          Column({ space: 6 }) {
-            Text(badge)
-              .fontSize(10)
-              .fontWeight(FontWeight.Medium)
-              .fontColor('#BEEBFFFF')
-
-            Text(title)
-              .width('100%')
-              .fontSize(15)
-              .fontWeight(FontWeight.Medium)
-              .fontColor('#FFFFFFFF')
-              .maxLines(2)
-
-            Text(subtitle)
-              .width('100%')
-              .fontSize(12)
-              .lineHeight(18)
-              .fontColor('#DBF4FFFF')
-              .maxLines(2)
-          }
-          .width('82%')
-          .alignItems(HorizontalAlign.Start)
-
-          Text('›')
-            .fontSize(22)
-            .fontWeight(FontWeight.Bold)
-            .fontColor('#F7FFFFFF')
-        }
-        .width('100%')
-        .alignItems(VerticalAlign.Center)
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: 14, bottom: 14 })
-      .linearGradient({
-        angle: 140,
-        colors: [
-          [accentStart, 0],
-          [accentEnd, 1]
-        ]
-      })
-      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(24, 1.2, 1.05, '#16FFFFFF'))
-      .borderRadius(22)
-      .border({ width: 1, color: '#2EFFFFFF' })
-      .shadow({ radius: 14, color: '#24000000', offsetX: 0, offsetY: 8 })
-      .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
-    }
-    .width('100%')
-    .padding(0)
-    .backgroundColor('#00000000')
-    .buttonStyle(ButtonStyleMode.NORMAL)
-    .onClick((): void => {
-      this.handleFeatureActionTap(actionKey, title);
-    })
+    .padding(14)
+    .backgroundColor($r('app.color.panel_background'))
+    .borderRadius(14)
+    .border({ width: 1, color: $r('app.color.panel_border') })
   }
 
   @Builder
   private buildHdsDemoCard(): void {
-    Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width(146)
-        .height(146)
-        .borderRadius(146)
-        .backgroundColor('#3A5BF8FF')
-        .opacity(0.22)
-        .margin({ left: 198, top: -18 })
-        .shadow({ radius: 52, color: '#7A5C7CFF', offsetX: 10, offsetY: 12 })
+    Column({ space: 10 }) {
+      Text('官方 HDS / ArkUI 示例页')
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_primary'))
 
-      Column({ space: 12 }) {
-        Text('官方 HDS / ArkUI 示例页')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-          .fontColor('#FFFFFFFF')
+      Text('基于 MainMenuPage 的 NavPathStack + navDestination 架构，接入多个官方 SDK 组件示例。')
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
 
-        Text('基于 MainMenuPage 的 NavPathStack + navDestination 架构，统一接入官方 HDS Navigation 示例与单页融合示例。')
-          .fontSize(13)
-          .lineHeight(20)
-          .fontColor('#D3EAF7FF')
+      Text('当前主菜单已切换为 HdsNavigation 根导航，官方示例页及其后续页面统一以 HdsNavDestination 进入同一主栈。')
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
 
-        Text('旧的 HDS 组件页、布局页和动效页已删除，并重组为一个完全遵循 HDSNavigation 视觉模式的综合示例页。')
-          .fontSize(13)
-          .lineHeight(20)
-          .fontColor('#D3EAF7FF')
+      Button('官方 HDS Navigation 示例页')
+        .width('100%')
+        .height(42)
+        .backgroundColor('#3949AB')
+        .fontColor($r('app.color.text_white'))
+        .onClick((): void => {
+          this.handleOpenHdsDemoTap(NGFHdsDemoRouteName.OFFICIAL_NAVIGATION, '官方 HDS Navigation 示例页');
+        })
 
-        this.buildFeatureActionButton(
-          'OFFICIAL',
-          '官方 HDS Navigation 示例页',
-          '验证统一主栈、官方目的地与多功能顶栏页面结构。',
-          '#173887',
-          '#2C61F4',
-          '#6F8FFFFF',
-          NGFMainMenuActionKey.OPEN_OFFICIAL_NAVIGATION
-        )
-        this.buildFeatureActionButton(
-          'INTEGRATED',
-          'HDS 综合融合示例页',
-          '在同一页面内融合组件、布局与动效验证能力。',
-          '#0D4B59',
-          '#1698A6',
-          '#59D9F4FF',
-          NGFMainMenuActionKey.OPEN_HDS_SHOWCASE
-        )
-      }
-      .width('100%')
-      .alignItems(HorizontalAlign.Start)
-      .padding(18)
+      Button('HDS 组件示例页')
+        .width('100%')
+        .height(42)
+        .backgroundColor($r('app.color.button_primary'))
+        .fontColor($r('app.color.text_white'))
+        .onClick((): void => {
+          this.handleOpenHdsDemoTap(NGFHdsDemoRouteName.COMPONENTS, 'HDS 组件示例页');
+        })
+
+      Button('HDS 布局示例页')
+        .width('100%')
+        .height(42)
+        .backgroundColor($r('app.color.button_secondary'))
+        .fontColor($r('app.color.text_white'))
+        .onClick((): void => {
+          this.handleOpenHdsDemoTap(NGFHdsDemoRouteName.LAYOUTS, 'HDS 布局示例页');
+        })
+
+      Button('HDS 动效示例页')
+        .width('100%')
+        .height(42)
+        .backgroundColor($r('app.color.button_success'))
+        .fontColor($r('app.color.text_white'))
+        .onClick((): void => {
+          this.handleOpenHdsDemoTap(NGFHdsDemoRouteName.MOTION, 'HDS 动效示例页');
+        })
     }
     .width('100%')
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#08111F', 0],
-        ['#122746', 0.48],
-        ['#091624', 1]
-      ]
-    })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.24, 1.06, '#12FFFFFF'))
-    .borderRadius(26)
-    .border({ width: 1, color: '#2AFFFFFF' })
-    .shadow({ radius: 16, color: '#24000000', offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
+    .padding(14)
+    .backgroundColor($r('app.color.panel_background'))
+    .borderRadius(14)
+    .border({ width: 1, color: $r('app.color.panel_border') })
   }
 
   @Builder
   private buildActionCard(): void {
-    Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width(152)
-        .height(152)
-        .borderRadius(152)
-        .backgroundColor('#27B3D4FF')
-        .opacity(0.18)
-        .margin({ left: 210, top: -12 })
-        .shadow({ radius: 48, color: '#5656D4FF', offsetX: 8, offsetY: 10 })
+    Column({ space: 10 }) {
+      Text('快速操作')
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_primary'))
 
-      Column({ space: 12 }) {
-        Text('快速操作')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-          .fontColor('#FFFFFFFF')
+      Button('初始化核心服务')
+        .width('100%')
+        .height(42)
+        .backgroundColor($r('app.color.button_primary'))
+        .fontColor($r('app.color.text_white'))
+        .onClick((): void => {
+          this.handleBootstrapTap();
+        })
 
-        Text('把高频调试动作收束成统一光效按钮，便于在沉浸式主页中快速验证核心链路。')
-          .fontSize(13)
-          .lineHeight(20)
-          .fontColor('#D8F0F8FF')
+      Button('发布演示事件')
+        .width('100%')
+        .height(42)
+        .backgroundColor($r('app.color.button_secondary'))
+        .fontColor($r('app.color.text_white'))
+        .onClick((): void => {
+          this.handlePublishDemoEventTap();
+        })
 
-        this.buildFeatureActionButton(
-          'CORE',
-          '初始化核心服务',
-          '重新确认容器、日志、事件总线和基础能力是否就绪。',
-          '#155E75',
-          '#0891B2',
-          '#5FDBFFFF',
-          NGFMainMenuActionKey.BOOTSTRAP
-        )
-        this.buildFeatureActionButton(
-          'EVENT',
-          '发布演示事件',
-          '向核心事件总线发送演示消息，检查链路与日志反馈。',
-          '#1D4ED8',
-          '#2563EB',
-          '#79A6FFFF',
-          NGFMainMenuActionKey.PUBLISH_EVENT
-        )
-        this.buildFeatureActionButton(
-          'LIFECYCLE',
-          '推进生命周期',
-          '模拟框架分阶段推进，观察状态卡片与日志变化。',
-          '#0F766E',
-          '#14B8A6',
-          '#5EF2E2FF',
-          NGFMainMenuActionKey.ADVANCE_LIFECYCLE
-        )
-        this.buildFeatureActionButton(
-          'ERROR',
-          '触发演示错误',
-          '验证错误处理器、错误计数与统一日志采集效果。',
-          '#9A3412',
-          '#F97316',
-          '#FFB37DFF',
-          NGFMainMenuActionKey.SIMULATE_ERROR
-        )
-        this.buildFeatureActionButton(
-          'LEGACY',
-          '切换旧版 MainMenuPage',
-          '保留迁移入口，用于对照旧页面与当前 HDS 主菜单行为。',
-          '#334155',
-          '#64748B',
-          '#B1C2D9FF',
-          NGFMainMenuActionKey.OPEN_LEGACY_MAIN_MENU
-        )
-      }
-      .width('100%')
-      .alignItems(HorizontalAlign.Start)
-      .padding(18)
+      Button('推进生命周期')
+        .width('100%')
+        .height(42)
+        .backgroundColor($r('app.color.button_success'))
+        .fontColor($r('app.color.text_white'))
+        .onClick((): void => {
+          this.handleAdvanceLifecycleTap();
+        })
+
+      Button('触发演示错误')
+        .width('100%')
+        .height(42)
+        .backgroundColor($r('app.color.button_warning'))
+        .fontColor($r('app.color.text_white'))
+        .onClick((): void => {
+          this.handleSimulateErrorTap();
+        })
+
+      Button('切换旧版 MainMenuPage')
+        .width('100%')
+        .height(42)
+        .backgroundColor($r('app.color.button_inactive'))
+        .fontColor($r('app.color.text_white'))
+        .onClick((): void => {
+          this.handleEnterLegacyMainMenuTap();
+        })
     }
     .width('100%')
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#09111D', 0],
-        ['#10263A', 0.5],
-        ['#0A1828', 1]
-      ]
-    })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.22, 1.05, '#12FFFFFF'))
-    .borderRadius(26)
-    .border({ width: 1, color: '#28FFFFFF' })
-    .shadow({ radius: 16, color: '#24000000', offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
+    .padding(14)
+    .backgroundColor($r('app.color.panel_background'))
+    .borderRadius(14)
+    .border({ width: 1, color: $r('app.color.panel_border') })
   }
 
   @Builder
@@ -1122,50 +716,6 @@ struct NGFStarterMainMenuPage {
     .backgroundColor($r('app.color.panel_background'))
     .borderRadius(14)
     .border({ width: 1, color: $r('app.color.panel_border') })
-  }
-
-  @Builder
-  private buildWindowMonitorCard(): void {
-    Column({ space: 8 }) {
-      Text('窗口监控')
-        .fontSize(16)
-        .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_primary'))
-
-      Text(`窗口就绪: ${this.windowReady ? 'true' : 'false'}`)
-        .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
-      Text(`当前页面: ${this.windowActivePage.length > 0 ? this.windowActivePage : '-'}`)
-        .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
-      Text(`显示模式: ${this.windowDisplayMode}`)
-        .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
-      Text(`窗口状态: ${this.windowStatus}`)
-        .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
-      Text(`最近更新: ${this.resolveWindowUpdatedAtText()}`)
-        .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
-      Text(this.windowSnapshotJson)
-        .width('100%')
-        .fontSize(11)
-        .fontColor($r('app.color.text_secondary'))
-        .maxLines(6)
-    }
-    .width('100%')
-    .padding(14)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(14)
-    .border({ width: 1, color: $r('app.color.panel_border') })
-  }
-
-  private resolveWindowUpdatedAtText(): string {
-    if (this.windowSnapshotUpdatedAt <= 0) {
-      return '-';
-    }
-    const date = new Date(this.windowSnapshotUpdatedAt);
-    return `${this.pad2(date.getHours())}:${this.pad2(date.getMinutes())}:${this.pad2(date.getSeconds())}`;
   }
 
   @Builder

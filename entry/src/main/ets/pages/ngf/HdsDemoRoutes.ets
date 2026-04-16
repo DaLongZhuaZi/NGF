@@ -1,5 +1,7 @@
 export class NGFHdsDemoRouteName {
-  static readonly COMPONENTS: string = 'ngf.hds.components';
-  static readonly LAYOUTS: string = 'ngf.hds.layouts';
-  static readonly MOTION: string = 'ngf.hds.motion';
+  static readonly SHOWCASE: string = 'ngf.hds.showcase';
+  static readonly OFFICIAL_NAVIGATION: string = 'ngf.hds.official.navigation';
+  static readonly OFFICIAL_NAVIGATION_OVERVIEW: string = 'ngf.hds.official.navigation.overview';
+  static readonly OFFICIAL_NAVIGATION_MATERIAL: string = 'ngf.hds.official.navigation.material';
+  static readonly OFFICIAL_NAVIGATION_EFFECT: string = 'ngf.hds.official.navigation.effect';
 }

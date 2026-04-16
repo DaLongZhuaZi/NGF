@@ -4,7 +4,6 @@ import { window } from '@kit.ArkUI';
 import { clearContext, NGFAbilityContextLike, setContext } from '../GlobalContext';
 import { uiContextManager } from '../Framework/Managers/UIContextManager';
 import { ngfStarterKernel } from '../Framework/NGF/core/starter/index';
-import { ngfPlatformWindowManagerFacade } from '../Framework/NGF/platformOhos';
 import { logger } from '../Framework/NGF/utils/Logger';
 
 const TAG: string = 'EntryAbility';
@@ -34,7 +33,6 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
     logger.lifecycle(TAG, 'onWindowStageCreate');
-    ngfPlatformWindowManagerFacade.bindWindowStage(windowStage);
 
     windowStage.loadContent('pages/ngf/MainMenuPage', (err: BusinessError): void => {
       if (err.code !== 0) {
@@ -46,7 +44,6 @@ export default class EntryAbility extends UIAbility {
   }
 
   onWindowStageDestroy(): void {
-    ngfPlatformWindowManagerFacade.clearWindowStage();
     logger.lifecycle(TAG, 'onWindowStageDestroy');
   }
 

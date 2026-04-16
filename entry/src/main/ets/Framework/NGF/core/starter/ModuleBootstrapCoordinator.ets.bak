@@ -153,7 +153,6 @@ export class NGFModuleBootstrapCoordinator {
   private registerPlatformModule(): void {
     const dependencies: Array<string> = [];
     const serviceTokens: Array<string> = [];
-    serviceTokens.push('ngf.platform.window_manager');
     serviceTokens.push('ngf.platform.window_controller');
     serviceTokens.push('ngf.platform.page_policy_resolver');
     serviceTokens.push('ngf.platform.context_bridge');

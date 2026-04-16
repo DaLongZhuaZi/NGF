@@ -7,116 +7,229 @@
 - `.kiro/steering/projectrules.md`
 - `.cursor/rules/projectrules.mdc`
 
-目标是让 Codex、OpenCode、Claude Code 等支持 `AGENTS.md` 的代理都能读取同一份规则。
+目标是让 Codex、OpenCode、Claude Code 等支持 `AGENTS.md` 的代理都能读取同一份规则，并且始终从 **NGF 框架工程** 的视角理解仓库，而不是把它误判成某个单一业务 App。
 
 ## 1. 适用范围与优先级
 
 - 用户明确指令优先于本文件。
 - 本文件优先于分散在 `.trae`、`.windsurf`、`.kiro`、`.cursor` 中的同类规则文件。
+- 当前仓库已确认存在根目录 `AGENTS.md`；如后续子目录新增同名文件，则按更深层 `AGENTS.md` 优先。
 - 每次进行文件读取、写入、修改时，必须显式使用 UTF-8 编码；禁止依赖系统默认编码。支持编码选项的写回操作统一使用 UTF-8（建议无 BOM）。
 - 涉及 HarmonyOS Next 导入、引用、编译、运行、API 能力、废弃接口迁移时，必须优先参考最新官方文档与官方最佳实践。
 - 需要解决报错或解释报错时，必须先查官方文档和相关声明定义，再结合源文件分析原因，最后给出修复方案。
 - 修复方案必须保持原功能等价，避免引入新的问题。
 - 对侵入性较强或高风险的修改，优先先做同目录 `*.bak` 备份再执行改动。
-- 修复问题时默认不自动执行编译、打包、hvigor 构建或预览器运行；只有在用户明确要求，或当前任务本身就是编译/构建/运行问题排查时，才进行相关操作。
-- 修复完成后，必须再次检查是否符合 ArkTS 规则与本项目规范。
+- 修复问题时默认不自动执行编译、打包、hvigor 构建或预览器运行；修改完成后也不需要因为“收尾”而手动再执行一次自动编译。只有在用户明确要求，或当前任务本身就是编译、构建、运行问题排查时，才进行相关操作。
+- 修复完成后，必须再次检查是否符合 ArkTS 规则、当前仓库实际结构与本文件规范。
 - 每次修复后都应回顾本次问题是否值得沉淀为长期规则；只有真正可复用的规则才能补充到本文件，不要为一次性问题临时加规则。
 - 忽略本仓库中的 `--allowArbitraryExtensions` 相关问题，除非用户明确要求处理。
 
 ## 2. 项目定位
 
 - 这是一个 HarmonyOS Next 项目，主要使用 ArkTS 开发。
-- 当前仓库配置已升级到更高 API，现以仓库中的实际配置为准；例如根目录 `build-profile.json5` 当前目标版本已是 `targetSdkVersion: 6.1.0(23)` / `compatibleSdkVersion: 6.1.0(23)`。
-- 历史规则中提到 API 18，这些内容只能作为背景参考，不能再作为当前开发约束；涉及 API 21、API 23 及之后的能力时，必须以最新官方文档和当前仓库实现为准。
-- 历史规则中提到 ECS 架构；实际仓库中也存在 managers、services、pages、EventBus、WebView 引擎、WindowManager、主题系统等实现方式。修改代码时应优先保持目标目录现有模式，不要强行按单一架构重写。
 - 当前仓库的主定位是 **NGF 核心运行框架 / 框架验证工程**，而不是某个具体业务的单一 App。
-- 所有页面、示例、导航入口、演示数据与交互，默认都应服务于“验证框架能力、展示官方组件接入方式、沉淀可复用模式”，而不是为了拼出某个完整业务产品。
-- 修改代码时，应优先考虑“可复用、低耦合、可扩展、可替换”的框架设计，避免写死具体业务名称、业务流程、站点规则、内容模型或单一产品文案。
-- 仓库内如果出现某些应用化页面、业务化命名或历史遗留模块，应优先将其视为示例、验证页或迁移遗留，不要默认把整个仓库理解成某一个垂直 App。
-- 项目不再包含游戏相关的 C++ 底层逻辑，但这不意味着仓库目标是“单一应用”；其当前目标是持续建设和验证 NGF 框架本身。
-- 优先使用官方最新 API，尽量不引入新的第三方插件。
+- 所有页面、示例、导航入口、演示数据与交互，默认都应服务于“验证框架能力、展示官方组件接入方式、沉淀可复用模式”，而不是拼装某一个垂直产品。
+- 修改代码时，应优先考虑“可复用、低耦合、可扩展、可替换”的框架设计，避免写死单一业务名称、业务流程、业务规则、产品文案或专属于某个 App 的交互假设。
+- 仓库内如果出现某些业务化页面、历史命名或迁移遗留模块，应优先将其视为示例、验证页或兼容遗留，而不是把整个仓库理解成该业务本身。
+- 历史业务化描述只可视为背景，不应再作为新增开发的默认前提。
+- 优先使用官方最新 API，尽量不引入新的第三方依赖。
 
 ### 2.1 框架优先原则
 
 - 当“框架抽象”与“某个旧业务特例”发生冲突时，默认优先保留框架抽象与通用能力，除非用户明确要求兼容该业务特例。
-- 新增能力时，优先沉淀为通用模块、通用页面模式、通用服务、通用日志与通用导航接入方式，不要直接按单个 App 的产品逻辑硬编码。
-- 新增页面如属于演示、测试或验证页，应明确体现其框架验证属性，例如围绕核心能力、SDK 接入、官方组件示例、路由架构、日志链路等展开。
-- 如本文件后续章节出现带有明显业务背景的历史约束（例如特定图源、阅读器、站点适配、旧业务模块流程），默认仅在用户明确要求处理对应历史模块时适用；否则不应作为 NGF 主线开发的优先规则。
+- 新增能力时，优先沉淀为通用模块、通用服务、通用页面模式、通用日志、通用导航接入方式或通用平台桥接能力。
+- 新增页面如属于演示、测试或验证页，应明确体现其框架验证属性，例如围绕核心能力、官方组件、路由壳层、日志链路、平台能力接入等展开。
+- 共享规则文件中不再沉淀任何面向单一业务的专属适配规则或产品流程规则；只有在用户明确要求处理某个历史模块时，才允许在当次任务范围内局部考虑。
 
-### 2.2 本机 SDK 路径
+## 3. 当前仓库事实基线
 
-- 当前机器已确认的 HarmonyOS SDK 主目录为 `F:\HarmonyOS\SDK`。
-- 当前机器已确认安装的 HarmonyOS SDK 版本目录包括：
+以下内容基于当前仓库实测结果整理；如后续文件内容发生变化，应始终以 **实际文件** 为准，而不是死记本节文字。
+
+- 仓库根目录关键配置文件包括：
+  - `build-profile.json5`
+  - `oh-package.json5`
+  - `hvigorfile.ts`
+  - `hvigor/hvigor-config.json5`
+  - `AppScope/app.json5`
+  - `entry/oh-package.json5`
+  - `entry/src/main/module.json5`
+  - `entry/src/main/resources/base/profile/main_pages.json`
+- 当前 `build-profile.json5` 的产品配置为：
+  - `targetSdkVersion: 6.0.1(21)`
+  - `compatibleSdkVersion: 6.0.1(21)`
+- 当前根目录 `oh-package.json5` 的 `modelVersion` 为 `6.1.0`。
+- 当前 `AppScope/app.json5` 的 `bundleName` 为 `com.dlzz.ngf`。
+- 当前 `entry/src/main/module.json5` 的主能力为 `EntryAbility`，页面入口通过 `$profile:main_pages` 声明。
+- 当前 `entry/src/main/resources/base/profile/main_pages.json` 中注册的入口页面为 `pages/ngf/MainMenuPage`。
+- 当前页面目录以 `entry/src/main/ets/pages/` 为主，其中 `entry/src/main/ets/pages/ngf/` 承担 NGF 演示与展示页职责。
+- 当前框架主目录为 `entry/src/main/ets/Framework/NGF/`，已确认存在以下一级目录：
+  - `core`
+  - `platformOhos`
+  - `data`
+  - `contentWorkflow`
+  - `contentSource`
+  - `uiShell`
+  - `utils`
+- 当前日志实现文件为 `entry/src/main/ets/Framework/NGF/utils/Logger.ets`。
+- 当前 `local.properties` 未记录 SDK 路径，因此 **不能** 把它作为判断 SDK 绑定状态的唯一依据。
+
+### 3.1 本机 SDK 与 IDE 路径基线
+
+- 当前机器已确认存在的 HarmonyOS SDK 主目录为 `F:\HarmonyOS\SDK`。
+- 当前机器已确认存在的 HarmonyOS SDK 版本目录包括：
   - `F:\HarmonyOS\SDK\23`
   - `F:\HarmonyOS\SDK\20`
   - `F:\HarmonyOS\SDK\18`
-- 当前机器已确认的 DevEco Studio 安装目录为 `F:\DevEco Studio`。
-- DevEco Studio 安装目录下的 SDK 根目录为 `F:\DevEco Studio\sdk`。
-- DevEco Studio 安装目录下默认 OpenHarmony SDK 目录为 `F:\DevEco Studio\sdk\default\openharmony`。
-- DevEco Studio 安装目录下默认 HMS SDK 目录为 `F:\DevEco Studio\sdk\default\hms`。
-- 涉及 SDK 路径、toolchains、previewer、hvigor、编译环境或 IDE 绑定目录排查时，优先先核对以上路径，不要凭空假设其他 SDK 安装位置。
+- 当前机器 **未确认存在** `F:\HarmonyOS\SDK\21`；因此不能仅因项目 `targetSdkVersion` 为 `6.0.1(21)` 就推断本机一定有独立的 `21` 目录。
+- 当前机器已确认存在的 DevEco Studio 安装目录为 `F:\DevEco Studio`。
+- 当前机器已确认存在的 DevEco Studio SDK 根目录为 `F:\DevEco Studio\sdk`。
+- 当前机器已确认存在的 DevEco Studio 默认 OpenHarmony SDK 目录为 `F:\DevEco Studio\sdk\default\openharmony`。
+- 当前机器已确认存在的 DevEco Studio 默认 HMS SDK 目录为 `F:\DevEco Studio\sdk\default\hms`。
+- 涉及 SDK 路径、toolchains、previewer、hvigor、构建环境或 IDE 绑定目录排查时，优先先核对以上路径，不要凭空假设其他安装位置。
+- 如果任务涉及“为什么能编译 / 为什么不能编译 / SDK 是否匹配”等问题，必须同时对照 `build-profile.json5`、本机路径、DevEco Studio 默认 SDK 目录以及用户实际报错，不能只看单一文件下结论。
 
-## 3. ArkTS 硬性语言与类型规则
+## 4. 框架目录与修改原则
 
-### 3.1 类型安全
+- 修改代码前，先判断目标文件属于哪一层，再沿用该层既有模式，不要强行套用单一架构。
+- 当前 `entry/src/main/ets/Framework/NGF/` 目录的职责可按以下方式理解：
+  - `core`：核心契约、生命周期、日志抽象、事件抽象、服务容器、启动内核。
+  - `platformOhos`：HarmonyOS 平台桥接、上下文桥接、窗口策略、平台控制能力。
+  - `data`：缓存、设置、存储、迁移与数据门面。
+  - `contentWorkflow`：通用工作流、动作执行、重试、限流等流程编排能力。
+  - `contentSource`：通用内容源注册、加载、仓储与接入门面，按“通用适配层”理解，不要写成单一来源特例层。
+  - `uiShell`：导航壳层、页面策略宿主与 UI 外壳能力。
+  - `utils`：日志、时间、日志收集等基础工具。
+- 如果目标修改只影响某一层，则优先在该层内完成闭环，不要把局部问题扩散到无关模块。
+- 同名或近名文件较多时，必须先确认正确路径和职责范围再修改，避免误改展示层与框架层、页面层与门面层。
+- 处理现有页面时，应优先保持目标目录现有组织方式；例如演示页继续保持“展示 / 验证”定位，不要无意间改造成业务首页。
+- 当现有模块已经采用 facade、contract、starter、page shell 等模式时，应优先复用，不要旁路新增一套平行实现。
 
-- 禁止使用 `any`、`unknown`，包括但不限于：
-  - 函数参数类型
-  - 函数返回值类型
-  - 变量声明类型
-  - 接口属性类型
-  - 泛型约束
-  - 双重断言中间态，如 `as unknown as TargetType`
+## 5. LLM 自动环境核查规范
+
+本节用于让代理在开始任何中等及以上复杂任务前，先自动确认“当前环境是什么、当前流程该怎么走”，避免在错误前提上修改仓库。
+
+### 5.1 启动任务前必须自动执行的核查
+
+- 先确认当前工作目录是否仍为仓库根目录 `F:\DevEcoStudioProject\NGF`，并确认目标文件确实属于本仓库。
+- 先读取根目录 `AGENTS.md`；如任务进入更深子目录，继续搜索该目录链上是否存在新的 `AGENTS.md`。
+- 先读取以下配置文件，再开始推断环境：
+  - `build-profile.json5`
+  - `oh-package.json5`
+  - `entry/oh-package.json5`
+  - `AppScope/app.json5`
+  - `entry/src/main/module.json5`
+  - `entry/src/main/resources/base/profile/main_pages.json`
+  - `hvigor/hvigor-config.json5`
+- 先确认目标文件位于哪一层：`pages`、`entryability`、`Framework/NGF/core`、`platformOhos`、`data`、`contentWorkflow`、`contentSource`、`uiShell` 或 `utils`。
+- 如果任务与 API、导入、编译、运行、弃用接口、窗口行为有关，必须先查官方文档，再结合源文件与声明定义分析。
+- 如果任务与构建环境有关，必须先核对本机 SDK 目录和 DevEco Studio 默认 SDK 目录是否存在，且不能依赖空白的 `local.properties` 做推断。
+- 如果任务不要求构建、运行、预览或排查构建失败，则默认只做静态分析与代码修改，不自动执行 hvigor 构建。
+- 对于普通代码修改、文档修改、规则文件修改或静态重构任务，完成修改后默认直接进入静态复核与交付，不需要额外手动触发自动编译。
+
+### 5.2 推荐的自动核查命令
+
+以下命令仅作为推荐模板；执行时仍应显式使用 UTF-8：
+
+- `Get-ChildItem -Name`
+- `rg --files -g "**/AGENTS.md"`
+- `Get-Content -Encoding utf8 AGENTS.md`
+- `Get-Content -Encoding utf8 build-profile.json5`
+- `Get-Content -Encoding utf8 oh-package.json5`
+- `Get-Content -Encoding utf8 entry/oh-package.json5`
+- `Get-Content -Encoding utf8 AppScope/app.json5`
+- `Get-Content -Encoding utf8 entry/src/main/module.json5`
+- `Get-Content -Encoding utf8 entry/src/main/resources/base/profile/main_pages.json`
+- `Get-ChildItem -Path entry/src/main/ets/Framework/NGF -Directory`
+- `Test-Path "F:\HarmonyOS\SDK"`
+- `Test-Path "F:\DevEco Studio\sdk\default\openharmony"`
+
+### 5.3 启动任务时应向自己确认的环境摘要
+
+代理在正式修改前，应先形成一份简短环境摘要，至少包含：
+
+- 当前任务作用的模块或文件范围。
+- 当前仓库实际 `targetSdkVersion` / `compatibleSdkVersion`。
+- 当前主入口页面或相关页面注册位置。
+- 当前目标修改属于哪一层架构。
+- 是否需要先查官方文档。
+- 是否需要先做 `*.bak` 备份。
+- 是否真的需要执行构建、运行、预览命令。
+
+如果以上任一项不清楚，应继续读配置和源码，不要直接下手修改。
+
+### 5.4 标准开发流程
+
+- 第一步：理解用户目标，判断这是框架层、页面层、平台层还是构建层问题。
+- 第二步：读取相关配置、目标文件和相邻契约或门面，确认当前模式。
+- 第三步：如果涉及官方 API、导入、弃用或报错原因，先查官方文档和声明定义。
+- 第四步：在尽量小的改动范围内实现修复或增强，优先修根因，不做表面补丁。
+- 第五步：完成后做静态自检，确认类型、安全区、导航、资源、日志、导出关系与本文件规则一致。
+- 第六步：仅在用户明确要求，或任务本身就是构建、运行、测试排查时，才执行 hvigor、预览器、安装或运行相关命令。
+- 第七步：向用户交付时明确说明改了哪些文件、是否做过验证、未执行构建的原因以及仍需用户确认的部分；不要把“修改完成后手动再编译一次”当作默认流程。
+
+### 5.5 修改后的自动复核要点
+
+- 是否仍保持 NGF 框架视角，而不是把共享规则或共享模块改成某个单一 App 的特化实现。
+- 是否沿用了目标目录既有模式，而不是在旁边再造一套重复架构。
+- 是否补齐了必要的页面注册、导出、依赖声明或资源引用。
+- 是否避免了 `any`、`unknown`、未类型化对象字面量、危险空值访问和动态索引访问。
+- 是否正确使用 UTF-8、日志系统、资源路径与现有导航方式。
+- 是否在需要时说明“未执行构建 / 未执行运行”的原因。
+
+## 6. ArkTS 硬性语言与类型规则
+
+### 6.1 类型安全
+
+- 禁止使用 `any`、`unknown`，包括但不限于函数参数、返回值、变量声明、接口属性、泛型约束和双重断言中间态。
 - 必须为数据结构提供明确的类、接口或类型别名。
-- 重点关注 `null`、未类型化对象字面量、`any`/`unknown` 的使用，确保整体类型安全。
-- 所有对象字面量都必须对应明确声明的类或接口，不要依赖未类型化对象字面量。
+- 所有对象字面量都应对应明确声明的类型，不要依赖未类型化对象字面量。
 - 配置文件和资源文件必须定义明确类型接口，并通过类型断言确保类型安全。
-- JSON 配置应提供完整的 ArkTS/TypeScript 接口定义。
-- 使用 `error` 时必须保证其类型不是 `any` 或 `unknown`，必要时进行显式转换或非空处理。
+- 使用 `error` 时必须确保其类型可控，必要时显式收敛为 `Error` 或其他明确错误类型。
+- 重点关注 `null`、可选值和未初始化状态，避免危险访问。
 
-### 3.2 类型断言与泛型
+### 6.2 类型断言与泛型
 
-- 类型转换必须使用 `as` 语法；不要使用其他类型断言形式。
-- 类型声明时不要使用 `is`，统一使用 `as`。
+- 类型转换统一使用 `as` 语法。
 - ArkTS 调用泛型函数时，必须显式标注泛型参数，不要依赖编译器自动推断。
 - `typeof` 只能用于表达式上下文，不能用于类型上下文。
 
-### 3.3 禁止的语言模式
+### 6.3 禁止的语言模式
 
-- 禁止将构造函数作为函数参数或类型签名直接使用；应优先使用类继承体系或抽象工厂模式。
-- 禁止使用结构类型系统，应改为名义类型系统。
+- 禁止把构造函数直接作为函数参数或类型签名使用；优先采用类继承体系、接口或抽象工厂模式。
+- 禁止依赖结构类型系统，应尽量按名义化、显式契约思路设计。
 - 禁止动态解构变量声明；应使用显式属性访问。
 - 禁止函数参数解构声明；应改用显式对象参数和属性提取。
 - 禁止使用 `in` 操作符和 `hasOwnProperty`；应使用 `Object.keys(...).includes(...)` 并结合显式类型断言。
 - 禁止通过 `Function.apply` 和 `Function.call` 动态修改 `this`。
 - 禁止在独立函数中使用 `this`。
-- 禁止将类本身当作普通对象操作。
-- 禁止使用 `globalThis`；应改用单例模式或受控管理器。
+- 禁止使用 `globalThis`。
 - 禁止使用 `ESObject`。
 - 禁止使用索引签名定义对象类型。
 - 禁止依赖字符串索引签名进行动态访问。
 - 禁止使用对象扩展运算符 `...` 合并普通对象；对象属性应显式赋值。
 - 禁止使用 definite assignment assertion。
 
-### 3.4 属性访问与数组规则
+### 6.4 属性访问与数组规则
 
 - 应进行显式空值检查，避免对可能为 `null` 的对象进行属性访问或调用。
-- 避免索引访问模式，如 `object['key']`、`object[fieldName]`；优先使用点语法和显式 helper。
+- 避免 `object['key']`、`object[fieldName]` 形式的动态索引访问；优先使用点语法和显式 helper。
 - 如果必须处理动态字段，优先先枚举 `Object.keys()`，再通过显式类型断言访问。
 - `Object.entries()` 的返回值类型必须显式声明为 `[string, T][]` 等明确形式。
-- 避免使用非推断类型的数组字面量。
-- 对于 `Map` 初始化，优先先声明泛型类型，再通过 `set()` 逐项添加，而不是直接在构造函数里传复杂数组字面量。
+- 避免使用无法推断元素类型的数组字面量。
+- 初始化 `Map` 时，优先先声明泛型类型，再通过 `set()` 逐项添加，而不是直接在构造函数中放入复杂数组字面量。
 - 扩展运算符只能用于数组或从数组派生的类，不能用于普通对象。
 
-### 3.5 异常与构造一致性
+### 6.5 异常与构造一致性
 
-- `throw` 不能抛出任意类型，优先抛出 `Error` 或其他明确类型错误对象。
+- `throw` 应优先抛出 `Error` 或其他明确类型错误对象。
 - 类定义中的构造参数必须与所有实例化调用在类型、数量、顺序上完全一致。
 - 内部类访问外部类属性时，必须通过构造参数传递或显式属性声明完成，不得访问不存在的属性。
 
-## 4. 日志与问题分析流程
+## 7. 通用实现规范
 
-- 日志系统统一使用 `entry/src/main/ets/Utils/Logger.ets`。
+### 7.1 日志与问题分析
+
+- 日志系统统一优先使用 `entry/src/main/ets/Framework/NGF/utils/Logger.ets`。
 - 优先使用以下日志方法：
   - `logger.debug`
   - `logger.info`
@@ -129,89 +242,47 @@
 - 日志分析时，先定位日志提到的代码，再结合源文件、官方文档和最佳实践解释原因，然后再给出方案。
 - 处理导入模块问题时，先检查源文件是否正确导出以及导出名称是否正确；如果是 HarmonyOS 模块，再去官方文档确认模块名与导出名。
 
-## 5. 资源、配置与文件规则
+### 7.2 资源、配置与文件
 
-- 所有字体颜色必须优先使用系统资源，不要硬编码颜色值；遵循 `entry/src/main/ets/Data/ResourceMap.ets` 中的资源定义。
+- 颜色、字符串、媒体等资源优先复用现有资源定义与 `$r()` 资源引用，不要在共享层随意散落硬编码。
 - JSON 配置文件应放在 `entry/src/main/resources/rawfile/` 下。
-- `rawfile` 目录下的资源通过 `$rawfile('relative/path')` 使用，不需要额外在 `ResourceMap.ets` 中单独映射。
-- `rawfile` 适合放配置文件、数据文件、音频、视频等静态资源。
-- 编辑 `entry/src/main/resources/rawfile/resources_metadata.json` 时，必须使用 HarmonyOS 资源映射路径，而不是直接写文件路径：
-  - 图片资源：`app.media.xxx`
-  - 音频资源：`app.audio.xxx`
-  - 字符串资源：`app.string.xxx`
-  - 字体资源：`app.font.xxx`
-  - 颜色资源：`app.color.xxx`
-  - rawfile 资源：`app.rawfile.xxx`
-- `ResourceMap.ets` 的职责是维护映射路径字符串到 `Resource` 对象的映射关系，并通过 `$r()` 在编译时完成资源绑定。
-- 系统资源名称必须与 `ResourceMap.ets` 中的定义保持一致，避免出现 `Unknown resource name` 编译错误。
-- 项目存在同名文件时必须确认正确路径，例如：
-  - `entry/src/main/ets/Framework/Debug/ConsolePanel.ets`
-  - `entry/src/main/ets/Framework/Components/ConsolePanel.ets`
-- 修改同名文件前，必须先确认其职责范围，避免改错文件。
+- `rawfile` 目录下的资源通过 `$rawfile('relative/path')` 使用。
+- 资源、配置、原始数据应保持命名清晰、职责单一，避免把某个具体业务名或产品名写进共享资源层。
+- 修改配置和资源前，先确认其实际消费者是谁，不要误把演示配置改成框架全局配置。
 
-## 6. 页面、导航与沉浸式布局规范
+### 7.3 页面、导航与窗口
 
-### 6.1 页面入口与测试页
+- 所有独立入口页面都必须通过当前实际路由配置管理；当前仓库以 `entry/src/main/resources/base/profile/main_pages.json` 为主入口声明。
+- 新增页面或展示页时，应先确认是模块内局部路由，还是需要提升为主入口页面，不要随意污染根入口。
+- 页面跳转时，优先沿用目标文件现有导航方式；不要在同一文件中混用多套导航模式。
+- 如果目标文件已经使用 `this.getUIContext().getRouter()`，则在该文件内保持一致。
+- 涉及沉浸式布局、安全区、系统栏、窗口策略时，应优先复用目标模块现有写法与 `platformOhos` 层能力，不要临时手写一套平行规则。
+- `List` 组件必须显式设置 `width` 和 `height`，避免布局告警。
 
-- 所有独立入口页面文件都必须在 `entry/src/main/resources/base/profile/main_pages.json` 中管理。
-- 测试工具和调试页面应统一通过 `entry/src/main/ets/pages/TestManagementPage.ets` 进行管理和展示。
-- 新增测试页面时，应按当前项目真实路由接入方式完成注册，并确保能从测试管理页进入。
-- 测试页面必须有清晰的返回路径，通常返回 `TestManagementPage` 或对应上级页面。
-- 测试页面需要适当记录日志，统一走 Logger 系统。
-
-### 6.2 导航规则
-
-- 历史规则要求禁止使用 `router` 模块并统一使用导航栈方案；当前仓库中实际主要使用 `NavPathStack`。
-- 新增页面跳转时，优先沿用当前仓库现有的 `NavPathStack` / `AppStorage.get<NavPathStack>('GlobalNavStack')` 模式。
-- 不要主动重新引入已弱化或已移除的旧导航假设，例如必须依赖 `PageRoutes.ets`、`SystemIntegrationManager`、`GameStateManager` 等，除非用户明确要求回迁或目标文件当前仍依赖这套方案。
-- 如果目标文件已经使用 `this.getUIContext().getRouter()`，则在该文件内保持一致，不要混用多套导航方式。
-
-### 6.3 沉浸式显示
-
-- 所有页面组件必须尽量遵循当前项目的沉浸式显示方案，而不是停留在旧版简单全屏规则。
-- 推荐采用 `Stack` 双层布局：
-  - 背景层使用 `expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])`
-  - 内容层通过 `padding` 或标题栏管理器预留安全区域
-- 页面组件通常应声明：
-  - `@StorageProp('statusBarHeight') statusBarHeight: number = 0`
-  - `@StorageProp('navigationBarHeight') navigationBarHeight: number = 0`
-- 在设置页、搜索页、带自定义标题栏的页面中，优先复用 `SettingsPageTitleBarManager.ets`、`SettingsImmersiveTitleBar.ets` 等现有方案，不要手写一套新的沉浸式标题栏。
-- 当前仓库已广泛使用 `ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [...])`、自定义标题栏桥接层、顶部玻璃材质和安全区协调逻辑；修改此类页面时应延续目标文件现有实现。
-- 页面窗口显示策略已不只是“是否沉浸式”，还涉及 `PageWindowCoordinator`、`PageWindowPolicy`、`WindowManager`、`DisplayMode` 等统一窗口模式管理；涉及整页体验时应优先复用这些机制。
-- 背景图片、背景色、浮层和底部面板等装饰元素也应正确扩展到系统栏区域，保证真正的全屏沉浸式效果。
-- `List` 组件必须显式设置 `width` 和 `height`，避免布局警告。
-
-## 7. UI 组件、动画与构建规则
+### 7.4 UI、动画与组件
 
 - 页面入场动画、属性动画和统一动画状态管理，优先复用目标模块已有实现。
-- 项目中存在 `entry/src/main/ets/Framework/Animation/AnimatedComponent.ets` 作为动画基类；在已经采用该体系的模块中应沿用这一模式。
-- 历史规则要求按钮优先使用 `AnimatedButton`；但当前仓库中已有部分页面回退到原生 ArkUI `Button`。因此处理按钮时应以目标文件现状为准，不要强行回迁或强行替换。
-- 所有动画相关状态变量必须使用 `@State` 装饰器管理，并在动画结束后及时清理状态，避免内存泄漏。
+- 所有动画相关状态变量必须使用 `@State` 管理，并在动画结束后及时清理状态。
 - 复杂页面应将 UI 构建逻辑拆分成多个 `@Builder` 方法，提高可读性和维护性。
 - `@Builder` 方法参数必须与调用处在类型、数量、顺序上完全匹配。
 - 枚举类型必须使用完整枚举成员，不要用字符串字面量代替。
 - 长列表渲染优先使用 `LazyForEach`。
-- 自定义组件必须遵循单一职责原则。
+- 自定义组件应遵循单一职责原则。
 - 组件外部输入优先使用 `@Prop`，内部状态优先使用 `@State`。
-- 组件接口需要清晰区分必需参数和可选参数。
-- API 升级后，动画与视觉设计已不再局限于旧的基础属性动画；修改相关页面时应优先复用现有的玻璃拟态、背景模糊、分层阴影、渐变、高光和过渡方案。
-- 在主题和视觉相关页面中，优先复用 `ThemeManager.ets`、`ThemeAware.ets`、`AppColors.ets` 等现有主题系统，而不是直接散落硬编码颜色和样式。
-- 对于设置页及新式页面标题栏，优先延续现有 `HdsNavigation...`、沉浸式玻璃标题栏和主题色联动实现。
-- 如果目标文件仍使用旧式全局 `animateTo(...)` 且当前模块运行稳定，应优先遵循目标文件既有模式；新增实现或大范围重构时，再优先迁移到 `UIContext.animateTo(...)` 与当前模块已采用的方案保持一致。
+- 组件接口应清晰区分必需参数和可选参数。
 
-## 8. `@Watch` 装饰器规范
+### 7.5 `@Watch` 规范
 
 - `@Watch` 只用于监听由状态装饰器管理的变量，如 `@State`、`@Prop`、`@Link`。
 - `@Watch` 参数必须是字符串形式的方法名，例如 `@Watch('onCountChange')`。
 - 被 `@Watch` 指向的回调方法必须是组件成员函数。
 - 被 `@Watch` 指向的方法不能是 `private`。
-- 推荐的回调函数签名是：`(changedPropertyName?: string) => void`。
+- 推荐的回调函数签名是 `(changedPropertyName?: string) => void`。
 - `@Watch` 在首次初始化时不会触发，只会在后续状态变化后同步触发。
 - 不要在 `@Watch` 回调中直接或间接修改同一个被监听状态，避免死循环。
 - `@Watch` 回调应尽量保持快速、同步、轻量。
-- 除非所在模块已有成熟模式，否则不建议在 `@Watch` 中使用 `async/await`。
 
-## 9. HarmonyOS API 迁移与废弃约束
+### 7.6 HarmonyOS API 迁移与废弃约束
 
 - `decode()` 已废弃，统一使用 `decodeToString()`。
 - 全局 `animateTo()` 已废弃，应使用 `UIContext.animateTo(...)`。
@@ -219,140 +290,34 @@
 - 触发动画时，优先在回调中修改 `@State` 变量，而不是直接操作组件实例。
 - 如需等组件完成渲染后再执行动画，可使用 `setTimeout(..., 0)` 作为过渡。
 - `getContext()` 已废弃，应使用 `this.getUIContext()?.getHostContext()`，并在需要时显式断言为 `common.UIAbilityContext`。
-- 旧式 `router.replaceUrl()` 模式应迁移为 `this.getUIContext().getRouter().replaceUrl()` 或目标文件现有导航实现。
-- API 升级后，窗口显示与系统栏控制也应优先复用当前项目的 `WindowManager`、`PageWindowCoordinator`、`PageWindowPolicy` 等能力，而不是沿用早期的单页局部写法。
+- 窗口显示、系统栏控制与页面策略应优先复用 `platformOhos` 层现有能力，而不是继续扩散旧式局部写法。
 
-## 10. 单例、全局状态与预览器环境
+### 7.7 单例、全局状态与事件
 
 - 不使用 `globalThis` 管理全局状态，优先使用单例模式。
-- 单例类应提供：
-  - 私有构造函数
-  - 静态 `getInstance()` 方法
-  - 必要的生命周期管理方法，如 `reset...()`、`destroyInstance()`
-- 访问预览器环境时，应优先使用 `entry/src/main/ets/Framework/Managers/PreviewerEnvironmentManager.ets`。
-- 历史规则中提到通过间接方式访问全局对象；如无充分理由，不要自行扩大全局对象访问面。
-
-## 11. EventBus 与事件系统规范
-
-- 页面导航或跨模块通信相关事件，优先复用 `entry/src/main/ets/Framework/EventBus.ets`。
-- 事件载荷类型应实现 `IEventPayload`。
+- 单例类应提供私有构造函数、静态 `getInstance()` 方法，以及必要的生命周期管理方法。
+- 跨模块通信优先复用目标模块现有事件机制；如果进入 NGF 分层，应优先依赖显式契约，例如 `entry/src/main/ets/Framework/NGF/core/contracts/IEventBus.ets` 的抽象思路，而不是引入新的隐式全局对象方案。
 - 页面组件必须在合适的生命周期中订阅和取消订阅事件，避免泄漏和重复触发。
-- 事件处理应保证类型安全，不要传递未类型化载荷。
-- 历史规则中已有页面导航相关事件约定时，应优先沿用目标模块现有事件命名与负载结构。
+- 事件载荷必须保持类型安全，不要传递未类型化数据。
 
-## 12. WebView 图源引擎架构规范
+## 8. 历史遗留内容处理原则
 
-### 12.1 设计原则
+- 历史业务模块、历史业务命名、历史页面文案、历史演示数据、历史适配层，只应视为遗留背景或迁移样本。
+- 不要把某个历史模块的特殊逻辑升级成全局共享规则，除非用户明确要求。
+- 不要再把仓库默认理解为任何单一产品工程。
+- 如果历史文档、历史注释与当前仓库实际结构不一致，应优先相信当前代码和配置，并在本次改动范围内顺手修正文档漂移。
 
-- 图源隔离
-- 按需激活
-- 最小影响
-
-### 12.2 核心架构
-
-- `MangaSourceEngine`：图源引擎主控制器，负责工作流执行。
-- `MangaSourceActionEngine`：操作执行引擎，负责 `navigate`、`wait`、`extract`、`script` 等操作。
-- 图源配置解析器负责解析 JSON 配置文件。
-- 图片拦截器负责图片解扰和处理，通常以单例形式存在。
-
-### 12.3 图源配置文件规范
-
-- 当前最新图源仓库以 `manxia-extensions-source/` 为准，不再把根目录 `sources/*.json` 视为主图源仓库。
-- 图源仓库索引文件为 `manxia-extensions-source/index.main.json`。
-- 每个图源使用独立文件夹，文件夹名通常与 `pkg` 字段一致，例如 `manxia-extensions-source/com.manxia.extension.zh.copymangawebview/`。
-- 每个图源目录至少包含 `source.json`，并可按需包含 `icon.webp`、`icon.png`、`icon.jpg` 等图标资源。
-- `source.json` 结构应清晰分层，通常包括：
-  - `metadata`
-  - `capabilities`
-  - `network`
-  - `workflows`
-- 每个图源必须独立配置，互不干扰。
-- 根目录 `sources/` 下的 JSON 如仍存在，通常只应视为历史配置、兼容样例、测试资源或迁移遗留；除非用户明确要求，否则不要把它们当作当前主图源来源。
-
-### 12.4 图片处理流程
-
-- 图源加载时，应先通过仓库索引定位对应 `pkg/source.json`，再注册该图源的图片处理配置。
-- 在线仓库结构与本地同步后的 `filesDir/extensions-source/` 结构应保持一致，避免仓库格式与运行时路径不匹配。
-- 图片拦截器根据 `sourceId` 和 URL 模式判断是否需要拦截处理。
-- 只有匹配 `urlPattern` 的图片才允许进入特殊处理逻辑。
-- 处理完成后应缓存结果，避免重复处理。
-
-### 12.5 特殊图源适配原则
-
-- 特殊逻辑必须隔离在该图源的 `source.json` 配置和专用解扰器中。
-- 特殊处理必须通过明确的开关和 URL 模式进行条件激活。
-- 不允许为了兼容单个图源而污染核心引擎。
-- 失败时必须具备降级策略，优先返回原始数据，确保基本功能可用。
-
-### 12.6 禁漫天堂类图源的特殊说明
-
-- 图片解扰应由专用 descrambler 实现。
-- Base64 解码可在 workflow 的 `script` 操作中完成。
-- 动态域名通过 settings 配置与自动更新机制处理。
-- 网络速率限制应通过 `network.rateLimit` 控制。
-- URL 模式必须足够精确，避免误伤其他资源。
-
-### 12.7 新图源接入流程
-
-- 在 `manxia-extensions-source/` 目录下创建新的图源文件夹，目录名与 `pkg` 保持一致。
-- 在该目录中创建 `source.json`，并按需添加图标文件。
-- 在 `manxia-extensions-source/index.main.json` 中注册新的图源条目。
-- 定义 `metadata`、`capabilities`、`workflows` 等配置。
-- 如需特殊图片处理，实现独立 descrambler 类。
-- 在图片解扰初始化流程中注册新的算法。
-- 在配置中明确指定 `imageDescrambler`、`algorithm`、`urlPattern`。
-
-### 12.8 调试、性能与错误处理
-
-- 每个图源操作都应有详细日志。
-- 使用清晰的 TAG 区分不同模块，如引擎、拦截器、配置解析器等。
-- 记录关键指标：耗时、成功/失败状态、数据量等。
-- 图片处理结果应使用缓存，并控制缓存容量与淘汰策略。
-- 所有关键流程都应使用 `try-catch` 保护。
-- 特殊处理失败时优先回退原始数据，不中断用户体验。
-
-### 12.9 图源相关禁止事项
-
-- 禁止修改核心引擎代码去硬适配某一个图源。
-- 禁止在全局范围无条件启用特殊处理逻辑。
-- 禁止让一个图源的配置影响其他图源。
-- 禁止在没有 `urlPattern` 匹配的情况下处理图片。
-- 优先用 workflow 配置解决问题，不要把图源特例硬编码进核心流程。
-
-### 12.10 图源联调协作流程
-
-- 图源联调主目录固定为 `F:\DevEcoStudioProject\manxia\manxia-extensions-source`；处理问题时优先读取相关 ArkTS 源文件、`manxia-extensions-source/index.main.json` 与目标图源目录下的 `source.json`，不要在未读源码和配置前直接盲改图源 JSON。
-- 图源问题的输入依据可以来自用户描述、运行日志、浏览器控制台报错、页面 DOM 变化、网络请求结果、接口响应结构变化、图片链接失效、章节列表异常等。
-- 在修改图源 JSON 前，必须先给出一份可以直接在目标站点浏览器控制台运行的完整脚本，由用户手动执行后回传结果。
-- 控制台脚本必须是完整可运行版本，不要只给零散片段；脚本应尽量包含明确的输出标签、必要的容错、结构化结果整理，并优先使用 `console.log`、`console.table`、`copy(...)` 等方式输出，方便用户完整回传。
-- 控制台脚本应围绕当前问题收集足够证据，例如当前 URL、关键 DOM 选择器、章节/分页/图片列表、全局变量、接口返回片段、跳转目标、懒加载属性、加密前后字段、请求参数与响应状态等，但应避免采集与问题无关的大量噪音数据。
-- 用户运行脚本并反馈结果后，再根据结果修改对应图源目录下的 `source.json`、索引信息或该图源专属配置；如修改风险较高，优先先做同目录 `*.bak` 备份。
-- 修改完成后由用户进行真机测试；如果问题仍未解决，继续按“读取源码和图源 JSON -> 输出新的完整浏览器控制台脚本 -> 用户回传结果 -> 修改图源 JSON -> 用户真机复测”的循环推进，直到问题定位清楚。
-- 如果证据表明问题不属于图源 JSON 可修复范围，而是核心引擎、站点鉴权、反爬机制、WebView 行为或 HarmonyOS 平台限制，应明确说明判断依据和边界，再决定是否升级为更高层级修复任务。
-
-## 13. 历史规则中的已废弃约束
-
-以下内容来自历史规则，保留为背景说明，但不应再作为新增开发的正向目标：
-
-- 不应再把仓库默认理解为某一个具体业务 App；当前主线目标是 NGF 核心运行框架与其验证工程。
-- 历史业务化规则、站点适配规则、图源规则、阅读器规则等，除非用户明确点名，否则只应视为遗留背景，不应覆盖框架主线定位。
-- 项目不再保留游戏相关核心逻辑。
-- 原有 C++ 底层集成开发规范已废弃。
-- 原有 C++ 与 ArkTS 交互最佳实践已废弃。
-- 原有 Native C++ 模块规范化开发规则已废弃。
-- 不应再为游戏场景设计新的架构前提。
-
-## 14. 提交修改前的简明检查清单
+## 9. 提交修改前的简明检查清单
 
 - 是否先核对了最新 HarmonyOS 官方文档与目标模块源码。
 - 是否确认本次修改是在建设 NGF 框架能力，而不是无意中把仓库往某个单一 App 方向收窄。
-- 是否避免了 `any`、`unknown`、未类型化对象字面量、危险空值访问。
-- 是否使用了 `Logger.ets` 和项目既有日志风格。
-- 是否正确使用资源映射、`rawfile`、接口定义与类型断言。
-- 是否沿用了目标文件已有的导航方式与架构模式。
-- 是否确认了同名文件的正确路径。
+- 是否完成了最小必要的环境核查，并确认当前实际 SDK、入口页、模块层级与工作目录。
+- 是否避免了 `any`、`unknown`、未类型化对象字面量、危险空值访问和动态索引访问。
+- 是否使用了 `entry/src/main/ets/Framework/NGF/utils/Logger.ets` 和项目既有日志风格。
+- 是否沿用了目标文件已有的导航方式、窗口策略与架构模式。
+- 是否确认了同名文件或近名文件的正确路径。
 - 是否在需要时为高风险修改创建了 `*.bak` 备份。
-- 是否在新增独立页面或测试页时完成了对应入口接入，并且其定位仍然是框架演示、能力验证或通用模块验证。
-- 是否在图源相关改动中保持图源隔离、按需激活、失败降级。
-- 是否在图源联调中先读取源码与 `source.json`，并先给出了可直接执行的完整浏览器控制台脚本。
+- 是否避免在共享规则和共享模块中重新引入单一业务视角内容。
 - 是否在完成修复后再次检查 ArkTS 兼容性与本文件规则。
+- 如果未执行构建、运行、预览或测试，是否已明确说明原因；如果执行了，是否已明确说明命令与结果。
+- 是否避免把“修改完成后手动触发自动编译”作为默认动作，除非用户明确要求这样做。
