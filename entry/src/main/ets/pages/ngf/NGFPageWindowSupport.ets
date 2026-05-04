@@ -114,7 +114,7 @@ export class NGFPageWindowSupport {
     }
 
     NGFPageWindowSupport.initialized = true;
-    logger.info(TAG, `registered demo window profiles: count=${profiles.length}`);
+    logger.info(TAG, `注册演示窗口配置: 数量=${profiles.length}`);
   }
 
   static apply(pageName: string): void {

@@ -27,24 +27,24 @@ export class NGFModuleRegistry {
   registerModule(definition: NGFModuleDefinition, runtime: IModuleBootstrap): boolean {
     const moduleName = definition.moduleName.trim();
     if (moduleName.length <= 0) {
-      logger.warn(TAG, 'registerModule ignored: moduleName is empty');
+      logger.warn(TAG, '注册模块已忽略：模块名为空');
       return false;
     }
 
     if (this.registrations.has(moduleName)) {
-      logger.debug(TAG, `registerModule skipped: module=${moduleName}`);
+      logger.debug(TAG, `注册模块已跳过：模块=${moduleName}`);
       return false;
     }
 
     this.registrations.set(moduleName, new NGFModuleRegistration(definition, runtime));
-    logger.info(TAG, `register module: module=${moduleName}, phase=${definition.phaseName}, order=${definition.order}`);
+    logger.info(TAG, `注册模块：模块=${moduleName}, 阶段=${definition.phaseName}, 顺序=${definition.order}`);
     return true;
   }
 
   hasModule(moduleName: string): boolean {
     const normalizedName = moduleName.trim();
     const exists = this.registrations.has(normalizedName);
-    logger.debug(TAG, `hasModule: module=${normalizedName}, exists=${exists}`);
+    logger.debug(TAG, `查询模块：模块=${normalizedName}, 存在=${exists}`);
     return exists;
   }
 
@@ -52,7 +52,7 @@ export class NGFModuleRegistry {
     const normalizedName = moduleName.trim();
     const registration = this.registrations.get(normalizedName);
     if (!registration) {
-      logger.debug(TAG, `resolveModule missed: module=${normalizedName}`);
+      logger.debug(TAG, `解析模块未命中：模块=${normalizedName}`);
       return null;
     }
     return registration;
@@ -69,7 +69,7 @@ export class NGFModuleRegistry {
     modules.sort((left: NGFModuleRegistration, right: NGFModuleRegistration): number => {
       return left.definition.order - right.definition.order;
     });
-    logger.debug(TAG, `listModulesByPhase: phase=${normalizedPhase}, count=${modules.length}`);
+    logger.debug(TAG, `按阶段列出模块：阶段=${normalizedPhase}, 数量=${modules.length}`);
     return modules;
   }
 
@@ -90,13 +90,13 @@ export class NGFModuleRegistry {
       }
       return left.definition.order - right.definition.order;
     });
-    logger.debug(TAG, `listAllModules: count=${modules.length}`);
+    logger.debug(TAG, `列出全部模块：数量=${modules.length}`);
     return modules;
   }
 
   clear(): void {
     this.registrations.clear();
-    logger.info(TAG, 'clear module registry');
+    logger.info(TAG, '清除模块注册表');
   }
 }
 

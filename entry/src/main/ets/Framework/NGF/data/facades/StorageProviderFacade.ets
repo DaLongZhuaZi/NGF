@@ -1,9 +1,9 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { util } from '@kit.ArkTS';
 import { getContext, isInitialized as isGlobalContextInitialized } from '../../../../GlobalContext';
-import { logger } from '../../../../Utils/Logger';
-import { uiContextManager } from '../../../Managers/UIContextManager';
-import { SandboxManager } from '../../../Storage/SandboxManager';
+import { logger } from '../../utils/Logger';
+import { uiContextManager } from '../../platformOhos/UIContextManager';
+import { SandboxManager } from '../SandboxManager';
 import { IStorageProvider } from '../contracts/IStorageProvider';
 
 const TAG = 'NGFStorageProviderFacade';
@@ -96,16 +96,16 @@ export class StorageProviderFacade implements IStorageProvider {
 
   exists(path: string): boolean {
     if (path.trim().length <= 0) {
-      logger.debug(TAG, 'exists=false: path为空');
+      logger.debug(TAG, '文件存在=false: path为空');
       return false;
     }
 
     try {
       const exists = fs.accessSync(path);
-      logger.debug(TAG, `exists=${exists}: ${path}`);
+      logger.debug(TAG, `文件存在=${exists}: ${path}`);
       return exists;
     } catch {
-      logger.debug(TAG, `exists=false: ${path}`);
+      logger.debug(TAG, `文件存在=false: ${path}`);
       return false;
     }
   }
@@ -143,7 +143,7 @@ export class StorageProviderFacade implements IStorageProvider {
     try {
       fs.mkdirSync(parentDir, true);
     } catch {
-      logger.warn(TAG, `鍒涘缓鐖剁洰褰曞け璐? ${parentDir}`);
+      logger.warn(TAG, `创建父目录失败: ${parentDir}`);
     }
   }
 

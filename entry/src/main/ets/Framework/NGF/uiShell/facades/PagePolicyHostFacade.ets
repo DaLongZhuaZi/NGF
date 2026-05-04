@@ -7,17 +7,17 @@ const TAG: string = 'NGFPagePolicyHostFacade';
 
 export class PagePolicyHostFacade implements IPagePolicyHost {
   applyPolicy(pageName: string): void {
-    logger.info(TAG, `apply page policy: page=${pageName}`);
+    logger.info(TAG, `应用页面策略: page=${pageName}`);
     try {
       ngfPlatformWindowManagerFacade.activatePage(pageName);
     } catch (error) {
-      logger.error(TAG, `applyPolicy failed: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, `应用策略失败: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
       throw error as Error;
     }
   }
 
   reapplyPolicy(pageName: string): void {
-    logger.info(TAG, `reapply page policy: page=${pageName}`);
+    logger.info(TAG, `重新应用页面策略: page=${pageName}`);
     try {
       const profile = ngfPlatformWindowManagerFacade.resolvePageProfile(pageName);
       if (ngfPlatformWindowManagerFacade.getActivePageName() !== pageName) {
@@ -26,7 +26,7 @@ export class PagePolicyHostFacade implements IPagePolicyHost {
       const delayMs = profile ? profile.reapplyDelayMs : 0;
       ngfPlatformWindowManagerFacade.reapplyActivePage(delayMs);
     } catch (error) {
-      logger.error(TAG, `reapplyPolicy failed: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, `重新应用策略失败: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
       throw error as Error;
     }
   }
@@ -34,7 +34,7 @@ export class PagePolicyHostFacade implements IPagePolicyHost {
   resolveDisplayMode(pageName: string): string {
     const profile = ngfPlatformWindowManagerFacade.resolvePageProfile(pageName);
     const resolvedMode = profile ? profile.displayMode : NGFDisplayMode.DEFAULT;
-    logger.debug(TAG, `resolveDisplayMode: page=${pageName}, mode=${resolvedMode}`);
+    logger.debug(TAG, `解析显示模式: page=${pageName}, mode=${resolvedMode}`);
     return resolvedMode;
   }
 

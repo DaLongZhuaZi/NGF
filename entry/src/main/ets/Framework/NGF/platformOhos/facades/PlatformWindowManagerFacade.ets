@@ -63,14 +63,14 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     };
   private readonly windowStageEventCallback: Callback<window.WindowStageEventType> =
     (eventType: window.WindowStageEventType): void => {
-      logger.info(TAG, `windowStageEvent: type=${String(eventType)}`);
+      logger.info(TAG, `窗口阶段事件: type=${String(eventType)}`);
       this.bindMainWindowFromStage('window_stage_event');
       this.refreshSnapshot('window_stage_event');
     };
 
   bindWindowStage(windowStage: window.WindowStage): void {
     if (this.windowStage === windowStage) {
-      logger.debug(TAG, 'bindWindowStage skipped: same instance');
+      logger.debug(TAG, '绑定窗口阶段已跳过: 相同实例');
       this.bindMainWindowFromStage('bind_same_stage');
       this.refreshSnapshot('bind_same_stage');
       return;
@@ -98,7 +98,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     this.snapshot.updatedAt = Date.now();
     this.syncSnapshotToStorage(this.snapshot);
     this.notifyObservers(this.snapshot);
-    logger.info(TAG, 'clearWindowStage');
+    logger.info(TAG, '清除窗口阶段');
   }
 
   setDisplayMode(mode: NGFDisplayMode): void {
@@ -107,13 +107,13 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
       this.activePageName.length > 0 ? this.activePageName : PlatformWindowManagerFacade.MANUAL_PAGE_NAME,
       mode
     );
-    logger.info(TAG, `setDisplayMode: mode=${mode}`);
+    logger.info(TAG, `设置显示模式: mode=${mode}`);
     this.applyProfile(profile, 'manual_display_mode');
   }
 
   registerPageProfile(profile: NGFPageWindowProfile): void {
     this.pageProfiles.set(profile.pageName, profile.copy());
-    logger.info(TAG, `registerPageProfile: page=${profile.pageName}, mode=${profile.displayMode}`);
+    logger.info(TAG, `注册页面配置: page=${profile.pageName}, mode=${profile.displayMode}`);
   }
 
   resolvePageProfile(pageName: string): NGFPageWindowProfile | null {
@@ -140,7 +140,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
 
   reapplyActivePage(delayMs: number): void {
     if (this.activePageName.length <= 0) {
-      logger.warn(TAG, 'reapplyActivePage skipped: no active page');
+      logger.warn(TAG, '重新应用活跃页面已跳过: 无活跃页面');
       return;
     }
 
@@ -164,20 +164,20 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
 
   subscribe(listenerId: string, observer: IPlatformWindowSnapshotObserver): void {
     this.observers.set(listenerId, observer);
-    logger.info(TAG, `subscribe window observer: listenerId=${listenerId}`);
+    logger.info(TAG, `订阅窗口观察者: listenerId=${listenerId}`);
     try {
       observer.onWindowSnapshotChanged(this.snapshot.copy());
     } catch (error) {
       logger.warn(
         TAG,
-        `subscribe observer init failed: listenerId=${listenerId}, error=${this.errorToString(error as Object | string | number | boolean)}`
+        `订阅观察者初始化失败: listenerId=${listenerId}, error=${this.errorToString(error as Object | string | number | boolean)}`
       );
     }
   }
 
   unsubscribe(listenerId: string): void {
     this.observers.delete(listenerId);
-    logger.info(TAG, `unsubscribe window observer: listenerId=${listenerId}`);
+    logger.info(TAG, `取消订阅窗口观察者: listenerId=${listenerId}`);
   }
 
   isReady(): boolean {
@@ -187,7 +187,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
   private applyResolvedProfile(pageName: string, reason: string): void {
     const profile = this.resolvePageProfile(pageName);
     if (!profile) {
-      logger.warn(TAG, `applyResolvedProfile missed: page=${pageName}`);
+      logger.warn(TAG, `应用已解析配置未命中: page=${pageName}`);
       return;
     }
     this.applyProfile(profile, reason);
@@ -197,7 +197,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     this.activeMode = profile.displayMode;
     this.activePageName = profile.pageName;
     if (!this.mainWindow) {
-      logger.warn(TAG, `applyProfile deferred: page=${profile.pageName}, window not ready`);
+      logger.warn(TAG, `应用配置已延迟: page=${profile.pageName}, 窗口未就绪`);
       this.refreshSnapshot(`${reason}_deferred`);
       return;
     }
@@ -237,16 +237,16 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
         return currentWindow.setPreferredOrientation(this.toOrientation(profile.orientation));
       });
       operation.then((): void => {
-        logger.info(TAG, `applyProfile success: page=${profile.pageName}, mode=${profile.displayMode}`);
+        logger.info(TAG, `应用配置成功: page=${profile.pageName}, mode=${profile.displayMode}`);
         this.refreshSnapshot(reason);
       }, (error: Object | string | number | boolean): void => {
-        logger.error(TAG, `applyProfile failed: page=${profile.pageName}, error=${this.errorToString(error)}`);
+        logger.error(TAG, `应用配置失败: page=${profile.pageName}, error=${this.errorToString(error)}`);
         this.refreshSnapshot(`${reason}_failed`);
       });
     } catch (error) {
       logger.error(
         TAG,
-        `applyProfile threw: page=${profile.pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`
+        `应用配置抛出异常: page=${profile.pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`
       );
       this.refreshSnapshot(`${reason}_threw`);
     }
@@ -254,25 +254,25 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
 
   private bindMainWindowFromStage(reason: string): void {
     if (!this.windowStage) {
-      logger.warn(TAG, 'bindMainWindowFromStage skipped: no windowStage');
+      logger.warn(TAG, '从阶段绑定主窗口已跳过: 无窗口阶段');
       return;
     }
 
     try {
       const nextWindow = this.windowStage.getMainWindowSync();
       if (this.mainWindow && this.mainWindow === nextWindow) {
-        logger.debug(TAG, `bindMainWindowFromStage reused existing window: reason=${reason}`);
+        logger.debug(TAG, `从阶段绑定主窗口复用现有窗口: reason=${reason}`);
         return;
       }
 
       this.unregisterWindowListeners();
       this.mainWindow = nextWindow;
       this.registerWindowListeners(nextWindow);
-      logger.info(TAG, `bindMainWindowFromStage success: reason=${reason}`);
+      logger.info(TAG, `从阶段绑定主窗口成功: reason=${reason}`);
     } catch (error) {
       logger.error(
         TAG,
-        `bindMainWindowFromStage failed: ${this.errorToString(error as Object | string | number | boolean)}`
+        `从阶段绑定主窗口失败: ${this.errorToString(error as Object | string | number | boolean)}`
       );
       this.mainWindow = null;
     }
@@ -281,11 +281,11 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
   private registerWindowStageListeners(windowStage: window.WindowStage): void {
     try {
       windowStage.on('windowStageEvent', this.windowStageEventCallback);
-      logger.info(TAG, 'register windowStageEvent listener');
+      logger.info(TAG, '注册窗口阶段事件监听器');
     } catch (error) {
       logger.warn(
         TAG,
-        `registerWindowStageListeners failed: ${this.errorToString(error as Object | string | number | boolean)}`
+        `注册窗口阶段监听器失败: ${this.errorToString(error as Object | string | number | boolean)}`
       );
     }
   }
@@ -296,11 +296,11 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     }
     try {
       this.windowStage.off('windowStageEvent', this.windowStageEventCallback);
-      logger.info(TAG, 'unregister windowStageEvent listener');
+      logger.info(TAG, '注销窗口阶段事件监听器');
     } catch (error) {
       logger.warn(
         TAG,
-        `unregisterWindowStageListeners failed: ${this.errorToString(error as Object | string | number | boolean)}`
+        `注销窗口阶段监听器失败: ${this.errorToString(error as Object | string | number | boolean)}`
       );
     }
   }
@@ -309,19 +309,19 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     try {
       mainWindow.on('windowSizeChange', this.windowSizeChangeCallback);
     } catch (error) {
-      logger.warn(TAG, `register windowSizeChange failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `注册窗口大小变化监听失败: ${this.errorToString(error as Object | string | number | boolean)}`);
     }
     try {
       mainWindow.on('avoidAreaChange', this.avoidAreaChangeCallback);
     } catch (error) {
-      logger.warn(TAG, `register avoidAreaChange failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `注册避让区域变化监听失败: ${this.errorToString(error as Object | string | number | boolean)}`);
     }
     try {
       mainWindow.on('windowStatusChange', this.windowStatusChangeCallback);
     } catch (error) {
-      logger.warn(TAG, `register windowStatusChange failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `注册窗口状态变化监听失败: ${this.errorToString(error as Object | string | number | boolean)}`);
     }
-    logger.info(TAG, 'register window listeners completed');
+    logger.info(TAG, '注册窗口监听器完成');
   }
 
   private unregisterWindowListeners(): void {
@@ -331,17 +331,17 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     try {
       this.mainWindow.off('windowSizeChange', this.windowSizeChangeCallback);
     } catch (error) {
-      logger.warn(TAG, `unregister windowSizeChange failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `注销窗口大小变化监听失败: ${this.errorToString(error as Object | string | number | boolean)}`);
     }
     try {
       this.mainWindow.off('avoidAreaChange', this.avoidAreaChangeCallback);
     } catch (error) {
-      logger.warn(TAG, `unregister avoidAreaChange failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `注销避让区域变化监听失败: ${this.errorToString(error as Object | string | number | boolean)}`);
     }
     try {
       this.mainWindow.off('windowStatusChange', this.windowStatusChangeCallback);
     } catch (error) {
-      logger.warn(TAG, `unregister windowStatusChange failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `注销窗口状态变化监听失败: ${this.errorToString(error as Object | string | number | boolean)}`);
     }
   }
 
@@ -401,7 +401,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     try {
       return mainWindow.getWindowProperties();
     } catch (error) {
-      logger.warn(TAG, `getWindowProperties failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `获取窗口属性失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return null;
     }
   }
@@ -421,7 +421,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
       style.enableNavigationBarAnimation =
         properties.enableNavigationBarAnimation ? properties.enableNavigationBarAnimation : false;
     } catch (error) {
-      logger.warn(TAG, `getWindowSystemBarProperties failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `获取窗口系统栏属性失败: ${this.errorToString(error as Object | string | number | boolean)}`);
     }
     return style;
   }
@@ -430,7 +430,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     try {
       return this.fromOrientation(mainWindow.getPreferredOrientation());
     } catch (error) {
-      logger.warn(TAG, `getPreferredOrientation failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `获取首选方向失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return NGFWindowOrientationPreference.UNSPECIFIED;
     }
   }
@@ -439,7 +439,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     try {
       return this.fromWindowStatus(mainWindow.getWindowStatus());
     } catch (error) {
-      logger.warn(TAG, `getWindowStatus failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `获取窗口状态失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return NGFWindowStatus.UNDEFINED;
     }
   }
@@ -448,7 +448,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     try {
       return mainWindow.isFocused();
     } catch (error) {
-      logger.warn(TAG, `isFocused failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `获取焦点状态失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return false;
     }
   }
@@ -457,7 +457,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     try {
       return mainWindow.isImmersiveLayout();
     } catch (error) {
-      logger.warn(TAG, `isImmersiveLayout failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `获取沉浸式布局状态失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return false;
     }
   }
@@ -498,7 +498,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
       snapshot.rightRect = this.toRectSnapshot(area.rightRect);
       snapshot.bottomRect = this.toRectSnapshot(area.bottomRect);
     } catch (error) {
-      logger.warn(TAG, `getWindowAvoidArea failed: type=${snapshotType}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `获取窗口避让区域失败: type=${snapshotType}, error=${this.errorToString(error as Object | string | number | boolean)}`);
     }
     return snapshot;
   }
@@ -645,7 +645,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
       try {
         observer.onWindowSnapshotChanged(snapshot.copy());
       } catch (error) {
-        logger.warn(TAG, `notify observer failed: listenerId=${listenerId}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+        logger.warn(TAG, `通知观察者失败: listenerId=${listenerId}, error=${this.errorToString(error as Object | string | number | boolean)}`);
       }
     });
   }
@@ -658,7 +658,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
       }
       return serialized;
     } catch (error) {
-      logger.warn(TAG, `serializeSnapshot failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `序列化快照失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return '{}';
     }
   }

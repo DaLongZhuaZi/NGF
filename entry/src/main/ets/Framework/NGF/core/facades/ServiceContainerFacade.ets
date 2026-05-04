@@ -11,46 +11,46 @@ export class ServiceContainerFacade implements IServiceContainer {
     const normalizedToken = token.trim();
     const normalizedName = implementationName.trim();
     if (normalizedToken.length <= 0 || normalizedName.length <= 0) {
-      logger.warn(TAG, `registerSingleton ignored: token=${normalizedToken}, implementation=${normalizedName}`);
+      logger.warn(TAG, `注册单例已忽略：令牌=${normalizedToken}, 实现=${normalizedName}`);
       return;
     }
     this.registrations.set(normalizedToken, normalizedName);
-    logger.info(TAG, `register singleton: token=${normalizedToken}, implementation=${normalizedName}`);
+    logger.info(TAG, `注册单例：令牌=${normalizedToken}, 实现=${normalizedName}`);
   }
 
   resolve(token: string): string {
     const normalizedToken = token.trim();
     const implementationName = this.registrations.get(normalizedToken);
     if (!implementationName) {
-      logger.warn(TAG, `resolve service missed: token=${normalizedToken}`);
+      logger.warn(TAG, `解析服务未命中：令牌=${normalizedToken}`);
       return '';
     }
-    logger.debug(TAG, `resolve service: token=${normalizedToken}, implementation=${implementationName}`);
+    logger.debug(TAG, `解析服务：令牌=${normalizedToken}, 实现=${implementationName}`);
     return implementationName;
   }
 
   contains(token: string): boolean {
     const normalizedToken = token.trim();
     const exists = this.registrations.has(normalizedToken);
-    logger.debug(TAG, `contains service: token=${normalizedToken}, exists=${exists}`);
+    logger.debug(TAG, `查询服务：令牌=${normalizedToken}, 存在=${exists}`);
     return exists;
   }
 
   registerInstance(token: string, instance: object): void {
     const normalizedToken = token.trim();
     if (normalizedToken.length <= 0) {
-      logger.warn(TAG, 'registerInstance ignored: token is empty');
+      logger.warn(TAG, '注册实例已忽略：令牌为空');
       return;
     }
     this.instances.set(normalizedToken, instance);
-    logger.info(TAG, `register service instance: token=${normalizedToken}`);
+    logger.info(TAG, `注册服务实例：令牌=${normalizedToken}`);
   }
 
   resolveInstance(token: string): object | null {
     const normalizedToken = token.trim();
     const instance = this.instances.get(normalizedToken);
     if (!instance) {
-      logger.debug(TAG, `resolveInstance missed: token=${normalizedToken}`);
+      logger.debug(TAG, `解析实例未命中：令牌=${normalizedToken}`);
       return null;
     }
     return instance;
@@ -59,7 +59,7 @@ export class ServiceContainerFacade implements IServiceContainer {
   clear(): void {
     this.registrations.clear();
     this.instances.clear();
-    logger.info(TAG, 'clear service container facade');
+    logger.info(TAG, '清除服务容器外观');
   }
 }
 

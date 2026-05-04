@@ -17,9 +17,11 @@ export class NGFErrorContext {
   }
 }
 
+export type NGFRecoveryHandler = (errorName: string, message: string, severity: NGFErrorSeverity, context: NGFErrorContext) => Promise<boolean>;
+
 export interface IErrorHandler {
   handle(errorName: string, message: string, severity: NGFErrorSeverity, context: NGFErrorContext): Promise<boolean>;
-  registerRecoverStrategy(strategyName: string): boolean;
+  registerRecoverStrategy(strategyName: string, handler: NGFRecoveryHandler): boolean;
   getRecentErrorCount(): number;
 }
 

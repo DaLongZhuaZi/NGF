@@ -4,4 +4,5 @@
   has(key: string): boolean;
   remove(key: string): void;
   clear(): void;
+  size(): number;
 }

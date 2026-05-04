@@ -22,20 +22,20 @@ export class SourceRegistryFacade implements ISourceRegistry {
     const normalizedSourceId = sourceId.trim();
     const normalizedPkg = pkg.trim();
     if (normalizedSourceId.length <= 0 || normalizedPkg.length <= 0) {
-      logger.warn(TAG, `registerSource ignored: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
+      logger.warn(TAG, `注册源忽略: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
       return false;
     }
 
     const existing = this.entries.get(normalizedSourceId);
     if (existing && existing.pkg === normalizedPkg) {
-      logger.debug(TAG, `source already registered: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
+      logger.debug(TAG, `源已注册: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
       return true;
     }
 
     if (existing) {
-      logger.info(TAG, `update source package binding: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
+      logger.info(TAG, `更新源包绑定: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
     } else {
-      logger.info(TAG, `register source: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
+      logger.info(TAG, `注册源: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
     }
 
     this.entries.set(
@@ -48,33 +48,33 @@ export class SourceRegistryFacade implements ISourceRegistry {
   unregisterSource(sourceId: string): boolean {
     const normalizedSourceId = sourceId.trim();
     if (normalizedSourceId.length <= 0) {
-      logger.warn(TAG, 'unregisterSource ignored: sourceId is empty');
+      logger.warn(TAG, '注销源忽略: sourceId为空');
       return false;
     }
     if (!this.entries.has(normalizedSourceId)) {
-      logger.debug(TAG, `unregisterSource skipped: sourceId=${normalizedSourceId} not found`);
+      logger.debug(TAG, `注销源跳过: sourceId=${normalizedSourceId} 未找到`);
       return false;
     }
     this.entries.delete(normalizedSourceId);
-    logger.info(TAG, `unregister source: sourceId=${normalizedSourceId}`);
+    logger.info(TAG, `注销源: sourceId=${normalizedSourceId}`);
     return true;
   }
 
   hasSource(sourceId: string): boolean {
     const normalizedSourceId = sourceId.trim();
     if (normalizedSourceId.length <= 0) {
-      logger.debug(TAG, 'hasSource check ignored: sourceId is empty');
+      logger.debug(TAG, '检查源存在性忽略: sourceId为空');
       return false;
     }
 
     const exists = this.entries.has(normalizedSourceId);
-    logger.debug(TAG, `hasSource: sourceId=${normalizedSourceId}, exists=${exists}`);
+    logger.debug(TAG, `检查源存在: sourceId=${normalizedSourceId}, 存在=${exists}`);
     return exists;
   }
 
   listSourceIds(): string[] {
     const sourceIds = Array.from(this.entries.keys());
-    logger.debug(TAG, `listSourceIds: count=${sourceIds.length}`);
+    logger.debug(TAG, `列出源ID: 数量=${sourceIds.length}`);
     return sourceIds;
   }
 }

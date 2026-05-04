@@ -1,5 +1,5 @@
-import { logger } from '../../../../Utils/Logger';
-import { SettingsManager } from '../../../Managers/SettingsManager';
+import { logger } from '../../utils/Logger';
+import { SettingsManager } from '../SettingsManager';
 import { IDataFacade, NGFDataQueryResult } from '../contracts/IDataFacade';
 import { ngfSettingsStoreFacade } from './SettingsStoreFacade';
 
@@ -82,16 +82,16 @@ export class DataFacade implements IDataFacade {
 
   async query(entityName: string, queryJson: string): Promise<NGFDataQueryResult> {
     const normalizedEntity = this.normalizeEntityName(entityName);
-    logger.debug(TAG, `query data: entity=${normalizedEntity}`);
+    logger.debug(TAG, `查询数据: entity=${normalizedEntity}`);
     if (this.isSettingsEntity(normalizedEntity)) {
       const settingsQuery = this.parseSettingsQueryEnvelope(queryJson);
       if (settingsQuery.key.length <= 0) {
-        logger.warn(TAG, 'query settings ignored: key为空');
+        logger.warn(TAG, '查询设置忽略: key为空');
         return new NGFDataQueryResult(false, '');
       }
 
       const settingsResponse = this.querySettings(settingsQuery);
-      logger.info(TAG, `query settings success: key=${settingsQuery.key}, type=${settingsQuery.valueType}`);
+      logger.info(TAG, `查询设置成功: key=${settingsQuery.key}, type=${settingsQuery.valueType}`);
       return new NGFDataQueryResult(true, JSON.stringify(settingsResponse));
     }
 
@@ -100,15 +100,15 @@ export class DataFacade implements IDataFacade {
     if (queryEnvelope.id.length > 0) {
       const payloadJson = entityStore.get(queryEnvelope.id);
       if (!payloadJson) {
-        logger.debug(TAG, `query entity missed: entity=${normalizedEntity}, id=${queryEnvelope.id}`);
+        logger.debug(TAG, `查询实体未命中: entity=${normalizedEntity}, id=${queryEnvelope.id}`);
         return new NGFDataQueryResult(false, '');
       }
       const response = new NGFDataEntityEnvelope(queryEnvelope.id, payloadJson);
-      logger.info(TAG, `query entity success: entity=${normalizedEntity}, id=${queryEnvelope.id}`);
+      logger.info(TAG, `查询实体成功: entity=${normalizedEntity}, id=${queryEnvelope.id}`);
       return new NGFDataQueryResult(true, JSON.stringify(response));
     }
 
-    logger.info(TAG, `query entity collection: entity=${normalizedEntity}, count=${entityStore.size}`);
+    logger.info(TAG, `查询实体集合: entity=${normalizedEntity}, 数量=${entityStore.size}`);
     return new NGFDataQueryResult(true, this.serializeEntityCollection(entityStore));
   }
 
@@ -117,11 +117,11 @@ export class DataFacade implements IDataFacade {
     if (this.isSettingsEntity(normalizedEntity)) {
       const settingsWrite = this.parseSettingsWriteEnvelope(dataJson);
       if (settingsWrite.key.length <= 0) {
-        logger.warn(TAG, 'save settings ignored: key为空');
+        logger.warn(TAG, '保存设置忽略: key为空');
         return false;
       }
       this.writeSettings(settingsWrite);
-      logger.info(TAG, `save settings success: key=${settingsWrite.key}, type=${settingsWrite.valueType}`);
+      logger.info(TAG, `保存设置成功: key=${settingsWrite.key}, type=${settingsWrite.valueType}`);
       return true;
     }
 
@@ -130,7 +130,7 @@ export class DataFacade implements IDataFacade {
     const payloadJson = envelope.payloadJson.length > 0 ? envelope.payloadJson : dataJson;
     const entityStore = this.ensureEntityStore(normalizedEntity);
     entityStore.set(id, payloadJson);
-    logger.info(TAG, `save entity success: entity=${normalizedEntity}, id=${id}`);
+    logger.info(TAG, `保存实体成功: entity=${normalizedEntity}, id=${id}`);
     return true;
   }
 
@@ -138,14 +138,14 @@ export class DataFacade implements IDataFacade {
     const normalizedEntity = this.normalizeEntityName(entityName);
     const normalizedId = id.trim();
     if (normalizedId.length <= 0) {
-      logger.warn(TAG, `remove ignored: entity=${normalizedEntity}, id为空`);
+      logger.warn(TAG, `删除忽略: entity=${normalizedEntity}, id为空`);
       return false;
     }
 
     if (this.isSettingsEntity(normalizedEntity)) {
       try {
         await this.settingsManager.deleteSetting(normalizedId);
-        logger.info(TAG, `remove settings success: key=${normalizedId}`);
+        logger.info(TAG, `删除设置成功: key=${normalizedId}`);
         return true;
       } catch {
         logger.warn(TAG, `删除设置失败: key=${normalizedId}`);
@@ -155,11 +155,11 @@ export class DataFacade implements IDataFacade {
 
     const entityStore = this.entityStores.get(normalizedEntity);
     if (!entityStore) {
-      logger.debug(TAG, `remove entity skipped: entity=${normalizedEntity} not found`);
+      logger.debug(TAG, `删除实体跳过: entity=${normalizedEntity} 未找到`);
       return false;
     }
     const removed = entityStore.delete(normalizedId);
-    logger.info(TAG, `remove entity: entity=${normalizedEntity}, id=${normalizedId}, success=${removed}`);
+    logger.info(TAG, `删除实体: entity=${normalizedEntity}, id=${normalizedId}, 成功=${removed}`);
     return removed;
   }
 
@@ -220,7 +220,7 @@ export class DataFacade implements IDataFacade {
 
     const createdStore = new Map<string, string>();
     this.entityStores.set(entityName, createdStore);
-    logger.debug(TAG, `create entity store: entity=${entityName}`);
+    logger.debug(TAG, `创建实体存储: entity=${entityName}`);
     return createdStore;
   }
 

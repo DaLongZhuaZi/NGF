@@ -1,5 +1,5 @@
-import { logger } from '../../../../Utils/Logger';
-import { SettingsManager } from '../../../Managers/SettingsManager';
+import { logger } from '../../utils/Logger';
+import { SettingsManager } from '../SettingsManager';
 import { ISettingsStore } from '../contracts/ISettingsStore';
 
 const TAG = 'NGFSettingsStoreFacade';
@@ -44,7 +44,7 @@ export class SettingsStoreFacade implements ISettingsStore {
     try {
       await this.settingsManager.setString(key, value);
     } catch {
-      logger.warn(TAG, `璁剧疆瀛楃涓插け璐? key=${key}`);
+      logger.warn(TAG, `设置字符串失败: key=${key}`);
     }
   }
 
@@ -52,7 +52,7 @@ export class SettingsStoreFacade implements ISettingsStore {
     try {
       await this.settingsManager.setNumber(key, value);
     } catch {
-      logger.warn(TAG, `璁剧疆鏁板瓧澶辫触: key=${key}`);
+      logger.warn(TAG, `设置数字失败: key=${key}`);
     }
   }
 
@@ -60,7 +60,7 @@ export class SettingsStoreFacade implements ISettingsStore {
     try {
       await this.settingsManager.setBoolean(key, value);
     } catch {
-      logger.warn(TAG, `璁剧疆甯冨皵澶辫触: key=${key}`);
+      logger.warn(TAG, `设置布尔失败: key=${key}`);
     }
   }
 }

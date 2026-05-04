@@ -1,0 +1,120 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "NGF framework entry module"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "NGF framework main ability"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "NGF Framework"
+    },
+    {
+      "name": "main_menu_title",
+      "value": "NGF MainMenuPage"
+    },
+    {
+      "name": "main_menu_subtitle",
+      "value": "NGF Runtime Framework Entry / HDS Root Navigation Container"
+    },
+    {
+      "name": "status_ready",
+      "value": "Core framework is ready"
+    },
+    {
+      "name": "status_not_ready",
+      "value": "Core framework failed to start"
+    },
+    {
+      "name": "status_waiting",
+      "value": "Waiting for core startup"
+    },
+    {
+      "name": "card_status_title",
+      "value": "Runtime Status"
+    },
+    {
+      "name": "card_window_title",
+      "value": "Window Monitor"
+    },
+    {
+      "name": "card_module_title",
+      "value": "Module Details"
+    },
+    {
+      "name": "card_log_title",
+      "value": "Runtime Logs"
+    },
+    {
+      "name": "card_hds_title",
+      "value": "Official HDS / ArkUI Demo Pages"
+    },
+    {
+      "name": "card_hds_desc",
+      "value": "Based on MainMenuPage's NavPathStack + navDestination architecture, integrating official HDS Navigation demos and single-page fusion examples."
+    },
+    {
+      "name": "card_hds_desc2",
+      "value": "Legacy HDS component, layout, and animation pages have been removed and reorganized into a comprehensive demo page fully compliant with HDSNavigation visual patterns."
+    },
+    {
+      "name": "card_action_title",
+      "value": "Quick Actions"
+    },
+    {
+      "name": "card_action_desc",
+      "value": "High-frequency debug actions unified into glass-effect buttons for quick core path verification in the immersive home page."
+    },
+    {
+      "name": "action_bootstrap_title",
+      "value": "Initialize Core Services"
+    },
+    {
+      "name": "action_bootstrap_desc",
+      "value": "Re-confirm container, logger, event bus and basic capabilities are ready."
+    },
+    {
+      "name": "action_event_title",
+      "value": "Publish Demo Event"
+    },
+    {
+      "name": "action_event_desc",
+      "value": "Send a demo message to the core event bus, check the pipeline and log feedback."
+    },
+    {
+      "name": "action_lifecycle_title",
+      "value": "Advance Lifecycle"
+    },
+    {
+      "name": "action_lifecycle_desc",
+      "value": "Simulate framework phased progression, observe status card and log changes."
+    },
+    {
+      "name": "action_error_title",
+      "value": "Trigger Demo Error"
+    },
+    {
+      "name": "action_error_desc",
+      "value": "Verify error handler, error count and unified log collection."
+    },
+    {
+      "name": "action_official_title",
+      "value": "Official HDS Navigation Demo"
+    },
+    {
+      "name": "action_official_desc",
+      "value": "Verify unified main stack, official destinations and multi-function top bar page structure."
+    },
+    {
+      "name": "action_showcase_title",
+      "value": "HDS Integrated Showcase"
+    },
+    {
+      "name": "action_showcase_desc",
+      "value": "Fuse components, layouts and animation verification capabilities in a single page."
+    }
+  ]
+}

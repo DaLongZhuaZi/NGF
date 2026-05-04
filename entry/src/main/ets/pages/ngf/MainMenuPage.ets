@@ -1,6 +1,5 @@
-import { BusinessError } from '@kit.BasicServicesKit';
 import { hdsEffect, hdsMaterial, HdsNavigation, HdsNavigationTitleMode } from '@kit.UIDesignKit';
-import { uiContextManager } from '../../Framework/Managers/UIContextManager';
+import { uiContextManager } from '../../Framework/NGF/platformOhos/UIContextManager';
 import { NGFErrorContext, NGFErrorSeverity } from '../../Framework/NGF/core/contracts/IErrorHandler';
 import { NGFEventPayload } from '../../Framework/NGF/core/contracts/IEventBus';
 import { NGFLogLevel } from '../../Framework/NGF/core/contracts/ILogger';
@@ -19,8 +18,10 @@ import {
   HdsNavigationOfficialShowcasePage
 } from './HdsNavigationOfficialShowcasePage';
 import { NGFHdsDemoRouteName } from './HdsDemoRoutes';
-import { NGFHdsTitleBarOptionsFactory } from './HdsNavigationSupport';
+import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
+import { NGFDeviceAwarenessPage } from './NGFDeviceAwarenessPage';
+import { NGFSettingsPage } from './NGFSettingsPage';
 
 const TAG: string = 'NGFStarterMainMenuPage';
 const NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT: number = 188;
@@ -35,7 +36,7 @@ class NGFMainMenuActionKey {
   static readonly PUBLISH_EVENT: string = 'action.publish_event';
   static readonly ADVANCE_LIFECYCLE: string = 'action.advance_lifecycle';
   static readonly SIMULATE_ERROR: string = 'action.simulate_error';
-  static readonly OPEN_LEGACY_MAIN_MENU: string = 'action.open_legacy_main_menu';
+
 }
 
 class NGFStarterLogEntry {
@@ -180,7 +181,7 @@ class NGFMainMenuEdgeEffectOptions implements EdgeEffectOptions {
 
 class NGFMainMenuGlassEffectFactory {
   static buildHeroSurfaceEffect(): VisualEffect {
-    const pointLightOptions = new NGFMainMenuPointLightOptions('#F2FFFFFF', 0.38, 34, 0.26);
+    const pointLightOptions = new NGFMainMenuPointLightOptions($r('app.color.glass_surface_overlay'), 0.38, 34, 0.26);
     const pointLightEffect = new NGFMainMenuPointLightEffect(
       hdsEffect.PointLightSourceType.SOFT,
       hdsEffect.PointLightIlluminatedType.BORDER_CONTENT,
@@ -192,7 +193,7 @@ class NGFMainMenuGlassEffectFactory {
   }
 
   static buildHeroChipEffect(): VisualEffect {
-    const pointLightOptions = new NGFMainMenuPointLightOptions('#CCFFFFFF', 0.24, 26, 0.18);
+    const pointLightOptions = new NGFMainMenuPointLightOptions($r('app.color.glass_chip_overlay'), 0.24, 26, 0.18);
     const pointLightEffect = new NGFMainMenuPointLightEffect(
       hdsEffect.PointLightSourceType.BRIGHT,
       hdsEffect.PointLightIlluminatedType.BORDER,
@@ -204,10 +205,40 @@ class NGFMainMenuGlassEffectFactory {
   }
 
   static buildActionButtonEffect(): VisualEffect {
-    const pointLightOptions = new NGFMainMenuPointLightOptions('#F4FFFFFF', 0.32, 28, 0.24);
+    const pointLightOptions = new NGFMainMenuPointLightOptions($r('app.color.glass_action_overlay'), 0.32, 28, 0.24);
     const pointLightEffect = new NGFMainMenuPointLightEffect(
       hdsEffect.PointLightSourceType.SOFT,
       hdsEffect.PointLightIlluminatedType.BORDER_CONTENT,
+      pointLightOptions
+    );
+    return new hdsEffect.HdsEffectBuilder()
+      .pointLight(pointLightEffect)
+      .buildEffect();
+  }
+
+  static buildTabBarEffect(pressed: boolean): VisualEffect {
+    const pointLightOptions = new NGFMainMenuPointLightOptions(
+      $r('app.color.glass_surface_overlay'),
+      pressed ? 0.52 : 0.34,
+      pressed ? 38 : 30,
+      pressed ? 0.36 : 0.24
+    );
+    const pointLightEffect = new NGFMainMenuPointLightEffect(
+      pressed ? hdsEffect.PointLightSourceType.BRIGHT : hdsEffect.PointLightSourceType.SOFT,
+      hdsEffect.PointLightIlluminatedType.BORDER_CONTENT,
+      pointLightOptions
+    );
+    return new hdsEffect.HdsEffectBuilder()
+      .pressShadow(hdsEffect.PressShadowType.BLEND_GRADIENT)
+      .pointLight(pointLightEffect)
+      .buildEffect();
+  }
+
+  static buildTabItemGlowEffect(): VisualEffect {
+    const pointLightOptions = new NGFMainMenuPointLightOptions($r('app.color.button_primary'), 0.46, 24, 0.32);
+    const pointLightEffect = new NGFMainMenuPointLightEffect(
+      hdsEffect.PointLightSourceType.BRIGHT,
+      hdsEffect.PointLightIlluminatedType.BORDER,
       pointLightOptions
     );
     return new hdsEffect.HdsEffectBuilder()
@@ -232,6 +263,9 @@ struct NGFStarterMainMenuPage {
   @State private moduleFailureCount: number = 0;
   @State private moduleDetails: Array<NGFStarterModuleDetailEntry> = [];
   @State private nextPhaseIndex: number = 0;
+  @State private selectedTabIndex: number = 0;
+  @State private pressedTabIndex: number = -1;
+  @State private tabGlowStrength: number = 0.88;
   @StorageProp('ngf_window_ready') private windowReady: boolean = false;
   @StorageProp('ngf_window_active_page') private windowActivePage: string = '';
   @StorageProp('ngf_window_display_mode') private windowDisplayMode: string = 'default';
@@ -240,6 +274,7 @@ struct NGFStarterMainMenuPage {
   @StorageProp('ngf_window_snapshot_json') private windowSnapshotJson: string = '{}';
 
   private readonly scroller: Scroller = new Scroller();
+  private readonly tabsController: TabsController = new TabsController();
   private readonly starter = ngfStarterKernel;
   private readonly phaseOrder: Array<string> = ['context_setup', 'core_services', 'ready'];
   private readonly stateListenerId: string = 'NGFStarterMainMenuPage_State';
@@ -402,26 +437,10 @@ struct NGFStarterMainMenuPage {
     });
   }
 
-  private handleEnterLegacyMainMenuTap(): void {
-    const router = this.getUIContext()?.getRouter();
-    if (!router) {
-      this.appendLog('无法获取Router，无法跳转到旧版主页面');
-      return;
-    }
-
-    router.replaceUrl({
-      url: 'pages/MainMenuPage'
-    }).then((): void => {
-      this.appendLog('已切换到旧版 MainMenuPage');
-    }).catch((error: BusinessError): void => {
-      this.appendLog(`跳转旧版主页面失败: ${error.code}`);
-    });
-  }
-
   private handleOpenHdsDemoTap(routeName: string, label: string): void {
     try {
       this.pathStack.pushPathByName(routeName, new NGFHdsDemoRouteParam(routeName, TAG));
-      this.starter.logger.info(TAG, `open HDS demo: route=${routeName}, label=${label}`);
+      this.starter.logger.info(TAG, `打开HDS演示: route=${routeName}, label=${label}`);
       this.appendLog(`已打开 ${label}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -450,10 +469,6 @@ struct NGFStarterMainMenuPage {
     }
     if (actionKey === NGFMainMenuActionKey.SIMULATE_ERROR) {
       this.handleSimulateErrorTap();
-      return;
-    }
-    if (actionKey === NGFMainMenuActionKey.OPEN_LEGACY_MAIN_MENU) {
-      this.handleEnterLegacyMainMenuTap();
       return;
     }
 
@@ -627,25 +642,67 @@ struct NGFStarterMainMenuPage {
       Stack({ alignContent: Alignment.TopStart }) {
         this.buildTitleBarUnderlay()
 
-        Scroll(this.scroller) {
-          Column({ space: 12 }) {
-            this.buildHeaderCard()
-            this.buildHdsDemoCard()
-            this.buildActionCard()
-            this.buildStatusCard()
-            this.buildWindowMonitorCard()
-            this.buildModuleDetailCard()
-            this.buildLogCard()
+        Tabs({ barPosition: BarPosition.End, index: this.selectedTabIndex, controller: this.tabsController }) {
+          TabContent() {
+            Scroll(this.scroller) {
+              Column({ space: 12 }) {
+                this.buildHeaderCard()
+                this.buildHdsDemoCard()
+                this.buildActionCard()
+                this.buildStatusCard()
+                this.buildWindowMonitorCard()
+                this.buildModuleDetailCard()
+                this.buildLogCard()
+              }
+              .width('100%')
+              .padding({ left: 16, right: 16, top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 76 })
+            }
+            .width('100%')
+            .height('100%')
+            .scrollBar(BarState.Off)
+            .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .backgroundColor('#00000000')
           }
-          .width('100%')
-          .padding({ left: 16, right: 16, top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 16 })
+          .tabBar(null)
+
+          TabContent() {
+            Scroll() {
+              NGFDeviceAwarenessPage()
+            }
+            .width('100%')
+            .height('100%')
+            .padding({ top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 76 })
+            .scrollBar(BarState.Off)
+            .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .backgroundColor($r('app.color.background_primary'))
+          }
+          .tabBar(null)
+
+          TabContent() {
+            Scroll() {
+              NGFSettingsPage()
+            }
+            .width('100%')
+            .height('100%')
+            .padding({ top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 76 })
+            .scrollBar(BarState.Off)
+            .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .backgroundColor($r('app.color.background_primary'))
+          }
+          .tabBar(null)
         }
         .width('100%')
         .height('100%')
-        .scrollBar(BarState.Off)
-        .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
-        .backgroundColor('#00000000')
-        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+        .barHeight(0)
+        .barWidth(0)
+        .scrollable(true)
+        .animationDuration(300)
+        .animationMode(AnimationMode.CONTENT_FIRST)
+        .onChange((index: number): void => {
+          this.selectedTabIndex = index;
+        })
+
+        this.buildFloatingTabBar()
       }
       .width('100%')
       .height('100%')
@@ -654,7 +711,7 @@ struct NGFStarterMainMenuPage {
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
       'NGF MainMenuPage',
       'NGF 运行框架主入口 / HDS 根导航容器',
-      '#08111F',
+      $r('app.color.background_primary'),
       hdsMaterial.MaterialLevel.EXQUISITE,
       false,
       false
@@ -663,10 +720,122 @@ struct NGFStarterMainMenuPage {
     .hideBackButton(true)
     .navDestination(this.buildNavDestination)
     .mode(NavigationMode.Stack)
-    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP])
     .width('100%')
     .height('100%')
     .backgroundColor($r('app.color.background_primary'))
+  }
+
+  @Builder
+  private buildTabItem(title: string, symbolName: string, tabIndex: number): void {
+    Column({ space: 4 }) {
+      SymbolGlyph($r(symbolName))
+        .fontSize(this.selectedTabIndex === tabIndex ? 24 : 22)
+        .fontWeight(this.selectedTabIndex === tabIndex ? FontWeight.Bold : FontWeight.Normal)
+        .fontColor([this.selectedTabIndex === tabIndex
+          ? $r('app.color.button_primary')
+          : $r('app.color.text_secondary')])
+      Text(title)
+        .fontSize(11)
+        .fontColor(this.selectedTabIndex === tabIndex
+          ? $r('app.color.button_primary')
+          : $r('app.color.text_secondary'))
+        .fontWeight(this.selectedTabIndex === tabIndex ? FontWeight.Medium : FontWeight.Normal)
+    }
+    .width('33.33%')
+    .height('100%')
+    .justifyContent(FlexAlign.Center)
+    .scale(this.pressedTabIndex === tabIndex
+      ? { x: 0.92, y: 0.92 }
+      : { x: 1, y: 1 })
+    .opacity(this.pressedTabIndex === tabIndex ? 0.8 : 1)
+    .animation({ duration: 180, curve: Curve.EaseOut })
+    .onTouch((event: TouchEvent): void => {
+      if (event.type === TouchType.Down) {
+        this.pressedTabIndex = tabIndex;
+        this.animateTabGlow(0.96);
+      } else if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
+        this.pressedTabIndex = -1;
+        this.animateTabGlow(0.88);
+        if (event.type === TouchType.Up) {
+          this.tabsController.changeIndex(tabIndex);
+        }
+      }
+    })
+  }
+
+  private animateTabGlow(target: number): void {
+    const uiContext: UIContext | undefined = this.getUIContext();
+    if (uiContext) {
+      uiContext.animateTo({
+        duration: 200,
+        curve: Curve.EaseOut
+      }, (): void => {
+        this.tabGlowStrength = target;
+      });
+    }
+  }
+
+  @Builder
+  private buildFloatingTabBar(): void {
+    Stack({ alignContent: Alignment.Bottom }) {
+      Column() {}
+        .width('76%')
+        .height(40)
+        .borderRadius(40)
+        .backgroundColor($r('app.color.glow_circle_blue'))
+        .opacity(this.tabGlowStrength * 0.18)
+        .position({ left: '18%', bottom: 32 })
+        .shadow({
+          radius: 48,
+          color: $r('app.color.glow_circle_blue_shadow'),
+          offsetX: 0,
+          offsetY: 6
+        })
+        .animation({ duration: 250, curve: Curve.EaseInOut })
+
+      Column() {}
+        .width('52%')
+        .height(32)
+        .borderRadius(32)
+        .backgroundColor($r('app.color.glow_circle_cyan'))
+        .opacity(this.tabGlowStrength * 0.14)
+        .position({ left: '30%', bottom: 36 })
+        .shadow({
+          radius: 38,
+          color: $r('app.color.glow_circle_cyan_shadow'),
+          offsetX: 0,
+          offsetY: 4
+        })
+        .animation({ duration: 250, curve: Curve.EaseInOut })
+
+      Row() {
+        this.buildTabItem('框架', 'sys.symbol.house', 0)
+        this.buildTabItem('设备', 'sys.symbol.phone_fill', 1)
+        this.buildTabItem('设置', 'sys.symbol.gearshape', 2)
+      }
+      .width('88%')
+      .height(56)
+      .backgroundColor('#1A1A2E66')
+      .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK, {
+        colorMode: ThemeColorMode.SYSTEM,
+        adaptiveColor: AdaptiveColor.DEFAULT,
+        scale: 1.0
+      })
+      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(28, 1.18, 1.06, $r('app.color.glass_bg_effect')))
+      .visualEffect(NGFMainMenuGlassEffectFactory.buildTabBarEffect(this.pressedTabIndex >= 0))
+      .borderRadius(28)
+      .shadow({
+        radius: 28,
+        color: '#1A1A2E44',
+        offsetX: 0,
+        offsetY: 6
+      })
+      .animation({ duration: 200, curve: Curve.EaseOut })
+    }
+    .width('100%')
+    .height(96)
+    .position({ left: 0, bottom: 16 })
   }
 
   @Builder
@@ -689,31 +858,31 @@ struct NGFStarterMainMenuPage {
         .width(176)
         .height(176)
         .borderRadius(176)
-        .backgroundColor('#2854F0E8')
+        .backgroundColor($r('app.color.glow_circle_blue'))
         .opacity(0.22)
         .margin({ left: 192, top: 12 })
-        .shadow({ radius: 82, color: '#804A89FF', offsetX: 10, offsetY: 6 })
+        .shadow({ radius: 82, color: $r('app.color.glow_circle_blue_shadow'), offsetX: 10, offsetY: 6 })
 
       Column() {}
         .width(148)
         .height(148)
         .borderRadius(148)
-        .backgroundColor('#32A4F2D8')
+        .backgroundColor($r('app.color.glow_circle_cyan'))
         .opacity(0.18)
         .margin({ left: 18, top: 28 })
-        .shadow({ radius: 74, color: '#6635D5FF', offsetX: -8, offsetY: 8 })
+        .shadow({ radius: 74, color: $r('app.color.glow_circle_cyan_shadow'), offsetX: -8, offsetY: 8 })
 
       Column() {}
         .width('86%')
         .height(1)
-        .backgroundColor('#66FFFFFF')
+        .backgroundColor($r('app.color.glass_divider'))
         .opacity(0.52)
         .margin({ left: 16, top: 94 })
 
       Column() {}
         .width('100%')
         .height(NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT)
-        .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(42, 1.24, 1.05, '#10FFFFFF'))
+        .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(42, 1.24, 1.05, $r('app.color.glass_bg_effect')))
         .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
     }
     .width('100%')
@@ -757,24 +926,24 @@ struct NGFStarterMainMenuPage {
         .width(196)
         .height(196)
         .borderRadius(196)
-        .backgroundColor('#2F6D7CFF')
+        .backgroundColor($r('app.color.glow_circle_purple'))
         .opacity(0.32)
         .margin({ left: 12, top: 26 })
-        .shadow({ radius: 78, color: '#7A55A8FF', offsetX: -12, offsetY: 10 })
+        .shadow({ radius: 78, color: $r('app.color.glow_circle_purple_shadow'), offsetX: -12, offsetY: 10 })
 
       Column() {}
         .width(164)
         .height(164)
         .borderRadius(164)
-        .backgroundColor('#3360F6D5')
+        .backgroundColor($r('app.color.glow_circle_green'))
         .opacity(0.28)
         .margin({ left: 180, top: 54 })
-        .shadow({ radius: 72, color: '#6642D7FF', offsetX: 14, offsetY: -8 })
+        .shadow({ radius: 72, color: $r('app.color.glow_circle_green_shadow'), offsetX: 14, offsetY: -8 })
 
       Column() {}
         .width('82%')
         .height(1)
-        .backgroundColor('#7AFFFFFF')
+        .backgroundColor($r('app.color.glass_divider_strong'))
         .opacity(0.45)
         .margin({ left: 18, top: 106 })
 
@@ -782,17 +951,17 @@ struct NGFStarterMainMenuPage {
         Text('NGF MainMenuPage')
           .fontSize(28)
           .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFFFF')
+          .fontColor($r('app.color.text_glass_value'))
 
         Text('API 23 轻核心入口（日志 / 事件 / 生命周期 / DI / WindowStage 统一窗口管理）')
           .fontSize(14)
           .lineHeight(21)
-          .fontColor('#D9F3F7FF')
+          .fontColor($r('app.color.text_glass_subtitle'))
 
         Text(this.statusMessage)
           .fontSize(13)
           .lineHeight(20)
-          .fontColor('#C7E7F2FF')
+          .fontColor($r('app.color.text_glass_status'))
           .maxLines(2)
 
         Column({ space: 10 }) {
@@ -812,10 +981,10 @@ struct NGFStarterMainMenuPage {
       }
       .width('100%')
       .padding({ top: NGF_MAIN_MENU_HEADER_CONTENT_TOP_PADDING, right: 20, bottom: 24, left: 20 })
-      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(44, 1.28, 1.06, '#1AFFFFFF'))
+      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(44, 1.28, 1.06, $r('app.color.glass_bg_effect_strong')))
       .borderRadius(30)
-      .border({ width: 1, color: '#3AFFFFFF' })
-      .shadow({ radius: 18, color: '#40000000', offsetX: 0, offsetY: 10 })
+      .border({ width: 1, color: $r('app.color.glass_border_strong') })
+      .shadow({ radius: 18, color: $r('app.color.card_shadow'), offsetX: 0, offsetY: 10 })
       .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
     }
     .width('100%')
@@ -828,20 +997,20 @@ struct NGFStarterMainMenuPage {
       Text(label)
         .fontSize(11)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#A9E8F7FF')
+        .fontColor($r('app.color.text_glass_label'))
 
       Text(value)
         .fontSize(12)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#F7FFFFFF')
+        .fontColor($r('app.color.text_glass_value'))
         .maxLines(2)
     }
     .width('48%')
     .padding({ top: 10, right: 12, bottom: 10, left: 12 })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(20, 1.18, 1.03, '#14FFFFFF'))
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(20, 1.18, 1.03, $r('app.color.glass_bg_effect_light')))
     .borderRadius(18)
-    .border({ width: 1, color: '#2BFFFFFF' })
-    .shadow({ radius: 8, color: '#1A000000', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.glass_border_light') })
+    .shadow({ radius: 8, color: $r('app.color.circle_shadow_light'), offsetX: 0, offsetY: 4 })
     .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroChipEffect())
   }
 
@@ -871,20 +1040,20 @@ struct NGFStarterMainMenuPage {
             Text(badge)
               .fontSize(10)
               .fontWeight(FontWeight.Medium)
-              .fontColor('#BEEBFFFF')
+              .fontColor($r('app.color.text_glass_badge'))
 
             Text(title)
               .width('100%')
               .fontSize(15)
               .fontWeight(FontWeight.Medium)
-              .fontColor('#FFFFFFFF')
+              .fontColor($r('app.color.text_white'))
               .maxLines(2)
 
             Text(subtitle)
               .width('100%')
               .fontSize(12)
               .lineHeight(18)
-              .fontColor('#DBF4FFFF')
+              .fontColor($r('app.color.text_glass_desc'))
               .maxLines(2)
           }
           .width('82%')
@@ -893,7 +1062,7 @@ struct NGFStarterMainMenuPage {
           Text('›')
             .fontSize(22)
             .fontWeight(FontWeight.Bold)
-            .fontColor('#F7FFFFFF')
+            .fontColor($r('app.color.text_glass_arrow'))
         }
         .width('100%')
         .alignItems(VerticalAlign.Center)
@@ -907,10 +1076,10 @@ struct NGFStarterMainMenuPage {
           [accentEnd, 1]
         ]
       })
-      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(24, 1.2, 1.05, '#16FFFFFF'))
+      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(24, 1.2, 1.05, $r('app.color.glass_bg_effect')))
       .borderRadius(22)
-      .border({ width: 1, color: '#2EFFFFFF' })
-      .shadow({ radius: 14, color: '#24000000', offsetX: 0, offsetY: 8 })
+      .border({ width: 1, color: $r('app.color.glass_border_light') })
+      .shadow({ radius: 14, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 8 })
       .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
     }
     .width('100%')
@@ -929,26 +1098,26 @@ struct NGFStarterMainMenuPage {
         .width(146)
         .height(146)
         .borderRadius(146)
-        .backgroundColor('#3A5BF8FF')
+        .backgroundColor($r('app.color.glow_circle_indigo'))
         .opacity(0.22)
         .margin({ left: 198, top: -18 })
-        .shadow({ radius: 52, color: '#7A5C7CFF', offsetX: 10, offsetY: 12 })
+        .shadow({ radius: 52, color: $r('app.color.glow_circle_indigo_shadow'), offsetX: 10, offsetY: 12 })
 
       Column({ space: 12 }) {
         Text('官方 HDS / ArkUI 示例页')
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
-          .fontColor('#FFFFFFFF')
+          .fontColor($r('app.color.text_white'))
 
         Text('基于 MainMenuPage 的 NavPathStack + navDestination 架构，统一接入官方 HDS Navigation 示例与单页融合示例。')
           .fontSize(13)
           .lineHeight(20)
-          .fontColor('#D3EAF7FF')
+          .fontColor($r('app.color.text_glass_body'))
 
         Text('旧的 HDS 组件页、布局页和动效页已删除，并重组为一个完全遵循 HDSNavigation 视觉模式的综合示例页。')
           .fontSize(13)
           .lineHeight(20)
-          .fontColor('#D3EAF7FF')
+          .fontColor($r('app.color.text_glass_body'))
 
         this.buildFeatureActionButton(
           'OFFICIAL',
@@ -982,10 +1151,10 @@ struct NGFStarterMainMenuPage {
         ['#091624', 1]
       ]
     })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.24, 1.06, '#12FFFFFF'))
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.24, 1.06, $r('app.color.glass_bg_effect')))
     .borderRadius(26)
-    .border({ width: 1, color: '#2AFFFFFF' })
-    .shadow({ radius: 16, color: '#24000000', offsetX: 0, offsetY: 10 })
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
     .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
   }
 
@@ -996,21 +1165,21 @@ struct NGFStarterMainMenuPage {
         .width(152)
         .height(152)
         .borderRadius(152)
-        .backgroundColor('#27B3D4FF')
+        .backgroundColor($r('app.color.glow_circle_sky'))
         .opacity(0.18)
         .margin({ left: 210, top: -12 })
-        .shadow({ radius: 48, color: '#5656D4FF', offsetX: 8, offsetY: 10 })
+        .shadow({ radius: 48, color: $r('app.color.glow_circle_sky_shadow'), offsetX: 8, offsetY: 10 })
 
       Column({ space: 12 }) {
         Text('快速操作')
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
-          .fontColor('#FFFFFFFF')
+          .fontColor($r('app.color.text_white'))
 
         Text('把高频调试动作收束成统一光效按钮，便于在沉浸式主页中快速验证核心链路。')
           .fontSize(13)
           .lineHeight(20)
-          .fontColor('#D8F0F8FF')
+          .fontColor($r('app.color.text_glass_hint'))
 
         this.buildFeatureActionButton(
           'CORE',
@@ -1048,15 +1217,6 @@ struct NGFStarterMainMenuPage {
           '#FFB37DFF',
           NGFMainMenuActionKey.SIMULATE_ERROR
         )
-        this.buildFeatureActionButton(
-          'LEGACY',
-          '切换旧版 MainMenuPage',
-          '保留迁移入口，用于对照旧页面与当前 HDS 主菜单行为。',
-          '#334155',
-          '#64748B',
-          '#B1C2D9FF',
-          NGFMainMenuActionKey.OPEN_LEGACY_MAIN_MENU
-        )
       }
       .width('100%')
       .alignItems(HorizontalAlign.Start)
@@ -1071,10 +1231,10 @@ struct NGFStarterMainMenuPage {
         ['#0A1828', 1]
       ]
     })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.22, 1.05, '#12FFFFFF'))
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.22, 1.05, $r('app.color.glass_bg_effect')))
     .borderRadius(26)
-    .border({ width: 1, color: '#28FFFFFF' })
-    .shadow({ radius: 16, color: '#24000000', offsetX: 0, offsetY: 10 })
+    .border({ width: 1, color: $r('app.color.glass_border_medium') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
     .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
   }
 

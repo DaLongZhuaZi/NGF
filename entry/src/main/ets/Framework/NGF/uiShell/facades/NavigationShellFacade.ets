@@ -15,17 +15,17 @@ export class NavigationShellFacade implements INavigationShell {
   push(pageName: string, paramsJson: string): boolean {
     const stack = this.resolveNavStack();
     if (!stack) {
-      logger.warn(TAG, `push failed: nav stack unavailable, page=${pageName}`);
+      logger.warn(TAG, `页面入栈失败: 导航栈不可用, page=${pageName}`);
       return false;
     }
 
     try {
       const navParam = this.buildNavigationParam(paramsJson);
       stack.pushPathByName(pageName, navParam ? navParam : null);
-      logger.info(TAG, `push page: page=${pageName}`);
+      logger.info(TAG, `页面入栈: page=${pageName}`);
       return true;
     } catch (error) {
-      logger.error(TAG, `push failed: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, `页面入栈失败: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
       return false;
     }
   }
@@ -33,22 +33,22 @@ export class NavigationShellFacade implements INavigationShell {
   pop(): boolean {
     const stack = this.resolveNavStack();
     if (!stack) {
-      logger.warn(TAG, 'pop failed: nav stack unavailable');
+      logger.warn(TAG, '页面出栈失败: 导航栈不可用');
       return false;
     }
 
     try {
       const allPathName = stack.getAllPathName();
       if (allPathName.length <= 0) {
-        logger.debug(TAG, 'pop skipped: nav stack empty');
+        logger.debug(TAG, '页面出栈已跳过: 导航栈为空');
         return false;
       }
       const pageName = allPathName[allPathName.length - 1];
       stack.pop();
-      logger.info(TAG, `pop page: page=${pageName}`);
+      logger.info(TAG, `页面出栈: page=${pageName}`);
       return true;
     } catch (error) {
-      logger.error(TAG, `pop failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, `页面出栈失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return false;
     }
   }
@@ -56,7 +56,7 @@ export class NavigationShellFacade implements INavigationShell {
   replace(pageName: string, paramsJson: string): boolean {
     const stack = this.resolveNavStack();
     if (!stack) {
-      logger.warn(TAG, `replace failed: nav stack unavailable, page=${pageName}`);
+      logger.warn(TAG, `页面替换失败: 导航栈不可用, page=${pageName}`);
       return false;
     }
 
@@ -67,10 +67,10 @@ export class NavigationShellFacade implements INavigationShell {
       }
       const navParam = this.buildNavigationParam(paramsJson);
       stack.pushPathByName(pageName, navParam ? navParam : null);
-      logger.info(TAG, `replace page: page=${pageName}`);
+      logger.info(TAG, `页面替换: page=${pageName}`);
       return true;
     } catch (error) {
-      logger.error(TAG, `replace failed: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, `页面替换失败: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
       return false;
     }
   }
@@ -78,21 +78,21 @@ export class NavigationShellFacade implements INavigationShell {
   currentPageName(): string {
     const stack = this.resolveNavStack();
     if (!stack) {
-      logger.debug(TAG, 'currentPageName unavailable: nav stack missing');
+      logger.debug(TAG, '获取当前页面名称不可用: 导航栈缺失');
       return '';
     }
 
     try {
       const allPathName = stack.getAllPathName();
       if (allPathName.length <= 0) {
-        logger.debug(TAG, 'currentPageName unavailable: nav stack empty');
+        logger.debug(TAG, '获取当前页面名称不可用: 导航栈为空');
         return '';
       }
       const pageName = allPathName[allPathName.length - 1];
-      logger.debug(TAG, `currentPageName: page=${pageName}`);
+      logger.debug(TAG, `当前页面名称: page=${pageName}`);
       return pageName;
     } catch (error) {
-      logger.error(TAG, `currentPageName failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, `获取当前页面名称失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return '';
     }
   }
@@ -103,10 +103,10 @@ export class NavigationShellFacade implements INavigationShell {
       if (globalStack) {
         return globalStack;
       }
-      logger.debug(TAG, 'resolveNavStack missed: GlobalNavStack not found');
+      logger.debug(TAG, '解析导航栈未命中: 未找到 GlobalNavStack');
       return null;
     } catch (error) {
-      logger.error(TAG, `resolveNavStack failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, `解析导航栈失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return null;
     }
   }

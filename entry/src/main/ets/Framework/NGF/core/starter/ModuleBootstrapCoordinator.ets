@@ -11,6 +11,9 @@ import { ngfContentWorkflowIntegrationFacade } from '../../contentWorkflow/facad
 import { ngfDataIntegrationFacade } from '../../data/facades/NGFDataIntegrationFacade';
 import { ngfPlatformOhosIntegrationFacade } from '../../platformOhos/facades/NGFPlatformOhosIntegrationFacade';
 import { ngfUiShellIntegrationFacade } from '../../uiShell/facades/NGFUiShellIntegrationFacade';
+import { ngfUIThemeIntegrationFacade } from '../../uiTheme/facades/NGFUIThemeIntegrationFacade';
+import { ngfI18nIntegrationFacade } from '../../i18n/facades/NGFI18nIntegrationFacade';
+import { ngfDeviceAwarenessIntegrationFacade } from '../../deviceAwareness/facades/NGFDeviceAwarenessIntegrationFacade';
 import { NGFModuleRegistration, NGFModuleRegistry, ngfModuleRegistry } from './ModuleRegistry';
 
 const TAG: string = 'NGFModuleBootstrapCoordinator';
@@ -40,12 +43,15 @@ export class NGFModuleBootstrapCoordinator {
     }
 
     this.registerPlatformModule();
+    this.registerThemeModule();
+    this.registerI18nModule();
     this.registerDataModule();
+    this.registerDeviceAwarenessModule();
     this.registerWorkflowModule();
     this.registerSourceModule();
     this.registerUiShellModule();
     this.defaultModulesRegistered = true;
-    logger.info(TAG, 'default modules registered');
+    logger.info(TAG, '默认模块已注册');
   }
 
   bootstrapPhase(phaseName: string): NGFModuleBootstrapReport {
@@ -77,7 +83,7 @@ export class NGFModuleBootstrapCoordinator {
       Date.now()
     );
     this.lastReportsByPhase.set(phaseName, report);
-    logger.info(TAG, `bootstrap phase completed: phase=${phaseName}, total=${report.totalCount}, success=${report.successCount}, failure=${report.failureCount}`);
+    logger.info(TAG, `引导阶段完成：阶段=${phaseName}, 总数=${report.totalCount}, 成功=${report.successCount}, 失败=${report.failureCount}`);
     return report;
   }
 
@@ -85,7 +91,7 @@ export class NGFModuleBootstrapCoordinator {
     const normalizedPhase = phaseName.trim();
     const report = this.lastReportsByPhase.get(normalizedPhase);
     if (!report) {
-      logger.debug(TAG, `getLatestPhaseReport missed: phase=${normalizedPhase}`);
+      logger.debug(TAG, `获取最新阶段报告未命中：阶段=${normalizedPhase}`);
       return null;
     }
     return report;
@@ -95,7 +101,7 @@ export class NGFModuleBootstrapCoordinator {
     const normalizedModuleName = moduleName.trim();
     const result = this.lastResultsByModule.get(normalizedModuleName);
     if (!result) {
-      logger.debug(TAG, `getLatestModuleResult missed: module=${normalizedModuleName}`);
+      logger.debug(TAG, `获取最新模块结果未命中：模块=${normalizedModuleName}`);
       return null;
     }
     return result;
@@ -108,7 +114,7 @@ export class NGFModuleBootstrapCoordinator {
     for (let index = 0; index < registrations.length; index++) {
       snapshots.push(this.toRuntimeSnapshot(registrations[index]));
     }
-    logger.debug(TAG, `listModuleSnapshots: count=${snapshots.length}`);
+    logger.debug(TAG, `列出模块快照：数量=${snapshots.length}`);
     return snapshots;
   }
 
@@ -116,7 +122,7 @@ export class NGFModuleBootstrapCoordinator {
     const moduleName = registration.definition.moduleName;
     const dependencyMessage = this.validateDependencies(registration.definition);
     if (dependencyMessage.length > 0) {
-      logger.warn(TAG, `bootstrap module blocked: module=${moduleName}, reason=${dependencyMessage}`);
+      logger.warn(TAG, `引导模块被阻止：模块=${moduleName}, 原因=${dependencyMessage}`);
       return new NGFModuleBootstrapResult(moduleName, false, dependencyMessage, Date.now());
     }
 
@@ -124,14 +130,14 @@ export class NGFModuleBootstrapCoordinator {
       const success = registration.runtime.bootstrap();
       const message = success ? 'bootstrapped' : 'bootstrap returned false';
       if (success) {
-        logger.info(TAG, `bootstrap module success: module=${moduleName}`);
+        logger.info(TAG, `引导模块成功：模块=${moduleName}`);
       } else {
-        logger.warn(TAG, `bootstrap module failed: module=${moduleName}`);
+        logger.warn(TAG, `引导模块失败：模块=${moduleName}`);
       }
       return new NGFModuleBootstrapResult(moduleName, success, message, Date.now());
     } catch (error) {
       const message = this.errorToString(error as Object | string | number | boolean);
-      logger.error(TAG, `bootstrap module exception: module=${moduleName}, error=${message}`);
+      logger.error(TAG, `引导模块异常：模块=${moduleName}, 错误=${message}`);
       return new NGFModuleBootstrapResult(moduleName, false, message, Date.now());
     }
   }
@@ -163,6 +169,28 @@ export class NGFModuleBootstrapCoordinator {
     );
   }
 
+  private registerThemeModule(): void {
+    const dependencies: Array<string> = [];
+    dependencies.push('ngf.platform.ohos');
+    const serviceTokens: Array<string> = [];
+    serviceTokens.push('ngf.theme.theme_manager');
+    this.registerDefaultModule(
+      new NGFModuleDefinition('ngf.uiTheme.core', CORE_SERVICES_PHASE, 15, dependencies, serviceTokens),
+      ngfUIThemeIntegrationFacade
+    );
+  }
+
+  private registerI18nModule(): void {
+    const dependencies: Array<string> = [];
+    dependencies.push('ngf.platform.ohos');
+    const serviceTokens: Array<string> = [];
+    serviceTokens.push('ngf.i18n.i18n_manager');
+    this.registerDefaultModule(
+      new NGFModuleDefinition('ngf.i18n.core', CORE_SERVICES_PHASE, 15, dependencies, serviceTokens),
+      ngfI18nIntegrationFacade
+    );
+  }
+
   private registerDataModule(): void {
     const dependencies: Array<string> = [];
     dependencies.push('ngf.platform.ohos');
@@ -175,6 +203,19 @@ export class NGFModuleBootstrapCoordinator {
     this.registerDefaultModule(
       new NGFModuleDefinition('ngf.data.core', CORE_SERVICES_PHASE, 20, dependencies, serviceTokens),
       ngfDataIntegrationFacade
+    );
+  }
+
+  private registerDeviceAwarenessModule(): void {
+    const dependencies: Array<string> = [];
+    dependencies.push('ngf.platform.ohos');
+    const serviceTokens: Array<string> = [];
+    serviceTokens.push('ngf.device.holding_awareness');
+    serviceTokens.push('ngf.device.adaptation');
+    serviceTokens.push('ngf.device.visual_effects');
+    this.registerDefaultModule(
+      new NGFModuleDefinition('ngf.device.awareness', CORE_SERVICES_PHASE, 25, dependencies, serviceTokens),
+      ngfDeviceAwarenessIntegrationFacade
     );
   }
 
@@ -220,7 +261,7 @@ export class NGFModuleBootstrapCoordinator {
 
   private registerDefaultModule(definition: NGFModuleDefinition, runtime: IModuleBootstrap): void {
     const success = this.registry.registerModule(definition, runtime);
-    logger.debug(TAG, `register default module: module=${definition.moduleName}, success=${success}`);
+    logger.debug(TAG, `注册默认模块：模块=${definition.moduleName}, 成功=${success}`);
   }
 
   private toRuntimeSnapshot(registration: NGFModuleRegistration): NGFModuleRuntimeSnapshot {

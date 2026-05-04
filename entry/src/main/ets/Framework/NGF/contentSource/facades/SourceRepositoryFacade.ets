@@ -1,8 +1,8 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { util } from '@kit.ArkTS';
 import { getContext, isInitialized as isGlobalContextInitialized } from '../../../../GlobalContext';
-import { logger } from '../../../../Utils/Logger';
-import { uiContextManager } from '../../../Managers/UIContextManager';
+import { logger } from '../../utils/Logger';
+import { uiContextManager } from '../../platformOhos/UIContextManager';
 import { ISourceRepository } from '../contracts/ISourceRepository';
 
 const TAG = 'NGFSourceRepositoryFacade';
@@ -65,7 +65,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
       this.parseIndexJson(normalized);
       this.ensureRepositoryDir();
       const result = this.writeText(indexPath, normalized);
-      logger.info(TAG, `更新仓库索引: path=${indexPath}, success=${result}`);
+      logger.info(TAG, `更新仓库索引: path=${indexPath}, 成功=${result}`);
       return result;
     } catch {
       logger.warn(TAG, '更新仓库索引失败: JSON格式不合法');
@@ -84,7 +84,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
           packages.push(pkg);
         }
       }
-      logger.debug(TAG, `列出仓库包成功: count=${packages.length}`);
+      logger.debug(TAG, `列出仓库包成功: 数量=${packages.length}`);
       return packages;
     } catch {
       logger.warn(TAG, '列出仓库包失败');

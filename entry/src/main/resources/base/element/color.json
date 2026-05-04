@@ -51,6 +51,150 @@
     {
       "name": "button_inactive",
       "value": "#607D8B"
+    },
+    {
+      "name": "glass_surface_overlay",
+      "value": "#F2FFFFFF"
+    },
+    {
+      "name": "glass_chip_overlay",
+      "value": "#CCFFFFFF"
+    },
+    {
+      "name": "glass_action_overlay",
+      "value": "#F4FFFFFF"
+    },
+    {
+      "name": "glass_bg_effect",
+      "value": "#10FFFFFF"
+    },
+    {
+      "name": "glass_bg_effect_strong",
+      "value": "#1AFFFFFF"
+    },
+    {
+      "name": "glass_bg_effect_light",
+      "value": "#14FFFFFF"
+    },
+    {
+      "name": "glass_border_light",
+      "value": "#2EFFFFFF"
+    },
+    {
+      "name": "glass_border_strong",
+      "value": "#3AFFFFFF"
+    },
+    {
+      "name": "glass_border_medium",
+      "value": "#28FFFFFF"
+    },
+    {
+      "name": "glass_border_subtle",
+      "value": "#2AFFFFFF"
+    },
+    {
+      "name": "glass_divider",
+      "value": "#66FFFFFF"
+    },
+    {
+      "name": "glass_divider_strong",
+      "value": "#7AFFFFFF"
+    },
+    {
+      "name": "glow_circle_blue",
+      "value": "#2854F0E8"
+    },
+    {
+      "name": "glow_circle_blue_shadow",
+      "value": "#804A89FF"
+    },
+    {
+      "name": "glow_circle_cyan",
+      "value": "#32A4F2D8"
+    },
+    {
+      "name": "glow_circle_cyan_shadow",
+      "value": "#6635D5FF"
+    },
+    {
+      "name": "glow_circle_purple",
+      "value": "#2F6D7CFF"
+    },
+    {
+      "name": "glow_circle_purple_shadow",
+      "value": "#7A55A8FF"
+    },
+    {
+      "name": "glow_circle_green",
+      "value": "#3360F6D5"
+    },
+    {
+      "name": "glow_circle_green_shadow",
+      "value": "#6642D7FF"
+    },
+    {
+      "name": "glow_circle_indigo",
+      "value": "#3A5BF8FF"
+    },
+    {
+      "name": "glow_circle_indigo_shadow",
+      "value": "#7A5C7CFF"
+    },
+    {
+      "name": "glow_circle_sky",
+      "value": "#27B3D4FF"
+    },
+    {
+      "name": "glow_circle_sky_shadow",
+      "value": "#5656D4FF"
+    },
+    {
+      "name": "text_glass_label",
+      "value": "#A9E8F7FF"
+    },
+    {
+      "name": "text_glass_value",
+      "value": "#F7FFFFFF"
+    },
+    {
+      "name": "text_glass_subtitle",
+      "value": "#D9F3F7FF"
+    },
+    {
+      "name": "text_glass_status",
+      "value": "#C7E7F2FF"
+    },
+    {
+      "name": "text_glass_badge",
+      "value": "#BEEBFFFF"
+    },
+    {
+      "name": "text_glass_desc",
+      "value": "#DBF4FFFF"
+    },
+    {
+      "name": "text_glass_body",
+      "value": "#D3EAF7FF"
+    },
+    {
+      "name": "text_glass_hint",
+      "value": "#D8F0F8FF"
+    },
+    {
+      "name": "text_glass_arrow",
+      "value": "#F7FFFFFF"
+    },
+    {
+      "name": "card_shadow",
+      "value": "#40000000"
+    },
+    {
+      "name": "card_shadow_light",
+      "value": "#24000000"
+    },
+    {
+      "name": "circle_shadow_light",
+      "value": "#1A000000"
     }
   ]
 }

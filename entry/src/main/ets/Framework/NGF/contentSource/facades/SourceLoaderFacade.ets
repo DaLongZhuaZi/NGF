@@ -1,8 +1,8 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { util } from '@kit.ArkTS';
 import { getContext, isInitialized as isGlobalContextInitialized } from '../../../../GlobalContext';
-import { logger } from '../../../../Utils/Logger';
-import { uiContextManager } from '../../../Managers/UIContextManager';
+import { logger } from '../../utils/Logger';
+import { uiContextManager } from '../../platformOhos/UIContextManager';
 import { ISourceLoader } from '../contracts/ISourceLoader';
 
 const TAG = 'NGFSourceLoaderFacade';
@@ -22,7 +22,7 @@ export class SourceLoaderFacade implements ISourceLoader {
   exists(pkg: string): boolean {
     const normalizedPkg = this.normalizePkg(pkg);
     if (normalizedPkg.length <= 0) {
-      logger.warn(TAG, 'exists ignored: pkg为空');
+      logger.warn(TAG, '检查存在性忽略: pkg为空');
       return false;
     }
 
@@ -41,7 +41,7 @@ export class SourceLoaderFacade implements ISourceLoader {
   loadSourceJson(pkg: string): string {
     const normalizedPkg = this.normalizePkg(pkg);
     if (normalizedPkg.length <= 0) {
-      logger.warn(TAG, 'loadSourceJson ignored: pkg为空');
+      logger.warn(TAG, '加载源配置忽略: pkg为空');
       return '';
     }
 
@@ -59,7 +59,7 @@ export class SourceLoaderFacade implements ISourceLoader {
           return content;
         }
       } catch {
-        logger.warn(TAG, `璇诲彇鍥炬簮閰嶇疆澶辫触: ${candidatePath}`);
+        logger.warn(TAG, `读取图源配置失败: ${candidatePath}`);
       }
     }
 
@@ -70,7 +70,7 @@ export class SourceLoaderFacade implements ISourceLoader {
   loadIconPath(pkg: string): string {
     const normalizedPkg = this.normalizePkg(pkg);
     if (normalizedPkg.length <= 0) {
-      logger.warn(TAG, 'loadIconPath ignored: pkg为空');
+      logger.warn(TAG, '加载图标路径忽略: pkg为空');
       return '';
     }
 

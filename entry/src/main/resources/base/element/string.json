@@ -2,15 +2,127 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "NGF starter entry module"
+      "value": "NGF framework entry module"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "NGF starter ability"
+      "value": "NGF framework main ability"
     },
     {
       "name": "EntryAbility_label",
-      "value": "NGF Start"
+      "value": "NGF Framework"
+    },
+    {
+      "name": "detect_gesture_reason",
+      "value": "框架需要检测用户握持手势，用于实现自适应界面布局和握持感知导航。"
+    },
+    {
+      "name": "activity_motion_reason",
+      "value": "框架需要感知用户活动状态和操作手信息，用于实现握持侧识别和交互优化。"
+    },
+    {
+      "name": "main_menu_title",
+      "value": "NGF MainMenuPage"
+    },
+    {
+      "name": "main_menu_subtitle",
+      "value": "NGF 运行框架主入口 / HDS 根导航容器"
+    },
+    {
+      "name": "status_ready",
+      "value": "轻核心框架已就绪"
+    },
+    {
+      "name": "status_not_ready",
+      "value": "轻核心框架启动失败"
+    },
+    {
+      "name": "status_waiting",
+      "value": "等待核心启动"
+    },
+    {
+      "name": "card_status_title",
+      "value": "运行状态"
+    },
+    {
+      "name": "card_window_title",
+      "value": "窗口监控"
+    },
+    {
+      "name": "card_module_title",
+      "value": "模块明细"
+    },
+    {
+      "name": "card_log_title",
+      "value": "运行日志"
+    },
+    {
+      "name": "card_hds_title",
+      "value": "官方 HDS / ArkUI 示例页"
+    },
+    {
+      "name": "card_hds_desc",
+      "value": "基于 MainMenuPage 的 NavPathStack + navDestination 架构，统一接入官方 HDS Navigation 示例与单页融合示例。"
+    },
+    {
+      "name": "card_hds_desc2",
+      "value": "旧的 HDS 组件页、布局页和动效页已删除，并重组为一个完全遵循 HDSNavigation 视觉模式的综合示例页。"
+    },
+    {
+      "name": "card_action_title",
+      "value": "快速操作"
+    },
+    {
+      "name": "card_action_desc",
+      "value": "把高频调试动作收束成统一光效按钮，便于在沉浸式主页中快速验证核心链路。"
+    },
+    {
+      "name": "action_bootstrap_title",
+      "value": "初始化核心服务"
+    },
+    {
+      "name": "action_bootstrap_desc",
+      "value": "重新确认容器、日志、事件总线和基础能力是否就绪。"
+    },
+    {
+      "name": "action_event_title",
+      "value": "发布演示事件"
+    },
+    {
+      "name": "action_event_desc",
+      "value": "向核心事件总线发送演示消息，检查链路与日志反馈。"
+    },
+    {
+      "name": "action_lifecycle_title",
+      "value": "推进生命周期"
+    },
+    {
+      "name": "action_lifecycle_desc",
+      "value": "模拟框架分阶段推进，观察状态卡片与日志变化。"
+    },
+    {
+      "name": "action_error_title",
+      "value": "触发演示错误"
+    },
+    {
+      "name": "action_error_desc",
+      "value": "验证错误处理器、错误计数与统一日志采集效果。"
+    },
+    {
+      "name": "action_official_title",
+      "value": "官方 HDS Navigation 示例页"
+    },
+    {
+      "name": "action_official_desc",
+      "value": "验证统一主栈、官方目的地与多功能顶栏页面结构。"
+    },
+    {
+      "name": "action_showcase_title",
+      "value": "HDS 综合融合示例页"
+    },
+    {
+      "name": "action_showcase_desc",
+      "value": "在同一页面内融合组件、布局与动效验证能力。"
     }
   ]
 }

@@ -53,17 +53,17 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
     const normalizedWorkflow = workflowName.trim();
     const normalizedSource = sourceId.trim();
     if (normalizedWorkflow.length <= 0 || normalizedSource.length <= 0) {
-      logger.warn(TAG, `executeWorkflow ignored: workflow=${normalizedWorkflow}, source=${normalizedSource}`);
+      logger.warn(TAG, `executeWorkflow 忽略：workflow=${normalizedWorkflow}, source=${normalizedSource}`);
       return new NGFWorkflowResult(false, '');
     }
 
-    logger.info(TAG, `execute workflow: workflow=${normalizedWorkflow}, source=${normalizedSource}`);
+    logger.info(TAG, `执行工作流：workflow=${normalizedWorkflow}, source=${normalizedSource}`);
 
     const rateLimitKey = `${normalizedSource}:${normalizedWorkflow}`;
     const now = Date.now();
     if (!ngfRateLimitPolicyFacade.canProceed(rateLimitKey, now)) {
       const retryAfter = ngfRateLimitPolicyFacade.retryAfterMs(rateLimitKey, now);
-      logger.warn(TAG, `workflow rate limited: workflow=${normalizedWorkflow}, source=${normalizedSource}, retryAfterMs=${retryAfter}`);
+      logger.warn(TAG, `工作流被限流：workflow=${normalizedWorkflow}, source=${normalizedSource}, retryAfterMs=${retryAfter}`);
       const rateLimitError = new NGFWorkflowErrorEnvelope(
         'RATE_LIMITED',
         'workflow request is rate limited',
@@ -75,12 +75,12 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
     ngfRateLimitPolicyFacade.markRequest(rateLimitKey, now);
 
     const workflowInput = this.parseWorkflowInput(inputJson);
-    logger.debug(TAG, `workflow input resolved: actionType=${workflowInput.actionType}`);
+    logger.debug(TAG, `工作流输入已解析：actionType=${workflowInput.actionType}`);
 
     let attempt = 1;
     let lastRetryDelay = 0;
     while (true) {
-      logger.debug(TAG, `workflow attempt start: workflow=${normalizedWorkflow}, attempt=${attempt}`);
+      logger.debug(TAG, `工作流尝试开始：workflow=${normalizedWorkflow}, 尝试=${attempt}`);
       const actionResult = await ngfActionExecutorFacade.executeAction(
         workflowInput.actionType,
         workflowInput.actionJson,
@@ -94,17 +94,17 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
           actionResult.outputJson,
           Date.now()
         );
-        logger.info(TAG, `workflow completed: workflow=${normalizedWorkflow}, source=${normalizedSource}, attempts=${attempt}`);
+        logger.info(TAG, `工作流完成：workflow=${normalizedWorkflow}, source=${normalizedSource}, attempts=${attempt}`);
         return new NGFWorkflowResult(true, JSON.stringify(successOutput));
       }
 
       if (!ngfRetryPolicyFacade.shouldRetry(attempt, 'ACTION_FAILED')) {
-        logger.warn(TAG, `workflow retry rejected: workflow=${normalizedWorkflow}, attempt=${attempt}`);
+        logger.warn(TAG, `工作流重试被拒绝：workflow=${normalizedWorkflow}, 尝试=${attempt}`);
         break;
       }
 
       lastRetryDelay = ngfRetryPolicyFacade.nextDelayMs(attempt);
-      logger.info(TAG, `workflow retry scheduled: workflow=${normalizedWorkflow}, nextAttempt=${attempt + 1}, delayMs=${lastRetryDelay}`);
+      logger.info(TAG, `工作流重试已调度：workflow=${normalizedWorkflow}, nextAttempt=${attempt + 1}, delayMs=${lastRetryDelay}`);
       await this.sleep(lastRetryDelay);
       attempt = attempt + 1;
     }
@@ -115,13 +115,13 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
       lastRetryDelay,
       attempt
     );
-    logger.warn(TAG, `workflow failed: workflow=${normalizedWorkflow}, source=${normalizedSource}, attempts=${attempt}`);
+    logger.warn(TAG, `工作流失败：workflow=${normalizedWorkflow}, source=${normalizedSource}, attempts=${attempt}`);
     return new NGFWorkflowResult(false, JSON.stringify(failedOutput));
   }
 
   private parseWorkflowInput(inputJson: string): NGFWorkflowInputEnvelope {
     if (inputJson.trim().length <= 0) {
-      logger.debug(TAG, 'parseWorkflowInput fallback: inputJson is empty');
+      logger.debug(TAG, 'parseWorkflowInput 回退：inputJson 为空');
       return new NGFWorkflowInputEnvelope('extract', '{}', '{}');
     }
 
@@ -132,7 +132,7 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
       const contextJson = parsed.contextJson && typeof parsed.contextJson === 'string' ? parsed.contextJson : '{}';
       return new NGFWorkflowInputEnvelope(actionType, actionJson, contextJson);
     } catch {
-      logger.warn(TAG, 'parseWorkflowInput failed: invalid JSON payload');
+      logger.warn(TAG, 'parseWorkflowInput 失败：无效的 JSON 负载');
       return new NGFWorkflowInputEnvelope('extract', '{}', '{}');
     }
   }

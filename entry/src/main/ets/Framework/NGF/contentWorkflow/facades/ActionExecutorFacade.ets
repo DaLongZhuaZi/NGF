@@ -29,20 +29,20 @@ export class ActionExecutorFacade implements IActionExecutor {
   async executeAction(actionType: string, actionJson: string, contextJson: string): Promise<NGFActionResult> {
     const normalizedType = actionType.trim().toLowerCase();
     if (normalizedType.length <= 0) {
-      logger.warn(TAG, 'executeAction ignored: actionType is empty');
+      logger.warn(TAG, 'executeAction 忽略：actionType 为空');
       return new NGFActionResult(false, '');
     }
 
-    logger.info(TAG, `execute action: type=${normalizedType}`);
+    logger.info(TAG, `执行动作：type=${normalizedType}`);
 
     if (normalizedType === 'wait') {
       const waitAction = this.parseWaitAction(actionJson);
       if (waitAction.waitMs > 0) {
-        logger.debug(TAG, `wait action sleep: durationMs=${waitAction.waitMs}`);
+        logger.debug(TAG, `等待动作休眠：durationMs=${waitAction.waitMs}`);
         await this.sleep(waitAction.waitMs);
       }
       const waitOutput = new NGFActionOutputEnvelope('wait', actionJson, contextJson, Date.now());
-      logger.info(TAG, `action completed: type=${normalizedType}`);
+      logger.info(TAG, `动作完成：type=${normalizedType}`);
       return new NGFActionResult(true, JSON.stringify(waitOutput));
     }
 
@@ -52,17 +52,17 @@ export class ActionExecutorFacade implements IActionExecutor {
       || normalizedType === 'navigate'
       || normalizedType === 'api') {
       const output = new NGFActionOutputEnvelope(normalizedType, actionJson, contextJson, Date.now());
-      logger.info(TAG, `action completed: type=${normalizedType}`);
+      logger.info(TAG, `动作完成：type=${normalizedType}`);
       return new NGFActionResult(true, JSON.stringify(output));
     }
 
-    logger.warn(TAG, `unsupported action type: ${normalizedType}`);
+    logger.warn(TAG, `不支持的动作类型：${normalizedType}`);
     return new NGFActionResult(false, '');
   }
 
   private parseWaitAction(actionJson: string): NGFWaitActionEnvelope {
     if (actionJson.trim().length <= 0) {
-      logger.debug(TAG, 'parseWaitAction fallback: actionJson is empty');
+      logger.debug(TAG, 'parseWaitAction 回退：actionJson 为空');
       return new NGFWaitActionEnvelope(0);
     }
 
@@ -71,7 +71,7 @@ export class ActionExecutorFacade implements IActionExecutor {
       const waitMs = parsed.waitMs && typeof parsed.waitMs === 'number' ? parsed.waitMs : 0;
       return new NGFWaitActionEnvelope(waitMs);
     } catch {
-      logger.warn(TAG, 'parseWaitAction failed: invalid JSON payload');
+      logger.warn(TAG, 'parseWaitAction 失败：无效的 JSON 负载');
       return new NGFWaitActionEnvelope(0);
     }
   }

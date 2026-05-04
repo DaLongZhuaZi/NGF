@@ -1,12 +1,12 @@
 import { hdsEffect, hdsMaterial, HdsNavDestination, HdsNavDestinationTitleMode } from '@kit.UIDesignKit';
 import { logger } from '../../Framework/NGF/utils/Logger';
 import { NGFHdsDemoRouteName } from './HdsDemoRoutes';
-import { NGFHdsTitleBarOptionsFactory } from './HdsNavigationSupport';
+import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
-} from './NGFImmersiveTopChrome';
+} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFHdsNavigationOfficialShowcasePage';
@@ -258,22 +258,22 @@ export struct HdsNavigationOfficialShowcasePage {
 
   aboutToAppear(): void {
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
-    logger.lifecycle(TAG, 'official showcase aboutToAppear');
+    logger.lifecycle(TAG, '官方展示即将显示');
   }
 
   aboutToDisappear(): void {
-    logger.lifecycle(TAG, 'official showcase aboutToDisappear');
+    logger.lifecycle(TAG, '官方展示即将消失');
   }
 
   private bindPathStack(context: NavDestinationContext): void {
     this.pathStack = context.pathStack;
-    logger.info(TAG, 'bound pathStack for official showcase');
+    logger.info(TAG, '官方展示已绑定路径栈');
   }
 
   private handleBackPressed(): boolean {
     NGFPageWindowSupport.restoreMainMenu();
     this.pathStack.pop();
-    logger.info(TAG, 'pop official showcase page');
+    logger.info(TAG, '官方展示页面已弹出');
     return true;
   }
 
@@ -282,11 +282,11 @@ export struct HdsNavigationOfficialShowcasePage {
       this.pathStack.pushPathByName(card.routeName, null);
       this.lastActionText = `已打开：${card.title}`;
       this.openedCount = this.openedCount + 1;
-      logger.info(TAG, `open official HDS route: ${card.routeName}`);
+      logger.info(TAG, `打开官方HDS路由: ${card.routeName}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.lastActionText = `打开失败：${card.title}`;
-      logger.warn(TAG, `open official HDS route failed: route=${card.routeName}, error=${message}`);
+      logger.warn(TAG, `打开官方HDS路由失败: route=${card.routeName}, error=${message}`);
     }
   }
 
@@ -338,10 +338,10 @@ export struct HdsNavigationOfficialShowcasePage {
       return this.handleBackPressed();
     })
     .onShown((): void => {
-      logger.info(TAG, 'official showcase shown');
+      logger.info(TAG, '官方展示已显示');
     })
     .onHidden((): void => {
-      logger.info(TAG, 'official showcase hidden');
+      logger.info(TAG, '官方展示已隐藏');
     })
     .backgroundColor($r('app.color.background_primary'))
   }
@@ -528,23 +528,23 @@ export struct HdsNavigationOfficialOverviewPage {
 
   aboutToAppear(): void {
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION_OVERVIEW);
-    logger.lifecycle(TAG, 'official overview aboutToAppear');
+    logger.lifecycle(TAG, '官方概览即将显示');
   }
 
   aboutToDisappear(): void {
     NGFPageWindowSupport.restore(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
-    logger.lifecycle(TAG, 'official overview aboutToDisappear');
+    logger.lifecycle(TAG, '官方概览即将消失');
   }
 
   private bindPathStack(context: NavDestinationContext): void {
     this.pathStack = context.pathStack;
-    logger.info(TAG, 'bound pathStack for overview page');
+    logger.info(TAG, '官方概览已绑定路径栈');
   }
 
   private handleBackPressed(): boolean {
     NGFPageWindowSupport.restore(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
     this.pathStack.pop();
-    logger.info(TAG, 'pop overview page');
+    logger.info(TAG, '官方概览页面已弹出');
     return true;
   }
 
@@ -669,23 +669,23 @@ export struct HdsNavigationOfficialMaterialPage {
 
   aboutToAppear(): void {
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION_MATERIAL);
-    logger.lifecycle(TAG, 'official material aboutToAppear');
+    logger.lifecycle(TAG, '官方材质即将显示');
   }
 
   aboutToDisappear(): void {
     NGFPageWindowSupport.restore(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
-    logger.lifecycle(TAG, 'official material aboutToDisappear');
+    logger.lifecycle(TAG, '官方材质即将消失');
   }
 
   private bindPathStack(context: NavDestinationContext): void {
     this.pathStack = context.pathStack;
-    logger.info(TAG, 'bound pathStack for material page');
+    logger.info(TAG, '官方材质已绑定路径栈');
   }
 
   private handleBackPressed(): boolean {
     NGFPageWindowSupport.restore(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
     this.pathStack.pop();
-    logger.info(TAG, 'pop material page');
+    logger.info(TAG, '官方材质页面已弹出');
     return true;
   }
 
@@ -821,35 +821,35 @@ export struct HdsNavigationOfficialEffectPage {
 
   aboutToAppear(): void {
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION_EFFECT);
-    logger.lifecycle(TAG, 'official effect aboutToAppear');
+    logger.lifecycle(TAG, '官方特效即将显示');
   }
 
   aboutToDisappear(): void {
     NGFPageWindowSupport.restore(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
-    logger.lifecycle(TAG, 'official effect aboutToDisappear');
+    logger.lifecycle(TAG, '官方特效即将消失');
   }
 
   private bindPathStack(context: NavDestinationContext): void {
     this.pathStack = context.pathStack;
-    logger.info(TAG, 'bound pathStack for effect page');
+    logger.info(TAG, '官方特效已绑定路径栈');
   }
 
   private handleBackPressed(): boolean {
     NGFPageWindowSupport.restore(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
     this.pathStack.pop();
-    logger.info(TAG, 'pop effect page');
+    logger.info(TAG, '官方特效页面已弹出');
     return true;
   }
 
   private updatePressedEffectEntry(entryId: string): void {
     this.pressedEffectEntryId = entryId;
-    logger.info(TAG, `effect entry pressed: ${entryId}`);
+    logger.info(TAG, `特效条目按下: ${entryId}`);
   }
 
   private clearPressedEffectEntry(entryId: string): void {
     if (this.pressedEffectEntryId === entryId) {
       this.pressedEffectEntryId = '';
-      logger.info(TAG, `effect entry released: ${entryId}`);
+      logger.info(TAG, `特效条目释放: ${entryId}`);
     }
   }
 
@@ -991,7 +991,7 @@ export struct HdsNavigationOfficialEffectPage {
     .onClick((): void => {
       this.lastEffectText = `已触发 HDS 特效卡片：${entry.title}`;
       this.clearPressedEffectEntry(entry.id);
-      logger.info(TAG, `effect card clicked: ${entry.id}`);
+      logger.info(TAG, `特效卡片点击: ${entry.id}`);
     })
   }
 }

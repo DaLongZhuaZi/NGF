@@ -6,14 +6,14 @@ import {
   SegmentButtonOptions,
   SubHeader
 } from '@kit.ArkUI';
-import { hdsEffect, hdsMaterial, HdsNavDestination, HdsNavDestinationTitleMode } from '@kit.UIDesignKit';
+import { hdsEffect, hdsMaterial, HdsNavDestination, HdsNavDestinationTitleMode, HdsTabs, HdsTabsController } from '@kit.UIDesignKit';
 import { logger } from '../../Framework/NGF/utils/Logger';
-import { NGFHdsTitleBarOptionsFactory } from './HdsNavigationSupport';
+import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
-} from './NGFImmersiveTopChrome';
+} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFHdsIntegratedShowcasePage';
@@ -185,6 +185,7 @@ export struct HdsIntegratedShowcasePage {
   @State private motionIntervalValue: number = 3200;
 
   private readonly scroller: Scroller = new Scroller();
+  private readonly layoutTabsController: HdsTabsController = new HdsTabsController();
   private readonly swiperController: SwiperController = new SwiperController();
   private readonly capabilityCards: Array<NGFHdsIntegratedCapabilityCard> = [
     new NGFHdsIntegratedCapabilityCard(
@@ -341,30 +342,30 @@ export struct HdsIntegratedShowcasePage {
 
   aboutToAppear(): void {
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_SHOWCASE);
-    logger.lifecycle(TAG, 'aboutToAppear');
+    logger.lifecycle(TAG, '即将显示');
   }
 
   aboutToDisappear(): void {
     NGFPageWindowSupport.restoreMainMenu();
-    logger.lifecycle(TAG, 'aboutToDisappear');
+    logger.lifecycle(TAG, '即将消失');
   }
 
   private bindPathStack(context: NavDestinationContext): void {
     this.pathStack = context.pathStack;
-    logger.info(TAG, 'bound pathStack for integrated showcase page');
+    logger.info(TAG, '综合展示已绑定路径栈');
   }
 
   private handleBackPressed(): boolean {
     NGFPageWindowSupport.restoreMainMenu();
     this.pathStack.pop();
-    logger.info(TAG, 'pop integrated showcase page');
+    logger.info(TAG, '综合展示页面已弹出');
     return true;
   }
 
   private updateFocusedCapability(index: number): void {
     this.selectedCapabilityIndexes = [index];
     this.lastActionText = `当前聚焦：${this.capabilityCards[index].title}`;
-    logger.info(TAG, `focused capability card: index=${index}`);
+    logger.info(TAG, `聚焦能力卡片: index=${index}`);
   }
 
   private resolveFocusedCapabilityId(): string {
@@ -383,7 +384,7 @@ export struct HdsIntegratedShowcasePage {
     this.componentGroupIndexes = [0];
     this.componentTagIndexes = [0];
     this.lastActionText = '已重置组件区筛选条件';
-    logger.info(TAG, 'reset component filters');
+    logger.info(TAG, '重置组件筛选条件');
   }
 
   private buildVisibleComponentCards(): Array<NGFHdsIntegratedComponentCard> {
@@ -500,7 +501,7 @@ export struct HdsIntegratedShowcasePage {
     this.motionIntervalValue = 3200;
     this.swiperController.changeIndex(0, true);
     this.lastActionText = '已重置动效区演示状态';
-    logger.info(TAG, 'reset motion section');
+    logger.info(TAG, '重置动效区');
   }
 
   private resolveMotionModeLabel(): string {
@@ -546,7 +547,7 @@ export struct HdsIntegratedShowcasePage {
     this.motionCurrentIndex = index;
     this.swiperController.changeIndex(index, true);
     this.lastActionText = `当前动效焦点：${this.motionSlides[index].title}`;
-    logger.info(TAG, `selected motion slide: index=${index}`);
+    logger.info(TAG, `选中动效幻灯片: index=${index}`);
   }
 
   private shiftMotionSlide(step: number): void {
@@ -781,7 +782,7 @@ export struct HdsIntegratedShowcasePage {
         onItemClicked: (index: number): void => {
           this.componentGroupIndexes = [index];
           this.lastActionText = `组件区分组切换为：${this.resolveComponentGroupLabel()}`;
-          logger.info(TAG, `component group changed: index=${index}`);
+          logger.info(TAG, `组件分组切换: index=${index}`);
         }
       })
       .backgroundColor(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND)
@@ -795,7 +796,7 @@ export struct HdsIntegratedShowcasePage {
         onChange: (indexes: Array<number>): void => {
           this.componentTagIndexes = indexes.length > 0 ? indexes : [0];
           this.lastActionText = `组件区标签切换为：${this.resolveComponentTagLabel()}`;
-          logger.info(TAG, `component tag changed: indexes=${JSON.stringify(this.componentTagIndexes)}`);
+          logger.info(TAG, `组件标签切换: indexes=${JSON.stringify(this.componentTagIndexes)}`);
         }
       })
       .backgroundColor(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND)
@@ -859,7 +860,7 @@ export struct HdsIntegratedShowcasePage {
         secondaryTitle: '用单页方式整合内容布局、导航布局与服务入口骨架'
       })
 
-      Tabs({ index: this.layoutTabIndex }) {
+      HdsTabs({ controller: this.layoutTabsController }) {
         TabContent() {
           this.buildLayoutTabPanel('内容布局')
         }
@@ -875,13 +876,22 @@ export struct HdsIntegratedShowcasePage {
         }
         .tabBar('服务入口')
       }
+      .barPosition(BarPosition.Start)
       .barMode(BarMode.Fixed)
       .width('100%')
       .height(332)
+      .barFloatingStyle({
+        adaptToHandedness: true,
+        systemMaterialEffect: {
+          materialType: hdsMaterial.MaterialType.IMMERSIVE,
+          materialLevel: hdsMaterial.MaterialLevel.ADAPTIVE
+        },
+        thermoCtrl: true
+      })
       .onChange((index: number): void => {
         this.layoutTabIndex = index;
         this.lastActionText = `布局区切换为：${index === 0 ? '内容布局' : index === 1 ? '导航布局' : '服务入口'}`;
-        logger.info(TAG, `layout tab changed: index=${index}`);
+        logger.info(TAG, `布局标签切换: index=${index}`);
       })
     }
     .width('100%')
@@ -963,7 +973,7 @@ export struct HdsIntegratedShowcasePage {
         onItemClicked: (index: number): void => {
           this.motionModeIndexes = [index];
           this.lastActionText = `动效模式切换为：${this.resolveMotionModeLabel()}`;
-          logger.info(TAG, `motion mode changed: index=${index}`);
+          logger.info(TAG, `动效模式切换: index=${index}`);
         }
       })
 
@@ -995,7 +1005,7 @@ export struct HdsIntegratedShowcasePage {
       )
       .onChange((index: number): void => {
         this.motionCurrentIndex = index;
-        logger.info(TAG, `motion swiper changed: index=${index}`);
+        logger.info(TAG, `动效轮播切换: index=${index}`);
       })
 
       this.buildMotionSelectorRow()
@@ -1097,7 +1107,7 @@ export struct HdsIntegratedShowcasePage {
         .onClick((): void => {
           this.motionAutoPlayEnabled = !this.motionAutoPlayEnabled;
           this.lastActionText = this.motionAutoPlayEnabled ? '已开启自动播放' : '已关闭自动播放';
-          logger.info(TAG, `toggle motion autoplay: enabled=${this.motionAutoPlayEnabled}`);
+          logger.info(TAG, `切换动效自动播放: enabled=${this.motionAutoPlayEnabled}`);
         })
 
       Button('下一张')

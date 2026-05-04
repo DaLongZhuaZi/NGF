@@ -7,25 +7,25 @@ const TAG: string = 'NGFPlatformWindowControllerFacade';
 export class PlatformWindowControllerFacade implements IPlatformWindowController {
   setDisplayMode(mode: NGFDisplayMode): void {
     const previousMode = ngfPlatformWindowManagerFacade.getCurrentSnapshot().displayMode;
-    logger.stateChange(TAG, previousMode, mode, 'apply display mode');
+    logger.stateChange(TAG, previousMode, mode, '应用显示模式');
 
     try {
       ngfPlatformWindowManagerFacade.setDisplayMode(mode);
-      logger.info(TAG, `display mode applied: mode=${mode}`);
+      logger.info(TAG, `显示模式已应用: mode=${mode}`);
     } catch (error) {
-      logger.error(TAG, `setDisplayMode failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, `设置显示模式失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       throw error as Error;
     }
   }
 
   getCurrentDisplayMode(): NGFDisplayMode {
     const currentMode = ngfPlatformWindowManagerFacade.getCurrentSnapshot().displayMode;
-    logger.debug(TAG, `getCurrentDisplayMode: mode=${currentMode}`);
+    logger.debug(TAG, `获取当前显示模式: mode=${currentMode}`);
     return currentMode;
   }
 
   reapplyCurrentDisplayMode(delayMs: number): void {
-    logger.info(TAG, `reapply current display mode: delayMs=${delayMs}`);
+    logger.info(TAG, `重新应用当前显示模式: delayMs=${delayMs}`);
     try {
       const activePageName = ngfPlatformWindowManagerFacade.getActivePageName();
       if (activePageName.length > 0) {
@@ -43,7 +43,7 @@ export class PlatformWindowControllerFacade implements IPlatformWindowController
         ngfPlatformWindowManagerFacade.setDisplayMode(currentMode);
       }, delayMs);
     } catch (error) {
-      logger.error(TAG, `reapplyCurrentDisplayMode failed: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, `重新应用显示模式失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       throw error as Error;
     }
   }
