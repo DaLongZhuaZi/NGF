@@ -32,9 +32,17 @@ class DependencyRegistration {
   }
 }
 
+/**
+ * 依赖容器
+ * @note API 23 适配：添加私有构造函数确保单例模式正确实现
+ */
 export class DependencyContainer {
   private static instance: DependencyContainer | null = null;
   private readonly registrations: Map<string, DependencyRegistration> = new Map<string, DependencyRegistration>();
+
+  private constructor() {
+    // 私有构造函数，确保单例模式
+  }
 
   static getInstance(): DependencyContainer {
     if (!DependencyContainer.instance) {

@@ -25,7 +25,7 @@ class GlobalContextHolder {
     return this.abilityContext !== null;
   }
 
-  getContext(): NGFAbilityContextLike {
+  getNGFContext(): NGFAbilityContextLike {
     if (!this.abilityContext) {
       throw new Error('Global context is not initialized');
     }
@@ -47,6 +47,19 @@ export function isInitialized(): boolean {
   return globalContextHolder.isInitialized();
 }
 
+/**
+ * 获取 NGF 全局 AbilityContext
+ * @returns NGFAbilityContextLike 能力上下文
+ * @throws Error 当全局上下文未初始化时抛出
+ * @note API 23 适配：重命名以避免与系统废弃的 getContext() API 混淆
+ */
+export function getNGFContext(): NGFAbilityContextLike {
+  return globalContextHolder.getNGFContext();
+}
+
+/**
+ * @deprecated 请使用 getNGFContext() 替代，以避免与系统废弃 API 混淆
+ */
 export function getContext(): NGFAbilityContextLike {
-  return globalContextHolder.getContext();
+  return globalContextHolder.getNGFContext();
 }

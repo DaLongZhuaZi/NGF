@@ -56,9 +56,10 @@ const BREAKPOINT_ORDER: NGFBreakpoint[] = [
  * 设备适配门面
  * 单例模式，全局管理设备信息和适配逻辑
  * 实现 IDeviceAdaptationManager 接口，通过 AppStorage 发布设备状态
+ * @note API 23 适配：修复静态属性初始化，添加 | null = null
  */
 export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
-  private static instance: NGFDeviceAdaptationManager;
+  private static instance: NGFDeviceAdaptationManager | null = null;
   private currentDeviceInfo: NGFDeviceInfo | null = null;
   private listeners: Set<NGFDeviceChangeListener> = new Set<NGFDeviceChangeListener>();
   private displayObj: display.Display | null = null;

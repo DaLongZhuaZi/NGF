@@ -1,11 +1,9 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { util } from '@kit.ArkTS';
-import { getContext, isInitialized as isGlobalContextInitialized } from '../../../../GlobalContext';
 import { logger } from '../../utils/Logger';
-import { uiContextManager } from '../../platformOhos/UIContextManager';
 import { ISourceRepository } from '../contracts/ISourceRepository';
 
-const TAG = 'NGFSourceRepositoryFacade';
+const TAG: string = 'NGFSourceRepositoryFacade';
 
 class NGFSourceRepositoryEntry {
   pkg: string;
@@ -27,9 +25,25 @@ class NGFSourceRepositoryIndex {
   }
 }
 
+/**
+ * 源码仓库门面
+ * @note API 23 适配：移除对 GlobalContext 和 UIContextManager 的直接依赖
+ * 改为通过 initialize 方法注入 filesDir，遵循分层原则
+ */
 export class SourceRepositoryFacade implements ISourceRepository {
   private readonly repositoryDirName: string = 'extensions-source';
   private readonly indexFileName: string = 'index.main.json';
+  private filesDir: string = '';
+
+  /**
+   * 初始化源码仓库
+   * @param filesDir 文件目录路径
+   * @note API 23 适配：通过依赖注入传入路径，替代直接依赖 GlobalContext
+   */
+  initialize(filesDir: string): void {
+    this.filesDir = filesDir;
+    logger.info(TAG, `源码仓库初始化完成: filesDir=${filesDir}`);
+  }
 
   readIndexJson(): string {
     const indexPath = this.getIndexFilePath();
@@ -135,20 +149,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
   }
 
   private resolveFilesDir(): string {
-    const abilityContext = uiContextManager.getAbilityContext();
-    if (abilityContext) {
-      return abilityContext.filesDir;
-    }
-
-    if (isGlobalContextInitialized()) {
-      try {
-        return getContext().filesDir;
-      } catch {
-        return '';
-      }
-    }
-
-    return '';
+    return this.filesDir;
   }
 
   private ensureRepositoryDir(): void {

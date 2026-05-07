@@ -2,11 +2,19 @@ import { logger } from '../utils/Logger';
 
 const TAG: string = 'NGFSettingsManager';
 
+/**
+ * 设置管理器
+ * @note API 23 适配：添加私有构造函数确保单例模式正确实现
+ */
 class SettingsManager {
   private static instance: SettingsManager | null = null;
   private readonly stringValues: Map<string, string> = new Map<string, string>();
   private readonly numberValues: Map<string, number> = new Map<string, number>();
   private readonly booleanValues: Map<string, boolean> = new Map<string, boolean>();
+
+  private constructor() {
+    // 私有构造函数，确保单例模式
+  }
 
   static getInstance(): SettingsManager {
     if (!SettingsManager.instance) {

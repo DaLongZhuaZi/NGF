@@ -1,15 +1,33 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { util } from '@kit.ArkTS';
-import { getContext, isInitialized as isGlobalContextInitialized } from '../../../../GlobalContext';
 import { logger } from '../../utils/Logger';
-import { uiContextManager } from '../../platformOhos/UIContextManager';
+import { errorToString } from '../../utils/ErrorUtils';
 import { SandboxManager } from '../SandboxManager';
 import { IStorageProvider } from '../contracts/IStorageProvider';
 
-const TAG = 'NGFStorageProviderFacade';
+const TAG: string = 'NGFStorageProviderFacade';
 
+/**
+ * 存储提供者门面
+ * @note API 23 适配：
+ * 1. 使用 ErrorUtils.errorToString 替代私有方法，消除代码重复
+ * 2. 移除对 GlobalContext 和 UIContextManager 的直接依赖
+ * 3. 通过 initialize 方法注入 filesDir，遵循分层原则
+ */
 export class StorageProviderFacade implements IStorageProvider {
   private readonly sandboxManager: SandboxManager = SandboxManager.getInstance();
+  private filesDir: string = '';
+
+  /**
+   * 初始化存储提供者
+   * @param filesDir 文件目录路径
+   * @note API 23 适配：通过依赖注入传入路径，替代直接依赖 UIContextManager
+   */
+  initialize(filesDir: string): void {
+    this.filesDir = filesDir;
+    this.sandboxManager.initialize(filesDir);
+    logger.info(TAG, `存储提供者初始化完成: filesDir=${filesDir}`);
+  }
 
   getCacheDir(): string {
     try {
@@ -34,7 +52,7 @@ export class StorageProviderFacade implements IStorageProvider {
       logger.debug(TAG, `获取文件目录: ${filesDir}`);
       return filesDir;
     } catch {
-      const fallbackFilesDir = this.resolveFilesDirFromContext();
+      const fallbackFilesDir = this.filesDir;
       logger.debug(TAG, `获取文件目录回退: ${fallbackFilesDir}`);
       return fallbackFilesDir;
     }
@@ -66,7 +84,7 @@ export class StorageProviderFacade implements IStorageProvider {
       logger.debug(TAG, `读取文本成功: ${path}`);
       return content;
     } catch (error) {
-      logger.warn(TAG, `读取文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `读取文本失败: path=${path}, error=${errorToString(error)}`);
       return '';
     } finally {
       this.closeFileQuietly(file, path);
@@ -87,7 +105,7 @@ export class StorageProviderFacade implements IStorageProvider {
       logger.info(TAG, `写入文本成功: ${path}`);
       return true;
     } catch (error) {
-      logger.warn(TAG, `写入文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `写入文本失败: path=${path}, error=${errorToString(error)}`);
       return false;
     } finally {
       this.closeFileQuietly(file, path);
@@ -108,24 +126,6 @@ export class StorageProviderFacade implements IStorageProvider {
       logger.debug(TAG, `文件存在=false: ${path}`);
       return false;
     }
-  }
-
-  private resolveFilesDirFromContext(): string {
-    const abilityContext = uiContextManager.getAbilityContext();
-    if (abilityContext) {
-      return abilityContext.filesDir;
-    }
-
-    if (isGlobalContextInitialized()) {
-      try {
-        const globalContext = getContext();
-        return globalContext.filesDir;
-      } catch {
-        return '';
-      }
-    }
-
-    return '';
   }
 
   private ensureParentDirectory(path: string): void {
@@ -155,21 +155,8 @@ export class StorageProviderFacade implements IStorageProvider {
     try {
       fs.closeSync(file);
     } catch (error) {
-      logger.warn(TAG, `关闭文件失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, `关闭文件失败: path=${path}, error=${errorToString(error)}`);
     }
-  }
-
-  private errorToString(error: Object | string | number | boolean): string {
-    if (typeof error === 'string') {
-      return error;
-    }
-    if (typeof error === 'number' || typeof error === 'boolean') {
-      return String(error);
-    }
-    if (error instanceof Error) {
-      return error.message;
-    }
-    return String(error);
   }
 }
 

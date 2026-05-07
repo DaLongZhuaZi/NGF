@@ -13,9 +13,17 @@ export class NGFModuleRegistration {
   }
 }
 
+/**
+ * 模块注册表
+ * @note API 23 适配：添加私有构造函数确保单例模式正确实现
+ */
 export class NGFModuleRegistry {
   private static instance: NGFModuleRegistry | null = null;
   private readonly registrations: Map<string, NGFModuleRegistration> = new Map<string, NGFModuleRegistration>();
+
+  private constructor() {
+    // 私有构造函数，确保单例模式
+  }
 
   static getInstance(): NGFModuleRegistry {
     if (!NGFModuleRegistry.instance) {

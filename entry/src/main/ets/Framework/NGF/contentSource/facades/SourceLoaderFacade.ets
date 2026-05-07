@@ -1,11 +1,8 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
-import { util } from '@kit.ArkTS';
-import { getContext, isInitialized as isGlobalContextInitialized } from '../../../../GlobalContext';
 import { logger } from '../../utils/Logger';
-import { uiContextManager } from '../../platformOhos/UIContextManager';
 import { ISourceLoader } from '../contracts/ISourceLoader';
 
-const TAG = 'NGFSourceLoaderFacade';
+const TAG: string = 'NGFSourceLoaderFacade';
 
 class NGFSourceLoaderIconCandidate {
   path: string;
@@ -15,9 +12,25 @@ class NGFSourceLoaderIconCandidate {
   }
 }
 
+/**
+ * 源码加载器门面
+ * @note API 23 适配：移除对 GlobalContext 和 UIContextManager 的直接依赖
+ * 改为通过 initialize 方法注入 filesDir，遵循分层原则
+ */
 export class SourceLoaderFacade implements ISourceLoader {
   private readonly repositoryDirName: string = 'extensions-source';
   private readonly sourceFileName: string = 'source.json';
+  private filesDir: string = '';
+
+  /**
+   * 初始化源码加载器
+   * @param filesDir 文件目录路径
+   * @note API 23 适配：通过依赖注入传入路径，替代直接依赖 GlobalContext
+   */
+  initialize(filesDir: string): void {
+    this.filesDir = filesDir;
+    logger.info(TAG, `源码加载器初始化完成: filesDir=${filesDir}`);
+  }
 
   exists(pkg: string): boolean {
     const normalizedPkg = this.normalizePkg(pkg);
@@ -133,20 +146,7 @@ export class SourceLoaderFacade implements ISourceLoader {
   }
 
   private resolveFilesDir(): string {
-    const abilityContext = uiContextManager.getAbilityContext();
-    if (abilityContext) {
-      return abilityContext.filesDir;
-    }
-
-    if (isGlobalContextInitialized()) {
-      try {
-        return getContext().filesDir;
-      } catch {
-        return '';
-      }
-    }
-
-    return '';
+    return this.filesDir;
   }
 
   private existsPath(path: string): boolean {

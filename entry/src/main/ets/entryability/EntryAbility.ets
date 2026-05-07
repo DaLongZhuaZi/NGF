@@ -22,12 +22,13 @@ export default class EntryAbility extends UIAbility {
     const bootstrapResult = ngfStarterKernel.bootstrap();
     logger.startup(TAG, 'NGF 引导启动完成', `成功=${bootstrapResult}`);
 
-    try {
-      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `设置颜色模式失败: ${message}`);
-    }
+    /**
+     * API 23 适配说明：
+     * getApplicationContext().setColorMode() 在 API 21 已废弃
+     * 颜色模式现在通过 ThemeManagerFacade 统一管理
+     * 系统颜色模式变化通过 onConfigurationUpdate 监听
+     */
+    logger.info(TAG, '颜色模式由 ThemeManagerFacade 统一管理，无需手动设置');
 
     ngfThemeManagerFacade.initializeDefaults();
     ngfI18nManagerFacade.initializeDefaults();

@@ -1,18 +1,36 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
-import { getContext, isInitialized as isGlobalContextInitialized } from '../../../GlobalContext';
-import { uiContextManager } from '../platformOhos/UIContextManager';
 import { logger } from '../utils/Logger';
 
 const TAG: string = 'NGFSandboxManager';
 
+/**
+ * 沙盒管理器
+ * @note API 23 适配：移除对 platformOhos/UIContextManager 的直接依赖
+ * 改为通过 initialize 方法注入 filesDir，遵循分层原则
+ */
 export class SandboxManager {
   private static instance: SandboxManager | null = null;
+  private filesDir: string = '';
+
+  private constructor() {
+    // 私有构造函数，确保单例模式
+  }
 
   static getInstance(): SandboxManager {
     if (!SandboxManager.instance) {
       SandboxManager.instance = new SandboxManager();
     }
     return SandboxManager.instance;
+  }
+
+  /**
+   * 初始化沙盒管理器
+   * @param filesDir 文件目录路径
+   * @note API 23 适配：通过依赖注入传入路径，替代直接依赖 UIContextManager
+   */
+  initialize(filesDir: string): void {
+    this.filesDir = filesDir;
+    logger.info(TAG, `沙盒管理器初始化完成: filesDir=${filesDir}`);
   }
 
   getDirectory(directoryName: string): string {
@@ -30,20 +48,7 @@ export class SandboxManager {
   }
 
   private resolveFilesDir(): string {
-    const abilityContext = uiContextManager.getAbilityContext();
-    if (abilityContext) {
-      return abilityContext.filesDir;
-    }
-
-    if (isGlobalContextInitialized()) {
-      try {
-        return getContext().filesDir;
-      } catch {
-        return '';
-      }
-    }
-
-    return '';
+    return this.filesDir;
   }
 
   private normalizeDirectoryName(directoryName: string): string {

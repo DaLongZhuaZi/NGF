@@ -12,6 +12,12 @@ export {
 } from './contracts/IModuleBootstrap';
 export { IServiceContainer } from './contracts/IServiceContainer';
 export { NGFServiceRegistration } from './contracts/NGFServiceRegistration';
+export {
+  INGFService,
+  INGFServiceMetadata,
+  INGFServiceState,
+  NGFServiceLifecycleState
+} from './contracts/INGFService';
 export { LoggerFacade, ngfLoggerFacade } from './facades/LoggerFacade';
 export { NGFIntegrationFacadeBase } from './facades/NGFIntegrationFacadeBase';
 export { ServiceContainerFacade, ngfServiceContainerFacade } from './facades/ServiceContainerFacade';
