@@ -2,6 +2,11 @@ import { logger } from '../utils/Logger';
 
 const TAG: string = 'NGFDependencyContainer';
 
+interface NGFServiceLifecycleAware {
+  initialize?(): void;
+  destroy?(): void;
+}
+
 export enum ContainerLifecycle {
   SINGLETON = 'singleton',
   TRANSIENT = 'transient'
@@ -30,12 +35,12 @@ class DependencyRegistration {
     }
     return this.factory();
   }
+
+  getCachedInstance(): object | null {
+    return this.cachedInstance;
+  }
 }
 
-/**
- * 依赖容器
- * @note API 23 适配：添加私有构造函数确保单例模式正确实现
- */
 export class DependencyContainer {
   private static instance: DependencyContainer | null = null;
   private readonly registrations: Map<string, DependencyRegistration> = new Map<string, DependencyRegistration>();
@@ -57,8 +62,14 @@ export class DependencyContainer {
       logger.warn(TAG, 'register 忽略：token 为空');
       return;
     }
-    this.registrations.set(normalizedToken, new DependencyRegistration(normalizedToken, factory, lifecycle));
+    const registration = new DependencyRegistration(normalizedToken, factory, lifecycle);
+    this.registrations.set(normalizedToken, registration);
     logger.info(TAG, `注册依赖：token=${normalizedToken}, lifecycle=${lifecycle}`);
+
+    if (lifecycle === ContainerLifecycle.SINGLETON) {
+      const instance = registration.resolve();
+      this.tryInitialize(instance, normalizedToken);
+    }
   }
 
   isRegistered(token: string): boolean {
@@ -79,7 +90,43 @@ export class DependencyContainer {
   }
 
   clear(): void {
+    const keys = this.registrations.keys();
+    for (const key of keys) {
+      const registration = this.registrations.get(key);
+      if (registration !== undefined) {
+        const cached = registration.getCachedInstance();
+        if (cached !== null) {
+          this.tryDestroy(cached, key);
+        }
+      }
+    }
     this.registrations.clear();
     logger.info(TAG, '清除所有依赖注册');
+  }
+
+  private tryInitialize(instance: object, token: string): void {
+    const aware = instance as NGFServiceLifecycleAware;
+    if (aware.initialize !== undefined) {
+      try {
+        aware.initialize();
+        logger.debug(TAG, `生命周期钩子已调用：token=${token}, method=initialize`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.warn(TAG, `生命周期钩子异常：token=${token}, method=initialize, error=${message}`);
+      }
+    }
+  }
+
+  private tryDestroy(instance: object, token: string): void {
+    const aware = instance as NGFServiceLifecycleAware;
+    if (aware.destroy !== undefined) {
+      try {
+        aware.destroy();
+        logger.debug(TAG, `生命周期钩子已调用：token=${token}, method=destroy`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.warn(TAG, `生命周期钩子异常：token=${token}, method=destroy, error=${message}`);
+      }
+    }
   }
 }

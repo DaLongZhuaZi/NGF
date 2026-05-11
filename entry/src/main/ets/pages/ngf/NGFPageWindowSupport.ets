@@ -19,6 +19,10 @@ export class NGFPageWindowName {
   static readonly HDS_OFFICIAL_NAVIGATION_OVERVIEW: string = NGFHdsDemoRouteName.OFFICIAL_NAVIGATION_OVERVIEW;
   static readonly HDS_OFFICIAL_NAVIGATION_MATERIAL: string = NGFHdsDemoRouteName.OFFICIAL_NAVIGATION_MATERIAL;
   static readonly HDS_OFFICIAL_NAVIGATION_EFFECT: string = NGFHdsDemoRouteName.OFFICIAL_NAVIGATION_EFFECT;
+  static readonly DEMO_SECURITY_PERF: string = NGFHdsDemoRouteName.DEMO_SECURITY_PERF;
+  static readonly DEMO_DATA_STORAGE: string = NGFHdsDemoRouteName.DEMO_DATA_STORAGE;
+  static readonly DEMO_WORKFLOW: string = NGFHdsDemoRouteName.DEMO_WORKFLOW;
+  static readonly DEMO_DEVICE_DISPLAY: string = NGFHdsDemoRouteName.DEMO_DEVICE_DISPLAY;
 }
 
 class NGFPageWindowStyleFactory {
@@ -103,6 +107,38 @@ export class NGFPageWindowSupport {
     profiles.push(
       NGFPageWindowSupport.buildProfile(
         NGFPageWindowName.HDS_OFFICIAL_NAVIGATION_EFFECT,
+        NGFDisplayMode.IMMERSIVE_WITH_BARS,
+        NGFPageWindowStyleFactory.buildTransparentLightStyle(),
+        48
+      )
+    );
+    profiles.push(
+      NGFPageWindowSupport.buildProfile(
+        NGFPageWindowName.DEMO_SECURITY_PERF,
+        NGFDisplayMode.IMMERSIVE_WITH_BARS,
+        NGFPageWindowStyleFactory.buildTransparentLightStyle(),
+        48
+      )
+    );
+    profiles.push(
+      NGFPageWindowSupport.buildProfile(
+        NGFPageWindowName.DEMO_DATA_STORAGE,
+        NGFDisplayMode.IMMERSIVE_WITH_BARS,
+        NGFPageWindowStyleFactory.buildTransparentLightStyle(),
+        48
+      )
+    );
+    profiles.push(
+      NGFPageWindowSupport.buildProfile(
+        NGFPageWindowName.DEMO_WORKFLOW,
+        NGFDisplayMode.IMMERSIVE_WITH_BARS,
+        NGFPageWindowStyleFactory.buildTransparentLightStyle(),
+        48
+      )
+    );
+    profiles.push(
+      NGFPageWindowSupport.buildProfile(
+        NGFPageWindowName.DEMO_DEVICE_DISPLAY,
         NGFDisplayMode.IMMERSIVE_WITH_BARS,
         NGFPageWindowStyleFactory.buildTransparentLightStyle(),
         48

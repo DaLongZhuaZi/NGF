@@ -15,6 +15,7 @@ import { ngfUIThemeIntegrationFacade } from '../../uiTheme/facades/NGFUIThemeInt
 import { ngfI18nIntegrationFacade } from '../../i18n/facades/NGFI18nIntegrationFacade';
 import { ngfDeviceAwarenessIntegrationFacade } from '../../deviceAwareness/facades/NGFDeviceAwarenessIntegrationFacade';
 import { NGFModuleRegistration, NGFModuleRegistry, ngfModuleRegistry } from './ModuleRegistry';
+import { ngfModuleConfigFacade } from '../facades/ModuleConfigFacade';
 
 const TAG: string = 'NGFModuleBootstrapCoordinator';
 const CORE_SERVICES_PHASE: string = 'core_services';
@@ -120,6 +121,10 @@ export class NGFModuleBootstrapCoordinator {
 
   private bootstrapModule(registration: NGFModuleRegistration): NGFModuleBootstrapResult {
     const moduleName = registration.definition.moduleName;
+    if (!ngfModuleConfigFacade.isEnabled(moduleName)) {
+      logger.info(TAG, `引导模块被跳过：模块=${moduleName}, 原因=已禁用`);
+      return new NGFModuleBootstrapResult(moduleName, false, 'disabled by config', Date.now());
+    }
     const dependencyMessage = this.validateDependencies(registration.definition);
     if (dependencyMessage.length > 0) {
       logger.warn(TAG, `引导模块被阻止：模块=${moduleName}, 原因=${dependencyMessage}`);
@@ -174,6 +179,8 @@ export class NGFModuleBootstrapCoordinator {
     dependencies.push('ngf.platform.ohos');
     const serviceTokens: Array<string> = [];
     serviceTokens.push('ngf.theme.theme_manager');
+    serviceTokens.push('ngf.theme.color_token_provider');
+    serviceTokens.push('ngf.theme.font_scale_manager');
     this.registerDefaultModule(
       new NGFModuleDefinition('ngf.uiTheme.core', CORE_SERVICES_PHASE, 15, dependencies, serviceTokens),
       ngfUIThemeIntegrationFacade
@@ -185,6 +192,8 @@ export class NGFModuleBootstrapCoordinator {
     dependencies.push('ngf.platform.ohos');
     const serviceTokens: Array<string> = [];
     serviceTokens.push('ngf.i18n.i18n_manager');
+    serviceTokens.push('ngf.i18n.translation_resource');
+    serviceTokens.push('ngf.i18n.relative_time');
     this.registerDefaultModule(
       new NGFModuleDefinition('ngf.i18n.core', CORE_SERVICES_PHASE, 15, dependencies, serviceTokens),
       ngfI18nIntegrationFacade
@@ -200,6 +209,8 @@ export class NGFModuleBootstrapCoordinator {
     serviceTokens.push('ngf.data.cache_store');
     serviceTokens.push('ngf.data.storage_provider');
     serviceTokens.push('ngf.data.db_migrator');
+    serviceTokens.push('ngf.data.relational_store');
+    serviceTokens.push('ngf.data.sync_manager');
     this.registerDefaultModule(
       new NGFModuleDefinition('ngf.data.core', CORE_SERVICES_PHASE, 20, dependencies, serviceTokens),
       ngfDataIntegrationFacade
@@ -213,6 +224,8 @@ export class NGFModuleBootstrapCoordinator {
     serviceTokens.push('ngf.device.holding_awareness');
     serviceTokens.push('ngf.device.adaptation');
     serviceTokens.push('ngf.device.visual_effects');
+    serviceTokens.push('ngf.device.adaptive_layout');
+    serviceTokens.push('ngf.device.capability_detector');
     this.registerDefaultModule(
       new NGFModuleDefinition('ngf.device.awareness', CORE_SERVICES_PHASE, 25, dependencies, serviceTokens),
       ngfDeviceAwarenessIntegrationFacade
@@ -227,6 +240,8 @@ export class NGFModuleBootstrapCoordinator {
     serviceTokens.push('ngf.workflow.action_executor');
     serviceTokens.push('ngf.workflow.retry_policy');
     serviceTokens.push('ngf.workflow.rate_limit_policy');
+    serviceTokens.push('ngf.workflow.definition_manager');
+    serviceTokens.push('ngf.workflow.persistence');
     this.registerDefaultModule(
       new NGFModuleDefinition('ngf.workflow.core', CORE_SERVICES_PHASE, 30, dependencies, serviceTokens),
       ngfContentWorkflowIntegrationFacade
@@ -241,6 +256,10 @@ export class NGFModuleBootstrapCoordinator {
     serviceTokens.push('ngf.source.repository');
     serviceTokens.push('ngf.source.loader');
     serviceTokens.push('ngf.source.registry');
+    serviceTokens.push('ngf.network.http_client');
+    serviceTokens.push('ngf.source.content_cache');
+    serviceTokens.push('ngf.source.content_pipeline');
+    serviceTokens.push('ngf.source.health_checker');
     this.registerDefaultModule(
       new NGFModuleDefinition('ngf.content_source.core', CORE_SERVICES_PHASE, 40, dependencies, serviceTokens),
       ngfContentSourceIntegrationFacade
@@ -253,6 +272,9 @@ export class NGFModuleBootstrapCoordinator {
     const serviceTokens: Array<string> = [];
     serviceTokens.push('ngf.ui.navigation_shell');
     serviceTokens.push('ngf.ui.page_policy_host');
+    serviceTokens.push('ngf.ui.route_interceptor');
+    serviceTokens.push('ngf.ui.deep_link');
+    serviceTokens.push('ngf.ui.page_state_store');
     this.registerDefaultModule(
       new NGFModuleDefinition('ngf.ui_shell.core', CORE_SERVICES_PHASE, 50, dependencies, serviceTokens),
       ngfUiShellIntegrationFacade

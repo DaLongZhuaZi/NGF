@@ -22,6 +22,10 @@ import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/compon
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 import { NGFDeviceAwarenessPage } from './NGFDeviceAwarenessPage';
 import { NGFSettingsPage } from './NGFSettingsPage';
+import { NGFDemoSecurityPerfPage } from './NGFDemoSecurityPerfPage';
+import { NGFDemoDataStoragePage } from './NGFDemoDataStoragePage';
+import { NGFDemoWorkflowPage } from './NGFDemoWorkflowPage';
+import { NGFDemoDeviceDisplayPage } from './NGFDemoDeviceDisplayPage';
 
 const TAG: string = 'NGFStarterMainMenuPage';
 const NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT: number = 188;
@@ -36,7 +40,10 @@ class NGFMainMenuActionKey {
   static readonly PUBLISH_EVENT: string = 'action.publish_event';
   static readonly ADVANCE_LIFECYCLE: string = 'action.advance_lifecycle';
   static readonly SIMULATE_ERROR: string = 'action.simulate_error';
-
+  static readonly DEMO_SECURITY_PERF: string = NGFHdsDemoRouteName.DEMO_SECURITY_PERF;
+  static readonly DEMO_DATA_STORAGE: string = NGFHdsDemoRouteName.DEMO_DATA_STORAGE;
+  static readonly DEMO_WORKFLOW: string = NGFHdsDemoRouteName.DEMO_WORKFLOW;
+  static readonly DEMO_DEVICE_DISPLAY: string = NGFHdsDemoRouteName.DEMO_DEVICE_DISPLAY;
 }
 
 class NGFStarterLogEntry {
@@ -455,6 +462,14 @@ struct NGFStarterMainMenuPage {
       return;
     }
 
+    if (actionKey === NGFMainMenuActionKey.DEMO_SECURITY_PERF ||
+      actionKey === NGFMainMenuActionKey.DEMO_DATA_STORAGE ||
+      actionKey === NGFMainMenuActionKey.DEMO_WORKFLOW ||
+      actionKey === NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY) {
+      this.handleOpenHdsDemoTap(actionKey, label);
+      return;
+    }
+
     if (actionKey === NGFMainMenuActionKey.BOOTSTRAP) {
       this.handleBootstrapTap();
       return;
@@ -667,6 +682,25 @@ struct NGFStarterMainMenuPage {
 
           TabContent() {
             Scroll() {
+              Column({ space: 12 }) {
+                this.buildDemoSecurityPerfCard()
+                this.buildDemoDataStorageCard()
+                this.buildDemoWorkflowCard()
+                this.buildDemoDeviceDisplayCard()
+              }
+              .width('100%')
+              .padding({ left: 16, right: 16, top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 76 })
+            }
+            .width('100%')
+            .height('100%')
+            .scrollBar(BarState.Off)
+            .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .backgroundColor('#00000000')
+          }
+          .tabBar(null)
+
+          TabContent() {
+            Scroll() {
               NGFDeviceAwarenessPage()
             }
             .width('100%')
@@ -742,7 +776,7 @@ struct NGFStarterMainMenuPage {
           : $r('app.color.text_secondary'))
         .fontWeight(this.selectedTabIndex === tabIndex ? FontWeight.Medium : FontWeight.Normal)
     }
-    .width('33.33%')
+    .width('25%')
     .height('100%')
     .justifyContent(FlexAlign.Center)
     .scale(this.pressedTabIndex === tabIndex
@@ -811,8 +845,9 @@ struct NGFStarterMainMenuPage {
 
       Row() {
         this.buildTabItem('框架', 'sys.symbol.house', 0)
-        this.buildTabItem('设备', 'sys.symbol.phone_fill', 1)
-        this.buildTabItem('设置', 'sys.symbol.gearshape', 2)
+        this.buildTabItem('功能', 'sys.symbol.wrench_fill', 1)
+        this.buildTabItem('设备', 'sys.symbol.phone_fill', 2)
+        this.buildTabItem('设置', 'sys.symbol.gearshape', 3)
       }
       .width('88%')
       .height(56)
@@ -902,6 +937,14 @@ struct NGFStarterMainMenuPage {
       HdsNavigationOfficialMaterialPage()
     } else if (name === NGFHdsDemoRouteName.OFFICIAL_NAVIGATION_EFFECT) {
       HdsNavigationOfficialEffectPage()
+    } else if (name === NGFHdsDemoRouteName.DEMO_SECURITY_PERF) {
+      NGFDemoSecurityPerfPage()
+    } else if (name === NGFHdsDemoRouteName.DEMO_DATA_STORAGE) {
+      NGFDemoDataStoragePage()
+    } else if (name === NGFHdsDemoRouteName.DEMO_WORKFLOW) {
+      NGFDemoWorkflowPage()
+    } else if (name === NGFHdsDemoRouteName.DEMO_DEVICE_DISPLAY) {
+      NGFDemoDeviceDisplayPage()
     }
   }
 
@@ -1236,6 +1279,58 @@ struct NGFStarterMainMenuPage {
     .border({ width: 1, color: $r('app.color.glass_border_medium') })
     .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
     .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
+  }
+
+  @Builder
+  private buildDemoSecurityPerfCard(): void {
+    this.buildFeatureActionButton(
+      'SECURITY',
+      '安全与性能',
+      'SHA 哈希、AES-GCM 加解密、性能打点、内存快照。',
+      '#0D4B59',
+      '#14B8A6',
+      '#5EEAD4FF',
+      NGFMainMenuActionKey.DEMO_SECURITY_PERF
+    )
+  }
+
+  @Builder
+  private buildDemoDataStorageCard(): void {
+    this.buildFeatureActionButton(
+      'STORAGE',
+      '数据与存储',
+      'FileUtils 文件读写、目录操作、ContentCache LRU 缓存管理。',
+      '#78350F',
+      '#F59E0B',
+      '#FCD34DFF',
+      NGFMainMenuActionKey.DEMO_DATA_STORAGE
+    )
+  }
+
+  @Builder
+  private buildDemoWorkflowCard(): void {
+    this.buildFeatureActionButton(
+      'WORKFLOW',
+      '流程编排',
+      '工作流 DSL 多步骤执行、条件分支、状态持久化与恢复。',
+      '#312E81',
+      '#6366F1',
+      '#A5B4FCFF',
+      NGFMainMenuActionKey.DEMO_WORKFLOW
+    )
+  }
+
+  @Builder
+  private buildDemoDeviceDisplayCard(): void {
+    this.buildFeatureActionButton(
+      'DEVICE',
+      '设备与显示',
+      '多语言相对时间、设备能力检测、字体缩放控制。',
+      '#14532D',
+      '#22C55E',
+      '#86EFACFF',
+      NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY
+    )
   }
 
   @Builder

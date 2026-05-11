@@ -4,6 +4,8 @@ import { ngfActionExecutorFacade } from './ActionExecutorFacade';
 import { ngfRateLimitPolicyFacade } from './RateLimitPolicyFacade';
 import { ngfRetryPolicyFacade } from './RetryPolicyFacade';
 import { ngfWorkflowEngineFacade } from './WorkflowEngineFacade';
+import { ngfWorkflowDefinitionFacade } from './WorkflowDefinitionFacade';
+import { ngfWorkflowPersistenceFacade } from './WorkflowPersistenceFacade';
 
 export class NGFContentWorkflowIntegrationFacade extends NGFIntegrationFacadeBase {
   protected readonly tag: string = 'NGFContentWorkflowIntegrationFacade';
@@ -15,6 +17,8 @@ export class NGFContentWorkflowIntegrationFacade extends NGFIntegrationFacadeBas
     registrations.push(new NGFServiceRegistration('ngf.workflow.action_executor', 'ActionExecutorFacade', ngfActionExecutorFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.workflow.retry_policy', 'RetryPolicyFacade', ngfRetryPolicyFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.workflow.rate_limit_policy', 'RateLimitPolicyFacade', ngfRateLimitPolicyFacade as object));
+    registrations.push(new NGFServiceRegistration('ngf.workflow.definition_manager', 'WorkflowDefinitionFacade', ngfWorkflowDefinitionFacade as object));
+    registrations.push(new NGFServiceRegistration('ngf.workflow.persistence', 'WorkflowPersistenceFacade', ngfWorkflowPersistenceFacade as object));
     return registrations;
   }
 }

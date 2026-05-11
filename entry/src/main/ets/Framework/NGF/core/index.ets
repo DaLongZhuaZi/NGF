@@ -11,16 +11,18 @@ export {
   NGFFrameworkRuntimeSnapshot
 } from './contracts/IModuleBootstrap';
 export { IServiceContainer } from './contracts/IServiceContainer';
-export { NGFServiceRegistration } from './contracts/NGFServiceRegistration';
+export { NGFServiceRegistration, NGFServiceMetadataResult } from './contracts/NGFServiceRegistration';
 export {
   INGFService,
   INGFServiceMetadata,
   INGFServiceState,
   NGFServiceLifecycleState
 } from './contracts/INGFService';
+export { IModuleConfig, NGFModuleConfigEntry } from './contracts/IModuleConfig';
 export { LoggerFacade, ngfLoggerFacade } from './facades/LoggerFacade';
 export { NGFIntegrationFacadeBase } from './facades/NGFIntegrationFacadeBase';
 export { ServiceContainerFacade, ngfServiceContainerFacade } from './facades/ServiceContainerFacade';
+export { ModuleConfigFacade, ngfModuleConfigFacade } from './facades/ModuleConfigFacade';
 export {
   NGFStarterKernel,
   NGFStarterServiceToken,

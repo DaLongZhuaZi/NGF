@@ -1,5 +1,7 @@
 import { logger } from '../../utils/Logger';
 import { INavigationShell } from '../contracts/INavigationShell';
+import { NGFRouteInterceptResult } from '../contracts/IRouteInterceptor';
+import { ngfRouteInterceptorFacade } from './RouteInterceptorFacade';
 
 const TAG: string = 'NGFNavigationShellFacade';
 
@@ -95,6 +97,28 @@ export class NavigationShellFacade implements INavigationShell {
       logger.error(TAG, `获取当前页面名称失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return '';
     }
+  }
+
+  async pushWithIntercept(pageName: string, paramsJson: string): Promise<boolean> {
+    const result: NGFRouteInterceptResult = await ngfRouteInterceptorFacade.processNavigation(pageName, paramsJson);
+    if (!result.proceed) {
+      logger.info(TAG, `导航被拦截: page=${pageName}`);
+      return false;
+    }
+    const targetPage = result.redirectPage.length > 0 ? result.redirectPage : pageName;
+    const targetParams = result.modifiedParams.length > 0 ? result.modifiedParams : paramsJson;
+    return this.push(targetPage, targetParams);
+  }
+
+  async replaceWithIntercept(pageName: string, paramsJson: string): Promise<boolean> {
+    const result: NGFRouteInterceptResult = await ngfRouteInterceptorFacade.processNavigation(pageName, paramsJson);
+    if (!result.proceed) {
+      logger.info(TAG, `导航被拦截: page=${pageName}`);
+      return false;
+    }
+    const targetPage = result.redirectPage.length > 0 ? result.redirectPage : pageName;
+    const targetParams = result.modifiedParams.length > 0 ? result.modifiedParams : paramsJson;
+    return this.replace(targetPage, targetParams);
   }
 
   private resolveNavStack(): NavPathStack | null {

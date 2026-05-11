@@ -1,5 +1,6 @@
 export class NGFHdsTabRouteName {
   static readonly FRAMEWORK: string = 'tab.framework';
+  static readonly FEATURES: string = 'tab.features';
   static readonly SHOWCASE: string = 'tab.showcase';
   static readonly DEVICE: string = 'tab.device';
   static readonly SETTINGS: string = 'tab.settings';
@@ -19,7 +20,8 @@ export class NGFHdsTabConfig {
 
 export const NGF_HDS_TAB_CONFIGS: Array<NGFHdsTabConfig> = [
   new NGFHdsTabConfig(0, '框架', NGFHdsTabRouteName.FRAMEWORK),
-  new NGFHdsTabConfig(1, '展示', NGFHdsTabRouteName.SHOWCASE),
-  new NGFHdsTabConfig(2, '设备', NGFHdsTabRouteName.DEVICE),
-  new NGFHdsTabConfig(3, '设置', NGFHdsTabRouteName.SETTINGS)
+  new NGFHdsTabConfig(1, '功能', NGFHdsTabRouteName.FEATURES),
+  new NGFHdsTabConfig(2, '展示', NGFHdsTabRouteName.SHOWCASE),
+  new NGFHdsTabConfig(3, '设备', NGFHdsTabRouteName.DEVICE),
+  new NGFHdsTabConfig(4, '设置', NGFHdsTabRouteName.SETTINGS)
 ];

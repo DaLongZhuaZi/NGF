@@ -3,6 +3,8 @@ import { NGFServiceRegistration } from '../../core/contracts/NGFServiceRegistrat
 import { ngfHoldingAwarenessFacade } from './HoldingAwarenessFacade';
 import { ngfDeviceAdaptationFacade } from './DeviceAdaptationFacade';
 import { ngfVisualEffectsFacade } from './VisualEffectsFacade';
+import { ngfAdaptiveLayoutFacade } from './AdaptiveLayoutFacade';
+import { ngfDeviceCapabilityDetectorFacade } from './DeviceCapabilityDetectorFacade';
 
 export class NGFDeviceAwarenessIntegrationFacade extends NGFIntegrationFacadeBase {
   protected readonly tag: string = 'NGFDeviceAwarenessIntegrationFacade';
@@ -14,19 +16,31 @@ export class NGFDeviceAwarenessIntegrationFacade extends NGFIntegrationFacadeBas
     registrations.push(new NGFServiceRegistration(
       'ngf.device.holding_awareness',
       'NGFHoldingAwarenessManager',
-      ngfHoldingAwarenessFacade
+      ngfHoldingAwarenessFacade as object
     ));
 
     registrations.push(new NGFServiceRegistration(
       'ngf.device.adaptation',
       'NGFDeviceAdaptationManager',
-      ngfDeviceAdaptationFacade
+      ngfDeviceAdaptationFacade as object
     ));
 
     registrations.push(new NGFServiceRegistration(
       'ngf.device.visual_effects',
       'NGFVisualEffectsManager',
-      ngfVisualEffectsFacade
+      ngfVisualEffectsFacade as object
+    ));
+
+    registrations.push(new NGFServiceRegistration(
+      'ngf.device.adaptive_layout',
+      'AdaptiveLayoutFacade',
+      ngfAdaptiveLayoutFacade as object
+    ));
+
+    registrations.push(new NGFServiceRegistration(
+      'ngf.device.capability_detector',
+      'DeviceCapabilityDetectorFacade',
+      ngfDeviceCapabilityDetectorFacade as object
     ));
 
     return registrations;

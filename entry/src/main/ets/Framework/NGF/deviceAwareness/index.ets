@@ -27,7 +27,16 @@ export {
   NGFVisualEffectsStateListener
 } from './contracts/IVisualEffectsManager';
 
+export { IAdaptiveLayout, NGFBreakpointLayoutConfig } from './contracts/IAdaptiveLayout';
+export {
+  IDeviceCapabilityDetector,
+  NGFCapabilityType,
+  NGFCapabilityResult
+} from './contracts/IDeviceCapabilityDetector';
+
 export { ngfHoldingAwarenessFacade } from './facades/HoldingAwarenessFacade';
 export { ngfDeviceAdaptationFacade } from './facades/DeviceAdaptationFacade';
 export { ngfVisualEffectsFacade } from './facades/VisualEffectsFacade';
+export { ngfAdaptiveLayoutFacade } from './facades/AdaptiveLayoutFacade';
+export { DeviceCapabilityDetectorFacade, ngfDeviceCapabilityDetectorFacade } from './facades/DeviceCapabilityDetectorFacade';
 export { ngfDeviceAwarenessIntegrationFacade } from './facades/NGFDeviceAwarenessIntegrationFacade';

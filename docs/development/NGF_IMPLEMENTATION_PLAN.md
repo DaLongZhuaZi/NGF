@@ -1,134 +1,101 @@
 # NGF Implementation Plan
 
+> 最后更新: 2026-05-08
+
 ## 1. 当前定位
 
-NGF 当前处于“框架骨架已建立、运行时兼容层待补完”的阶段。
+NGF 当前处于"框架骨架已建立、核心引导链路已通、各层门面待补真实实现"的阶段。
 
-已具备的基础能力：
+## 2. 已完成项 (Phase A~C 回顾)
 
-- `core`：日志、事件、错误、生命周期、Starter 内核骨架
-- `platformOhos`：平台窗口与上下文桥接 façade 骨架
-- `data`：数据、设置、存储 façade 骨架
-- `contentWorkflow`：通用工作流 façade 骨架
-- `contentSource`：通用内容源 façade 骨架
-- `uiShell`：导航壳层与页面策略宿主 façade 骨架
+### Phase A: 兼容基础设施补齐 - 已完成
 
-当前主要缺口：
+- GlobalContext.ets
+- UIContextManager.ets
+- SettingsManager.ets / SandboxManager.ets
+- DependencyContainer.ets (支持 singleton/transient)
+- ServiceContainerFacade.ets
+- Logger.ets / LogCollector.ets / ErrorUtils.ets
+- WindowManager 能力已整合到 platformOhos 层
 
-- 缺少可持续演进的兼容基础设施文件
-- 缺少统一的模块接线顺序与启动约定
-- 缺少独立可复用的库化边界
-- 缺少针对 NGF 契约与 façade 的测试覆盖
-- 缺少面向框架接入者的文档与示例
+### Phase B: 统一启动与上下文接线 - 已完成
 
-## 2. 本轮补完目标
+- EntryAbility 中绑定 AbilityContext 并调用 ngfStarterKernel.bootstrap()
+- UIContextManager 统一管理 UIContext 绑定/清除
+- 模块集成 Facade 纳入 ModuleBootstrapCoordinator 统一初始化
+- 8 个默认模块按依赖顺序自动引导: platform → theme/i18n → data → device → workflow → source → uiShell
 
-本轮先完成“继续演进所需的最低基础设施”，优先保证：
+### Phase C: 真实服务容器与模块注册 - 已完成
 
-1. 旧 façade 的缺失依赖可被当前仓库接住
-2. 入口能力与页面能够为 NGF 提供上下文
-3. 文档中存在明确的实施路线图
-4. 后续可以在不推翻现状的前提下继续补真实 DI、模块注册与库化能力
+- DependencyContainer 支持真正的实例解析 (非仅返回字符串)
+- INGFService 标记接口定义服务生命周期状态
+- NGFModuleDefinition 支持模块名、阶段、顺序、依赖、服务令牌
+- ModuleRegistry 支持按阶段列出、按名称解析
+- ModuleBootstrapCoordinator 自动注册默认模块并按依赖拓扑排序引导
+- StarterKernel 统一编排 context_setup → core_services → ready
 
-## 3. 分阶段实施
+### API 23 适配 - 已完成
 
-### Phase A：兼容基础设施补齐
+- 私有构造函数确保单例模式正确
+- 颜色模式由 ThemeManagerFacade 统一管理
+- 废弃接口迁移 (getContext → getHostContext, animateTo → UIContext.animateTo)
 
-目标：让现有 NGF façade 不再依赖缺失文件。
+## 3. 当前各层完成度
 
-实施项：
+| 层 | 完成度 | 核心状态 |
+|---|--------|---------|
+| core | 85% | 契约完整，DI + 模块注册 + 启动编排已通 |
+| platformOhos | 75% | 窗口管理 + 上下文桥接已通 |
+| data | 70% | 门面骨架完整，缺 RDB/Preferences 真实实现 |
+| contentWorkflow | 60% | 门面骨架完整，缺工作流 DSL 和具体实现 |
+| contentSource | 55% | 门面骨架完整，缺 HTTP 客户端和缓存策略 |
+| uiShell | 75% | HDS 导航 + 沉浸式组件已通 |
+| uiTheme | 70% | 颜色模式管理已通，缺 Token 体系 |
+| i18n | 60% | 语言切换已通，缺翻译资源管理 |
+| deviceAwareness | 65% | 握持/折叠/视觉效果已通，缺断点实现 |
+| utils | 80% | 日志/时间/错误工具已通 |
 
-- 增加 `GlobalContext.ets`
-- 增加 `Framework/Managers/UIContextManager.ets`
-- 增加 `Framework/Managers/SettingsManager.ets`
-- 增加 `Framework/DependencyContainer.ets`
-- 增加 `Framework/NGF/core/facades/ServiceContainerFacade.ets`
-- 增加 `Utils/Logger.ets`
-- 增加 `Utils/WindowManager.ets`
-- 增加 `Utils/PageWindowPolicy.ets`
-- 增加 `Utils/PageWindowRegistry.ets`
-- 增加 `Utils/PageWindowCoordinator.ets`
+## 4. 下一阶段目标 (Phase D)
 
-验收结果：
+目标: 补全框架核心能力，让各层从"骨架门面"变成"可用实现"。
 
-- 现有 NGF 本地导入路径闭环
-- 各层 façade 至少具备可运行的基础依赖
+### 4.1 高优先级
 
-### Phase B：统一启动与上下文接线
+1. **服务生命周期管理** - DependencyContainer 在 resolve 时自动调用 initialize()，在 clear 时调用 destroy()
+2. **HTTP 客户端抽象** - IHttpClient 接口 + 基于 @ohos.net.http 的实现，含拦截器、超时、重试
+3. **RDB 数据库实现** - 基于 @ohos.data.relationalStore 的 IDbMigrator 实现
+4. **Preferences 实现** - 基于 @ohos.data.preferences 的 ISettingsStore 实现
+5. **单元测试** - 针对 core 契约和 Starter 的 hypium 测试
 
-目标：让 NGF 不再只依赖演示页手动触发。
+### 4.2 中优先级
 
-实施项：
+6. **内容缓存策略** - 内存 LRU + 磁盘持久化的二级缓存
+7. **内容解析管道** - fetch → parse → transform → cache 的 Pipeline 模式
+8. **路由拦截器** - 页面跳转前的鉴权/参数校验中间件
+9. **颜色 Token 体系** - 语义化颜色变量 (primary, surface, onSurface 等)
+10. **翻译资源管理** - 翻译文件加载、键值查找、缺失键报告
+11. **工作流 DSL** - JSON 定义的工作流步骤描述
 
-- 在 `EntryAbility` 中绑定能力上下文
-- 在主入口页面绑定和释放 UIContext
-- 抽出统一 bootstrap 顺序
-- 逐步把模块集成 façade 纳入统一初始化过程
+### 4.3 低优先级
 
-验收结果：
+12. **自适应布局组件** - 基于断点的响应式容器
+13. **深链接支持** - URL scheme → 页面路由映射
+14. **页面状态保存/恢复** - 页面重建时的状态恢复
+15. **通用页面模板** - 列表页、表单页、详情页模板
+16. **性能监控** - FPS、内存、启动耗时
+17. **安全工具** - 加密、哈希、安全存储
 
-- Starter 不再只由演示逻辑承担全部初始化职责
-- 平台层、壳层、数据层拥有稳定上下文来源
+## 5. Phase E: 框架库化 (远期)
 
-### Phase C：真实服务容器与模块注册
+目标: 将 NGF 从嵌入式框架打包为可独立分发的 HAR 模块。
 
-目标：把当前“记录实现名”的容器升级为真正的框架服务注册中心。
+- 抽取为独立 HAR 模块，定义清晰的公共 API 边界
+- 消除对 AppStorage 的直接依赖，改为可选注入
+- 输出 API 文档与接入指南
+- 建立版本发布与兼容性策略
 
-实施项：
-
-- 定义模块描述与模块依赖模型
-- 支持服务实例、工厂、生命周期
-- 支持模块注册、排序、初始化、状态输出
-- 将 Starter 与各集成 façade 纳入统一模块体系
-
-验收结果：
-
-- NGF 具备真正意义上的模块化启动能力
-- 服务解析不再只返回字符串
-
-### Phase D：框架文档与示例
-
-目标：让外部接入者可以按文档理解和使用 NGF。
-
-实施项：
-
-- 输出架构图与目录职责说明
-- 输出最小接入示例
-- 输出模块扩展指南
-- 输出 façade 到真实实现的迁移指南
-
-验收结果：
-
-- 外部开发者可以基于文档理解框架边界与扩展点
-
-### Phase E：验证与质量保障
-
-目标：建立真正面向框架的验证体系。
-
-实施项：
-
-- 为 `core` 契约与 Starter 增加单元测试
-- 为 `data`、`uiShell`、`platformOhos` façade 增加回归测试
-- 增加关键导入路径与模块接线检查
-- 增加示例页联调清单
-
-验收结果：
-
-- 框架变更可被持续验证
-- 核心能力不再只靠演示页手工观察
-
-## 4. 下一批优先文件
-
-建议下一轮优先落实：
-
-1. 模块描述契约
-2. 模块注册中心
-3. 统一 bootstrap 编排器
-4. Starter 与各 IntegrationFacade 的统一接线
-5. NGF 专项测试文件
-
-## 5. 说明
+## 6. 说明
 
 - 本计划以当前仓库结构为基础，不强行推翻既有目录。
-- 兼容 façade 不是最终形态，但它们是过渡到真实框架化实现的必要步骤。
-- 后续所有新增规则与实现都应继续保持 NGF 的“框架工程”视角。
+- 每个 Phase 的验收标准是: 该阶段能力可在演示页中被验证，且不破坏已有模块。
+- 后续所有新增实现都应继续保持 NGF 的"框架工程"视角，避免写死单一业务逻辑。
