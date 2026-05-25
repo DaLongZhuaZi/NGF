@@ -13,6 +13,7 @@ import {
   TitleBarContentOptions,
   TitleBarStyleOptions
 } from '@kit.UIDesignKit';
+import { NGFHdsEffectPresetFactory } from './NGFHdsEffectPresets';
 
 class NGFHdsNavigationTitle implements HdsNavigationTitle {
   mainTitle: ResourceStr;
@@ -80,16 +81,6 @@ class NGFHdsScrollEffectOptions implements ScrollEffectOptions {
   }
 }
 
-class NGFHdsSystemMaterialParams implements SystemMaterialParams {
-  materialType?: hdsMaterial.MaterialType;
-  materialLevel?: hdsMaterial.MaterialLevel;
-
-  constructor(materialType: hdsMaterial.MaterialType, materialLevel: hdsMaterial.MaterialLevel) {
-    this.materialType = materialType;
-    this.materialLevel = materialLevel;
-  }
-}
-
 class NGFHdsTitleBarStyleOptions implements TitleBarStyleOptions {
   scrollEffectOpts?: ScrollEffectOptions;
   originalStyle?: HdsNavigationTitleBarStyle;
@@ -150,15 +141,15 @@ export class NGFHdsTitleBarOptionsFactory {
     avoidLayoutSafeArea: boolean = false,
     enableComponentSafeArea: boolean = false
   ): HdsNavigationTitleBarOptions {
-    const originalTitleStyle = new NGFHdsNavigationTitleStyle('#FFFFFFFF', '#CCFFFFFF');
-    const scrollTitleStyle = new NGFHdsNavigationTitleStyle('#FFFFFFFF', '#E6FFFFFF');
+    const originalTitleStyle = new NGFHdsNavigationTitleStyle($r('app.color.text_white'), $r('app.color.glass_chip_overlay'));
+    const scrollTitleStyle = new NGFHdsNavigationTitleStyle($r('app.color.text_white'), $r('app.color.text_white_medium'));
     const originalContentStyle = new NGFHdsTitleBarContentStyle(originalTitleStyle);
     const scrollContentStyle = new NGFHdsTitleBarContentStyle(scrollTitleStyle);
     const originalBackgroundStyle = new NGFHdsNavigationBackgroundStyle(backgroundColor, 18);
     const scrollBackgroundStyle = new NGFHdsNavigationBackgroundStyle(backgroundColor, 28);
     const originalBarStyle = new NGFHdsNavigationTitleBarStyle(originalBackgroundStyle, originalContentStyle);
     const scrollBarStyle = new NGFHdsNavigationTitleBarStyle(scrollBackgroundStyle, scrollContentStyle);
-    const materialParams = new NGFHdsSystemMaterialParams(hdsMaterial.MaterialType.IMMERSIVE, materialLevel);
+    const materialParams = NGFHdsEffectPresetFactory.buildSystemMaterialParams(hdsMaterial.MaterialType.IMMERSIVE, materialLevel);
     const content = new NGFHdsTitleBarContentOptions(new NGFHdsNavigationTitle(mainTitle, subTitle));
     const style = new NGFHdsTitleBarStyleOptions(originalBarStyle, scrollBarStyle, materialParams);
     return new NGFHdsNavigationTitleBarOptions(content, style, avoidLayoutSafeArea, enableComponentSafeArea);

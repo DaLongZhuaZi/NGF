@@ -24,8 +24,8 @@ export class FileUtils {
       const buffer = new ArrayBuffer(stat.size);
       const readResult = fs.readSync(file.fd, buffer);
       fs.closeSync(file);
-      const decoder = new util.TextDecoder('utf-8');
-      return decoder.decode(new Uint8Array(buffer, 0, readResult));
+      const decoder = util.TextDecoder.create('utf-8');
+      return decoder.decodeToString(new Uint8Array(buffer, 0, readResult));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error(TAG, `readText 失败: path=${filePath}, error=${message}`);

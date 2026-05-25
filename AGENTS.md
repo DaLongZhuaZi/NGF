@@ -55,8 +55,8 @@
   - `entry/src/main/module.json5`
   - `entry/src/main/resources/base/profile/main_pages.json`
 - 当前 `build-profile.json5` 的产品配置为：
-  - `targetSdkVersion: 6.0.1(21)`
-  - `compatibleSdkVersion: 6.0.1(21)`
+  - `targetSdkVersion: 6.1.0(23)`
+  - `compatibleSdkVersion: 6.1.0(23)`
 - 当前根目录 `oh-package.json5` 的 `modelVersion` 为 `6.1.0`。
 - 当前 `AppScope/app.json5` 的 `bundleName` 为 `com.dlzz.ngf`。
 - 当前 `entry/src/main/module.json5` 的主能力为 `EntryAbility`，页面入口通过 `$profile:main_pages` 声明。
@@ -80,7 +80,7 @@
   - `F:\HarmonyOS\SDK\23`
   - `F:\HarmonyOS\SDK\20`
   - `F:\HarmonyOS\SDK\18`
-- 当前机器 **未确认存在** `F:\HarmonyOS\SDK\21`；因此不能仅因项目 `targetSdkVersion` 为 `6.0.1(21)` 就推断本机一定有独立的 `21` 目录。
+- 当前仓库实际 `targetSdkVersion` / `compatibleSdkVersion` 为 `6.1.0(23)`，且本机已确认存在 `F:\HarmonyOS\SDK\23`；如果后续遇到历史 `6.0.1(21)` 说明或旧分支配置，应以当前 `build-profile.json5` 与实际 SDK 目录为准，不要凭历史文字推断。
 - 当前机器已确认存在的 DevEco Studio 安装目录为 `F:\DevEco Studio`。
 - 当前机器已确认存在的 DevEco Studio SDK 根目录为 `F:\DevEco Studio\sdk`。
 - 当前机器已确认存在的 DevEco Studio 默认 OpenHarmony SDK 目录为 `F:\DevEco Studio\sdk\default\openharmony`。
@@ -267,6 +267,9 @@
 
 - 页面入场动画、属性动画和统一动画状态管理，优先复用目标模块已有实现。
 - 所有动画相关状态变量必须使用 `@State` 管理，并在动画结束后及时清理状态。
+- 展示设备方向、窗口尺寸、握持感知、权限、系统配置、运行状态等实时信息时，页面必须将门面、事件总线或系统回调同步到 `@State`、`@Link`、`@Prop` 等 ArkUI 响应式变量；禁止只渲染初始化快照或普通成员变量后期待 UI 自动变化。
+- 动态文本不要通过通用 `@Builder` 方法的字符串参数层层传递后再渲染；应在实际 `Text` 节点、接收 `@Prop` 的子组件，或无动态参数的专用 `@Builder` 中直接读取响应式状态，确保 ArkUI 能建立状态依赖并触发重绘。
+- 页面通过门面 listener、事件总线或系统回调驱动实时 UI 时，必须在合适生命周期中成对订阅和取消订阅，例如 `aboutToAppear()` 订阅并同步当前快照，`aboutToDisappear()` 取消订阅，避免页面离开后继续触发 UI 状态写入。
 - 复杂页面应将 UI 构建逻辑拆分成多个 `@Builder` 方法，提高可读性和维护性。
 - `@Builder` 方法参数必须与调用处在类型、数量、顺序上完全匹配。
 - 枚举类型必须使用完整枚举成员，不要用字符串字面量代替。

@@ -26,14 +26,14 @@ const HDS_INTEGRATED_TOP_CHROME_SPEC: NGFImmersiveTopChromeSpec = NGFImmersiveTo
   160,
   88
 );
-const NGF_HDS_INTEGRATED_SURFACE_BACKGROUND: string = '#F8FBFF';
-const NGF_HDS_INTEGRATED_SURFACE_BORDER: string = '#D7E3F0';
-const NGF_HDS_INTEGRATED_SURFACE_SHADOW: string = '#180F172A';
-const NGF_HDS_INTEGRATED_INNER_BACKGROUND: string = '#FFFFFFFF';
-const NGF_HDS_INTEGRATED_INNER_BORDER: string = '#DCE6F2';
-const NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND: string = '#E6EEF8';
-const NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND: string = '#0F172A';
-const NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BORDER: string = '#243B53';
+const NGF_HDS_INTEGRATED_SURFACE_BACKGROUND: Resource = $r('app.color.background_surface');
+const NGF_HDS_INTEGRATED_SURFACE_BORDER: Resource = $r('app.color.card_border');
+const NGF_HDS_INTEGRATED_SURFACE_SHADOW: Resource = $r('app.color.card_shadow_demo');
+const NGF_HDS_INTEGRATED_INNER_BACKGROUND: Resource = $r('app.color.panel_background');
+const NGF_HDS_INTEGRATED_INNER_BORDER: Resource = $r('app.color.card_border_inner');
+const NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND: Resource = $r('app.color.button_inactive_bg');
+const NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND: Resource = $r('app.color.component_control_bg');
+const NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BORDER: Resource = $r('app.color.component_control_border');
 
 class NGFHdsIntegratedCapabilityCard {
   id: string;
@@ -621,9 +621,9 @@ export struct HdsIntegratedShowcasePage {
       Text('MainMenuPage → HDS 综合示例')
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#FFFFFFFF')
+        .fontColor('#FFFFFF')
 
-      Text('旧的组件页、布局页和动效页已移除，当前页面以与官方 HDS Navigation 示例一致的视觉骨架，统一承载三类能力验证。')
+      Text('本页面将各类组件、布局和动效示例整合在一起，无需切换页面，上下滚动即可浏览。适合入门开发者一站式学习 HDS 框架用法。')
         .fontSize(14)
         .lineHeight(22)
         .fontColor('#E6FFFFFF')
@@ -672,7 +672,7 @@ export struct HdsIntegratedShowcasePage {
           .width('100%')
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
-          .fontColor('#FFFFFFFF')
+          .fontColor('#FFFFFF')
           .textAlign(TextAlign.Start)
 
         Text(card.subtitle)
@@ -685,7 +685,7 @@ export struct HdsIntegratedShowcasePage {
           .width('100%')
           .fontSize(13)
           .lineHeight(20)
-          .fontColor('#E6FFFFFF')
+          .fontColor('#CCFFFFFF')
           .textAlign(TextAlign.Start)
       }
       .width('100%')
@@ -721,25 +721,25 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildFactCard(): void {
     Column({ space: 10 }) {
-      Text('当前融合结构')
+      Text('页面结构说明')
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_primary'))
+        .fontColor('#FFFFFF')
 
-      Text('1. 旧的 HDS 组件页、布局页、动效页已收束为同一个 HdsNavDestination。')
+      Text('1. 所有组件、布局和动效演示都整合在同一个页面中，无需跳转即可浏览全部内容。')
         .width('100%')
         .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor('#E6FFFFFF')
 
-      Text('2. 页面继续复用 MainMenuPage 作为唯一 HdsNavigation 根容器。')
+      Text('2. 使用 MainMenuPage 作为统一的导航根容器，管理所有页面的进入和返回。')
         .width('100%')
         .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor('#E6FFFFFF')
 
-      Text('3. 组件、布局、动效三类验证内容改为在同页连续滚动展示，不再通过多页面切换承载。')
+      Text('3. 三种能力演示区（组件/布局/动效）连续排列，上下滑动即可查看全部内容。')
         .width('100%')
         .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor('#E6FFFFFF')
     }
     .width('100%')
     .padding(16)
@@ -754,7 +754,7 @@ export struct HdsIntegratedShowcasePage {
     Column({ space: 14 }) {
       SubHeader({
         primaryTitle: '组件能力区',
-        secondaryTitle: '在同一页面中验证搜索、筛选、分段切换与状态摘要',
+        secondaryTitle: '在页面中体验搜索、分段切换和标签筛选等常见交互',
         operationType: OperationType.BUTTON,
         operationItem: [
           {
@@ -766,7 +766,7 @@ export struct HdsIntegratedShowcasePage {
         ]
       })
 
-      Search({ value: this.componentSearchValue, placeholder: '搜索组件能力、分段控件或筛选模式' })
+      Search({ value: this.componentSearchValue, placeholder: '快速查找组件示例（名称/分组/标签）' })
         .searchButton('搜索')
         .width('100%')
         .backgroundColor(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND)
@@ -857,7 +857,7 @@ export struct HdsIntegratedShowcasePage {
     Column({ space: 14 }) {
       SubHeader({
         primaryTitle: '布局能力区',
-        secondaryTitle: '用单页方式整合内容布局、导航布局与服务入口骨架'
+        secondaryTitle: '内容布局、导航布局和服务入口的整合展示'
       })
 
       HdsTabs({ controller: this.layoutTabsController }) {
@@ -955,7 +955,7 @@ export struct HdsIntegratedShowcasePage {
     Column({ space: 14 }) {
       SubHeader({
         primaryTitle: '动效能力区',
-        secondaryTitle: '保留轮播焦点、模式切换与播放控制，统一在同页验证',
+        secondaryTitle: '轮播图、动效模式切换与播放控制演示',
         operationType: OperationType.BUTTON,
         operationItem: [
           {
@@ -1029,7 +1029,7 @@ export struct HdsIntegratedShowcasePage {
         .width('100%')
         .fontSize(20)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#FFFFFFFF')
+        .fontColor('#FFFFFF')
 
       Text(slide.subtitle)
         .width('100%')
@@ -1075,7 +1075,7 @@ export struct HdsIntegratedShowcasePage {
           .height(36)
           .buttonStyle(ButtonStyleMode.NORMAL)
           .backgroundColor(this.motionCurrentIndex === index ? '#0F766E' : NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND)
-          .fontColor(this.motionCurrentIndex === index ? '#FFFFFFFF' : $r('app.color.text_primary'))
+          .fontColor(this.motionCurrentIndex === index ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .onClick((): void => {
             this.selectMotionSlide(index);
           })
@@ -1103,7 +1103,7 @@ export struct HdsIntegratedShowcasePage {
         .height(42)
         .buttonStyle(ButtonStyleMode.NORMAL)
         .backgroundColor('#1D4ED8')
-        .fontColor('#FFFFFFFF')
+        .fontColor($r('app.color.panel_background'))
         .onClick((): void => {
           this.motionAutoPlayEnabled = !this.motionAutoPlayEnabled;
           this.lastActionText = this.motionAutoPlayEnabled ? '已开启自动播放' : '已关闭自动播放';
@@ -1129,13 +1129,13 @@ export struct HdsIntegratedShowcasePage {
       Text('验证目标')
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_primary'))
+        .fontColor('#FFFFFF')
 
-      Text('当前页用于验证：MainMenuPage 根导航、统一沉浸式 HDS 顶栏、单页融合内容编排、官方组件接入、滚动标题栏联动与窗口策略在同一目的地中的协同效果。')
+      Text('本页面展示了 HDS 导航的完整实践：统一的顶部导航栏、沉浸式背景层、官方组件集成、标题栏滚动联动与窗口策略。适合入门开发者快速理解框架的核心用法。')
         .width('100%')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor('#E6FFFFFF')
     }
     .width('100%')
     .padding(16)

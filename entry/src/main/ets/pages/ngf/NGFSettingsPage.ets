@@ -37,7 +37,7 @@ export struct NGFSettingsPage {
       Text('外观主题')
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#1C2430')
+        .fontColor($r('app.color.text_primary'))
 
       this.buildSettingRow('当前主题', this.describeTheme(this.currentTheme))
       this.buildSettingRow('深色模式', this.isDarkMode ? '是' : '否')
@@ -45,8 +45,8 @@ export struct NGFSettingsPage {
         Button('跟随系统')
           .fontSize(13)
           .height(36)
-          .backgroundColor(this.currentTheme === NGFThemeMode.AUTO ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.currentTheme === NGFThemeMode.AUTO ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.currentTheme === NGFThemeMode.AUTO ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.currentTheme === NGFThemeMode.AUTO ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(18)
           .layoutWeight(1)
           .onClick((): void => {
@@ -55,8 +55,8 @@ export struct NGFSettingsPage {
         Button('浅色')
           .fontSize(13)
           .height(36)
-          .backgroundColor(this.currentTheme === NGFThemeMode.LIGHT ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.currentTheme === NGFThemeMode.LIGHT ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.currentTheme === NGFThemeMode.LIGHT ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.currentTheme === NGFThemeMode.LIGHT ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(18)
           .layoutWeight(1)
           .onClick((): void => {
@@ -65,8 +65,8 @@ export struct NGFSettingsPage {
         Button('深色')
           .fontSize(13)
           .height(36)
-          .backgroundColor(this.currentTheme === NGFThemeMode.DARK ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.currentTheme === NGFThemeMode.DARK ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.currentTheme === NGFThemeMode.DARK ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.currentTheme === NGFThemeMode.DARK ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(18)
           .layoutWeight(1)
           .onClick((): void => {
@@ -77,9 +77,9 @@ export struct NGFSettingsPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#D5DEE9' })
+    .border({ width: 1, color: $r('app.color.panel_border') })
   }
 
   @Builder
@@ -88,15 +88,15 @@ export struct NGFSettingsPage {
       Text('语言设置')
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#1C2430')
+        .fontColor($r('app.color.text_primary'))
 
       this.buildSettingRow('当前语言', this.describeLocale(this.currentLocale))
       Row({ space: 8 }) {
         Button('跟随系统')
           .fontSize(13)
           .height(36)
-          .backgroundColor(this.currentLocale === '' ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.currentLocale === '' ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.currentLocale === '' ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.currentLocale === '' ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(18)
           .layoutWeight(1)
           .onClick((): void => {
@@ -105,8 +105,8 @@ export struct NGFSettingsPage {
         Button('简体中文')
           .fontSize(13)
           .height(36)
-          .backgroundColor(this.currentLocale === 'zh-Hans' ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.currentLocale === 'zh-Hans' ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.currentLocale === 'zh-Hans' ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.currentLocale === 'zh-Hans' ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(18)
           .layoutWeight(1)
           .onClick((): void => {
@@ -115,8 +115,8 @@ export struct NGFSettingsPage {
         Button('English')
           .fontSize(13)
           .height(36)
-          .backgroundColor(this.currentLocale === 'en' ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.currentLocale === 'en' ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.currentLocale === 'en' ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.currentLocale === 'en' ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(18)
           .layoutWeight(1)
           .onClick((): void => {
@@ -127,9 +127,9 @@ export struct NGFSettingsPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#D5DEE9' })
+    .border({ width: 1, color: $r('app.color.panel_border') })
   }
 
   @Builder
@@ -138,15 +138,15 @@ export struct NGFSettingsPage {
       Text('视觉效果')
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#1C2430')
+        .fontColor($r('app.color.text_primary'))
 
       Row() {
         Text('沉浸光效')
           .fontSize(14)
-          .fontColor('#4F5F73')
+          .fontColor($r('app.color.text_secondary'))
           .layoutWeight(1)
         Toggle({ type: ToggleType.Switch, isOn: this.materialMode === 'adaptive' })
-          .selectedColor('#0B57D0')
+          .selectedColor($r('app.color.button_primary'))
           .onChange((isOn: boolean): void => {
             this.applyImmersiveToggle(isOn);
           })
@@ -159,14 +159,14 @@ export struct NGFSettingsPage {
 
       Text('材质等级')
         .fontSize(14)
-        .fontColor('#4F5F73')
+        .fontColor($r('app.color.text_secondary'))
         .width('100%')
       Row({ space: 8 }) {
         Button('流畅')
           .fontSize(12)
           .height(32)
-          .backgroundColor(this.effectiveLevel === 0 ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.effectiveLevel === 0 ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.effectiveLevel === 0 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.effectiveLevel === 0 ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(16)
           .layoutWeight(1)
           .onClick((): void => {
@@ -175,8 +175,8 @@ export struct NGFSettingsPage {
         Button('轻柔')
           .fontSize(12)
           .height(32)
-          .backgroundColor(this.effectiveLevel === 1 ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.effectiveLevel === 1 ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.effectiveLevel === 1 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.effectiveLevel === 1 ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(16)
           .layoutWeight(1)
           .onClick((): void => {
@@ -185,8 +185,8 @@ export struct NGFSettingsPage {
         Button('精美')
           .fontSize(12)
           .height(32)
-          .backgroundColor(this.effectiveLevel === 2 ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.effectiveLevel === 2 ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.effectiveLevel === 2 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.effectiveLevel === 2 ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(16)
           .layoutWeight(1)
           .onClick((): void => {
@@ -195,8 +195,8 @@ export struct NGFSettingsPage {
         Button('自适应')
           .fontSize(12)
           .height(32)
-          .backgroundColor(this.effectiveLevel === 3 ? '#0B57D0' : '#E6EEF8')
-          .fontColor(this.effectiveLevel === 3 ? '#FFFFFFFF' : '#1C2430')
+          .backgroundColor(this.effectiveLevel === 3 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
+          .fontColor(this.effectiveLevel === 3 ? $r('app.color.panel_background') : $r('app.color.text_primary'))
           .borderRadius(16)
           .layoutWeight(1)
           .onClick((): void => {
@@ -207,9 +207,9 @@ export struct NGFSettingsPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#D5DEE9' })
+    .border({ width: 1, color: $r('app.color.panel_border') })
   }
 
   @Builder
@@ -218,7 +218,7 @@ export struct NGFSettingsPage {
       Text('握持感知')
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#1C2430')
+        .fontColor($r('app.color.text_primary'))
 
       this.buildSettingRow('传感器可用', this.holdingAvailable ? '是' : '否')
       this.buildSettingRow('DETECT_GESTURE', this.detectGestureGranted ? '已授权' : '未授权')
@@ -226,9 +226,9 @@ export struct NGFSettingsPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#D5DEE9' })
+    .border({ width: 1, color: $r('app.color.panel_border') })
   }
 
   @Builder
@@ -237,7 +237,7 @@ export struct NGFSettingsPage {
       Text('关于')
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#1C2430')
+        .fontColor($r('app.color.text_primary'))
 
       this.buildSettingRow('框架名称', 'NGF')
       this.buildSettingRow('版本', '1.0.0')
@@ -246,9 +246,9 @@ export struct NGFSettingsPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#D5DEE9' })
+    .border({ width: 1, color: $r('app.color.panel_border') })
   }
 
   @Builder
@@ -256,11 +256,11 @@ export struct NGFSettingsPage {
     Row() {
       Text(label)
         .fontSize(14)
-        .fontColor('#4F5F73')
+        .fontColor($r('app.color.text_secondary'))
         .layoutWeight(1)
       Text(value)
         .fontSize(14)
-        .fontColor('#1C2430')
+        .fontColor($r('app.color.text_primary'))
         .fontWeight(FontWeight.Medium)
     }
     .width('100%')

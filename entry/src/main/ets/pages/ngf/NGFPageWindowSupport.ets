@@ -23,6 +23,7 @@ export class NGFPageWindowName {
   static readonly DEMO_DATA_STORAGE: string = NGFHdsDemoRouteName.DEMO_DATA_STORAGE;
   static readonly DEMO_WORKFLOW: string = NGFHdsDemoRouteName.DEMO_WORKFLOW;
   static readonly DEMO_DEVICE_DISPLAY: string = NGFHdsDemoRouteName.DEMO_DEVICE_DISPLAY;
+  static readonly SYSTEM_RESOURCE_PREVIEW: string = NGFHdsDemoRouteName.SYSTEM_RESOURCE_PREVIEW;
 }
 
 class NGFPageWindowStyleFactory {
@@ -45,8 +46,8 @@ class NGFPageWindowStyleFactory {
     style.enabled = true;
     style.statusBarColor = '#FFF8FAFC';
     style.navigationBarColor = '#FFF8FAFC';
-    style.statusBarContentColor = '#FF0F172A';
-    style.navigationBarContentColor = '#FF0F172A';
+    style.statusBarContentColor = '#0F172A';
+    style.navigationBarContentColor = '#0F172A';
     style.isStatusBarLightIcon = false;
     style.isNavigationBarLightIcon = false;
     style.enableStatusBarAnimation = true;
@@ -139,6 +140,14 @@ export class NGFPageWindowSupport {
     profiles.push(
       NGFPageWindowSupport.buildProfile(
         NGFPageWindowName.DEMO_DEVICE_DISPLAY,
+        NGFDisplayMode.IMMERSIVE_WITH_BARS,
+        NGFPageWindowStyleFactory.buildTransparentLightStyle(),
+        48
+      )
+    );
+    profiles.push(
+      NGFPageWindowSupport.buildProfile(
+        NGFPageWindowName.SYSTEM_RESOURCE_PREVIEW,
         NGFDisplayMode.IMMERSIVE_WITH_BARS,
         NGFPageWindowStyleFactory.buildTransparentLightStyle(),
         48

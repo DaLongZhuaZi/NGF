@@ -12,7 +12,7 @@ import {
   NGFHoldingUiAnchor
 } from '../contracts/IHoldingAwarenessManager';
 
-const TAG = 'NGFHoldingAwarenessFacade';
+const TAG: string = 'NGFHoldingAwarenessFacade';
 
 const NGF_HOLDING_AWARENESS_PREFERRED_ANCHOR_KEY = 'ngf_holding_awareness_preferred_anchor';
 const NGF_HOLDING_AWARENESS_SIDE_KEY = 'ngf_holding_awareness_side';
@@ -20,6 +20,7 @@ const NGF_HOLDING_AWARENESS_SOURCE_KEY = 'ngf_holding_awareness_source';
 const NGF_HOLDING_AWARENESS_CONFIDENCE_KEY = 'ngf_holding_awareness_confidence';
 const NGF_HOLDING_AWARENESS_AVAILABLE_KEY = 'ngf_holding_awareness_available';
 const NGF_HOLDING_AWARENESS_PRECISE_SUPPORTED_KEY = 'ngf_holding_awareness_precise_supported';
+const NGF_HOLDING_AWARENESS_OPERATING_SUPPORTED_KEY = 'ngf_holding_awareness_operating_supported';
 const NGF_HOLDING_AWARENESS_DETECT_GESTURE_GRANTED_KEY = 'ngf_holding_awareness_detect_gesture_granted';
 const NGF_HOLDING_AWARENESS_ACTIVITY_MOTION_GRANTED_KEY = 'ngf_holding_awareness_activity_motion_granted';
 const NGF_HOLDING_AWARENESS_LAST_UPDATED_KEY = 'ngf_holding_awareness_last_updated';
@@ -46,6 +47,7 @@ const DEFAULT_SNAPSHOT: NGFHoldingAwarenessSnapshot = {
   confidence: NGFHoldingAwarenessConfidence.FALLBACK,
   available: false,
   preciseSupported: false,
+  operatingHandSupported: true,
   detectGestureGranted: false,
   activityMotionGranted: false,
   lastUpdatedAt: 0
@@ -59,6 +61,7 @@ function cloneHoldingAwarenessSnapshot(snapshot: NGFHoldingAwarenessSnapshot): N
     confidence: snapshot.confidence,
     available: snapshot.available,
     preciseSupported: snapshot.preciseSupported,
+    operatingHandSupported: snapshot.operatingHandSupported,
     detectGestureGranted: snapshot.detectGestureGranted,
     activityMotionGranted: snapshot.activityMotionGranted,
     lastUpdatedAt: snapshot.lastUpdatedAt
@@ -69,12 +72,13 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
   private static instance: NGFHoldingAwarenessManager | null = null;
 
   private currentSnapshot: NGFHoldingAwarenessSnapshot = cloneHoldingAwarenessSnapshot(DEFAULT_SNAPSHOT);
-  private listeners: Set<NGFHoldingAwarenessListener> = new Set();
+  private listeners: Set<NGFHoldingAwarenessListener> = new Set<NGFHoldingAwarenessListener>();
   private isInitialized: boolean = false;
   private isInitializing: boolean = false;
   private selfTokenId: number = -1;
   private holdingSubscribed: boolean = false;
   private operatingSubscribed: boolean = false;
+  private operatingUnsupported: boolean = false;
   private detectGestureGranted: boolean = false;
   private activityMotionGranted: boolean = false;
   private latestHoldingStatus: motion.HoldingHandStatus = motion.HoldingHandStatus.UNKNOWN_STATUS;
@@ -198,6 +202,7 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_CONFIDENCE_KEY, DEFAULT_SNAPSHOT.confidence);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_AVAILABLE_KEY, DEFAULT_SNAPSHOT.available);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_PRECISE_SUPPORTED_KEY, DEFAULT_SNAPSHOT.preciseSupported);
+    AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_OPERATING_SUPPORTED_KEY, DEFAULT_SNAPSHOT.operatingHandSupported);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_DETECT_GESTURE_GRANTED_KEY, DEFAULT_SNAPSHOT.detectGestureGranted);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_ACTIVITY_MOTION_GRANTED_KEY, DEFAULT_SNAPSHOT.activityMotionGranted);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_LAST_UPDATED_KEY, DEFAULT_SNAPSHOT.lastUpdatedAt);
@@ -273,15 +278,28 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
   }
 
   private async trySubscribeOperating(reason: string): Promise<void> {
+    if (this.operatingUnsupported) {
+      logger.debug(TAG, `操作手增强能力已确认不可用，跳过重复订阅：原因=${reason}`);
+      return;
+    }
     if (this.operatingSubscribed) {
       logger.debug(TAG, `操作手监听已存在，跳过重复订阅：原因=${reason}`);
+      return;
+    }
+    if (!this.detectGestureGranted && !this.activityMotionGranted) {
+      logger.debug(TAG, `缺少操作手监听权限，跳过订阅：原因=${reason}`);
       return;
     }
     try {
       motion.on('operatingHandChanged', this.operatingHandChangedCallback);
       this.operatingSubscribed = true;
+      this.operatingUnsupported = false;
       logger.info(TAG, `已启用操作手监听：原因=${reason}`);
     } catch (error) {
+      if (this.isCapabilityUnsupported(error)) {
+        this.markOperatingUnsupported(reason, error);
+        return;
+      }
       logger.warn(
         TAG,
         `启用操作手监听失败：原因=${reason}，错误码=${this.extractErrorCode(error)}，错误=${this.extractErrorMessage(error)}`
@@ -290,6 +308,10 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
   }
 
   private refreshRecentOperatingStatus(reason: string): void {
+    if (this.operatingUnsupported) {
+      logger.debug(TAG, `操作手增强能力不可用，跳过最近一次状态刷新：原因=${reason}`);
+      return;
+    }
     if (!this.detectGestureGranted && !this.activityMotionGranted) {
       logger.debug(TAG, `缺少可用权限，跳过最近一次操作手状态刷新：原因=${reason}`);
       return;
@@ -301,6 +323,10 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
         `已刷新最近一次操作手状态：状态=${this.describeOperatingHandStatus(this.latestOperatingStatus)}，原因=${reason}`
       );
     } catch (error) {
+      if (this.isCapabilityUnsupported(error)) {
+        this.markOperatingUnsupported(reason, error);
+        return;
+      }
       logger.debug(
         TAG,
         `刷新最近一次操作手状态失败：原因=${reason}，错误码=${this.extractErrorCode(error)}，错误=${this.extractErrorMessage(error)}`
@@ -387,6 +413,7 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
       confidence,
       available: this.holdingSubscribed || this.operatingSubscribed,
       preciseSupported: this.holdingSubscribed,
+      operatingHandSupported: !this.operatingUnsupported,
       detectGestureGranted: this.detectGestureGranted,
       activityMotionGranted: this.activityMotionGranted,
       lastUpdatedAt: Date.now()
@@ -406,6 +433,7 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_CONFIDENCE_KEY, nextSnapshot.confidence);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_AVAILABLE_KEY, nextSnapshot.available);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_PRECISE_SUPPORTED_KEY, nextSnapshot.preciseSupported);
+    AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_OPERATING_SUPPORTED_KEY, nextSnapshot.operatingHandSupported);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_DETECT_GESTURE_GRANTED_KEY, nextSnapshot.detectGestureGranted);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_ACTIVITY_MOTION_GRANTED_KEY, nextSnapshot.activityMotionGranted);
     AppStorage.setOrCreate(NGF_HOLDING_AWARENESS_LAST_UPDATED_KEY, nextSnapshot.lastUpdatedAt);
@@ -415,7 +443,8 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
       `握持感知快照已更新：推荐停靠=${this.describeUiAnchor(nextSnapshot.preferredAnchor)}，` +
         `握持侧=${this.describeAwarenessSide(nextSnapshot.side)}，来源=${this.describeSource(nextSnapshot.source)}，` +
         `置信度=${this.describeConfidence(nextSnapshot.confidence)}，可用=${this.describeBoolean(nextSnapshot.available)}，` +
-        `精确支持=${this.describeBoolean(nextSnapshot.preciseSupported)}，DETECT_GESTURE=${this.describeBoolean(nextSnapshot.detectGestureGranted)}，` +
+        `精确支持=${this.describeBoolean(nextSnapshot.preciseSupported)}，操作手增强=${this.describeBoolean(nextSnapshot.operatingHandSupported)}，` +
+        `DETECT_GESTURE=${this.describeBoolean(nextSnapshot.detectGestureGranted)}，` +
         `ACTIVITY_MOTION=${this.describeBoolean(nextSnapshot.activityMotionGranted)}，原因=${reason}`
     );
 
@@ -438,8 +467,29 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
       previous.confidence === next.confidence &&
       previous.available === next.available &&
       previous.preciseSupported === next.preciseSupported &&
+      previous.operatingHandSupported === next.operatingHandSupported &&
       previous.detectGestureGranted === next.detectGestureGranted &&
       previous.activityMotionGranted === next.activityMotionGranted;
+  }
+
+  private markOperatingUnsupported(reason: string, error: HoldingAwarenessError): void {
+    if (this.operatingUnsupported) {
+      logger.debug(TAG, `操作手增强能力仍不可用：原因=${reason}`);
+      return;
+    }
+    this.operatingUnsupported = true;
+    logger.info(
+      TAG,
+      `操作手增强能力当前设备不支持，已降级为仅使用智感握姿：原因=${reason}，错误码=${this.extractErrorCode(error)}，错误=${this.extractErrorMessage(error)}`
+    );
+  }
+
+  private isCapabilityUnsupported(error: HoldingAwarenessError): boolean {
+    const businessError = error as BusinessErrorLike;
+    if (!businessError) {
+      return false;
+    }
+    return businessError.code === 801;
   }
 
   private describeBoolean(value: boolean): string {

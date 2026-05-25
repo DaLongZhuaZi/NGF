@@ -14,6 +14,9 @@
     "pages": "$profile:main_pages",
     "requestPermissions": [
       {
+        "name": "ohos.permission.INTERNET"
+      },
+      {
         "name": "ohos.permission.DETECT_GESTURE",
         "reason": "$string:detect_gesture_reason",
         "usedScene": {

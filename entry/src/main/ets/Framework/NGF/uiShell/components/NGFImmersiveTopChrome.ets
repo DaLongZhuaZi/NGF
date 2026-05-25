@@ -17,8 +17,8 @@ export class NGFImmersiveTopChromeSpec {
   gradientEnd: string;
   primaryGlowColor: string;
   secondaryGlowColor: string;
-  lineColor: string;
-  maskColor: string;
+  lineColor: string | Resource;
+  maskColor: string | Resource;
   effectRadius: number;
   effectSaturation: number;
   effectBrightness: number;
@@ -30,8 +30,8 @@ export class NGFImmersiveTopChromeSpec {
     gradientEnd: string,
     primaryGlowColor: string,
     secondaryGlowColor: string,
-    lineColor: string,
-    maskColor: string,
+    lineColor: string | Resource,
+    maskColor: string | Resource,
     effectRadius: number,
     effectSaturation: number,
     effectBrightness: number
@@ -98,7 +98,7 @@ class NGFImmersiveTopChromeBackgroundEffectOptions implements BackgroundEffectOp
 
 class NGFImmersiveTopChromeEffectFactory {
   static build(spec: NGFImmersiveTopChromeSpec): VisualEffect {
-    const pointLightOptions = new NGFImmersiveTopChromePointLightOptions('#EAFFFFFF', 0.32, 30, 0.22);
+    const pointLightOptions = new NGFImmersiveTopChromePointLightOptions($r('app.color.point_light_color'), 0.32, 30, 0.22);
     const pointLightEffect = new NGFImmersiveTopChromePointLightEffect(
       hdsEffect.PointLightSourceType.SOFT,
       hdsEffect.PointLightIlluminatedType.BORDER_CONTENT,
@@ -127,8 +127,8 @@ export class NGFImmersiveTopChromePresetFactory {
       gradientEnd,
       primaryGlowColor,
       secondaryGlowColor,
-      '#66FFFFFF',
-      '#12FFFFFF',
+      $r('app.color.glass_divider'),
+      $r('app.color.glass_bg_effect_light'),
       38,
       1.22,
       1.04
@@ -167,7 +167,7 @@ export struct NGFImmersiveTopChromeUnderlay {
         .backgroundColor(this.spec.primaryGlowColor)
         .opacity(0.22)
         .margin({ left: 192, top: 12 })
-        .shadow({ radius: 82, color: '#704A89FF', offsetX: 10, offsetY: 6 })
+        .shadow({ radius: 82, color: $r('app.color.glow_circle_blue_shadow'), offsetX: 10, offsetY: 6 })
 
       Column() {}
         .width(148)
@@ -176,7 +176,7 @@ export struct NGFImmersiveTopChromeUnderlay {
         .backgroundColor(this.spec.secondaryGlowColor)
         .opacity(0.18)
         .margin({ left: 18, top: 28 })
-        .shadow({ radius: 74, color: '#6635D5FF', offsetX: -8, offsetY: 8 })
+        .shadow({ radius: 74, color: $r('app.color.glow_circle_cyan_shadow'), offsetX: -8, offsetY: 8 })
 
       Column() {}
         .width('86%')

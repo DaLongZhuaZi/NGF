@@ -37,14 +37,16 @@ class NGFDemoStepResultEntry {
   stepName: string;
   actionType: string;
   statusText: string;
-  statusColor: string;
+  statusColor: Resource;
+  statusBg: Resource;
 
-  constructor(id: number, stepName: string, actionType: string, statusText: string, statusColor: string) {
+  constructor(id: number, stepName: string, actionType: string, statusText: string, statusColor: Resource, statusBg: Resource) {
     this.id = id;
     this.stepName = stepName;
     this.actionType = actionType;
     this.statusText = statusText;
     this.statusColor = statusColor;
+    this.statusBg = statusBg;
   }
 }
 
@@ -78,7 +80,7 @@ export struct NGFDemoWorkflowPage {
 
   build() {
     HdsNavDestination() {
-      Stack() {
+      Stack({ alignContent: Alignment.TopStart }) {
         NGFImmersiveTopChromeUnderlay({ spec: DEMO_WORKFLOW_TOP_CHROME })
 
         Scroll() {
@@ -88,12 +90,14 @@ export struct NGFDemoWorkflowPage {
             this.buildPersistenceSection()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: 100, bottom: 36 })
+          .padding({ left: 16, right: 16, top: DEMO_WORKFLOW_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
         }
         .width('100%')
         .height('100%')
         .scrollBar(BarState.Off)
         .edgeEffect(EdgeEffect.Spring)
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+        .backgroundColor($r('app.color.background_transparent'))
       }
       .width('100%')
       .height('100%')
@@ -106,6 +110,7 @@ export struct NGFDemoWorkflowPage {
       true,
       false
     ))
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .onReady((context: NavDestinationContext): void => {
       this.pathStack = context.pathStack;
     })
@@ -126,11 +131,11 @@ export struct NGFDemoWorkflowPage {
       Text('流程编排演示')
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#FFFFFFFF')
+        .fontColor($r('app.color.panel_background'))
       Text('WorkflowDefinition DSL 多步骤工作流 + 条件分支 / WorkflowPersistence 状态持久化')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor('#B0FFFFFF')
+        .fontColor($r('app.color.text_white_low'))
     }
     .width('100%')
     .padding(18)
@@ -148,12 +153,12 @@ export struct NGFDemoWorkflowPage {
       Text('工作流 DSL')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       Text('注册一个包含 4 个步骤的示例工作流（含条件分支），然后执行它。')
         .fontSize(13)
         .lineHeight(19)
-        .fontColor('#FF64748B')
+        .fontColor($r('app.color.text_tertiary'))
 
       Row({ space: 10 }) {
         Button('注册示例工作流')
@@ -170,7 +175,7 @@ export struct NGFDemoWorkflowPage {
           .height(40)
           .fontSize(14)
           .borderRadius(12)
-          .backgroundColor('#FF7C3AED')
+          .backgroundColor($r('app.color.tag_purple'))
           .onClick((): void => {
             void this.handleExecuteWorkflow();
           })
@@ -189,18 +194,18 @@ export struct NGFDemoWorkflowPage {
           Text(`执行结果: ${this.executionSuccess ? '成功' : '失败'}`)
             .fontSize(14)
             .fontWeight(FontWeight.Medium)
-            .fontColor(this.executionSuccess ? '#FF16A34A' : '#FFDC2626')
+            .fontColor(this.executionSuccess ? $r('app.color.tag_green') : $r('app.color.tag_red'))
 
           ForEach(this.stepResults, (entry: NGFDemoStepResultEntry) => {
             Row() {
               Column({ space: 2 }) {
                 Text(entry.stepName)
                   .fontSize(13)
-                  .fontColor('#FF0F172A')
+                  .fontColor($r('app.color.text_body'))
                   .fontWeight(FontWeight.Medium)
                 Text(entry.actionType)
                   .fontSize(11)
-                  .fontColor('#FF94A3B8')
+                  .fontColor($r('app.color.text_muted'))
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
@@ -210,13 +215,12 @@ export struct NGFDemoWorkflowPage {
                 .fontWeight(FontWeight.Medium)
                 .fontColor(entry.statusColor)
                 .padding({ left: 8, right: 8, top: 3, bottom: 3 })
-                .backgroundColor(entry.statusColor === '#FF16A34A' ? '#FFF0FDF4'
-                  : entry.statusColor === '#FFDC2626' ? '#FFFEF2F2' : '#FFF1F5F9')
+                .backgroundColor(entry.statusBg)
                 .borderRadius(8)
             }
             .width('100%')
             .padding({ top: 8, bottom: 8, left: 12, right: 12 })
-            .backgroundColor('#FFF8FAFC')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(10)
           }, (entry: NGFDemoStepResultEntry): string => `step_${entry.id}`)
         }
@@ -227,15 +231,15 @@ export struct NGFDemoWorkflowPage {
         Column({ space: 4 }) {
           Text('输出 JSON')
             .fontSize(12)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(this.executionOutput)
             .fontSize(11)
-            .fontColor('#FF0F172A')
+            .fontColor($r('app.color.text_body'))
             .fontFamily('monospace')
             .maxLines(6)
             .width('100%')
             .padding(10)
-            .backgroundColor('#FFF1F5F9')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(10)
         }
         .width('100%')
@@ -244,10 +248,10 @@ export struct NGFDemoWorkflowPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -256,7 +260,7 @@ export struct NGFDemoWorkflowPage {
       Text('工作流持久化')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       Row({ space: 8 }) {
         Button('保存状态')
@@ -264,7 +268,7 @@ export struct NGFDemoWorkflowPage {
           .height(36)
           .fontSize(13)
           .borderRadius(10)
-          .backgroundColor('#FF16A34A')
+          .backgroundColor($r('app.color.tag_green'))
           .onClick((): void => {
             this.handleSaveState();
           })
@@ -273,7 +277,7 @@ export struct NGFDemoWorkflowPage {
           .height(36)
           .fontSize(13)
           .borderRadius(10)
-          .backgroundColor('#FF2563EB')
+          .backgroundColor($r('app.color.button_primary'))
           .onClick((): void => {
             this.handleLoadState();
           })
@@ -282,7 +286,7 @@ export struct NGFDemoWorkflowPage {
           .height(36)
           .fontSize(13)
           .borderRadius(10)
-          .backgroundColor('#FF7C3AED')
+          .backgroundColor($r('app.color.tag_purple'))
           .onClick((): void => {
             this.handleListSaved();
           })
@@ -291,7 +295,7 @@ export struct NGFDemoWorkflowPage {
           .height(36)
           .fontSize(13)
           .borderRadius(10)
-          .backgroundColor('#FFDC2626')
+          .backgroundColor($r('app.color.tag_red'))
           .onClick((): void => {
             ngfWorkflowPersistenceFacade.clearAll();
             this.savedStates = [];
@@ -313,21 +317,21 @@ export struct NGFDemoWorkflowPage {
             Row() {
               Text(entry.name)
                 .fontSize(13)
-                .fontColor('#FF0F172A')
+                .fontColor($r('app.color.text_body'))
                 .fontWeight(FontWeight.Medium)
                 .layoutWeight(1)
               Text(`步骤 ${entry.stepIndex}`)
                 .fontSize(12)
-                .fontColor('#FF64748B')
+                .fontColor($r('app.color.text_tertiary'))
                 .margin({ left: 8 })
               Text(entry.savedAtText)
                 .fontSize(11)
-                .fontColor('#FF94A3B8')
+                .fontColor($r('app.color.text_muted'))
                 .margin({ left: 8 })
             }
             .width('100%')
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
-            .backgroundColor('#FFF8FAFC')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
           }, (entry: NGFDemoSavedStateEntry): string => `saved_${entry.id}`)
         }
@@ -336,10 +340,10 @@ export struct NGFDemoWorkflowPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   private handleRegisterWorkflow(): void {
@@ -381,8 +385,9 @@ export struct NGFDemoWorkflowPage {
       for (let i = 0; i < result.stepResults.length; i++) {
         const step = result.stepResults[i];
         const statusText = step.skipped ? '跳过' : step.success ? '成功' : '失败';
-        const statusColor = step.skipped ? '#FF94A3B8' : step.success ? '#FF16A34A' : '#FFDC2626';
-        stepEntries.push(new NGFDemoStepResultEntry(i + 1, step.stepName, step.actionType, statusText, statusColor));
+        const statusColor = step.skipped ? $r('app.color.text_muted') : step.success ? $r('app.color.tag_green') : $r('app.color.tag_red');
+        const statusBg = step.skipped ? $r('app.color.background_surface') : step.success ? $r('app.color.background_success') : $r('app.color.background_error');
+        stepEntries.push(new NGFDemoStepResultEntry(i + 1, step.stepName, step.actionType, statusText, statusColor, statusBg));
       }
       this.stepResults = stepEntries;
       logger.info(TAG, `工作流执行完成: success=${result.success}, steps=${stepEntries.length}`);

@@ -5,12 +5,24 @@
       "value": "#F3F7FB"
     },
     {
+      "name": "background_transparent",
+      "value": "#00000000"
+    },
+    {
       "name": "background_primary",
       "value": "#F3F7FB"
     },
     {
       "name": "background_secondary",
       "value": "#EAF0F7"
+    },
+    {
+      "name": "background_default",
+      "value": "#F8FBFF"
+    },
+    {
+      "name": "background_surface",
+      "value": "#FFF8FAFC"
     },
     {
       "name": "panel_background",
@@ -21,6 +33,38 @@
       "value": "#D5DEE9"
     },
     {
+      "name": "card_border",
+      "value": "#E2E8F0"
+    },
+    {
+      "name": "card_border_alt",
+      "value": "#D7E3F0"
+    },
+    {
+      "name": "card_border_inner",
+      "value": "#DCE6F2"
+    },
+    {
+      "name": "card_shadow",
+      "value": "#40000000"
+    },
+    {
+      "name": "card_shadow_light",
+      "value": "#24000000"
+    },
+    {
+      "name": "card_shadow_demo",
+      "value": "#180F172A"
+    },
+    {
+      "name": "card_shadow_official",
+      "value": "#220F172A"
+    },
+    {
+      "name": "circle_shadow_light",
+      "value": "#1A000000"
+    },
+    {
       "name": "text_primary",
       "value": "#1C2430"
     },
@@ -29,8 +73,32 @@
       "value": "#4F5F73"
     },
     {
+      "name": "text_body",
+      "value": "#0F172A"
+    },
+    {
+      "name": "text_tertiary",
+      "value": "#64748B"
+    },
+    {
+      "name": "text_muted",
+      "value": "#94A3B8"
+    },
+    {
       "name": "text_white",
       "value": "#FFFFFFFF"
+    },
+    {
+      "name": "text_white_high",
+      "value": "#FFFFFFFF"
+    },
+    {
+      "name": "text_white_medium",
+      "value": "#E6FFFFFF"
+    },
+    {
+      "name": "text_white_low",
+      "value": "#B0FFFFFF"
     },
     {
       "name": "button_primary",
@@ -51,6 +119,38 @@
     {
       "name": "button_inactive",
       "value": "#607D8B"
+    },
+    {
+      "name": "button_inactive_bg",
+      "value": "#E6EEF8"
+    },
+    {
+      "name": "tag_green",
+      "value": "#16A34A"
+    },
+    {
+      "name": "tag_blue",
+      "value": "#2563EB"
+    },
+    {
+      "name": "tag_purple",
+      "value": "#7C3AED"
+    },
+    {
+      "name": "tag_red",
+      "value": "#DC2626"
+    },
+    {
+      "name": "tag_indigo",
+      "value": "#4F46E5"
+    },
+    {
+      "name": "component_control_bg",
+      "value": "#0F172A"
+    },
+    {
+      "name": "component_control_border",
+      "value": "#243B53"
     },
     {
       "name": "glass_surface_overlay",
@@ -93,12 +193,32 @@
       "value": "#2AFFFFFF"
     },
     {
+      "name": "glass_border_subtle_dark",
+      "value": "#16FFFFFF"
+    },
+    {
+      "name": "glass_border_light_dark",
+      "value": "#22FFFFFF"
+    },
+    {
       "name": "glass_divider",
       "value": "#66FFFFFF"
     },
     {
       "name": "glass_divider_strong",
       "value": "#7AFFFFFF"
+    },
+    {
+      "name": "glass_bg_menu_bar",
+      "value": "#1A1A2E66"
+    },
+    {
+      "name": "glass_shadow_menu",
+      "value": "#1A1A2E44"
+    },
+    {
+      "name": "point_light_color",
+      "value": "#EAFFFFFF"
     },
     {
       "name": "glow_circle_blue",
@@ -185,16 +305,32 @@
       "value": "#F7FFFFFF"
     },
     {
-      "name": "card_shadow",
-      "value": "#40000000"
+      "name": "tag_amber",
+      "value": "#D97706"
     },
     {
-      "name": "card_shadow_light",
-      "value": "#24000000"
+      "name": "tag_cyan",
+      "value": "#0EA5E9"
     },
     {
-      "name": "circle_shadow_light",
-      "value": "#1A000000"
+      "name": "tag_teal",
+      "value": "#0D9488"
+    },
+    {
+      "name": "tag_green_dark",
+      "value": "#15803D"
+    },
+    {
+      "name": "tag_green_darker",
+      "value": "#166534"
+    },
+    {
+      "name": "background_success",
+      "value": "#FFF0FDF4"
+    },
+    {
+      "name": "background_error",
+      "value": "#FFFEF2F2"
     }
   ]
 }

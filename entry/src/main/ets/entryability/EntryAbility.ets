@@ -48,6 +48,7 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     logger.lifecycle(TAG, '生命周期: onWindowStageCreate');
     ngfPlatformWindowManagerFacade.bindWindowStage(windowStage);
+    ngfDeviceAdaptationFacade.bindWindowStage(windowStage);
 
     windowStage.loadContent('pages/ngf/MainMenuPage', (err: BusinessError): void => {
       if (err.code !== 0) {
@@ -59,12 +60,15 @@ export default class EntryAbility extends UIAbility {
   }
 
   onWindowStageDestroy(): void {
+    ngfDeviceAdaptationFacade.clearWindowStage();
     ngfPlatformWindowManagerFacade.clearWindowStage();
     logger.lifecycle(TAG, '生命周期: onWindowStageDestroy');
   }
 
   onForeground(): void {
     logger.lifecycle(TAG, '生命周期: onForeground');
+    ngfDeviceAdaptationFacade.refresh('ability_foreground');
+    void ngfHoldingAwarenessFacade.resume();
   }
 
   onBackground(): void {
@@ -73,6 +77,7 @@ export default class EntryAbility extends UIAbility {
 
   onConfigurationUpdate(config: Configuration): void {
     logger.info(TAG, `配置更新: colorMode=${config.colorMode}, language=${config.language}`);
+    ngfDeviceAdaptationFacade.refresh('configuration_update');
 
     const colorMode = config.colorMode;
     if (colorMode !== undefined) {

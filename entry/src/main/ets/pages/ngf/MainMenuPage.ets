@@ -26,6 +26,7 @@ import { NGFDemoSecurityPerfPage } from './NGFDemoSecurityPerfPage';
 import { NGFDemoDataStoragePage } from './NGFDemoDataStoragePage';
 import { NGFDemoWorkflowPage } from './NGFDemoWorkflowPage';
 import { NGFDemoDeviceDisplayPage } from './NGFDemoDeviceDisplayPage';
+import { NGFSystemResourcePreviewPage } from './SystemResourcePreviewPage';
 
 const TAG: string = 'NGFStarterMainMenuPage';
 const NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT: number = 188;
@@ -44,6 +45,7 @@ class NGFMainMenuActionKey {
   static readonly DEMO_DATA_STORAGE: string = NGFHdsDemoRouteName.DEMO_DATA_STORAGE;
   static readonly DEMO_WORKFLOW: string = NGFHdsDemoRouteName.DEMO_WORKFLOW;
   static readonly DEMO_DEVICE_DISPLAY: string = NGFHdsDemoRouteName.DEMO_DEVICE_DISPLAY;
+  static readonly SYSTEM_RESOURCE_PREVIEW: string = NGFHdsDemoRouteName.SYSTEM_RESOURCE_PREVIEW;
 }
 
 class NGFStarterLogEntry {
@@ -465,7 +467,8 @@ struct NGFStarterMainMenuPage {
     if (actionKey === NGFMainMenuActionKey.DEMO_SECURITY_PERF ||
       actionKey === NGFMainMenuActionKey.DEMO_DATA_STORAGE ||
       actionKey === NGFMainMenuActionKey.DEMO_WORKFLOW ||
-      actionKey === NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY) {
+      actionKey === NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY ||
+      actionKey === NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW) {
       this.handleOpenHdsDemoTap(actionKey, label);
       return;
     }
@@ -676,7 +679,7 @@ struct NGFStarterMainMenuPage {
             .height('100%')
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
-            .backgroundColor('#00000000')
+            .backgroundColor($r('app.color.background_transparent'))
           }
           .tabBar(null)
 
@@ -687,6 +690,7 @@ struct NGFStarterMainMenuPage {
                 this.buildDemoDataStorageCard()
                 this.buildDemoWorkflowCard()
                 this.buildDemoDeviceDisplayCard()
+                this.buildSystemResourcePreviewCard()
               }
               .width('100%')
               .padding({ left: 16, right: 16, top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 76 })
@@ -695,7 +699,7 @@ struct NGFStarterMainMenuPage {
             .height('100%')
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
-            .backgroundColor('#00000000')
+            .backgroundColor($r('app.color.background_transparent'))
           }
           .tabBar(null)
 
@@ -851,7 +855,7 @@ struct NGFStarterMainMenuPage {
       }
       .width('88%')
       .height(56)
-      .backgroundColor('#1A1A2E66')
+      .backgroundColor($r('app.color.glass_bg_menu_bar'))
       .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK, {
         colorMode: ThemeColorMode.SYSTEM,
         adaptiveColor: AdaptiveColor.DEFAULT,
@@ -862,7 +866,7 @@ struct NGFStarterMainMenuPage {
       .borderRadius(28)
       .shadow({
         radius: 28,
-        color: '#1A1A2E44',
+        color: $r('app.color.glass_shadow_menu'),
         offsetX: 0,
         offsetY: 6
       })
@@ -945,6 +949,8 @@ struct NGFStarterMainMenuPage {
       NGFDemoWorkflowPage()
     } else if (name === NGFHdsDemoRouteName.DEMO_DEVICE_DISPLAY) {
       NGFDemoDeviceDisplayPage()
+    } else if (name === NGFHdsDemoRouteName.SYSTEM_RESOURCE_PREVIEW) {
+      NGFSystemResourcePreviewPage()
     }
   }
 
@@ -1127,7 +1133,7 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .padding(0)
-    .backgroundColor('#00000000')
+    .backgroundColor($r('app.color.background_transparent'))
     .buttonStyle(ButtonStyleMode.NORMAL)
     .onClick((): void => {
       this.handleFeatureActionTap(actionKey, title);
@@ -1330,6 +1336,19 @@ struct NGFStarterMainMenuPage {
       '#22C55E',
       '#86EFACFF',
       NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY
+    )
+  }
+
+  @Builder
+  private buildSystemResourcePreviewCard(): void {
+    this.buildFeatureActionButton(
+      'SYMBOL',
+      '系统 Symbol 图标库',
+      '浏览 HarmonyOS sys.symbol 分组、搜索并复制系统图标资源引用。',
+      '#1E3A8A',
+      '#7C3AED',
+      '#C4B5FDFF',
+      NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW
     )
   }
 

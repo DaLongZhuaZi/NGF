@@ -76,7 +76,7 @@ export struct NGFDemoSecurityPerfPage {
 
   build() {
     HdsNavDestination() {
-      Stack() {
+      Stack({ alignContent: Alignment.TopStart }) {
         NGFImmersiveTopChromeUnderlay({ spec: DEMO_SECURITY_TOP_CHROME })
 
         Scroll() {
@@ -88,12 +88,14 @@ export struct NGFDemoSecurityPerfPage {
             this.buildMemorySection()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: 100, bottom: 36 })
+          .padding({ left: 16, right: 16, top: DEMO_SECURITY_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
         }
         .width('100%')
         .height('100%')
         .scrollBar(BarState.Off)
         .edgeEffect(EdgeEffect.Spring)
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+        .backgroundColor($r('app.color.background_transparent'))
       }
       .width('100%')
       .height('100%')
@@ -106,6 +108,7 @@ export struct NGFDemoSecurityPerfPage {
       true,
       false
     ))
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .onReady((context: NavDestinationContext): void => {
       this.pathStack = context.pathStack;
     })
@@ -126,11 +129,11 @@ export struct NGFDemoSecurityPerfPage {
       Text('安全与性能演示')
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#FFFFFFFF')
+        .fontColor($r('app.color.panel_background'))
       Text('SecurityToolkit SHA 哈希 / AES-GCM 加解密 / PerformanceMonitor 打点与内存快照')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor('#B0FFFFFF')
+        .fontColor($r('app.color.text_white_low'))
     }
     .width('100%')
     .padding(18)
@@ -148,7 +151,7 @@ export struct NGFDemoSecurityPerfPage {
       Text('SHA 哈希')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       TextInput({ text: this.shaInput, placeholder: '输入待哈希文本' })
         .width('100%')
@@ -164,8 +167,8 @@ export struct NGFDemoSecurityPerfPage {
             .height(36)
             .fontSize(13)
             .borderRadius(10)
-            .backgroundColor(this.shaAlgorithmIndexes[0] === index ? '#FF0D9488' : '#FFE2E8F0')
-            .fontColor(this.shaAlgorithmIndexes[0] === index ? '#FFFFFFFF' : '#FF0F172A')
+            .backgroundColor(this.shaAlgorithmIndexes[0] === index ? $r('app.color.tag_teal') : $r('app.color.card_border'))
+            .fontColor(this.shaAlgorithmIndexes[0] === index ? $r('app.color.panel_background') : $r('app.color.text_body'))
             .onClick((): void => {
               this.shaAlgorithmIndexes = [index];
             })
@@ -178,7 +181,7 @@ export struct NGFDemoSecurityPerfPage {
         .height(40)
         .fontSize(14)
         .borderRadius(12)
-        .backgroundColor('#FF0D9488')
+        .backgroundColor($r('app.color.tag_teal'))
         .onClick((): void => {
           void this.handleShaHash();
         })
@@ -187,16 +190,16 @@ export struct NGFDemoSecurityPerfPage {
         Column({ space: 4 }) {
           Text('哈希结果')
             .fontSize(12)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(this.shaResult)
             .fontSize(11)
-            .fontColor('#FF0F172A')
+            .fontColor($r('app.color.text_body'))
             .fontFamily('monospace')
             .textOverflow({ overflow: TextOverflow.Ellipsis })
             .maxLines(4)
             .width('100%')
             .padding(10)
-            .backgroundColor('#FFF1F5F9')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(10)
         }
         .width('100%')
@@ -205,10 +208,10 @@ export struct NGFDemoSecurityPerfPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -217,7 +220,7 @@ export struct NGFDemoSecurityPerfPage {
       Text('AES-GCM 加解密')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       TextInput({ text: this.aesInput, placeholder: '输入明文' })
         .width('100%')
@@ -233,7 +236,7 @@ export struct NGFDemoSecurityPerfPage {
           .height(40)
           .fontSize(14)
           .borderRadius(12)
-          .backgroundColor('#FF0EA5E9')
+          .backgroundColor($r('app.color.tag_cyan'))
           .onClick((): void => {
             void this.handleAesEncrypt();
           })
@@ -242,7 +245,7 @@ export struct NGFDemoSecurityPerfPage {
           .height(40)
           .fontSize(14)
           .borderRadius(12)
-          .backgroundColor('#FF8B5CF6')
+          .backgroundColor($r('app.color.tag_purple'))
           .onClick((): void => {
             void this.handleAesDecrypt();
           })
@@ -253,15 +256,15 @@ export struct NGFDemoSecurityPerfPage {
         Column({ space: 4 }) {
           Text('密文 (Base64)')
             .fontSize(12)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(this.aesCipher)
             .fontSize(11)
-            .fontColor('#FF0F172A')
+            .fontColor($r('app.color.text_body'))
             .fontFamily('monospace')
             .maxLines(3)
             .width('100%')
             .padding(10)
-            .backgroundColor('#FFF1F5F9')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(10)
         }
         .width('100%')
@@ -272,11 +275,11 @@ export struct NGFDemoSecurityPerfPage {
         Column({ space: 4 }) {
           Text('解密结果')
             .fontSize(12)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(this.aesDecrypted)
             .fontSize(13)
             .fontWeight(FontWeight.Medium)
-            .fontColor('#FF16A34A')
+            .fontColor($r('app.color.tag_green'))
             .width('100%')
             .padding(10)
             .backgroundColor('#FFF0FDF4')
@@ -288,10 +291,10 @@ export struct NGFDemoSecurityPerfPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -300,7 +303,7 @@ export struct NGFDemoSecurityPerfPage {
       Text('性能打点')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       Row({ space: 10 }) {
         Button('开始打点')
@@ -308,7 +311,7 @@ export struct NGFDemoSecurityPerfPage {
           .height(40)
           .fontSize(14)
           .borderRadius(12)
-          .backgroundColor('#FF2563EB')
+          .backgroundColor($r('app.color.button_primary'))
           .onClick((): void => {
             performanceMonitor.mark('demo_start');
             logger.info(TAG, '已记录开始打点: demo_start');
@@ -318,7 +321,7 @@ export struct NGFDemoSecurityPerfPage {
           .height(40)
           .fontSize(14)
           .borderRadius(12)
-          .backgroundColor('#FF7C3AED')
+          .backgroundColor($r('app.color.tag_purple'))
           .onClick((): void => {
             performanceMonitor.mark('demo_end');
             const result = performanceMonitor.measure('demo_measure', 'demo_start', 'demo_end');
@@ -341,16 +344,16 @@ export struct NGFDemoSecurityPerfPage {
             Row() {
               Text(`${entry.id}. ${entry.name}`)
                 .fontSize(13)
-                .fontColor('#FF0F172A')
+                .fontColor($r('app.color.text_body'))
               Text(`${entry.durationMs} ms`)
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#FF2563EB')
+                .fontColor($r('app.color.button_primary'))
             }
             .width('100%')
             .justifyContent(FlexAlign.SpaceBetween)
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
-            .backgroundColor('#FFF8FAFC')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
           }, (entry: NGFDemoMeasureEntry): string => `measure_${entry.id}`)
         }
@@ -359,10 +362,10 @@ export struct NGFDemoSecurityPerfPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -371,14 +374,14 @@ export struct NGFDemoSecurityPerfPage {
       Text('内存快照')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       Button('拍摄内存快照')
         .width('100%')
         .height(40)
         .fontSize(14)
         .borderRadius(12)
-        .backgroundColor('#FFDC2626')
+        .backgroundColor($r('app.color.tag_red'))
         .onClick((): void => {
           const snapshot = performanceMonitor.snapshotMemory();
           const now = new Date();
@@ -398,16 +401,16 @@ export struct NGFDemoSecurityPerfPage {
             Row() {
               Text(`#${entry.id}  ${entry.timeText}`)
                 .fontSize(13)
-                .fontColor('#FF0F172A')
+                .fontColor($r('app.color.text_body'))
               Text(`${entry.pssKb} KB`)
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#FFDC2626')
+                .fontColor($r('app.color.tag_red'))
             }
             .width('100%')
             .justifyContent(FlexAlign.SpaceBetween)
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
-            .backgroundColor('#FFF8FAFC')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
           }, (entry: NGFDemoMemoryEntry): string => `memory_${entry.id}`)
         }
@@ -416,10 +419,10 @@ export struct NGFDemoSecurityPerfPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   private async handleShaHash(): Promise<void> {

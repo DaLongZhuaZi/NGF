@@ -536,8 +536,8 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
       default:
         style.statusBarColor = '#FFF8FAFC';
         style.navigationBarColor = '#FFF8FAFC';
-        style.statusBarContentColor = '#FF0F172A';
-        style.navigationBarContentColor = '#FF0F172A';
+        style.statusBarContentColor = '#0F172A';
+        style.navigationBarContentColor = '#0F172A';
         style.isStatusBarLightIcon = false;
         style.isNavigationBarLightIcon = false;
         return style;

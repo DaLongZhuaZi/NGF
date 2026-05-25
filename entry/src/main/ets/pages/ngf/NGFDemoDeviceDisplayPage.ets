@@ -69,7 +69,7 @@ export struct NGFDemoDeviceDisplayPage {
 
   build() {
     HdsNavDestination() {
-      Stack() {
+      Stack({ alignContent: Alignment.TopStart }) {
         NGFImmersiveTopChromeUnderlay({ spec: DEMO_DEVICE_TOP_CHROME })
 
         Scroll() {
@@ -80,12 +80,14 @@ export struct NGFDemoDeviceDisplayPage {
             this.buildFontScaleSection()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: 100, bottom: 36 })
+          .padding({ left: 16, right: 16, top: DEMO_DEVICE_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
         }
         .width('100%')
         .height('100%')
         .scrollBar(BarState.Off)
         .edgeEffect(EdgeEffect.Spring)
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+        .backgroundColor($r('app.color.background_transparent'))
       }
       .width('100%')
       .height('100%')
@@ -98,6 +100,7 @@ export struct NGFDemoDeviceDisplayPage {
       true,
       false
     ))
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .onReady((context: NavDestinationContext): void => {
       this.pathStack = context.pathStack;
     })
@@ -118,11 +121,11 @@ export struct NGFDemoDeviceDisplayPage {
       Text('设备与显示演示')
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#FFFFFFFF')
+        .fontColor($r('app.color.panel_background'))
       Text('RelativeTimeFormatter 多语言 / DeviceCapabilityDetector 硬件检测 / FontScaleManager 字体缩放')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor('#B0FFFFFF')
+        .fontColor($r('app.color.text_white_low'))
     }
     .width('100%')
     .padding(18)
@@ -140,7 +143,7 @@ export struct NGFDemoDeviceDisplayPage {
       Text('相对时间格式化')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       Row({ space: 8 }) {
         ForEach(this.localeLabels, (label: string, index: number) => {
@@ -148,8 +151,8 @@ export struct NGFDemoDeviceDisplayPage {
             .height(36)
             .fontSize(13)
             .borderRadius(10)
-            .backgroundColor(this.localeIndexes[0] === index ? '#FF16A34A' : '#FFE2E8F0')
-            .fontColor(this.localeIndexes[0] === index ? '#FFFFFFFF' : '#FF0F172A')
+            .backgroundColor(this.localeIndexes[0] === index ? $r('app.color.tag_green') : $r('app.color.card_border'))
+            .fontColor(this.localeIndexes[0] === index ? $r('app.color.panel_background') : $r('app.color.text_body'))
             .onClick((): void => {
               this.localeIndexes = [index];
             })
@@ -163,7 +166,7 @@ export struct NGFDemoDeviceDisplayPage {
           .height(36)
           .fontSize(12)
           .borderRadius(10)
-          .backgroundColor('#FF16A34A')
+          .backgroundColor($r('app.color.tag_green'))
           .onClick((): void => {
             this.formatRelativeTime(60 * 1000);
           })
@@ -172,7 +175,7 @@ export struct NGFDemoDeviceDisplayPage {
           .height(36)
           .fontSize(12)
           .borderRadius(10)
-          .backgroundColor('#FF22C55E')
+          .backgroundColor($r('app.color.tag_green'))
           .onClick((): void => {
             this.formatRelativeTime(60 * 60 * 1000);
           })
@@ -181,7 +184,7 @@ export struct NGFDemoDeviceDisplayPage {
           .height(36)
           .fontSize(12)
           .borderRadius(10)
-          .backgroundColor('#FF15803D')
+          .backgroundColor($r('app.color.tag_green_dark'))
           .onClick((): void => {
             this.formatRelativeTime(24 * 60 * 60 * 1000);
           })
@@ -190,7 +193,7 @@ export struct NGFDemoDeviceDisplayPage {
           .height(36)
           .fontSize(12)
           .borderRadius(10)
-          .backgroundColor('#FF166534')
+          .backgroundColor($r('app.color.tag_green_darker'))
           .onClick((): void => {
             this.formatRelativeTime(30 * 24 * 60 * 60 * 1000);
           })
@@ -203,15 +206,15 @@ export struct NGFDemoDeviceDisplayPage {
             Row() {
               Text(`${index + 1}.`)
                 .fontSize(12)
-                .fontColor('#FF94A3B8')
+                .fontColor($r('app.color.text_muted'))
                 .width(24)
               Text(text)
                 .fontSize(13)
-                .fontColor('#FF0F172A')
+                .fontColor($r('app.color.text_body'))
             }
             .width('100%')
             .padding({ top: 5, bottom: 5, left: 10, right: 10 })
-            .backgroundColor('#FFF8FAFC')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
           })
         }
@@ -220,10 +223,10 @@ export struct NGFDemoDeviceDisplayPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -232,14 +235,14 @@ export struct NGFDemoDeviceDisplayPage {
       Text('设备能力检测')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       Button('检测全部能力 (13项)')
         .width('100%')
         .height(40)
         .fontSize(14)
         .borderRadius(12)
-        .backgroundColor('#FF16A34A')
+        .backgroundColor($r('app.color.tag_green'))
         .onClick((): void => {
           this.handleDetectAll();
         })
@@ -251,11 +254,11 @@ export struct NGFDemoDeviceDisplayPage {
               Column({ space: 2 }) {
                 Text(entry.name)
                   .fontSize(13)
-                  .fontColor('#FF0F172A')
+                  .fontColor($r('app.color.text_body'))
                   .fontWeight(FontWeight.Medium)
                 Text(entry.detail)
                   .fontSize(11)
-                  .fontColor('#FF94A3B8')
+                  .fontColor($r('app.color.text_muted'))
                   .maxLines(2)
               }
               .alignItems(HorizontalAlign.Start)
@@ -264,14 +267,14 @@ export struct NGFDemoDeviceDisplayPage {
               Text(entry.available ? '可用' : '不可用')
                 .fontSize(11)
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#FFFFFFFF')
+                .fontColor($r('app.color.panel_background'))
                 .padding({ left: 8, right: 8, top: 3, bottom: 3 })
-                .backgroundColor(entry.available ? '#FF16A34A' : '#FFDC2626')
+                .backgroundColor(entry.available ? $r('app.color.tag_green') : $r('app.color.tag_red'))
                 .borderRadius(8)
             }
             .width('100%')
             .padding({ top: 8, bottom: 8, left: 12, right: 12 })
-            .backgroundColor('#FFF8FAFC')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(10)
           }, (entry: NGFDemoCapabilityEntry): string => `cap_${entry.id}`)
         }
@@ -280,10 +283,10 @@ export struct NGFDemoDeviceDisplayPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -292,7 +295,7 @@ export struct NGFDemoDeviceDisplayPage {
       Text('字体缩放')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       Row({ space: 8 }) {
         Button('小 (0.85x)')
@@ -300,8 +303,8 @@ export struct NGFDemoDeviceDisplayPage {
           .height(36)
           .fontSize(12)
           .borderRadius(10)
-          .backgroundColor(this.currentFontLevel === 'SMALL' ? '#FF2563EB' : '#FFE2E8F0')
-          .fontColor(this.currentFontLevel === 'SMALL' ? '#FFFFFFFF' : '#FF0F172A')
+          .backgroundColor(this.currentFontLevel === 'SMALL' ? $r('app.color.button_primary') : $r('app.color.card_border'))
+          .fontColor(this.currentFontLevel === 'SMALL' ? $r('app.color.panel_background') : $r('app.color.text_body'))
           .onClick((): void => {
             ngfFontScaleManagerFacade.setFontScaleLevel(NGFFontScaleLevel.SMALL);
             this.syncFontScale();
@@ -311,8 +314,8 @@ export struct NGFDemoDeviceDisplayPage {
           .height(36)
           .fontSize(12)
           .borderRadius(10)
-          .backgroundColor(this.currentFontLevel === 'NORMAL' ? '#FF2563EB' : '#FFE2E8F0')
-          .fontColor(this.currentFontLevel === 'NORMAL' ? '#FFFFFFFF' : '#FF0F172A')
+          .backgroundColor(this.currentFontLevel === 'NORMAL' ? $r('app.color.button_primary') : $r('app.color.card_border'))
+          .fontColor(this.currentFontLevel === 'NORMAL' ? $r('app.color.panel_background') : $r('app.color.text_body'))
           .onClick((): void => {
             ngfFontScaleManagerFacade.setFontScaleLevel(NGFFontScaleLevel.NORMAL);
             this.syncFontScale();
@@ -322,8 +325,8 @@ export struct NGFDemoDeviceDisplayPage {
           .height(36)
           .fontSize(12)
           .borderRadius(10)
-          .backgroundColor(this.currentFontLevel === 'LARGE' ? '#FF2563EB' : '#FFE2E8F0')
-          .fontColor(this.currentFontLevel === 'LARGE' ? '#FFFFFFFF' : '#FF0F172A')
+          .backgroundColor(this.currentFontLevel === 'LARGE' ? $r('app.color.button_primary') : $r('app.color.card_border'))
+          .fontColor(this.currentFontLevel === 'LARGE' ? $r('app.color.panel_background') : $r('app.color.text_body'))
           .onClick((): void => {
             ngfFontScaleManagerFacade.setFontScaleLevel(NGFFontScaleLevel.LARGE);
             this.syncFontScale();
@@ -333,8 +336,8 @@ export struct NGFDemoDeviceDisplayPage {
           .height(36)
           .fontSize(12)
           .borderRadius(10)
-          .backgroundColor(this.currentFontLevel === 'EXTRA_LARGE' ? '#FF2563EB' : '#FFE2E8F0')
-          .fontColor(this.currentFontLevel === 'EXTRA_LARGE' ? '#FFFFFFFF' : '#FF0F172A')
+          .backgroundColor(this.currentFontLevel === 'EXTRA_LARGE' ? $r('app.color.button_primary') : $r('app.color.card_border'))
+          .fontColor(this.currentFontLevel === 'EXTRA_LARGE' ? $r('app.color.panel_background') : $r('app.color.text_body'))
           .onClick((): void => {
             ngfFontScaleManagerFacade.setFontScaleLevel(NGFFontScaleLevel.EXTRA_LARGE);
             this.syncFontScale();
@@ -347,7 +350,7 @@ export struct NGFDemoDeviceDisplayPage {
         .height(36)
         .fontSize(13)
         .borderRadius(10)
-        .backgroundColor('#FF94A3B8')
+        .backgroundColor($r('app.color.text_muted'))
         .onClick((): void => {
           ngfFontScaleManagerFacade.resetToSystem();
           this.syncFontScale();
@@ -357,38 +360,38 @@ export struct NGFDemoDeviceDisplayPage {
         Column({ space: 4 }) {
           Text('当前级别')
             .fontSize(11)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(this.currentFontLevel)
             .fontSize(15)
             .fontWeight(FontWeight.Bold)
-            .fontColor('#FF2563EB')
+            .fontColor($r('app.color.button_primary'))
         }
         .alignItems(HorizontalAlign.Center)
         .layoutWeight(1)
         .padding(12)
-        .backgroundColor('#FFF8FAFC')
+        .backgroundColor($r('app.color.background_surface'))
         .borderRadius(12)
 
         Column({ space: 4 }) {
           Text('缩放倍数')
             .fontSize(11)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(`${this.currentFontScale}x`)
             .fontSize(15)
             .fontWeight(FontWeight.Bold)
-            .fontColor('#FF16A34A')
+            .fontColor($r('app.color.tag_green'))
         }
         .alignItems(HorizontalAlign.Center)
         .layoutWeight(1)
         .padding(12)
-        .backgroundColor('#FFF8FAFC')
+        .backgroundColor($r('app.color.background_surface'))
         .borderRadius(12)
       }
       .width('100%')
 
       Text('这是一段预览文字，用于展示当前字体缩放效果。The quick brown fox jumps over the lazy dog.')
         .fontSize(14)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
         .width('100%')
         .padding(12)
         .backgroundColor('#FFF0FDF4')
@@ -396,10 +399,10 @@ export struct NGFDemoDeviceDisplayPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   private formatRelativeTime(offsetMs: number): void {

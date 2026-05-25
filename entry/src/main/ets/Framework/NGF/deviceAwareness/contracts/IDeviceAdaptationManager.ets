@@ -37,12 +37,15 @@ export interface NGFDeviceInfo {
   isFoldable: boolean;
   foldStatus: NGFFoldStatus;
   isLandscape: boolean;
+  updatedAt: number;
+  updateReason: string;
 }
 
 export type NGFDeviceChangeListener = (deviceInfo: NGFDeviceInfo) => void;
 
 export interface IDeviceAdaptationManager {
   getDeviceInfo(): NGFDeviceInfo;
+  refresh(reason: string): void;
   addListener(listener: NGFDeviceChangeListener): void;
   removeListener(listener: NGFDeviceChangeListener): void;
   isPhonePortrait(): boolean;

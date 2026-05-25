@@ -56,7 +56,7 @@ export struct NGFDemoDataStoragePage {
 
   build() {
     HdsNavDestination() {
-      Stack() {
+      Stack({ alignContent: Alignment.TopStart }) {
         NGFImmersiveTopChromeUnderlay({ spec: DEMO_DATA_TOP_CHROME })
 
         Scroll() {
@@ -67,12 +67,14 @@ export struct NGFDemoDataStoragePage {
             this.buildCacheSection()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: 100, bottom: 36 })
+          .padding({ left: 16, right: 16, top: DEMO_DATA_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
         }
         .width('100%')
         .height('100%')
         .scrollBar(BarState.Off)
         .edgeEffect(EdgeEffect.Spring)
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+        .backgroundColor($r('app.color.background_transparent'))
       }
       .width('100%')
       .height('100%')
@@ -85,6 +87,7 @@ export struct NGFDemoDataStoragePage {
       true,
       false
     ))
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .onReady((context: NavDestinationContext): void => {
       this.pathStack = context.pathStack;
     })
@@ -105,11 +108,11 @@ export struct NGFDemoDataStoragePage {
       Text('数据与存储演示')
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#FFFFFFFF')
+        .fontColor($r('app.color.panel_background'))
       Text('FileUtils 文件读写 / 目录操作 / ContentCache LRU 缓存管理')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor('#B0FFFFFF')
+        .fontColor($r('app.color.text_white_low'))
     }
     .width('100%')
     .padding(18)
@@ -127,7 +130,7 @@ export struct NGFDemoDataStoragePage {
       Text('文件读写')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       TextInput({ text: this.fileWriteInput, placeholder: '输入要写入的内容' })
         .width('100%')
@@ -143,7 +146,7 @@ export struct NGFDemoDataStoragePage {
           .height(40)
           .fontSize(14)
           .borderRadius(12)
-          .backgroundColor('#FFD97706')
+          .backgroundColor($r('app.color.tag_amber'))
           .onClick((): void => {
             void this.handleFileWrite();
           })
@@ -152,7 +155,7 @@ export struct NGFDemoDataStoragePage {
           .height(40)
           .fontSize(14)
           .borderRadius(12)
-          .backgroundColor('#FF0284C7')
+          .backgroundColor($r('app.color.tag_cyan'))
           .onClick((): void => {
             void this.handleFileRead();
           })
@@ -163,13 +166,13 @@ export struct NGFDemoDataStoragePage {
         Column({ space: 4 }) {
           Text('读取结果')
             .fontSize(12)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(this.fileReadResult)
             .fontSize(13)
-            .fontColor('#FF0F172A')
+            .fontColor($r('app.color.text_body'))
             .width('100%')
             .padding(10)
-            .backgroundColor('#FFF1F5F9')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(10)
         }
         .width('100%')
@@ -179,16 +182,16 @@ export struct NGFDemoDataStoragePage {
       if (this.statusMessage.length > 0) {
         Text(this.statusMessage)
           .fontSize(12)
-          .fontColor('#FF16A34A')
+          .fontColor($r('app.color.tag_green'))
           .width('100%')
       }
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -197,14 +200,14 @@ export struct NGFDemoDataStoragePage {
       Text('目录操作')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       Button('列出应用文件目录')
         .width('100%')
         .height(40)
         .fontSize(14)
         .borderRadius(12)
-        .backgroundColor('#FF7C3AED')
+        .backgroundColor($r('app.color.tag_purple'))
         .onClick((): void => {
           void this.handleListDirectory();
         })
@@ -215,25 +218,25 @@ export struct NGFDemoDataStoragePage {
             Row() {
               Text(entry.name)
                 .fontSize(13)
-                .fontColor('#FF0F172A')
+                .fontColor($r('app.color.text_body'))
                 .layoutWeight(1)
                 .maxLines(1)
                 .textOverflow({ overflow: TextOverflow.Ellipsis })
               Text(entry.sizeText)
                 .fontSize(12)
-                .fontColor('#FF64748B')
+                .fontColor($r('app.color.text_tertiary'))
                 .margin({ left: 8 })
               Text(entry.typeText)
                 .fontSize(11)
-                .fontColor('#FFFFFFFF')
+                .fontColor($r('app.color.panel_background'))
                 .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-                .backgroundColor(entry.typeText === 'DIR' ? '#FF8B5CF6' : '#FF0EA5E9')
+                .backgroundColor(entry.typeText === 'DIR' ? $r('app.color.tag_purple') : $r('app.color.tag_cyan'))
                 .borderRadius(6)
                 .margin({ left: 8 })
             }
             .width('100%')
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
-            .backgroundColor('#FFF8FAFC')
+            .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
           }, (entry: NGFDemoFileEntryDisplay): string => `file_${entry.id}`)
         }
@@ -242,10 +245,10 @@ export struct NGFDemoDataStoragePage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -254,7 +257,7 @@ export struct NGFDemoDataStoragePage {
       Text('内容缓存 (LRU)')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FF0F172A')
+        .fontColor($r('app.color.text_body'))
 
       TextInput({ text: this.cacheKey, placeholder: '缓存 Key' })
         .width('100%')
@@ -278,7 +281,7 @@ export struct NGFDemoDataStoragePage {
           .height(36)
           .fontSize(13)
           .borderRadius(10)
-          .backgroundColor('#FF16A34A')
+          .backgroundColor($r('app.color.tag_green'))
           .onClick((): void => {
             ngfContentCacheFacade.put(this.cacheKey, this.cacheValue, 300000);
             this.cacheMemorySize = ngfContentCacheFacade.memorySize();
@@ -289,7 +292,7 @@ export struct NGFDemoDataStoragePage {
           .height(36)
           .fontSize(13)
           .borderRadius(10)
-          .backgroundColor('#FF2563EB')
+          .backgroundColor($r('app.color.button_primary'))
           .onClick((): void => {
             const value = ngfContentCacheFacade.get(this.cacheKey);
             this.cacheGetResult = value.length > 0 ? value : '(空)';
@@ -299,7 +302,7 @@ export struct NGFDemoDataStoragePage {
           .height(36)
           .fontSize(13)
           .borderRadius(10)
-          .backgroundColor('#FF7C3AED')
+          .backgroundColor($r('app.color.tag_purple'))
           .onClick((): void => {
             const exists = ngfContentCacheFacade.has(this.cacheKey);
             this.cacheHasResult = exists ? '存在' : '不存在';
@@ -309,7 +312,7 @@ export struct NGFDemoDataStoragePage {
           .height(36)
           .fontSize(13)
           .borderRadius(10)
-          .backgroundColor('#FFDC2626')
+          .backgroundColor($r('app.color.tag_red'))
           .onClick((): void => {
             ngfContentCacheFacade.remove(this.cacheKey);
             this.cacheMemorySize = ngfContentCacheFacade.memorySize();
@@ -322,10 +325,10 @@ export struct NGFDemoDataStoragePage {
         Row() {
           Text('Get 结果:')
             .fontSize(12)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(this.cacheGetResult)
             .fontSize(13)
-            .fontColor('#FF0F172A')
+            .fontColor($r('app.color.text_body'))
             .fontWeight(FontWeight.Medium)
         }
         .width('100%')
@@ -334,10 +337,10 @@ export struct NGFDemoDataStoragePage {
         Row() {
           Text('Has 结果:')
             .fontSize(12)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(this.cacheHasResult)
             .fontSize(13)
-            .fontColor('#FF0F172A')
+            .fontColor($r('app.color.text_body'))
             .fontWeight(FontWeight.Medium)
         }
         .width('100%')
@@ -346,10 +349,10 @@ export struct NGFDemoDataStoragePage {
         Row() {
           Text('内存条目数:')
             .fontSize(12)
-            .fontColor('#FF64748B')
+            .fontColor($r('app.color.text_tertiary'))
           Text(`${this.cacheMemorySize}`)
             .fontSize(13)
-            .fontColor('#FF0F172A')
+            .fontColor($r('app.color.text_body'))
             .fontWeight(FontWeight.Medium)
         }
         .width('100%')
@@ -357,15 +360,15 @@ export struct NGFDemoDataStoragePage {
       }
       .width('100%')
       .padding(10)
-      .backgroundColor('#FFF8FAFC')
+      .backgroundColor($r('app.color.background_surface'))
       .borderRadius(10)
     }
     .width('100%')
     .padding(16)
-    .backgroundColor('#FFFFFFFF')
+    .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
-    .border({ width: 1, color: '#FFE2E8F0' })
-    .shadow({ radius: 10, color: '#180F172A', offsetX: 0, offsetY: 4 })
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   private async handleFileWrite(): Promise<void> {

@@ -31,6 +31,7 @@ export interface NGFHoldingAwarenessSnapshot {
   confidence: NGFHoldingAwarenessConfidence;
   available: boolean;
   preciseSupported: boolean;
+  operatingHandSupported: boolean;
   detectGestureGranted: boolean;
   activityMotionGranted: boolean;
   lastUpdatedAt: number;

@@ -47,7 +47,7 @@ export struct NGFHdsImmersiveTabs {
     Column({ space: 4 }) {
       Text(item.title)
         .fontSize(11)
-        .fontColor(isSelected ? '#0B57D0' : '#4F5F73')
+        .fontColor(isSelected ? $r('app.color.button_primary') : $r('app.color.text_secondary'))
         .fontWeight(isSelected ? FontWeight.Medium : FontWeight.Normal)
     }
     .width('100%')

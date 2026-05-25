@@ -66,20 +66,19 @@ class SecurityToolkit {
   }
 
   /**
-   * AES-GCM 加密
+   * AES 加密
    * @param plainText 明文
    * @param keyBase64 Base64 编码的 AES 密钥 (16/24/32 字节)
-   * @param ivBase64 Base64 编码的 IV (12 字节)
+   * @param ivBase64 Base64 编码的 IV（ECB 模式不使用，兼容接口）
    * @returns Base64 编码的密文
    */
   async aesEncrypt(plainText: string, keyBase64: string, ivBase64: string): Promise<NGFEncryptResult> {
     try {
       const keyBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(keyBase64) };
-      const ivBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(ivBase64) };
-      const cipher = cryptoFramework.createCipher('AES128|GCM|PKCS7');
-      const key = cryptoFramework.createSymKeyGenerator('AES128').convertKeySync(keyBlob);
-      const params = this.buildGcmParams(ivBlob);
-      await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, key, params);
+      const cipher = cryptoFramework.createCipher('AES128|ECB|PKCS7');
+      const keyGenerator = cryptoFramework.createSymKeyGenerator('AES128');
+      const key = await keyGenerator.convertKey(keyBlob);
+      await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, key, null);
       const plainBlob: cryptoFramework.DataBlob = { data: this.stringToUint8Array(plainText) };
       const encrypted = await cipher.doFinal(plainBlob);
       return new NGFEncryptResult(true, this.uint8ArrayToBase64(encrypted.data));
@@ -91,20 +90,19 @@ class SecurityToolkit {
   }
 
   /**
-   * AES-GCM 解密
+   * AES 解密
    * @param cipherBase64 Base64 编码的密文
    * @param keyBase64 Base64 编码的 AES 密钥
-   * @param ivBase64 Base64 编码的 IV
+   * @param ivBase64 Base64 编码的 IV（ECB 模式不使用，兼容接口）
    * @returns 解密后的明文
    */
   async aesDecrypt(cipherBase64: string, keyBase64: string, ivBase64: string): Promise<NGFEncryptResult> {
     try {
       const keyBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(keyBase64) };
-      const ivBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(ivBase64) };
-      const decipher = cryptoFramework.createCipher('AES128|GCM|PKCS7');
-      const key = cryptoFramework.createSymKeyGenerator('AES128').convertKeySync(keyBlob);
-      const params = this.buildGcmParams(ivBlob);
-      await decipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, key, params);
+      const decipher = cryptoFramework.createCipher('AES128|ECB|PKCS7');
+      const keyGenerator = cryptoFramework.createSymKeyGenerator('AES128');
+      const key = await keyGenerator.convertKey(keyBlob);
+      await decipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, key, null);
       const cipherBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(cipherBase64) };
       const decrypted = await decipher.doFinal(cipherBlob);
       return new NGFEncryptResult(true, this.uint8ArrayToString(decrypted.data));
@@ -114,7 +112,6 @@ class SecurityToolkit {
       return new NGFEncryptResult(false, '');
     }
   }
-
   /**
    * 生成随机字节并返回 Base64
    */
@@ -141,16 +138,6 @@ class SecurityToolkit {
       return 'SHA512';
     }
     return 'SHA256';
-  }
-
-  private buildGcmParams(iv: cryptoFramework.DataBlob): cryptoFramework.GcmParamsSpec {
-    const params: cryptoFramework.GcmParamsSpec = {
-      algName: 'AES128|GCM|PKCS7',
-      iv: iv,
-      aad: { data: new Uint8Array(0) },
-      authTag: { data: new Uint8Array(16) }
-    };
-    return params;
   }
 
   private stringToUint8Array(str: string): Uint8Array {

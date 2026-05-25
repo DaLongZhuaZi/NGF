@@ -16,7 +16,7 @@ import {
   NGFDeviceChangeListener
 } from '../contracts/IDeviceAdaptationManager';
 
-const TAG = 'NGFDeviceAdaptationFacade';
+const TAG: string = 'NGFDeviceAdaptationFacade';
 
 // AppStorage 键名常量 - ngf_ 前缀
 const STORAGE_KEY_DEVICE_TYPE: string = 'ngf_device_type';
@@ -24,10 +24,15 @@ const STORAGE_KEY_ORIENTATION: string = 'ngf_device_orientation';
 const STORAGE_KEY_BREAKPOINT: string = 'ngf_device_breakpoint';
 const STORAGE_KEY_SCREEN_WIDTH: string = 'ngf_device_screen_width';
 const STORAGE_KEY_SCREEN_HEIGHT: string = 'ngf_device_screen_height';
+const STORAGE_KEY_SCREEN_WIDTH_PX: string = 'ngf_device_screen_width_px';
+const STORAGE_KEY_SCREEN_HEIGHT_PX: string = 'ngf_device_screen_height_px';
+const STORAGE_KEY_DENSITY: string = 'ngf_device_density';
 const STORAGE_KEY_IS_TABLET: string = 'ngf_device_is_tablet';
 const STORAGE_KEY_IS_FOLDABLE: string = 'ngf_device_is_foldable';
 const STORAGE_KEY_FOLD_STATUS: string = 'ngf_device_fold_status';
 const STORAGE_KEY_IS_LANDSCAPE: string = 'ngf_device_is_landscape';
+const STORAGE_KEY_UPDATED_AT: string = 'ngf_device_updated_at';
+const STORAGE_KEY_UPDATE_REASON: string = 'ngf_device_update_reason';
 
 /**
  * 设备信息日志接口（用于日志输出）
@@ -38,8 +43,22 @@ interface DeviceInfoLog {
   breakpoint: string;
   screenWidth: string;
   screenHeight: string;
+  viewportSource: string;
   isFoldable: boolean;
   foldStatus: string;
+  reason: string;
+}
+
+class NGFViewportMetrics {
+  readonly widthPx: number;
+  readonly heightPx: number;
+  readonly source: string;
+
+  constructor(widthPx: number, heightPx: number, source: string) {
+    this.widthPx = widthPx;
+    this.heightPx = heightPx;
+    this.source = source;
+  }
 }
 
 /**
@@ -63,10 +82,27 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
   private currentDeviceInfo: NGFDeviceInfo | null = null;
   private listeners: Set<NGFDeviceChangeListener> = new Set<NGFDeviceChangeListener>();
   private displayObj: display.Display | null = null;
+  private mainWindow: window.Window | null = null;
   private isFoldableDevice: boolean = false;
   private isTablet: boolean = false;
   private currentFoldStatus: NGFFoldStatus = NGFFoldStatus.UNKNOWN;
+  private displayListenerRegistered: boolean = false;
+  private foldStatusListenerRegistered: boolean = false;
+  private windowSizeListenerRegistered: boolean = false;
   private destroyed: boolean = false;
+  private readonly displayChangeCallback: Callback<number> = (displayId: number): void => {
+    logger.info(TAG, `屏幕发生变化: displayId=${displayId}`);
+    this.updateDeviceInfo('display_change');
+  };
+  private readonly foldStatusChangeCallback: Callback<display.FoldStatus> = (status: display.FoldStatus): void => {
+    this.currentFoldStatus = this.convertFoldStatus(status);
+    logger.info(TAG, `折叠状态变化: ${this.getFoldStatusName(this.currentFoldStatus)}`);
+    this.updateDeviceInfo('fold_status_change');
+  };
+  private readonly windowSizeChangeCallback: Callback<window.Size> = (size: window.Size): void => {
+    logger.info(TAG, `窗口尺寸变化: width=${size.width}, height=${size.height}`);
+    this.updateDeviceInfo('window_size_change');
+  };
 
   private constructor() {
     this.initialize();
@@ -87,6 +123,8 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
    */
   private initialize(): void {
     try {
+      this.destroyed = false;
+
       // 获取默认显示对象
       this.displayObj = display.getDefaultDisplaySync();
 
@@ -97,7 +135,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       this.detectTabletDevice();
 
       // 更新设备信息并发布到 AppStorage
-      this.updateDeviceInfo();
+      this.updateDeviceInfo('initialize');
 
       // 监听屏幕变化
       this.registerDisplayListener();
@@ -182,13 +220,12 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
    * 注册折叠状态变化监听器
    */
   private registerFoldStatusListener(): void {
+    if (this.foldStatusListenerRegistered) {
+      return;
+    }
     try {
-      display.on('foldStatusChange', (status: display.FoldStatus) => {
-        this.currentFoldStatus = this.convertFoldStatus(status);
-        logger.info(TAG, `折叠状态变化: ${this.getFoldStatusName(this.currentFoldStatus)}`);
-        // 折叠状态变化时更新设备信息
-        this.updateDeviceInfo();
-      });
+      display.on('foldStatusChange', this.foldStatusChangeCallback);
+      this.foldStatusListenerRegistered = true;
       logger.debug(TAG, '折叠状态监听器注册成功');
     } catch (error) {
       logger.warn(TAG, '注册折叠状态监听器失败', String(error));
@@ -199,12 +236,13 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
    * 注册屏幕变化监听
    */
   private registerDisplayListener(): void {
+    if (this.displayListenerRegistered) {
+      return;
+    }
     try {
       // 监听屏幕变化（包括旋转、分辨率改变等）
-      display.on('change', (displayId: number) => {
-        logger.info(TAG, `屏幕发生变化: displayId=${displayId}`);
-        this.updateDeviceInfo();
-      });
+      display.on('change', this.displayChangeCallback);
+      this.displayListenerRegistered = true;
       logger.debug(TAG, '屏幕变化监听器注册成功');
     } catch (error) {
       logger.error(TAG, '注册屏幕变化监听失败', String(error));
@@ -214,14 +252,15 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
   /**
    * 更新设备信息并发布到 AppStorage
    */
-  private updateDeviceInfo(): void {
+  private updateDeviceInfo(reason: string): void {
     try {
       // 重要：每次都重新获取 display 对象，因为旋转后属性会变化
       this.displayObj = display.getDefaultDisplaySync();
 
-      const widthPx: number = this.displayObj.width;
-      const heightPx: number = this.displayObj.height;
-      const density: number = this.displayObj.densityDPI / 160;
+      const viewport: NGFViewportMetrics = this.resolveViewportMetrics();
+      const widthPx: number = viewport.widthPx;
+      const heightPx: number = viewport.heightPx;
+      const density: number = this.resolveDensity();
 
       // 转换为vp单位
       const widthVp: number = widthPx / density;
@@ -229,15 +268,23 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
 
       // 判断屏幕方向
       const displayOrientation: number = this.displayObj.orientation;
-      const isLandscape: boolean = (
+      const isDisplayLandscape: boolean = (
         displayOrientation === display.Orientation.LANDSCAPE ||
         displayOrientation === display.Orientation.LANDSCAPE_INVERTED
       );
+      const hasViewportSize: boolean = widthPx > 0 && heightPx > 0;
+      const isViewportLandscape: boolean = hasViewportSize && widthPx > heightPx;
+      const isLandscape: boolean = hasViewportSize ? isViewportLandscape : isDisplayLandscape;
       const orientation: NGFScreenOrientation = isLandscape
         ? NGFScreenOrientation.LANDSCAPE
         : NGFScreenOrientation.PORTRAIT;
 
-      logger.debug(TAG, `方向检测: displayOrientation=${displayOrientation}, isLandscape=${isLandscape}, 宽=${widthVp.toFixed(2)}, 高=${heightVp.toFixed(2)}`);
+      logger.debug(
+        TAG,
+        `方向检测: displayOrientation=${displayOrientation}, isDisplayLandscape=${isDisplayLandscape}, ` +
+          `isViewportLandscape=${isViewportLandscape}, 宽=${widthVp.toFixed(2)}, 高=${heightVp.toFixed(2)}, ` +
+          `source=${viewport.source}, reason=${reason}`
+      );
 
       // 判断断点（基于宽度）
       const breakpoint: NGFBreakpoint = this.calculateBreakpoint(widthVp);
@@ -258,7 +305,9 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
         isTablet: deviceType === NGFDeviceType.TABLET || deviceType === NGFDeviceType.TWO_IN_ONE,
         isFoldable: this.isFoldableDevice,
         foldStatus: this.currentFoldStatus,
-        isLandscape
+        isLandscape,
+        updatedAt: Date.now(),
+        updateReason: reason
       };
 
       // 检查是否有变化
@@ -275,8 +324,10 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
         breakpoint: newDeviceInfo.breakpoint,
         screenWidth: newDeviceInfo.screenWidth.toFixed(2),
         screenHeight: newDeviceInfo.screenHeight.toFixed(2),
+        viewportSource: viewport.source,
         isFoldable: newDeviceInfo.isFoldable,
-        foldStatus: this.getFoldStatusName(newDeviceInfo.foldStatus)
+        foldStatus: this.getFoldStatusName(newDeviceInfo.foldStatus),
+        reason
       };
 
       logger.info(TAG, `设备信息: ${JSON.stringify(logInfo)}`);
@@ -290,6 +341,40 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
     }
   }
 
+  private resolveViewportMetrics(): NGFViewportMetrics {
+    const currentWindow = this.mainWindow;
+    if (currentWindow) {
+      try {
+        const properties: window.WindowProperties = currentWindow.getWindowProperties();
+        const drawableRect: window.Rect = properties.drawableRect;
+        if (drawableRect.width > 0 && drawableRect.height > 0) {
+          return new NGFViewportMetrics(drawableRect.width, drawableRect.height, 'window_drawable_rect');
+        }
+
+        const windowRect: window.Rect = properties.windowRect;
+        if (windowRect.width > 0 && windowRect.height > 0) {
+          return new NGFViewportMetrics(windowRect.width, windowRect.height, 'window_rect');
+        }
+      } catch (error) {
+        logger.warn(TAG, `读取窗口尺寸失败，回退到默认屏幕: ${String(error)}`);
+      }
+    }
+
+    const currentDisplay = this.displayObj;
+    if (currentDisplay) {
+      return new NGFViewportMetrics(currentDisplay.width, currentDisplay.height, 'default_display');
+    }
+    return new NGFViewportMetrics(0, 0, 'fallback_zero');
+  }
+
+  private resolveDensity(): number {
+    const currentDisplay = this.displayObj;
+    if (!currentDisplay || currentDisplay.densityDPI <= 0) {
+      return 1;
+    }
+    return currentDisplay.densityDPI / 160;
+  }
+
   /**
    * 发布设备信息到 AppStorage
    */
@@ -300,10 +385,15 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       AppStorage.setOrCreate<string>(STORAGE_KEY_BREAKPOINT, info.breakpoint);
       AppStorage.setOrCreate<number>(STORAGE_KEY_SCREEN_WIDTH, info.screenWidth);
       AppStorage.setOrCreate<number>(STORAGE_KEY_SCREEN_HEIGHT, info.screenHeight);
+      AppStorage.setOrCreate<number>(STORAGE_KEY_SCREEN_WIDTH_PX, info.screenWidthPx);
+      AppStorage.setOrCreate<number>(STORAGE_KEY_SCREEN_HEIGHT_PX, info.screenHeightPx);
+      AppStorage.setOrCreate<number>(STORAGE_KEY_DENSITY, info.density);
       AppStorage.setOrCreate<boolean>(STORAGE_KEY_IS_TABLET, info.isTablet);
       AppStorage.setOrCreate<boolean>(STORAGE_KEY_IS_FOLDABLE, info.isFoldable);
       AppStorage.setOrCreate<number>(STORAGE_KEY_FOLD_STATUS, info.foldStatus);
       AppStorage.setOrCreate<boolean>(STORAGE_KEY_IS_LANDSCAPE, info.isLandscape);
+      AppStorage.setOrCreate<number>(STORAGE_KEY_UPDATED_AT, info.updatedAt);
+      AppStorage.setOrCreate<string>(STORAGE_KEY_UPDATE_REASON, info.updateReason);
     } catch (error) {
       logger.error(TAG, '发布设备信息到 AppStorage 失败', String(error));
     }
@@ -349,7 +439,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       return NGFDeviceType.PHONE;
     }
 
-    const density: number = this.displayObj.densityDPI / 160;
+    const density: number = this.resolveDensity();
     const widthVp: number = this.displayObj.width / density;
     const heightVp: number = this.displayObj.height / density;
     // 使用短边判断，避免横屏手机被误判为平板
@@ -391,7 +481,12 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
     return this.currentDeviceInfo.deviceType !== newInfo.deviceType ||
       this.currentDeviceInfo.orientation !== newInfo.orientation ||
       this.currentDeviceInfo.breakpoint !== newInfo.breakpoint ||
-      this.currentDeviceInfo.foldStatus !== newInfo.foldStatus;
+      this.currentDeviceInfo.foldStatus !== newInfo.foldStatus ||
+      this.currentDeviceInfo.isLandscape !== newInfo.isLandscape ||
+      this.currentDeviceInfo.updateReason !== newInfo.updateReason ||
+      this.currentDeviceInfo.updatedAt !== newInfo.updatedAt ||
+      Math.abs(this.currentDeviceInfo.screenWidth - newInfo.screenWidth) >= 0.5 ||
+      Math.abs(this.currentDeviceInfo.screenHeight - newInfo.screenHeight) >= 0.5;
   }
 
   /**
@@ -412,9 +507,87 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
    */
   public getDeviceInfo(): NGFDeviceInfo {
     if (!this.currentDeviceInfo) {
-      this.updateDeviceInfo();
+      this.updateDeviceInfo('lazy_get_device_info');
     }
-    return this.currentDeviceInfo as NGFDeviceInfo;
+    if (!this.currentDeviceInfo) {
+      this.currentDeviceInfo = this.buildFallbackDeviceInfo('lazy_get_device_info_fallback');
+      this.publishToAppStorage(this.currentDeviceInfo);
+    }
+    return this.currentDeviceInfo;
+  }
+
+  private buildFallbackDeviceInfo(reason: string): NGFDeviceInfo {
+    return {
+      deviceType: NGFDeviceType.PHONE,
+      orientation: NGFScreenOrientation.PORTRAIT,
+      breakpoint: NGFBreakpoint.XS,
+      screenWidth: 0,
+      screenHeight: 0,
+      screenWidthPx: 0,
+      screenHeightPx: 0,
+      density: 1,
+      isTablet: false,
+      isFoldable: false,
+      foldStatus: NGFFoldStatus.UNKNOWN,
+      isLandscape: false,
+      updatedAt: Date.now(),
+      updateReason: reason
+    };
+  }
+
+  public refresh(reason: string): void {
+    this.updateDeviceInfo(reason);
+  }
+
+  public bindWindowStage(windowStage: window.WindowStage): void {
+    try {
+      const nextWindow: window.Window = windowStage.getMainWindowSync();
+      if (this.mainWindow === nextWindow) {
+        this.updateDeviceInfo('bind_same_window_stage');
+        return;
+      }
+
+      this.unregisterWindowSizeListener();
+      this.mainWindow = nextWindow;
+      this.registerWindowSizeListener(nextWindow);
+      this.updateDeviceInfo('bind_window_stage');
+      logger.info(TAG, '已绑定窗口阶段并启用窗口尺寸监听');
+    } catch (error) {
+      logger.warn(TAG, `绑定窗口阶段失败: ${String(error)}`);
+    }
+  }
+
+  public clearWindowStage(): void {
+    this.unregisterWindowSizeListener();
+    this.mainWindow = null;
+    this.updateDeviceInfo('clear_window_stage');
+  }
+
+  private registerWindowSizeListener(mainWindow: window.Window): void {
+    if (this.windowSizeListenerRegistered) {
+      return;
+    }
+    try {
+      mainWindow.on('windowSizeChange', this.windowSizeChangeCallback);
+      this.windowSizeListenerRegistered = true;
+      logger.debug(TAG, '窗口尺寸监听器注册成功');
+    } catch (error) {
+      logger.warn(TAG, `注册窗口尺寸监听器失败: ${String(error)}`);
+    }
+  }
+
+  private unregisterWindowSizeListener(): void {
+    const currentWindow = this.mainWindow;
+    if (!currentWindow || !this.windowSizeListenerRegistered) {
+      return;
+    }
+    try {
+      currentWindow.off('windowSizeChange', this.windowSizeChangeCallback);
+      logger.debug(TAG, '窗口尺寸监听器已注销');
+    } catch (error) {
+      logger.warn(TAG, `注销窗口尺寸监听器失败: ${String(error)}`);
+    }
+    this.windowSizeListenerRegistered = false;
   }
 
   /**
@@ -480,10 +653,19 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       return;
     }
     try {
-      display.off('change');
+      if (this.displayListenerRegistered) {
+        display.off('change', this.displayChangeCallback);
+        this.displayListenerRegistered = false;
+      }
+      if (this.foldStatusListenerRegistered) {
+        display.off('foldStatusChange', this.foldStatusChangeCallback);
+        this.foldStatusListenerRegistered = false;
+      }
+      this.unregisterWindowSizeListener();
       this.listeners.clear();
       this.currentDeviceInfo = null;
       this.displayObj = null;
+      this.mainWindow = null;
       this.destroyed = true;
       logger.info(TAG, '设备适配管理器已销毁');
     } catch (error) {
