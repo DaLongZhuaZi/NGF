@@ -44,7 +44,7 @@ export struct NGFSystemResourcePreviewPage {
   @State private visibleGridItemCount: number = SYMBOL_GRID_BATCH_SIZE;
   @State private visibleSearchResultCount: number = SYMBOL_SEARCH_BATCH_SIZE;
   @State private selectedSymbolName: string = 'ohos_arrow_up';
-  @State private statusText: string = '点击任一图标可复制 sys.symbol 资源引用';
+  @State private statusText: ResourceStr = $r('app.string.ui_str_2435');
   private readonly scroller: Scroller = new Scroller();
 
   aboutToAppear(): void {
@@ -97,8 +97,8 @@ export struct NGFSystemResourcePreviewPage {
       .backgroundColor($r('app.color.background_primary'))
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '系统 Symbol 图标库',
-      'HarmonyOS sys.symbol 资源预览',
+      $r('app.string.ui_str_2436'),
+      $r('app.string.ui_str_2437'),
       '#0B1020',
       hdsMaterial.MaterialLevel.GENTLE,
       true,
@@ -150,9 +150,9 @@ export struct NGFSystemResourcePreviewPage {
       .alignItems(VerticalAlign.Center)
 
       Row({ space: 8 }) {
-        this.buildMetricPill('总数', String(SYSTEM_SYMBOL_TOTAL_COUNT))
-        this.buildMetricPill('分组', String(SYSTEM_SYMBOL_GROUPS.length))
-        this.buildMetricPill('当前', String(this.getCurrentGridItemCount()))
+        this.buildMetricPill($r('app.string.ui_str_2438'), String(SYSTEM_SYMBOL_TOTAL_COUNT))
+        this.buildMetricPill($r('app.string.ui_str_2439'), String(SYSTEM_SYMBOL_GROUPS.length))
+        this.buildMetricPill($r('app.string.ui_str_2440'), String(this.getCurrentGridItemCount()))
       }
       .width('100%')
 
@@ -162,7 +162,7 @@ export struct NGFSystemResourcePreviewPage {
             SymbolGlyph($r('sys.symbol.doc_plaintext_and_checkmark'))
               .fontSize(17)
               .fontColor([$r('app.color.text_white')])
-            Text('复制引用')
+            Text($r('app.string.ui_str_2441'))
               .fontSize(13)
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_white'))
@@ -196,7 +196,7 @@ export struct NGFSystemResourcePreviewPage {
   }
 
   @Builder
-  private buildMetricPill(label: string, value: string): void {
+  private buildMetricPill(label: ResourceStr, value: ResourceStr): void {
     Column({ space: 2 }) {
       Text(label)
         .fontSize(11)
@@ -216,10 +216,10 @@ export struct NGFSystemResourcePreviewPage {
   @Builder
   private buildSearchPanel(): void {
     Column({ space: 10 }) {
-      Search({ value: this.searchText, placeholder: '搜索 sys.symbol 名称' })
+      Search({ value: this.searchText, placeholder: $r('app.string.ui_str_2442') })
         .width('100%')
         .height(44)
-        .searchButton('搜索')
+        .searchButton($r('app.string.ui_str_2443'))
         .backgroundColor($r('app.color.background_surface'))
         .placeholderColor($r('app.color.text_tertiary'))
         .textFont({ size: 14 })
@@ -236,7 +236,7 @@ export struct NGFSystemResourcePreviewPage {
         })
 
       Row({ space: 8 }) {
-        Button('全部')
+        Button($r('app.string.ui_str_2444'))
           .height(32)
           .fontSize(12)
           .fontColor(this.isSearching ? $r('app.color.text_secondary') : $r('app.color.text_white'))
@@ -274,7 +274,7 @@ export struct NGFSystemResourcePreviewPage {
   private buildGroupPanel(): void {
     Column({ space: 10 }) {
       Row() {
-        Text('资源分组')
+        Text($r('app.string.ui_str_2445'))
           .fontSize(16)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
@@ -341,7 +341,7 @@ export struct NGFSystemResourcePreviewPage {
           SymbolGlyph($r('sys.symbol.magnifyingglass'))
             .fontSize(44)
             .fontColor([$r('app.color.text_tertiary')])
-          Text('未找到匹配的系统 Symbol')
+          Text($r('app.string.ui_str_2446'))
             .fontSize(14)
             .fontColor($r('app.color.text_secondary'))
         }
@@ -361,7 +361,7 @@ export struct NGFSystemResourcePreviewPage {
   @Builder
   private buildGridHeader(totalCount: number, visibleCount: number): void {
     Row() {
-      Text(this.isSearching ? '搜索结果' : this.getCurrentGroupName())
+      Text(this.isSearching ? $r('app.string.ui_str_2447') : this.getCurrentGroupName())
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
@@ -489,18 +489,18 @@ export struct NGFSystemResourcePreviewPage {
     return null;
   }
 
-  private getCurrentGroupName(): string {
+  private getCurrentGroupName(): ResourceStr {
     const group: SystemSymbolResourceGroup | null = this.getCurrentGroup();
     if (!group) {
-      return '未选择分组';
+      return $r('app.string.ui_str_2448');
     }
     return group.name;
   }
 
-  private getSelectedGroupSummaryText(): string {
+  private getSelectedGroupSummaryText(): ResourceStr {
     const group: SystemSymbolResourceGroup | null = this.getCurrentGroup();
     if (!group) {
-      return '请选择一个 Symbol 分组';
+      return $r('app.string.ui_str_2449');
     }
     return `${group.name} · ${group.items.length} 个 Symbol`;
   }
@@ -697,7 +697,7 @@ export struct NGFSystemResourcePreviewPage {
       const message: string = this.formatError(error as NGFSystemSymbolError);
       this.statusText = `复制失败：${message}`;
       try {
-        this.getUIContext().getPromptAction().showToast({ message: '复制失败' });
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.ui_str_2450') });
       } catch (toastError) {
         logger.warn(TAG, `复制失败后 Toast 显示异常：${toastError}`);
       }

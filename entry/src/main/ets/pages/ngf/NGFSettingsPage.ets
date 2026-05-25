@@ -2,7 +2,10 @@ import { ConfigurationConstant } from '@kit.AbilityKit';
 import { NGFThemeMode } from '../../Framework/NGF/uiTheme/contracts/IThemeManager';
 import { ngfThemeManagerFacade } from '../../Framework/NGF/uiTheme/facades/ThemeManagerFacade';
 import { ngfI18nManagerFacade } from '../../Framework/NGF/i18n/facades/I18nManagerFacade';
+import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 import { uiContextManager } from '../../Framework/NGF/platformOhos/UIContextManager';
+import { NGFVisualEffectsMaterialMode } from '../../Framework/NGF/deviceAwareness/contracts/IVisualEffectsManager';
+import { ngfVisualEffectsFacade } from '../../Framework/NGF/deviceAwareness/facades/VisualEffectsFacade';
 import { logger } from '../../Framework/NGF/utils/Logger';
 
 const TAG: string = 'NGFSettingsPage';
@@ -34,15 +37,15 @@ export struct NGFSettingsPage {
   @Builder
   private buildThemeCard(): void {
     Column({ space: 8 }) {
-      Text('外观主题')
+      Text($r('app.string.ui_str_2415'))
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
 
-      this.buildSettingRow('当前主题', this.describeTheme(this.currentTheme))
-      this.buildSettingRow('深色模式', this.isDarkMode ? '是' : '否')
+      this.buildSettingRow($r('app.string.ui_str_2416'), this.describeTheme(this.currentTheme))
+      this.buildSettingRow($r('app.string.ui_str_2417'), this.isDarkMode ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359'))
       Row({ space: 8 }) {
-        Button('跟随系统')
+        Button($r('app.string.ui_str_2418'))
           .fontSize(13)
           .height(36)
           .backgroundColor(this.currentTheme === NGFThemeMode.AUTO ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
@@ -52,7 +55,7 @@ export struct NGFSettingsPage {
           .onClick((): void => {
             this.applyTheme(NGFThemeMode.AUTO);
           })
-        Button('浅色')
+        Button($r('app.string.ui_str_2419'))
           .fontSize(13)
           .height(36)
           .backgroundColor(this.currentTheme === NGFThemeMode.LIGHT ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
@@ -62,7 +65,7 @@ export struct NGFSettingsPage {
           .onClick((): void => {
             this.applyTheme(NGFThemeMode.LIGHT);
           })
-        Button('深色')
+        Button($r('app.string.ui_str_2420'))
           .fontSize(13)
           .height(36)
           .backgroundColor(this.currentTheme === NGFThemeMode.DARK ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
@@ -85,14 +88,14 @@ export struct NGFSettingsPage {
   @Builder
   private buildLanguageCard(): void {
     Column({ space: 8 }) {
-      Text('语言设置')
+      Text($r('app.string.ui_str_2421'))
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
 
-      this.buildSettingRow('当前语言', this.describeLocale(this.currentLocale))
+      this.buildSettingRow($r('app.string.ui_str_2422'), this.describeLocale(this.currentLocale))
       Row({ space: 8 }) {
-        Button('跟随系统')
+        Button($r('app.string.ui_str_2418'))
           .fontSize(13)
           .height(36)
           .backgroundColor(this.currentLocale === '' ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
@@ -102,7 +105,7 @@ export struct NGFSettingsPage {
           .onClick((): void => {
             this.applyLanguage('');
           })
-        Button('简体中文')
+        Button($r('app.string.ui_str_2423'))
           .fontSize(13)
           .height(36)
           .backgroundColor(this.currentLocale === 'zh-Hans' ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
@@ -135,13 +138,13 @@ export struct NGFSettingsPage {
   @Builder
   private buildVisualEffectsCard(): void {
     Column({ space: 8 }) {
-      Text('视觉效果')
+      Text($r('app.string.ui_str_2350'))
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
 
       Row() {
-        Text('沉浸光效')
+        Text($r('app.string.ui_str_2424'))
           .fontSize(14)
           .fontColor($r('app.color.text_secondary'))
           .layoutWeight(1)
@@ -153,16 +156,16 @@ export struct NGFSettingsPage {
       }
       .width('100%')
 
-      this.buildSettingRow('材质模式', this.materialMode === 'adaptive' ? '系统自适应' : '手动固定')
-      this.buildSettingRow('当前材质等级', this.describeMaterialLevel(this.effectiveLevel))
-      this.buildSettingRow('支持沉浸式材质', this.supportsImmersive ? '是' : '否')
+      this.buildSettingRow($r('app.string.ui_str_2378'), this.materialMode === 'adaptive' ? $r('app.string.ui_str_2379') : $r('app.string.ui_str_2380'))
+      this.buildSettingRow($r('app.string.ui_str_2381'), this.describeMaterialLevel(this.effectiveLevel))
+      this.buildSettingRow($r('app.string.ui_str_2382'), this.supportsImmersive ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359'))
 
-      Text('材质等级')
+      Text($r('app.string.ui_str_2425'))
         .fontSize(14)
         .fontColor($r('app.color.text_secondary'))
         .width('100%')
       Row({ space: 8 }) {
-        Button('流畅')
+        Button($r('app.string.ui_str_2414'))
           .fontSize(12)
           .height(32)
           .backgroundColor(this.effectiveLevel === 0 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
@@ -172,7 +175,7 @@ export struct NGFSettingsPage {
           .onClick((): void => {
             this.applyMaterialLevel(0);
           })
-        Button('轻柔')
+        Button($r('app.string.ui_str_2413'))
           .fontSize(12)
           .height(32)
           .backgroundColor(this.effectiveLevel === 1 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
@@ -182,7 +185,7 @@ export struct NGFSettingsPage {
           .onClick((): void => {
             this.applyMaterialLevel(1);
           })
-        Button('精美')
+        Button($r('app.string.ui_str_2412'))
           .fontSize(12)
           .height(32)
           .backgroundColor(this.effectiveLevel === 2 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
@@ -192,7 +195,7 @@ export struct NGFSettingsPage {
           .onClick((): void => {
             this.applyMaterialLevel(2);
           })
-        Button('自适应')
+        Button($r('app.string.ui_str_2426'))
           .fontSize(12)
           .height(32)
           .backgroundColor(this.effectiveLevel === 3 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
@@ -215,14 +218,14 @@ export struct NGFSettingsPage {
   @Builder
   private buildHoldingCard(): void {
     Column({ space: 8 }) {
-      Text('握持感知')
+      Text($r('app.string.ui_str_2348'))
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
 
-      this.buildSettingRow('传感器可用', this.holdingAvailable ? '是' : '否')
-      this.buildSettingRow('DETECT_GESTURE', this.detectGestureGranted ? '已授权' : '未授权')
-      this.buildSettingRow('ACTIVITY_MOTION', this.activityMotionGranted ? '已授权' : '未授权')
+      this.buildSettingRow($r('app.string.ui_str_2357'), this.holdingAvailable ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359'))
+      this.buildSettingRow('DETECT_GESTURE', this.detectGestureGranted ? $r('app.string.ui_str_2364') : $r('app.string.ui_str_2365'))
+      this.buildSettingRow('ACTIVITY_MOTION', this.activityMotionGranted ? $r('app.string.ui_str_2364') : $r('app.string.ui_str_2365'))
     }
     .width('100%')
     .padding(16)
@@ -234,15 +237,15 @@ export struct NGFSettingsPage {
   @Builder
   private buildAboutCard(): void {
     Column({ space: 8 }) {
-      Text('关于')
+      Text($r('app.string.ui_str_2427'))
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
 
-      this.buildSettingRow('框架名称', 'NGF')
-      this.buildSettingRow('版本', '1.0.0')
-      this.buildSettingRow('SDK 版本', '6.1.0(23)')
-      this.buildSettingRow('HDS 设计系统', '已接入')
+      this.buildSettingRow($r('app.string.ui_str_2428'), 'NGF')
+      this.buildSettingRow($r('app.string.ui_str_2429'), '1.0.0')
+      this.buildSettingRow($r('app.string.ui_str_2430'), '6.1.0(23)')
+      this.buildSettingRow($r('app.string.ui_str_2431'), $r('app.string.ui_str_2432'))
     }
     .width('100%')
     .padding(16)
@@ -252,7 +255,7 @@ export struct NGFSettingsPage {
   }
 
   @Builder
-  private buildSettingRow(label: string, value: string): void {
+  private buildSettingRow(label: ResourceStr, value: ResourceStr): void {
     Row() {
       Text(label)
         .fontSize(14)
@@ -279,7 +282,8 @@ export struct NGFSettingsPage {
           context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
         }
       }
-      logger.info(TAG, `主题已切换为: ${this.describeTheme(mode)}`);
+      const themeLabel = this.describeTheme(mode);
+      logger.info(TAG, `主题已切换为: ${typeof themeLabel === 'string' ? themeLabel : resolveResourceString(this.getUIContext().getHostContext(), themeLabel)}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(TAG, `切换主题失败: ${message}`);
@@ -293,7 +297,8 @@ export struct NGFSettingsPage {
       } else {
         ngfI18nManagerFacade.clearLocaleOverride();
       }
-      logger.info(TAG, `语言已切换为: ${this.describeLocale(locale)}`);
+      const langLabel = this.describeLocale(locale);
+      logger.info(TAG, `语言已切换为: ${typeof langLabel === 'string' ? langLabel : resolveResourceString(this.getUIContext().getHostContext(), langLabel)}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(TAG, `切换语言失败: ${message}`);
@@ -302,8 +307,8 @@ export struct NGFSettingsPage {
 
   private applyImmersiveToggle(enabled: boolean): void {
     try {
-      AppStorage.set<string>('ngf_visual_effects_material_mode', enabled ? 'adaptive' : 'manual');
-      logger.info(TAG, `沉浸光效已${enabled ? '开启' : '关闭'}`);
+      ngfVisualEffectsFacade.setMaterialMode(enabled ? NGFVisualEffectsMaterialMode.ADAPTIVE : NGFVisualEffectsMaterialMode.MANUAL);
+      logger.info(TAG, `沉浸光效已${enabled ? $r('app.string.ui_str_2433') : $r('app.string.ui_str_2434')}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(TAG, `切换沉浸光效失败: ${message}`);
@@ -312,12 +317,12 @@ export struct NGFSettingsPage {
 
   private applyMaterialLevel(level: number): void {
     try {
-      AppStorage.set<number>('ngf_visual_effects_effective_material_level', level);
       if (level === 3) {
-        AppStorage.set<string>('ngf_visual_effects_material_mode', 'adaptive');
+        ngfVisualEffectsFacade.setMaterialMode(NGFVisualEffectsMaterialMode.ADAPTIVE);
       } else {
-        AppStorage.set<string>('ngf_visual_effects_material_mode', 'manual');
-        AppStorage.set<number>('ngf_visual_effects_manual_material_level', level);
+        ngfVisualEffectsFacade.setMaterialMode(NGFVisualEffectsMaterialMode.MANUAL).then(() => {
+          ngfVisualEffectsFacade.setManualMaterialLevel(level);
+        });
       }
       logger.info(TAG, `材质等级已切换为: ${this.describeMaterialLevel(level)}`);
     } catch (error) {
@@ -326,38 +331,38 @@ export struct NGFSettingsPage {
     }
   }
 
-  private describeTheme(theme: string): string {
+  private describeTheme(theme: string): ResourceStr {
     switch (theme) {
       case NGFThemeMode.LIGHT:
-        return '浅色';
+        return $r('app.string.ui_str_2419');
       case NGFThemeMode.DARK:
-        return '深色';
+        return $r('app.string.ui_str_2420');
       default:
-        return '跟随系统';
+        return $r('app.string.ui_str_2418');
     }
   }
 
-  private describeLocale(locale: string): string {
+  private describeLocale(locale: string): ResourceStr {
     switch (locale) {
       case 'zh-Hans':
-        return '简体中文';
+        return $r('app.string.ui_str_2423');
       case 'en':
         return 'English';
       default:
-        return '跟随系统';
+        return $r('app.string.ui_str_2418');
     }
   }
 
-  private describeMaterialLevel(level: number): string {
+  private describeMaterialLevel(level: number): ResourceStr {
     switch (level) {
       case 0:
-        return '流畅';
+        return $r('app.string.ui_str_2414');
       case 1:
-        return '轻柔';
+        return $r('app.string.ui_str_2413');
       case 2:
-        return '精美';
+        return $r('app.string.ui_str_2412');
       case 3:
-        return '系统自适应';
+        return $r('app.string.ui_str_2379');
       default:
         return `未知(${level})`;
     }

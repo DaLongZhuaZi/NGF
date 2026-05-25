@@ -67,18 +67,18 @@ const NGF_HDS_OFFICIAL_SURFACE_SHADOW: Resource = $r('app.color.card_shadow_demo
 class NGFHdsOfficialActionCard {
   id: string;
   routeName: string;
-  title: string;
-  subtitle: string;
-  description: string;
+  title: ResourceStr;
+  subtitle: ResourceStr;
+  description: ResourceStr;
   accentStart: string | Resource;
   accentEnd: string | Resource;
 
   constructor(
     id: string,
     routeName: string,
-    title: string,
-    subtitle: string,
-    description: string,
+    title: ResourceStr,
+    subtitle: ResourceStr,
+    description: ResourceStr,
     accentStart: string | Resource,
     accentEnd: string | Resource
   ) {
@@ -94,11 +94,11 @@ class NGFHdsOfficialActionCard {
 
 class NGFHdsOfficialHighlightItem {
   id: string;
-  title: string;
-  description: string;
+  title: ResourceStr;
+  description: ResourceStr;
   accentColor: string | Resource;
 
-  constructor(id: string, title: string, description: string, accentColor: string | Resource) {
+  constructor(id: string, title: ResourceStr, description: ResourceStr, accentColor: string | Resource) {
     this.id = id;
     this.title = title;
     this.description = description;
@@ -108,8 +108,8 @@ class NGFHdsOfficialHighlightItem {
 
 class NGFHdsOfficialMaterialItem {
   id: string;
-  title: string;
-  description: string;
+  title: ResourceStr;
+  description: ResourceStr;
   // 真实 MaterialType（均为 IMMERSIVE）
   materialType: hdsMaterial.MaterialType;
   // 真实 MaterialLevel（GENTLE / SMOOTH / EXQUISITE）
@@ -121,8 +121,8 @@ class NGFHdsOfficialMaterialItem {
 
   constructor(
     id: string,
-    title: string,
-    description: string,
+    title: ResourceStr,
+    description: ResourceStr,
     materialType: hdsMaterial.MaterialType,
     materialLevel: hdsMaterial.MaterialLevel,
     gradientStart: string,
@@ -141,30 +141,30 @@ class NGFHdsOfficialMaterialItem {
 class NGFHdsOfficialEffectEntry {
   id: string;
   presetKind: NGFHdsInteractiveEffectPresetKind;
-  title: string;
-  description: string;
+  title: ResourceStr;
+  description: ResourceStr;
   accentStart: string;
   accentEnd: string;
   // 卡片高度（差异化展示）
   cardHeight: number;
   // 效果标签（展示在卡片上）
-  effectLabel: string;
+  effectLabel: ResourceStr;
   // 边框强调色
   borderAccent: string;
   // 右上角徽标文字
-  badgeLabel: string;
+  badgeLabel: ResourceStr;
 
   constructor(
     id: string,
     presetKind: NGFHdsInteractiveEffectPresetKind,
-    title: string,
-    description: string,
+    title: ResourceStr,
+    description: ResourceStr,
     accentStart: string,
     accentEnd: string,
     cardHeight: number,
-    effectLabel: string,
+    effectLabel: ResourceStr,
     borderAccent: string,
-    badgeLabel: string
+    badgeLabel: ResourceStr
   ) {
     this.id = id;
     this.presetKind = presetKind;
@@ -182,7 +182,7 @@ class NGFHdsOfficialEffectEntry {
 @Component
 export struct HdsNavigationOfficialShowcasePage {
   @State private pathStack: NavPathStack = new NavPathStack();
-  @State private lastActionText: string = '等待打开 HDS 官方目的地';
+  @State private lastActionText: ResourceStr = $r('app.string.ui_str_2170');
   @State private openedCount: number = 0;
 
   private readonly scroller: Scroller = new Scroller();
@@ -190,27 +190,27 @@ export struct HdsNavigationOfficialShowcasePage {
     new NGFHdsOfficialActionCard(
       'overview',
       NGFHdsDemoRouteName.OFFICIAL_NAVIGATION_OVERVIEW,
-      '总览目的地',
-      'HdsNavDestination 生命周期 / 滚动绑定',
-      '验证 MainMenuPage 作为唯一 HdsNavigation 根容器时，后续页面如何继续沿用同一 NavPathStack。',
+      $r('app.string.ui_str_2171'),
+      $r('app.string.ui_str_2172'),
+      $r('app.string.ui_str_2173'),
       $r('app.color.button_primary'),
       '#183B8C'
     ),
     new NGFHdsOfficialActionCard(
       'material',
       NGFHdsDemoRouteName.OFFICIAL_NAVIGATION_MATERIAL,
-      '材质目的地',
+      $r('app.string.ui_str_2174'),
       'hdsMaterial + systemMaterialEffect',
-      '在目的地标题栏中使用官方材质参数，展示沉浸式材质与滚动模糊的组合效果。',
+      $r('app.string.ui_str_2175'),
       '#6A1B9A',
       '#5B21B6'
     ),
     new NGFHdsOfficialActionCard(
       'effect',
       NGFHdsDemoRouteName.OFFICIAL_NAVIGATION_EFFECT,
-      '特效目的地',
+      $r('app.string.ui_str_2176'),
       'hdsEffect pressShadow + pointLight',
-      '通过官方视觉效果构建交互卡片，验证同栈 HDS 目的地中的点击反馈。',
+      $r('app.string.ui_str_2177'),
       '#00796B',
       '#0F5C56'
     )
@@ -240,12 +240,12 @@ export struct HdsNavigationOfficialShowcasePage {
   private openDestination(card: NGFHdsOfficialActionCard): void {
     try {
       this.pathStack.pushPathByName(card.routeName, null);
-      this.lastActionText = `已打开：${card.title}`;
+      this.lastActionText = $r('app.string.ui_str_2178', card.title);
       this.openedCount = this.openedCount + 1;
       logger.info(TAG, `打开官方HDS路由: ${card.routeName}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.lastActionText = `打开失败：${card.title}`;
+      this.lastActionText = $r('app.string.ui_str_2179', card.title);
       logger.warn(TAG, `打开官方HDS路由失败: route=${card.routeName}, error=${message}`);
     }
   }
@@ -281,8 +281,8 @@ export struct HdsNavigationOfficialShowcasePage {
       .backgroundColor($r('app.color.background_primary'))
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '官方 HDS Navigation',
-      'MainMenuPage 统一承载 HdsNavigation，当前页为第一个 HdsNavDestination',
+      $r('app.string.ui_str_2180'),
+      $r('app.string.ui_str_2181'),
       '#111827',
       hdsMaterial.MaterialLevel.GENTLE,
       true,
@@ -314,7 +314,7 @@ export struct HdsNavigationOfficialShowcasePage {
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.panel_background'))
 
-      Text('当前结构已调整为：MainMenuPage 作为唯一 HdsNavigation 根容器，后续官方示例页全部以 HdsNavDestination 形式加入同一主栈。')
+      Text($r('app.string.ui_str_2182'))
         .fontSize(14)
         .lineHeight(22)
         .fontColor('#E6FFFFFF')
@@ -323,7 +323,7 @@ export struct HdsNavigationOfficialShowcasePage {
         .fontSize(13)
         .fontColor('#CCFFFFFF')
 
-      Text(`已成功打开官方 HDS 目的地 ${this.openedCount} 次`)
+      Text($r('app.string.ui_str_2183', this.openedCount))
         .fontSize(13)
         .fontColor('#CCFFFFFF')
     }
@@ -343,7 +343,7 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildEntryCardList(): void {
     Column({ space: 12 }) {
-      Text('后续页面入口')
+      Text($r('app.string.ui_str_2184'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
@@ -409,22 +409,22 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildFactCard(): void {
     Column({ space: 10 }) {
-      Text('当前导航结构')
+      Text($r('app.string.ui_str_2185'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
-      Text('1. `main_pages.json` 入口仍为 MainMenuPage。')
+      Text($r('app.string.ui_str_2186'))
         .width('100%')
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
 
-      Text('2. MainMenuPage 根节点切换为 HdsNavigation。')
+      Text($r('app.string.ui_str_2187'))
         .width('100%')
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
 
-      Text('3. 当前页与后续 3 个子页都通过同一 NavPathStack 以 HdsNavDestination 推入主栈。')
+      Text($r('app.string.ui_str_2188'))
         .width('100%')
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
@@ -440,12 +440,12 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildVerificationCard(): void {
     Column({ space: 10 }) {
-      Text('验证目标')
+      Text($r('app.string.ui_str_2168'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
-      Text('继续进入后续页面，可验证 HDS 标题栏、返回链路、材质参数和 hdsEffect 在同一主导航栈中的工作方式。')
+      Text($r('app.string.ui_str_2189'))
         .width('100%')
         .fontSize(13)
         .lineHeight(20)
@@ -468,20 +468,20 @@ export struct HdsNavigationOfficialOverviewPage {
   private readonly overviewItems: Array<NGFHdsOfficialHighlightItem> = [
     new NGFHdsOfficialHighlightItem(
       'root_nav',
-      '唯一根导航',
-      'MainMenuPage 负责创建唯一的 HdsNavigation 根容器，后续示例不再嵌套新的 HdsNavigation。',
+      $r('app.string.ui_str_2190'),
+      $r('app.string.ui_str_2191'),
       $r('app.color.button_primary')
     ),
     new NGFHdsOfficialHighlightItem(
       'path_stack',
-      '统一主栈',
-      '当前页通过 NavDestinationContext.pathStack 绑定主栈，因此继续 push 的后续页都能自然接续。',
+      $r('app.string.ui_str_2192'),
+      $r('app.string.ui_str_2193'),
       '#7B1FA2'
     ),
     new NGFHdsOfficialHighlightItem(
       'destination',
-      '官方目的地',
-      '当前页自身和后续材质/特效页都直接使用 HdsNavDestination，保持 HDS 导航语义闭环。',
+      $r('app.string.ui_str_2194'),
+      $r('app.string.ui_str_2195'),
       '#00796B'
     )
   ];
@@ -515,13 +515,13 @@ export struct HdsNavigationOfficialOverviewPage {
 
         Scroll(this.scroller) {
           Column({ space: 14 }) {
-            Text('总览目的地')
+            Text($r('app.string.ui_str_2171'))
               .width('100%')
               .fontSize(22)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
 
-            Text('本页用于解释为什么要以 MainMenuPage 为唯一 HDS 根导航，以及这种结构如何正确支持后续页面。')
+            Text($r('app.string.ui_str_2196'))
               .width('100%')
               .fontSize(14)
               .lineHeight(22)
@@ -549,8 +549,8 @@ export struct HdsNavigationOfficialOverviewPage {
       .backgroundColor($r('app.color.background_primary'))
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '总览目的地',
-      'HdsNavDestination 生命周期与主栈绑定',
+      $r('app.string.ui_str_2171'),
+      $r('app.string.ui_str_2197'),
       '#102A43',
       hdsMaterial.MaterialLevel.EXQUISITE,
       true,
@@ -608,8 +608,8 @@ export struct HdsNavigationOfficialMaterialPage {
   private readonly materialItems: Array<NGFHdsOfficialMaterialItem> = [
     new NGFHdsOfficialMaterialItem(
       'gentle',
-      'GENTLE — 柔和玻璃',
-      'MaterialLevel.GENTLE 提供最实的材质层，模糊度最低、通透度最低，文字对比度最高。\n适用于入口页标题栏等强调稳定可读性的场景。',
+      $r('app.string.ui_str_2198'),
+      $r('app.string.ui_str_2199'),
       hdsMaterial.MaterialType.IMMERSIVE,
       hdsMaterial.MaterialLevel.GENTLE,
       '#1A1B2E',
@@ -617,8 +617,8 @@ export struct HdsNavigationOfficialMaterialPage {
     ),
     new NGFHdsOfficialMaterialItem(
       'smooth',
-      'SMOOTH — 平滑毛玻璃',
-      'MaterialLevel.SMOOTH 是均衡的毛玻璃效果，中等模糊与通透度。\n适合内容目的地标题栏，兼顾文字识别与材质层次感。',
+      $r('app.string.ui_str_2200'),
+      $r('app.string.ui_str_2201'),
       hdsMaterial.MaterialType.IMMERSIVE,
       hdsMaterial.MaterialLevel.SMOOTH,
       '#1A1B4E',
@@ -626,8 +626,8 @@ export struct HdsNavigationOfficialMaterialPage {
     ),
     new NGFHdsOfficialMaterialItem(
       'exquisite',
-      'EXQUISITE — 精致高透',
-      'MaterialLevel.EXQUISITE 模糊最强、通透度最高，下层内容隐约可见。\n适合强调型目的地标题栏，追求极致沉浸与通透质感。',
+      $r('app.string.ui_str_2202'),
+      $r('app.string.ui_str_2203'),
       hdsMaterial.MaterialType.IMMERSIVE,
       hdsMaterial.MaterialLevel.EXQUISITE,
       '#0A2E1E',
@@ -697,13 +697,13 @@ export struct HdsNavigationOfficialMaterialPage {
 
         Scroll(this.scroller) {
           Column({ space: 14 }) {
-            Text('材质目的地')
+            Text($r('app.string.ui_str_2174'))
               .width('100%')
               .fontSize(22)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
 
-            Text('本页标题栏通过官方 systemMaterialEffect 注入 `MaterialType.IMMERSIVE`，并使用不同的 MaterialLevel 展示材质策略。')
+            Text($r('app.string.ui_str_2204'))
               .width('100%')
               .fontSize(14)
               .lineHeight(22)
@@ -731,8 +731,8 @@ export struct HdsNavigationOfficialMaterialPage {
       .backgroundColor($r('app.color.background_primary'))
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '材质目的地',
-      'systemMaterialEffect + hdsMaterial 官方材质参数',
+      $r('app.string.ui_str_2174'),
+      $r('app.string.ui_str_2205'),
       '#241B3B',
       hdsMaterial.MaterialLevel.SMOOTH,
       true,
@@ -769,7 +769,7 @@ export struct HdsNavigationOfficialMaterialPage {
             .height(12)
             .fill('#FFFFFF')
 
-          Text(item.title.replace(/.*— /, ''))
+          Text(typeof item.title === 'string' ? item.title.replace(/.*— /, '') : item.title)
             .fontSize(16)
             .fontWeight(FontWeight.Medium)
             .fontColor('#FFFFFF')
@@ -827,7 +827,7 @@ export struct HdsNavigationOfficialMaterialPage {
         .lineHeight(20)
         .fontColor('#E6FFFFFF')
 
-      Text(this.isMaterialItemPressed(item.id) ? '已按下：当前预设的 pressShadow / pointLight / backgroundEffect 正在使用按压参数。' : '按住卡片可观察该 MaterialLevel 对应的预设反馈。')
+      Text(this.isMaterialItemPressed(item.id) ? $r('app.string.ui_str_2206') : $r('app.string.ui_str_2207'))
         .width('100%')
         .fontSize(12)
         .lineHeight(18)
@@ -859,7 +859,7 @@ export struct HdsNavigationOfficialMaterialPage {
   }
 
   @Builder
-  private buildMaterialApiMetric(label: string, value: string): void {
+  private buildMaterialApiMetric(label: ResourceStr, value: ResourceStr): void {
     Column({ space: 4 }) {
       Text(label)
         .fontSize(11)
@@ -876,7 +876,7 @@ export struct HdsNavigationOfficialMaterialPage {
   }
 
   @Builder
-  private buildMaterialApiLine(label: string, value: string): void {
+  private buildMaterialApiLine(label: ResourceStr, value: ResourceStr): void {
     Row({ space: 8 }) {
       Text(label)
         .width(116)
@@ -897,7 +897,7 @@ export struct HdsNavigationOfficialMaterialPage {
 @Component
 export struct HdsNavigationOfficialEffectPage {
   @State private pathStack: NavPathStack = new NavPathStack();
-  @State private lastEffectText: string = '等待触发 HDS 特效卡片';
+  @State private lastEffectText: ResourceStr = $r('app.string.ui_str_2208');
   @State private pressedEffectEntryId: string = '';
   @State private activeEffectEntryId: string = '';
   @State private clickPulseEffectEntryId: string = '';
@@ -908,38 +908,38 @@ export struct HdsNavigationOfficialEffectPage {
     new NGFHdsOfficialEffectEntry(
       'press_shadow',
       NGFHdsInteractiveEffectPresetKind.PRESS_SHADOW,
-      'PressShadow 按压阴影',
-      '只启用 hdsEffect.PressShadowType.BLEND_GRADIENT，不叠加 PointLight。\nPressShadow 是按压态效果，请按住卡片观察白色径向混合。',
+      $r('app.string.ui_str_2209'),
+      $r('app.string.ui_str_2210'),
       '#1E3A8A',
       '#1D4ED8',
       290,
-      '仅 PressShadow',
+      $r('app.string.ui_str_2211'),
       '#3B82F6',
-      '阴影下沉'
+      $r('app.string.ui_str_2212')
     ),
     new NGFHdsOfficialEffectEntry(
       'point_light',
       NGFHdsInteractiveEffectPresetKind.POINT_LIGHT,
-      'PointLight 点光聚焦',
-      '只启用 pointLight，点击后从 SOFT+BORDER 切换为 BRIGHT+DEFAULT_FEATHERING_BORDER。\n适合焦点、选中和确认操作。',
+      $r('app.string.ui_str_2213'),
+      $r('app.string.ui_str_2214'),
       '#6D28D9',
       '#5B21B6',
       296,
-      '纯点光',
+      $r('app.string.ui_str_2215'),
       '#A78BFA',
-      '点光聚焦'
+      $r('app.string.ui_str_2216')
     ),
     new NGFHdsOfficialEffectEntry(
       'flow_light',
       NGFHdsInteractiveEffectPresetKind.FLOW_LIGHT_SCENE,
-      'FlowLight 流光场景',
-      '使用 HdsVisualComponent.scene 启动 DUAL_EDGE_FLOW_LIGHT_WITH_BACKGROUND_MASK。\n点击后播放真实双边流光与背景遮罩动画。',
+      $r('app.string.ui_str_2217'),
+      $r('app.string.ui_str_2218'),
       '#047857',
       '#083344',
       318,
-      '场景流光',
+      $r('app.string.ui_str_2219'),
       '#22D3EE',
-      '双边流光'
+      $r('app.string.ui_str_2220')
     )
   ];
   private readonly flowLightSceneController: HdsSceneController = new HdsSceneController();
@@ -1070,16 +1070,16 @@ export struct HdsNavigationOfficialEffectPage {
     if (entry.presetKind === NGFHdsInteractiveEffectPresetKind.FLOW_LIGHT_SCENE) {
       const scenePreset: NGFHdsSceneFlowPreset = NGFHdsEffectPresetFactory.buildFlowLightScenePreset(true);
       this.startFlowLightScene();
-      this.lastEffectText = `已启动 HDS 流光场景：${entry.title}（${scenePreset.apiSummary}）`;
+      this.lastEffectText = $r('app.string.ui_str_2221', entry.title, scenePreset.apiSummary);
       logger.info(TAG, `特效场景启动: ${entry.id}`);
       return;
     }
     const activePreset: NGFHdsInteractiveEffectPreset =
       NGFHdsEffectPresetFactory.buildInteractiveEffectPreset(entry.presetKind, true);
     if (entry.presetKind === NGFHdsInteractiveEffectPresetKind.PRESS_SHADOW) {
-      this.lastEffectText = `已切换 PressShadow 预览：${entry.title}。pressShadow 真实效果发生在按住卡片时。`;
+      this.lastEffectText = $r('app.string.ui_str_2222', entry.title);
     } else {
-      this.lastEffectText = `已激活 HDS 特效卡片：${entry.title}（${activePreset.apiSummary}）`;
+      this.lastEffectText = $r('app.string.ui_str_2223', entry.title, activePreset.apiSummary);
     }
     logger.info(TAG, `特效卡片激活: ${entry.id}`);
   }
@@ -1093,7 +1093,7 @@ export struct HdsNavigationOfficialEffectPage {
       if (entry.presetKind === NGFHdsInteractiveEffectPresetKind.FLOW_LIGHT_SCENE) {
         this.stopFlowLightScene();
       }
-      this.lastEffectText = `已关闭 HDS 特效卡片：${entry.title}`;
+      this.lastEffectText = $r('app.string.ui_str_2224', entry.title);
       logger.info(TAG, `特效卡片关闭: ${entry.id}`);
       return;
     }
@@ -1121,13 +1121,13 @@ export struct HdsNavigationOfficialEffectPage {
 
         Scroll(this.scroller) {
           Column({ space: 14 }) {
-            Text('特效目的地')
+            Text($r('app.string.ui_str_2176'))
               .width('100%')
               .fontSize(22)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
 
-            Text('以下卡片分别验证 pressShadow、pointLight 与 HdsVisualComponent.scene：点击可切换持久预览，第一张请按住观察真实按压态，第三张点击会启动流光场景。')
+            Text($r('app.string.ui_str_2225'))
               .width('100%')
               .fontSize(14)
               .lineHeight(22)
@@ -1160,8 +1160,8 @@ export struct HdsNavigationOfficialEffectPage {
       .backgroundColor($r('app.color.background_primary'))
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '特效目的地',
-      'hdsEffect 按压阴影与点光效果组合',
+      $r('app.string.ui_str_2176'),
+      $r('app.string.ui_str_2226'),
       '#083344',
       hdsMaterial.MaterialLevel.GENTLE,
       true,
@@ -1193,7 +1193,7 @@ export struct HdsNavigationOfficialEffectPage {
 
   @Builder
   private buildEffectActivationBadge(active: boolean): void {
-    Text(active ? '已激活' : '点击激活')
+    Text(active ? $r('app.string.ui_str_2227') : $r('app.string.ui_str_2228'))
       .fontSize(11)
       .fontWeight(FontWeight.Bold)
       .fontColor(active ? '#07111F' : '#CCFFFFFF')
@@ -1366,7 +1366,7 @@ export struct HdsNavigationOfficialEffectPage {
           .textAlign(TextAlign.Start)
 
         Row({ space: 6 }) {
-          Text('效果状态')
+          Text($r('app.string.ui_str_2229'))
             .fontSize(11)
             .fontColor('#B3FFFFFF')
 
@@ -1445,7 +1445,7 @@ export struct HdsNavigationOfficialEffectPage {
             .fontSize(11)
             .fontColor('#B3FFFFFF')
 
-          Text(this.isEffectEntryEffectActive(entry.id) ? `● ${entry.badgeLabel}` : '○ 待触发')
+          Text(this.isEffectEntryEffectActive(entry.id) ? `● ${entry.badgeLabel}` : $r('app.string.ui_str_2230'))
             .fontSize(11)
             .fontColor(this.isEffectEntryEffectActive(entry.id) ? '#FCD34D' : '#99FFFFFF')
             .layoutWeight(1)

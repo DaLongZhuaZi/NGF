@@ -1,6 +1,7 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from '../../Framework/NGF/utils/Logger';
+import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 import {
   NGFHashAlgorithm,
   securityToolkit
@@ -57,7 +58,7 @@ export struct NGFDemoSecurityPerfPage {
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private shaInput: string = 'Hello NGF Framework';
   @State private shaAlgorithmIndexes: Array<number> = [0];
-  @State private shaResult: string = '';
+  @State private shaResult: ResourceStr = '';
   @State private aesInput: string = 'NGF Secret Message';
   @State private aesCipher: string = '';
   @State private aesDecrypted: string = '';
@@ -101,8 +102,8 @@ export struct NGFDemoSecurityPerfPage {
       .height('100%')
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '安全与性能',
-      'SHA/AES/性能打点/内存快照',
+      $r('app.string.ui_str_2047'),
+      $r('app.string.ui_str_2293'),
       '#0A1628',
       hdsMaterial.MaterialLevel.GENTLE,
       true,
@@ -126,11 +127,11 @@ export struct NGFDemoSecurityPerfPage {
   @Builder
   private buildTitleCard(): void {
     Column({ space: 8 }) {
-      Text('安全与性能演示')
+      Text($r('app.string.ui_str_2294'))
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.panel_background'))
-      Text('SecurityToolkit SHA 哈希 / AES-GCM 加解密 / PerformanceMonitor 打点与内存快照')
+      Text($r('app.string.ui_str_2295'))
         .fontSize(13)
         .lineHeight(20)
         .fontColor($r('app.color.text_white_low'))
@@ -148,12 +149,12 @@ export struct NGFDemoSecurityPerfPage {
   @Builder
   private buildShaSection(): void {
     Column({ space: 10 }) {
-      Text('SHA 哈希')
+      Text($r('app.string.ui_str_2296'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
-      TextInput({ text: this.shaInput, placeholder: '输入待哈希文本' })
+      TextInput({ text: this.shaInput, placeholder: $r('app.string.ui_str_2297') })
         .width('100%')
         .height(44)
         .fontSize(14)
@@ -176,7 +177,7 @@ export struct NGFDemoSecurityPerfPage {
       }
       .width('100%')
 
-      Button('计算哈希')
+      Button($r('app.string.ui_str_2298'))
         .width('100%')
         .height(40)
         .fontSize(14)
@@ -186,9 +187,9 @@ export struct NGFDemoSecurityPerfPage {
           void this.handleShaHash();
         })
 
-      if (this.shaResult.length > 0) {
+      if ((typeof this.shaResult === "string" ? this.shaResult : '').length > 0) {
         Column({ space: 4 }) {
-          Text('哈希结果')
+          Text($r('app.string.ui_str_2299'))
             .fontSize(12)
             .fontColor($r('app.color.text_tertiary'))
           Text(this.shaResult)
@@ -217,12 +218,12 @@ export struct NGFDemoSecurityPerfPage {
   @Builder
   private buildAesSection(): void {
     Column({ space: 10 }) {
-      Text('AES-GCM 加解密')
+      Text($r('app.string.ui_str_2300'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
-      TextInput({ text: this.aesInput, placeholder: '输入明文' })
+      TextInput({ text: this.aesInput, placeholder: $r('app.string.ui_str_2301') })
         .width('100%')
         .height(44)
         .fontSize(14)
@@ -231,7 +232,7 @@ export struct NGFDemoSecurityPerfPage {
         })
 
       Row({ space: 10 }) {
-        Button('加密')
+        Button($r('app.string.ui_str_2302'))
           .layoutWeight(1)
           .height(40)
           .fontSize(14)
@@ -240,7 +241,7 @@ export struct NGFDemoSecurityPerfPage {
           .onClick((): void => {
             void this.handleAesEncrypt();
           })
-        Button('解密')
+        Button($r('app.string.ui_str_2303'))
           .layoutWeight(1)
           .height(40)
           .fontSize(14)
@@ -254,7 +255,7 @@ export struct NGFDemoSecurityPerfPage {
 
       if (this.aesCipher.length > 0) {
         Column({ space: 4 }) {
-          Text('密文 (Base64)')
+          Text($r('app.string.ui_str_2304'))
             .fontSize(12)
             .fontColor($r('app.color.text_tertiary'))
           Text(this.aesCipher)
@@ -273,7 +274,7 @@ export struct NGFDemoSecurityPerfPage {
 
       if (this.aesDecrypted.length > 0) {
         Column({ space: 4 }) {
-          Text('解密结果')
+          Text($r('app.string.ui_str_2305'))
             .fontSize(12)
             .fontColor($r('app.color.text_tertiary'))
           Text(this.aesDecrypted)
@@ -300,13 +301,13 @@ export struct NGFDemoSecurityPerfPage {
   @Builder
   private buildPerformanceSection(): void {
     Column({ space: 10 }) {
-      Text('性能打点')
+      Text($r('app.string.ui_str_2306'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
       Row({ space: 10 }) {
-        Button('开始打点')
+        Button($r('app.string.ui_str_2307'))
           .layoutWeight(1)
           .height(40)
           .fontSize(14)
@@ -316,7 +317,7 @@ export struct NGFDemoSecurityPerfPage {
             performanceMonitor.mark('demo_start');
             logger.info(TAG, '已记录开始打点: demo_start');
           })
-        Button('结束打点')
+        Button($r('app.string.ui_str_2308'))
           .layoutWeight(1)
           .height(40)
           .fontSize(14)
@@ -371,12 +372,12 @@ export struct NGFDemoSecurityPerfPage {
   @Builder
   private buildMemorySection(): void {
     Column({ space: 10 }) {
-      Text('内存快照')
+      Text($r('app.string.ui_str_2309'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
-      Button('拍摄内存快照')
+      Button($r('app.string.ui_str_2310'))
         .width('100%')
         .height(40)
         .fontSize(14)
@@ -436,7 +437,7 @@ export struct NGFDemoSecurityPerfPage {
       logger.info(TAG, `SHA 哈希完成: algo=${algo}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.shaResult = `错误: ${message}`;
+      this.shaResult = $r('app.string.ui_str_2311', message);
     }
   }
 
@@ -452,18 +453,18 @@ export struct NGFDemoSecurityPerfPage {
         this.aesDecrypted = '';
         logger.info(TAG, 'AES 加密成功');
       } else {
-        this.aesCipher = '加密失败';
+        this.aesCipher = resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2312'));
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.aesCipher = `错误: ${message}`;
+      this.aesCipher = resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2311', message));
     }
   }
 
   private async handleAesDecrypt(): Promise<void> {
     try {
       if (this.aesCipher.length <= 0 || this.aesKey.length <= 0) {
-        this.aesDecrypted = '请先加密';
+        this.aesDecrypted = resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2313'));
         return;
       }
       const result = await securityToolkit.aesDecrypt(this.aesCipher, this.aesKey, this.aesIv);
@@ -471,11 +472,11 @@ export struct NGFDemoSecurityPerfPage {
         this.aesDecrypted = result.data;
         logger.info(TAG, 'AES 解密成功');
       } else {
-        this.aesDecrypted = '解密失败';
+        this.aesDecrypted = resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2314'));
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.aesDecrypted = `错误: ${message}`;
+      this.aesDecrypted = resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2311', message));
     }
   }
 

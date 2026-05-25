@@ -13,6 +13,7 @@ type LocaleChangedCallback = (locale: string) => void;
 class I18nManagerFacade implements II18nManager {
   private static instance: I18nManagerFacade | null = null;
   private readonly callbacks: Array<LocaleChangedCallback> = [];
+  private isApplyingLocale: boolean = false;
 
   static getInstance(): I18nManagerFacade {
     if (!I18nManagerFacade.instance) {
@@ -47,7 +48,8 @@ class I18nManagerFacade implements II18nManager {
 
   clearLocaleOverride(): void {
     AppStorage.setOrCreate<string>(STORAGE_KEY_LOCALE_OVERRIDE, '');
-    const systemLocale = this.getSystemLocale();
+    const systemLocale = i18n.System.getSystemLocaleInstance().toString();
+    AppStorage.setOrCreate<string>(STORAGE_KEY_SYSTEM_LOCALE, systemLocale);
     this.applySystemLocale(systemLocale);
     logger.info(TAG, `语言覆盖已清除，系统语言: ${systemLocale}`);
     this.notifyCallbacks(systemLocale);
@@ -113,12 +115,22 @@ class I18nManagerFacade implements II18nManager {
 
   handleSystemLocaleChanged(language: string): void {
     AppStorage.setOrCreate<string>(STORAGE_KEY_SYSTEM_LOCALE, language);
+    const override = AppStorage.get<string>(STORAGE_KEY_LOCALE_OVERRIDE);
+    if (this.isApplyingLocale) {
+      logger.info(TAG, '系统语言变更回调(应用内部触发，跳过二次应用): language=' + language);
+      return;
+    }
+    if (!override || override.length === 0) {
+      this.applySystemLocale(language);
+    }
     const currentLocale = this.getCurrentLocale();
     logger.info(TAG, `系统语言变更: language=${language}, 实际=${currentLocale}`);
     this.notifyCallbacks(currentLocale);
   }
 
   initializeDefaults(): void {
+    PersistentStorage.persistProp<string>(STORAGE_KEY_LOCALE_OVERRIDE, '');
+    PersistentStorage.persistProp<string>(STORAGE_KEY_SYSTEM_LOCALE, i18n.System.getSystemLocaleInstance().toString());
     if (AppStorage.get<string>(STORAGE_KEY_LOCALE_OVERRIDE) === undefined) {
       AppStorage.setOrCreate<string>(STORAGE_KEY_LOCALE_OVERRIDE, '');
     }
@@ -131,7 +143,9 @@ class I18nManagerFacade implements II18nManager {
       this.applySystemLocale(savedOverride);
       logger.info(TAG, `国际化默认值已初始化, 恢复语言覆盖: ${savedOverride}`);
     } else {
-      logger.info(TAG, `国际化默认值已初始化, 系统语言: ${i18n.System.getSystemLocaleInstance().toString()}`);
+      const systemLocale = i18n.System.getSystemLocaleInstance().toString();
+      this.applySystemLocale(systemLocale);
+      logger.info(TAG, `国际化默认值已初始化, 系统语言: ${systemLocale}`);
     }
   }
 
@@ -154,6 +168,10 @@ class I18nManagerFacade implements II18nManager {
   }
 
   private applySystemLocale(locale: string): void {
+    if (this.isApplyingLocale) {
+      return;
+    }
+    this.isApplyingLocale = true;
     try {
       const context = uiContextManager.getFullAbilityContext();
       if (context) {
@@ -165,6 +183,8 @@ class I18nManagerFacade implements II18nManager {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(TAG, `设置应用语言失败 (可能不支持运行时切换): ${message}`);
+    } finally {
+      this.isApplyingLocale = false;
     }
   }
 

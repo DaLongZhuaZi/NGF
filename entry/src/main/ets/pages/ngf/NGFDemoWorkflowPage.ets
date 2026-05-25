@@ -1,6 +1,7 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from '../../Framework/NGF/utils/Logger';
+import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 import {
   NGFWorkflowDefinition,
   NGFWorkflowStepDefinition,
@@ -34,13 +35,13 @@ const DEMO_WORKFLOW_TOP_CHROME: NGFImmersiveTopChromeSpec = NGFImmersiveTopChrom
 
 class NGFDemoStepResultEntry {
   id: number;
-  stepName: string;
-  actionType: string;
-  statusText: string;
+  stepName: ResourceStr;
+  actionType: ResourceStr;
+  statusText: ResourceStr;
   statusColor: Resource;
   statusBg: Resource;
 
-  constructor(id: number, stepName: string, actionType: string, statusText: string, statusColor: Resource, statusBg: Resource) {
+  constructor(id: number, stepName: ResourceStr, actionType: ResourceStr, statusText: ResourceStr, statusColor: Resource, statusBg: Resource) {
     this.id = id;
     this.stepName = stepName;
     this.actionType = actionType;
@@ -72,7 +73,7 @@ export struct NGFDemoWorkflowPage {
   @State private executionSuccess: boolean = false;
   @State private executionOutput: string = '';
   @State private savedStates: Array<NGFDemoSavedStateEntry> = [];
-  @State private statusMessage: string = '';
+  @State private statusMessage: ResourceStr = '';
 
   aboutToAppear(): void {
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_WORKFLOW);
@@ -103,8 +104,8 @@ export struct NGFDemoWorkflowPage {
       .height('100%')
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '流程编排',
-      '工作流 DSL / 条件分支 / 状态持久化',
+      $r('app.string.ui_str_2051'),
+      $r('app.string.ui_str_2315'),
       '#0F0828',
       hdsMaterial.MaterialLevel.GENTLE,
       true,
@@ -128,11 +129,11 @@ export struct NGFDemoWorkflowPage {
   @Builder
   private buildTitleCard(): void {
     Column({ space: 8 }) {
-      Text('流程编排演示')
+      Text($r('app.string.ui_str_2316'))
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.panel_background'))
-      Text('WorkflowDefinition DSL 多步骤工作流 + 条件分支 / WorkflowPersistence 状态持久化')
+      Text($r('app.string.ui_str_2317'))
         .fontSize(13)
         .lineHeight(20)
         .fontColor($r('app.color.text_white_low'))
@@ -150,18 +151,18 @@ export struct NGFDemoWorkflowPage {
   @Builder
   private buildDslSection(): void {
     Column({ space: 10 }) {
-      Text('工作流 DSL')
+      Text($r('app.string.ui_str_2318'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
-      Text('注册一个包含 4 个步骤的示例工作流（含条件分支），然后执行它。')
+      Text($r('app.string.ui_str_2319'))
         .fontSize(13)
         .lineHeight(19)
         .fontColor($r('app.color.text_tertiary'))
 
       Row({ space: 10 }) {
-        Button('注册示例工作流')
+        Button($r('app.string.ui_str_2320'))
           .layoutWeight(1)
           .height(40)
           .fontSize(14)
@@ -170,7 +171,7 @@ export struct NGFDemoWorkflowPage {
           .onClick((): void => {
             this.handleRegisterWorkflow();
           })
-        Button('执行工作流')
+        Button($r('app.string.ui_str_2321'))
           .layoutWeight(1)
           .height(40)
           .fontSize(14)
@@ -183,7 +184,7 @@ export struct NGFDemoWorkflowPage {
       .width('100%')
 
       if (this.registeredName.length > 0) {
-        Text(`已注册: ${this.registeredName}`)
+        Text($r('app.string.ui_str_2322', this.registeredName))
           .fontSize(13)
           .fontColor('#FF4F46E5')
           .fontWeight(FontWeight.Medium)
@@ -191,7 +192,7 @@ export struct NGFDemoWorkflowPage {
 
       if (this.stepResults.length > 0) {
         Column({ space: 6 }) {
-          Text(`执行结果: ${this.executionSuccess ? '成功' : '失败'}`)
+          Text($r('app.string.ui_str_2325', this.executionSuccess ? $r('app.string.ui_str_2323') : $r('app.string.ui_str_2324')))
             .fontSize(14)
             .fontWeight(FontWeight.Medium)
             .fontColor(this.executionSuccess ? $r('app.color.tag_green') : $r('app.color.tag_red'))
@@ -229,7 +230,7 @@ export struct NGFDemoWorkflowPage {
 
       if (this.executionOutput.length > 0) {
         Column({ space: 4 }) {
-          Text('输出 JSON')
+          Text($r('app.string.ui_str_2326'))
             .fontSize(12)
             .fontColor($r('app.color.text_tertiary'))
           Text(this.executionOutput)
@@ -257,13 +258,13 @@ export struct NGFDemoWorkflowPage {
   @Builder
   private buildPersistenceSection(): void {
     Column({ space: 10 }) {
-      Text('工作流持久化')
+      Text($r('app.string.ui_str_2327'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
       Row({ space: 8 }) {
-        Button('保存状态')
+        Button($r('app.string.ui_str_2328'))
           .layoutWeight(1)
           .height(36)
           .fontSize(13)
@@ -272,7 +273,7 @@ export struct NGFDemoWorkflowPage {
           .onClick((): void => {
             this.handleSaveState();
           })
-        Button('加载状态')
+        Button($r('app.string.ui_str_2329'))
           .layoutWeight(1)
           .height(36)
           .fontSize(13)
@@ -281,7 +282,7 @@ export struct NGFDemoWorkflowPage {
           .onClick((): void => {
             this.handleLoadState();
           })
-        Button('列出已保存')
+        Button($r('app.string.ui_str_2330'))
           .layoutWeight(1)
           .height(36)
           .fontSize(13)
@@ -290,7 +291,7 @@ export struct NGFDemoWorkflowPage {
           .onClick((): void => {
             this.handleListSaved();
           })
-        Button('清除全部')
+        Button($r('app.string.ui_str_2331'))
           .layoutWeight(1)
           .height(36)
           .fontSize(13)
@@ -299,12 +300,12 @@ export struct NGFDemoWorkflowPage {
           .onClick((): void => {
             ngfWorkflowPersistenceFacade.clearAll();
             this.savedStates = [];
-            this.statusMessage = '已清除所有保存的工作流状态';
+            this.statusMessage = $r('app.string.ui_str_2332');
           })
       }
       .width('100%')
 
-      if (this.statusMessage.length > 0) {
+      if ((typeof this.statusMessage === "string" ? this.statusMessage : '').length > 0) {
         Text(this.statusMessage)
           .fontSize(12)
           .fontColor('#FF4F46E5')
@@ -320,7 +321,7 @@ export struct NGFDemoWorkflowPage {
                 .fontColor($r('app.color.text_body'))
                 .fontWeight(FontWeight.Medium)
                 .layoutWeight(1)
-              Text(`步骤 ${entry.stepIndex}`)
+              Text($r('app.string.ui_str_2333', entry.stepIndex))
                 .fontSize(12)
                 .fontColor($r('app.color.text_tertiary'))
                 .margin({ left: 8 })
@@ -349,31 +350,31 @@ export struct NGFDemoWorkflowPage {
   private handleRegisterWorkflow(): void {
     const steps: Array<NGFWorkflowStepDefinition> = [];
     steps.push(new NGFWorkflowStepDefinition('数据获取', 'fetch', '{"url":"https://api.example.com/data"}'));
-    steps.push(new NGFWorkflowStepDefinition('数据校验', 'validate', '{"schema":"default"}'));
+    steps.push(new NGFWorkflowStepDefinition(resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2334')), 'validate', '{"schema":"default"}'));
     steps.push(new NGFWorkflowStepDefinition(
-      '条件处理',
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2335')),
       'transform',
       '{"mode":"enhanced"}',
       new NGFWorkflowStepCondition('validationPassed', 'equals', 'true')
     ));
-    steps.push(new NGFWorkflowStepDefinition('结果缓存', 'cache', '{"ttl":300}'));
+    steps.push(new NGFWorkflowStepDefinition(resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2336')), 'cache', '{"ttl":300}'));
 
     const definition = new NGFWorkflowDefinition(
       'demo_workflow',
-      '演示用多步骤工作流（含条件分支）',
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2337')),
       steps
     );
 
     ngfWorkflowDefinitionFacade.registerWorkflow(definition);
     this.registeredName = definition.workflowName;
-    this.statusMessage = `已注册工作流: ${definition.workflowName}, 步骤数=${steps.length}`;
+    this.statusMessage = $r('app.string.ui_str_2338', definition.workflowName, steps.length);
     logger.info(TAG, `注册工作流: name=${definition.workflowName}, steps=${steps.length}`);
   }
 
   private async handleExecuteWorkflow(): Promise<void> {
     try {
       if (this.registeredName.length <= 0) {
-        this.statusMessage = '请先注册工作流';
+        this.statusMessage = $r('app.string.ui_str_2339');
         return;
       }
       const contextJson = '{"userId":"demo_user","validationPassed":true}';
@@ -384,7 +385,7 @@ export struct NGFDemoWorkflowPage {
       const stepEntries: Array<NGFDemoStepResultEntry> = [];
       for (let i = 0; i < result.stepResults.length; i++) {
         const step = result.stepResults[i];
-        const statusText = step.skipped ? '跳过' : step.success ? '成功' : '失败';
+        const statusText = step.skipped ? $r('app.string.ui_str_2340') : step.success ? $r('app.string.ui_str_2323') : $r('app.string.ui_str_2324');
         const statusColor = step.skipped ? $r('app.color.text_muted') : step.success ? $r('app.color.tag_green') : $r('app.color.tag_red');
         const statusBg = step.skipped ? $r('app.color.background_surface') : step.success ? $r('app.color.background_success') : $r('app.color.background_error');
         stepEntries.push(new NGFDemoStepResultEntry(i + 1, step.stepName, step.actionType, statusText, statusColor, statusBg));
@@ -393,13 +394,13 @@ export struct NGFDemoWorkflowPage {
       logger.info(TAG, `工作流执行完成: success=${result.success}, steps=${stepEntries.length}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.statusMessage = `执行异常: ${message}`;
+      this.statusMessage = $r('app.string.ui_str_2341', message);
     }
   }
 
   private handleSaveState(): void {
     if (this.registeredName.length <= 0) {
-      this.statusMessage = '请先注册并执行工作流';
+      this.statusMessage = $r('app.string.ui_str_2342');
       return;
     }
     const state = new NGFWorkflowPersistedState(
@@ -410,22 +411,22 @@ export struct NGFDemoWorkflowPage {
       Date.now()
     );
     ngfWorkflowPersistenceFacade.saveState(state);
-    this.statusMessage = `已保存工作流状态: ${this.registeredName}`;
+    this.statusMessage = $r('app.string.ui_str_2343', this.registeredName);
     logger.info(TAG, `保存工作流状态: name=${this.registeredName}`);
   }
 
   private handleLoadState(): void {
     if (this.registeredName.length <= 0) {
-      this.statusMessage = '请先注册工作流';
+      this.statusMessage = $r('app.string.ui_str_2339');
       return;
     }
     const state = ngfWorkflowPersistenceFacade.loadState(this.registeredName);
     if (state !== null) {
       const date = new Date(state.savedAt);
       const timeText = `${this.pad2(date.getHours())}:${this.pad2(date.getMinutes())}:${this.pad2(date.getSeconds())}`;
-      this.statusMessage = `已加载: stepIndex=${state.currentStepIndex}, savedAt=${timeText}`;
+      this.statusMessage = $r('app.string.ui_str_2344', state.currentStepIndex, timeText);
     } else {
-      this.statusMessage = '未找到已保存的状态';
+      this.statusMessage = $r('app.string.ui_str_2345');
     }
   }
 
@@ -441,7 +442,7 @@ export struct NGFDemoWorkflowPage {
       }
     }
     this.savedStates = entries;
-    this.statusMessage = `已保存的工作流: ${names.length} 个`;
+    this.statusMessage = $r('app.string.ui_str_2346', names.length);
   }
 
   private pad2(value: number): string {

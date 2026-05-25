@@ -10,3 +10,6 @@ export class NGFHdsDemoRouteName {
   static readonly DEMO_DEVICE_DISPLAY: string = 'ngf.demo.device.display';
   static readonly SYSTEM_RESOURCE_PREVIEW: string = 'ngf.system.resource.preview';
 }
+
+
+

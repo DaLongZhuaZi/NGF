@@ -134,8 +134,8 @@ class NGFHdsNavigationTitleBarOptions implements HdsNavigationTitleBarOptions {
 
 export class NGFHdsTitleBarOptionsFactory {
   static build(
-    mainTitle: string,
-    subTitle: string,
+    mainTitle: ResourceStr,
+    subTitle: ResourceStr,
     backgroundColor: ResourceColor,
     materialLevel: hdsMaterial.MaterialLevel,
     avoidLayoutSafeArea: boolean = false,

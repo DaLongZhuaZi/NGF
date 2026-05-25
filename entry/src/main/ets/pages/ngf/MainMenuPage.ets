@@ -1,5 +1,6 @@
 import { hdsEffect, hdsMaterial, HdsNavigation, HdsNavigationTitleMode } from '@kit.UIDesignKit';
 import { uiContextManager } from '../../Framework/NGF/platformOhos/UIContextManager';
+import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 import { NGFErrorContext, NGFErrorSeverity } from '../../Framework/NGF/core/contracts/IErrorHandler';
 import { NGFEventPayload } from '../../Framework/NGF/core/contracts/IEventBus';
 import { NGFLogLevel } from '../../Framework/NGF/core/contracts/ILogger';
@@ -100,19 +101,19 @@ class NGFStarterModuleDetailEntry {
   id: number;
   moduleName: string;
   phaseName: string;
-  dependencyText: string;
-  serviceTokenText: string;
-  statusText: string;
-  messageText: string;
+  dependencyText: ResourceStr;
+  serviceTokenText: ResourceStr;
+  statusText: ResourceStr;
+  messageText: ResourceStr;
 
   constructor(
     id: number,
     moduleName: string,
     phaseName: string,
-    dependencyText: string,
-    serviceTokenText: string,
-    statusText: string,
-    messageText: string
+    dependencyText: ResourceStr,
+    serviceTokenText: ResourceStr,
+    statusText: ResourceStr,
+    messageText: ResourceStr
   ) {
     this.id = id;
     this.moduleName = moduleName;
@@ -264,7 +265,7 @@ struct NGFStarterMainMenuPage {
   @State private lifecycleState: NGFPhaseState = new NGFPhaseState('not_started', 0, false);
   @State private demoEventCount: number = 0;
   @State private lastEventType: string = '-';
-  @State private statusMessage: string = '等待核心启动';
+  @State private statusMessage: ResourceStr = $r('app.string.ui_str_2001');
   @State private logs: Array<NGFStarterLogEntry> = [];
   @State private modulePhaseName: string = '-';
   @State private moduleTotalCount: number = 0;
@@ -300,7 +301,7 @@ struct NGFStarterMainMenuPage {
     this.starter.logger.setLevel(NGFLogLevel.DEBUG);
     this.isCoreReady = this.starter.bootstrap();
     this.lifecycleState = this.starter.lifecycle.getCurrentState();
-    this.statusMessage = this.isCoreReady ? '轻核心框架已就绪' : '轻核心框架启动失败';
+    this.statusMessage = this.isCoreReady ? $r('app.string.ui_str_2002') : $r('app.string.ui_str_2003');
     this.syncModuleBootstrapReport();
     this.syncFrameworkRuntimeSnapshot();
     NGFPageWindowSupport.apply(NGFPageWindowName.MAIN_MENU);
@@ -327,7 +328,7 @@ struct NGFStarterMainMenuPage {
           this.lifecycleState = state;
           this.lastEventType = payload.payloadType;
           this.syncFrameworkRuntimeSnapshot();
-          this.appendLog(`生命周期状态: ${state.phaseName}, progress=${state.progress}`);
+          this.appendLog($r('app.string.ui_str_2004', state.phaseName, state.progress));
         }
       }
     );
@@ -337,7 +338,7 @@ struct NGFStarterMainMenuPage {
       this.errorListenerId,
       (_payload: NGFEventPayload): void => {
         this.lastEventType = 'ngf_core_error';
-        this.statusMessage = `错误计数: ${this.starter.errorHandler.getRecentErrorCount()}`;
+        this.statusMessage = $r('app.string.ui_str_2005', this.starter.errorHandler.getRecentErrorCount());
         this.appendLog(this.statusMessage);
       }
     );
@@ -348,7 +349,7 @@ struct NGFStarterMainMenuPage {
       (_payload: NGFEventPayload): void => {
         this.demoEventCount = this.demoEventCount + 1;
         this.lastEventType = NGFStarterEventName.DEMO_EVENT;
-        this.appendLog(`收到演示事件: count=${this.demoEventCount}`);
+        this.appendLog($r('app.string.ui_str_2006', this.demoEventCount));
       }
     );
 
@@ -361,8 +362,8 @@ struct NGFStarterMainMenuPage {
           this.applyModuleBootstrapSummary(summary);
           this.syncFrameworkRuntimeSnapshot();
           this.lastEventType = payload.payloadType;
-          this.statusMessage = `模块启动: success=${summary.successCount}/${summary.totalCount}`;
-          this.appendLog(`模块启动完成: phase=${summary.phaseName}, success=${summary.successCount}, failure=${summary.failureCount}`);
+          this.statusMessage = $r('app.string.ui_str_2007', summary.successCount, summary.totalCount);
+          this.appendLog($r('app.string.ui_str_2008', summary.phaseName, summary.successCount, summary.failureCount));
         }
       }
     );
@@ -386,7 +387,7 @@ struct NGFStarterMainMenuPage {
     this.lifecycleState = this.starter.lifecycle.getCurrentState();
     this.syncModuleBootstrapReport();
     this.syncFrameworkRuntimeSnapshot();
-    this.statusMessage = this.isCoreReady ? '核心服务重新确认成功' : '核心服务启动失败';
+    this.statusMessage = this.isCoreReady ? $r('app.string.ui_str_2009') : $r('app.string.ui_str_2010');
     this.appendLog(this.statusMessage);
   }
 
@@ -406,7 +407,7 @@ struct NGFStarterMainMenuPage {
 
   private handleAdvanceLifecycleTap(): void {
     if (this.lifecycleState.isCompleted) {
-      this.appendLog('生命周期已完成，无需推进');
+      this.appendLog($r('app.string.ui_str_2011'));
       return;
     }
 
@@ -414,7 +415,7 @@ struct NGFStarterMainMenuPage {
       this.starter.lifecycle.markCompleted();
       this.lifecycleState = this.starter.lifecycle.getCurrentState();
       this.publishLifecycleState();
-      this.appendLog('生命周期已标记为完成');
+      this.appendLog($r('app.string.ui_str_2012'));
       return;
     }
 
@@ -429,19 +430,19 @@ struct NGFStarterMainMenuPage {
 
     this.lifecycleState = this.starter.lifecycle.getCurrentState();
     this.publishLifecycleState();
-    this.appendLog(`推进生命周期阶段: ${phaseName}`);
+    this.appendLog($r('app.string.ui_str_2013', phaseName));
   }
 
   private handleSimulateErrorTap(): void {
     const context = new NGFErrorContext('starter', 'NGF_STARTER_DEMO_ERROR', TAG);
     void this.starter.errorHandler.handle(
       'StarterDemoError',
-      '这是用于验证错误链路的示例异常',
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2014')),
       NGFErrorSeverity.MEDIUM,
       context
     ).then((success: boolean) => {
       if (success) {
-        this.appendLog('已提交演示错误到核心错误处理器');
+        this.appendLog($r('app.string.ui_str_2015'));
       }
     });
   }
@@ -450,17 +451,18 @@ struct NGFStarterMainMenuPage {
     try {
       this.pathStack.pushPathByName(routeName, new NGFHdsDemoRouteParam(routeName, TAG));
       this.starter.logger.info(TAG, `打开HDS演示: route=${routeName}, label=${label}`);
-      this.appendLog(`已打开 ${label}`);
+      this.appendLog($r('app.string.ui_str_2016', label));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.appendLog(`打开 ${label} 失败: ${message}`);
+      this.appendLog($r('app.string.ui_str_2017', label, message));
     }
   }
 
-  private handleFeatureActionTap(actionKey: string, label: string): void {
+  private handleFeatureActionTap(actionKey: string, label: ResourceStr): void {
+    const labelStr = resolveResourceString(this.getUIContext().getHostContext(), label);
     if (actionKey === NGFMainMenuActionKey.OPEN_OFFICIAL_NAVIGATION ||
       actionKey === NGFMainMenuActionKey.OPEN_HDS_SHOWCASE) {
-      this.handleOpenHdsDemoTap(actionKey, label);
+      this.handleOpenHdsDemoTap(actionKey, labelStr);
       return;
     }
 
@@ -469,7 +471,7 @@ struct NGFStarterMainMenuPage {
       actionKey === NGFMainMenuActionKey.DEMO_WORKFLOW ||
       actionKey === NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY ||
       actionKey === NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW) {
-      this.handleOpenHdsDemoTap(actionKey, label);
+      this.handleOpenHdsDemoTap(actionKey, labelStr);
       return;
     }
 
@@ -490,7 +492,7 @@ struct NGFStarterMainMenuPage {
       return;
     }
 
-    this.appendLog(`未识别的主页操作: ${actionKey}`);
+    this.appendLog($r('app.string.ui_str_2018', actionKey));
   }
 
   private publishLifecycleState(): void {
@@ -530,7 +532,7 @@ struct NGFStarterMainMenuPage {
       report.failureCount
     );
     this.applyModuleBootstrapSummary(summary);
-    this.appendLog(`已同步模块启动结果: phase=${summary.phaseName}, success=${summary.successCount}, failure=${summary.failureCount}`);
+    this.appendLog($r('app.string.ui_str_2019', summary.phaseName, summary.successCount, summary.failureCount));
   }
 
   private syncFrameworkRuntimeSnapshot(): void {
@@ -621,7 +623,8 @@ struct NGFStarterMainMenuPage {
     return 'bootstrap_failed';
   }
 
-  private appendLog(message: string): void {
+  private appendLog(message: ResourceStr): void {
+    const msgStr = typeof message === "string" ? message : '';
     const now = new Date();
     const timeText = `${this.pad2(now.getHours())}:${this.pad2(now.getMinutes())}:${this.pad2(now.getSeconds())}`;
     const nextId = this.logs.length > 0 ? this.logs[this.logs.length - 1].id + 1 : 1;
@@ -629,7 +632,7 @@ struct NGFStarterMainMenuPage {
     for (let i = 0; i < this.logs.length; i++) {
       nextLogs.push(this.logs[i]);
     }
-    nextLogs.push(new NGFStarterLogEntry(nextId, `${timeText}  ${message}`));
+    nextLogs.push(new NGFStarterLogEntry(nextId, `${timeText}  ${msgStr}`));
     while (nextLogs.length > 12) {
       nextLogs.shift();
     }
@@ -748,7 +751,7 @@ struct NGFStarterMainMenuPage {
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
       'NGF MainMenuPage',
-      'NGF 运行框架主入口 / HDS 根导航容器',
+      $r('app.string.ui_str_2020'),
       $r('app.color.background_primary'),
       hdsMaterial.MaterialLevel.EXQUISITE,
       false,
@@ -765,7 +768,7 @@ struct NGFStarterMainMenuPage {
   }
 
   @Builder
-  private buildTabItem(title: string, symbolName: string, tabIndex: number): void {
+  private buildTabItem(title: ResourceStr, symbolName: string, tabIndex: number): void {
     Column({ space: 4 }) {
       SymbolGlyph($r(symbolName))
         .fontSize(this.selectedTabIndex === tabIndex ? 24 : 22)
@@ -848,10 +851,10 @@ struct NGFStarterMainMenuPage {
         .animation({ duration: 250, curve: Curve.EaseInOut })
 
       Row() {
-        this.buildTabItem('框架', 'sys.symbol.house', 0)
-        this.buildTabItem('功能', 'sys.symbol.wrench_fill', 1)
-        this.buildTabItem('设备', 'sys.symbol.phone_fill', 2)
-        this.buildTabItem('设置', 'sys.symbol.gearshape', 3)
+        this.buildTabItem($r('app.string.ui_str_2021'), 'sys.symbol.house', 0)
+        this.buildTabItem($r('app.string.ui_str_2022'), 'sys.symbol.more', 1)
+        this.buildTabItem($r('app.string.ui_str_2023'), 'sys.symbol.scroll_vertical', 2)
+        this.buildTabItem($r('app.string.ui_str_2024'), 'sys.symbol.gearshape', 3)
       }
       .width('88%')
       .height(56)
@@ -1002,7 +1005,7 @@ struct NGFStarterMainMenuPage {
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_glass_value'))
 
-        Text('API 23 轻核心入口（日志 / 事件 / 生命周期 / DI / WindowStage 统一窗口管理）')
+        Text($r('app.string.ui_str_2025'))
           .fontSize(14)
           .lineHeight(21)
           .fontColor($r('app.color.text_glass_subtitle'))
@@ -1015,14 +1018,14 @@ struct NGFStarterMainMenuPage {
 
         Column({ space: 10 }) {
           Row({ space: 10 }) {
-            this.buildHeaderGlassChip('生命周期', `${this.lifecycleState.phaseName} · ${this.lifecycleState.progress}%`)
-            this.buildHeaderGlassChip('模块', `${this.moduleSuccessCount}/${this.moduleTotalCount}`)
+            this.buildHeaderGlassChip($r('app.string.ui_str_2026'), `${this.lifecycleState.phaseName} · ${this.lifecycleState.progress}%`)
+            this.buildHeaderGlassChip($r('app.string.ui_str_2027'), `${this.moduleSuccessCount}/${this.moduleTotalCount}`)
           }
           .width('100%')
 
           Row({ space: 10 }) {
-            this.buildHeaderGlassChip('窗口', `${this.windowDisplayMode} · ${this.windowStatus}`)
-            this.buildHeaderGlassChip('事件', `${this.demoEventCount}`)
+            this.buildHeaderGlassChip($r('app.string.ui_str_2028'), `${this.windowDisplayMode} · ${this.windowStatus}`)
+            this.buildHeaderGlassChip($r('app.string.ui_str_2029'), `${this.demoEventCount}`)
           }
           .width('100%')
         }
@@ -1041,7 +1044,7 @@ struct NGFStarterMainMenuPage {
   }
 
   @Builder
-  private buildHeaderGlassChip(label: string, value: string): void {
+  private buildHeaderGlassChip(label: ResourceStr, value: ResourceStr): void {
     Column({ space: 4 }) {
       Text(label)
         .fontSize(11)
@@ -1066,8 +1069,8 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildFeatureActionButton(
     badge: string,
-    title: string,
-    subtitle: string,
+    title: ResourceStr,
+    subtitle: ResourceStr,
     accentStart: string,
     accentEnd: string,
     glowColor: string,
@@ -1153,25 +1156,25 @@ struct NGFStarterMainMenuPage {
         .shadow({ radius: 52, color: $r('app.color.glow_circle_indigo_shadow'), offsetX: 10, offsetY: 12 })
 
       Column({ space: 12 }) {
-        Text('官方 HDS / ArkUI 示例页')
+        Text($r('app.string.ui_str_2030'))
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_white'))
 
-        Text('基于 MainMenuPage 的 NavPathStack + navDestination 架构，统一接入官方 HDS Navigation 示例与单页融合示例。')
+        Text($r('app.string.ui_str_2031'))
           .fontSize(13)
           .lineHeight(20)
           .fontColor($r('app.color.text_glass_body'))
 
-        Text('旧的 HDS 组件页、布局页和动效页已删除，并重组为一个完全遵循 HDSNavigation 视觉模式的综合示例页。')
+        Text($r('app.string.ui_str_2032'))
           .fontSize(13)
           .lineHeight(20)
           .fontColor($r('app.color.text_glass_body'))
 
         this.buildFeatureActionButton(
           'OFFICIAL',
-          '官方 HDS Navigation 示例页',
-          '验证统一主栈、官方目的地与多功能顶栏页面结构。',
+          $r('app.string.ui_str_2033'),
+          $r('app.string.ui_str_2034'),
           '#173887',
           '#2C61F4',
           '#6F8FFFFF',
@@ -1179,8 +1182,8 @@ struct NGFStarterMainMenuPage {
         )
         this.buildFeatureActionButton(
           'INTEGRATED',
-          'HDS 综合融合示例页',
-          '在同一页面内融合组件、布局与动效验证能力。',
+          $r('app.string.ui_str_2035'),
+          $r('app.string.ui_str_2036'),
           '#0D4B59',
           '#1698A6',
           '#59D9F4FF',
@@ -1220,20 +1223,20 @@ struct NGFStarterMainMenuPage {
         .shadow({ radius: 48, color: $r('app.color.glow_circle_sky_shadow'), offsetX: 8, offsetY: 10 })
 
       Column({ space: 12 }) {
-        Text('快速操作')
+        Text($r('app.string.ui_str_2037'))
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_white'))
 
-        Text('把高频调试动作收束成统一光效按钮，便于在沉浸式主页中快速验证核心链路。')
+        Text($r('app.string.ui_str_2038'))
           .fontSize(13)
           .lineHeight(20)
           .fontColor($r('app.color.text_glass_hint'))
 
         this.buildFeatureActionButton(
           'CORE',
-          '初始化核心服务',
-          '重新确认容器、日志、事件总线和基础能力是否就绪。',
+          $r('app.string.ui_str_2039'),
+          $r('app.string.ui_str_2040'),
           '#155E75',
           '#0891B2',
           '#5FDBFFFF',
@@ -1241,8 +1244,8 @@ struct NGFStarterMainMenuPage {
         )
         this.buildFeatureActionButton(
           'EVENT',
-          '发布演示事件',
-          '向核心事件总线发送演示消息，检查链路与日志反馈。',
+          $r('app.string.ui_str_2041'),
+          $r('app.string.ui_str_2042'),
           '#1D4ED8',
           '#2563EB',
           '#79A6FFFF',
@@ -1250,8 +1253,8 @@ struct NGFStarterMainMenuPage {
         )
         this.buildFeatureActionButton(
           'LIFECYCLE',
-          '推进生命周期',
-          '模拟框架分阶段推进，观察状态卡片与日志变化。',
+          $r('app.string.ui_str_2043'),
+          $r('app.string.ui_str_2044'),
           '#0F766E',
           '#14B8A6',
           '#5EF2E2FF',
@@ -1259,8 +1262,8 @@ struct NGFStarterMainMenuPage {
         )
         this.buildFeatureActionButton(
           'ERROR',
-          '触发演示错误',
-          '验证错误处理器、错误计数与统一日志采集效果。',
+          $r('app.string.ui_str_2045'),
+          $r('app.string.ui_str_2046'),
           '#9A3412',
           '#F97316',
           '#FFB37DFF',
@@ -1291,8 +1294,8 @@ struct NGFStarterMainMenuPage {
   private buildDemoSecurityPerfCard(): void {
     this.buildFeatureActionButton(
       'SECURITY',
-      '安全与性能',
-      'SHA 哈希、AES-GCM 加解密、性能打点、内存快照。',
+      $r('app.string.ui_str_2047'),
+      $r('app.string.ui_str_2048'),
       '#0D4B59',
       '#14B8A6',
       '#5EEAD4FF',
@@ -1304,8 +1307,8 @@ struct NGFStarterMainMenuPage {
   private buildDemoDataStorageCard(): void {
     this.buildFeatureActionButton(
       'STORAGE',
-      '数据与存储',
-      'FileUtils 文件读写、目录操作、ContentCache LRU 缓存管理。',
+      $r('app.string.ui_str_2049'),
+      $r('app.string.ui_str_2050'),
       '#78350F',
       '#F59E0B',
       '#FCD34DFF',
@@ -1317,8 +1320,8 @@ struct NGFStarterMainMenuPage {
   private buildDemoWorkflowCard(): void {
     this.buildFeatureActionButton(
       'WORKFLOW',
-      '流程编排',
-      '工作流 DSL 多步骤执行、条件分支、状态持久化与恢复。',
+      $r('app.string.ui_str_2051'),
+      $r('app.string.ui_str_2052'),
       '#312E81',
       '#6366F1',
       '#A5B4FCFF',
@@ -1330,8 +1333,8 @@ struct NGFStarterMainMenuPage {
   private buildDemoDeviceDisplayCard(): void {
     this.buildFeatureActionButton(
       'DEVICE',
-      '设备与显示',
-      '多语言相对时间、设备能力检测、字体缩放控制。',
+      $r('app.string.ui_str_2053'),
+      $r('app.string.ui_str_2054'),
       '#14532D',
       '#22C55E',
       '#86EFACFF',
@@ -1343,8 +1346,8 @@ struct NGFStarterMainMenuPage {
   private buildSystemResourcePreviewCard(): void {
     this.buildFeatureActionButton(
       'SYMBOL',
-      '系统 Symbol 图标库',
-      '浏览 HarmonyOS sys.symbol 分组、搜索并复制系统图标资源引用。',
+      $r('app.string.ui_str_2055'),
+      $r('app.string.ui_str_2056'),
       '#1E3A8A',
       '#7C3AED',
       '#C4B5FDFF',
@@ -1355,39 +1358,39 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildStatusCard(): void {
     Column({ space: 8 }) {
-      Text('运行状态')
+      Text($r('app.string.ui_str_2057'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
-      Text(`核心状态: ${this.isCoreReady ? 'ready' : 'not_ready'}`)
+      Text($r('app.string.ui_str_2058', this.isCoreReady ? 'ready' : 'not_ready'))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`生命周期: ${this.lifecycleState.phaseName}`)
+      Text($r('app.string.ui_str_2059', this.lifecycleState.phaseName))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`进度: ${this.lifecycleState.progress}%`)
+      Text($r('app.string.ui_str_2060', this.lifecycleState.progress))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`已完成: ${this.lifecycleState.isCompleted ? 'true' : 'false'}`)
+      Text($r('app.string.ui_str_2061', this.lifecycleState.isCompleted ? 'true' : 'false'))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`事件计数: ${this.demoEventCount}`)
+      Text($r('app.string.ui_str_2062', this.demoEventCount))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`最新事件: ${this.lastEventType}`)
+      Text($r('app.string.ui_str_2063', this.lastEventType))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`错误计数: ${this.starter.errorHandler.getRecentErrorCount()}`)
+      Text($r('app.string.ui_str_2005', this.starter.errorHandler.getRecentErrorCount()))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`模块阶段: ${this.modulePhaseName}`)
+      Text($r('app.string.ui_str_2064', this.modulePhaseName))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`模块成功: ${this.moduleSuccessCount}/${this.moduleTotalCount}`)
+      Text($r('app.string.ui_str_2065', this.moduleSuccessCount, this.moduleTotalCount))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`模块失败: ${this.moduleFailureCount}`)
+      Text($r('app.string.ui_str_2066', this.moduleFailureCount))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
     }
@@ -1401,24 +1404,24 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildWindowMonitorCard(): void {
     Column({ space: 8 }) {
-      Text('窗口监控')
+      Text($r('app.string.ui_str_2067'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
-      Text(`窗口就绪: ${this.windowReady ? 'true' : 'false'}`)
+      Text($r('app.string.ui_str_2068', this.windowReady ? 'true' : 'false'))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`当前页面: ${this.windowActivePage.length > 0 ? this.windowActivePage : '-'}`)
+      Text($r('app.string.ui_str_2069', this.windowActivePage.length > 0 ? this.windowActivePage : '-'))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`显示模式: ${this.windowDisplayMode}`)
+      Text($r('app.string.ui_str_2070', this.windowDisplayMode))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`窗口状态: ${this.windowStatus}`)
+      Text($r('app.string.ui_str_2071', this.windowStatus))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text(`最近更新: ${this.resolveWindowUpdatedAtText()}`)
+      Text($r('app.string.ui_str_2072', this.resolveWindowUpdatedAtText()))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
       Text(this.windowSnapshotJson)
@@ -1445,13 +1448,13 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildModuleDetailCard(): void {
     Column({ space: 8 }) {
-      Text('模块明细')
+      Text($r('app.string.ui_str_2073'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
       if (this.moduleDetails.length <= 0) {
-        Text('当前暂无模块运行时快照')
+        Text($r('app.string.ui_str_2074'))
           .width('100%')
           .fontSize(12)
           .fontColor($r('app.color.text_secondary'))
@@ -1464,23 +1467,23 @@ struct NGFStarterMainMenuPage {
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
                 .fontColor($r('app.color.text_primary'))
-              Text(`阶段: ${entry.phaseName}`)
+              Text($r('app.string.ui_str_2075', entry.phaseName))
                 .width('100%')
                 .fontSize(12)
                 .fontColor($r('app.color.text_secondary'))
-              Text(`状态: ${entry.statusText}`)
+              Text($r('app.string.ui_str_2076', entry.statusText))
                 .width('100%')
                 .fontSize(12)
                 .fontColor($r('app.color.text_secondary'))
-              Text(`依赖: ${entry.dependencyText}`)
+              Text($r('app.string.ui_str_2077', entry.dependencyText))
                 .width('100%')
                 .fontSize(12)
                 .fontColor($r('app.color.text_secondary'))
-              Text(`服务: ${entry.serviceTokenText}`)
+              Text($r('app.string.ui_str_2078', entry.serviceTokenText))
                 .width('100%')
                 .fontSize(12)
                 .fontColor($r('app.color.text_secondary'))
-              Text(`消息: ${entry.messageText}`)
+              Text($r('app.string.ui_str_2079', entry.messageText))
                 .width('100%')
                 .fontSize(12)
                 .fontColor($r('app.color.text_secondary'))
@@ -1504,7 +1507,7 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildLogCard(): void {
     Column({ space: 8 }) {
-      Text('运行日志')
+      Text($r('app.string.ui_str_2080'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
@@ -1530,4 +1533,3 @@ struct NGFStarterMainMenuPage {
     .border({ width: 1, color: $r('app.color.panel_border') })
   }
 }
-

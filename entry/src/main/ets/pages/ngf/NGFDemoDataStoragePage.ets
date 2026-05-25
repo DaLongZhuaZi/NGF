@@ -1,6 +1,7 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from '../../Framework/NGF/utils/Logger';
+import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 import { FileUtils, NGFFileEntry } from '../../Framework/NGF/utils/FileUtils';
 import { ngfContentCacheFacade } from '../../Framework/NGF/contentSource/index';
 import {
@@ -40,15 +41,15 @@ class NGFDemoFileEntryDisplay {
 @Component
 export struct NGFDemoDataStoragePage {
   @State private pathStack: NavPathStack = new NavPathStack();
-  @State private fileWriteInput: string = 'NGF Framework 数据存储测试';
+  @State private fileWriteInput: ResourceStr = $r('app.string.ui_str_2231');
   @State private fileReadResult: string = '';
   @State private fileEntries: Array<NGFDemoFileEntryDisplay> = [];
   @State private cacheKey: string = 'demo_key';
   @State private cacheValue: string = 'demo_value';
-  @State private cacheGetResult: string = '';
-  @State private cacheHasResult: string = '';
+  @State private cacheGetResult: ResourceStr = '';
+  @State private cacheHasResult: ResourceStr = '';
   @State private cacheMemorySize: number = 0;
-  @State private statusMessage: string = '';
+  @State private statusMessage: ResourceStr = '';
 
   aboutToAppear(): void {
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_DATA_STORAGE);
@@ -80,8 +81,8 @@ export struct NGFDemoDataStoragePage {
       .height('100%')
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '数据与存储',
-      'FileUtils/目录/ContentCache',
+      $r('app.string.ui_str_2049'),
+      $r('app.string.ui_str_2232'),
       '#1A0F08',
       hdsMaterial.MaterialLevel.GENTLE,
       true,
@@ -105,11 +106,11 @@ export struct NGFDemoDataStoragePage {
   @Builder
   private buildTitleCard(): void {
     Column({ space: 8 }) {
-      Text('数据与存储演示')
+      Text($r('app.string.ui_str_2233'))
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.panel_background'))
-      Text('FileUtils 文件读写 / 目录操作 / ContentCache LRU 缓存管理')
+      Text($r('app.string.ui_str_2234'))
         .fontSize(13)
         .lineHeight(20)
         .fontColor($r('app.color.text_white_low'))
@@ -127,12 +128,12 @@ export struct NGFDemoDataStoragePage {
   @Builder
   private buildFileReadWriteSection(): void {
     Column({ space: 10 }) {
-      Text('文件读写')
+      Text($r('app.string.ui_str_2235'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
-      TextInput({ text: this.fileWriteInput, placeholder: '输入要写入的内容' })
+      TextInput({ text: this.fileWriteInput, placeholder: $r('app.string.ui_str_2236') })
         .width('100%')
         .height(44)
         .fontSize(14)
@@ -141,7 +142,7 @@ export struct NGFDemoDataStoragePage {
         })
 
       Row({ space: 10 }) {
-        Button('写入文件')
+        Button($r('app.string.ui_str_2237'))
           .layoutWeight(1)
           .height(40)
           .fontSize(14)
@@ -150,7 +151,7 @@ export struct NGFDemoDataStoragePage {
           .onClick((): void => {
             void this.handleFileWrite();
           })
-        Button('读取文件')
+        Button($r('app.string.ui_str_2238'))
           .layoutWeight(1)
           .height(40)
           .fontSize(14)
@@ -164,7 +165,7 @@ export struct NGFDemoDataStoragePage {
 
       if (this.fileReadResult.length > 0) {
         Column({ space: 4 }) {
-          Text('读取结果')
+          Text($r('app.string.ui_str_2239'))
             .fontSize(12)
             .fontColor($r('app.color.text_tertiary'))
           Text(this.fileReadResult)
@@ -179,7 +180,7 @@ export struct NGFDemoDataStoragePage {
         .alignItems(HorizontalAlign.Start)
       }
 
-      if (this.statusMessage.length > 0) {
+      if ((typeof this.statusMessage === "string" ? this.statusMessage : '').length > 0) {
         Text(this.statusMessage)
           .fontSize(12)
           .fontColor($r('app.color.tag_green'))
@@ -197,12 +198,12 @@ export struct NGFDemoDataStoragePage {
   @Builder
   private buildDirectorySection(): void {
     Column({ space: 10 }) {
-      Text('目录操作')
+      Text($r('app.string.ui_str_2240'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
-      Button('列出应用文件目录')
+      Button($r('app.string.ui_str_2241'))
         .width('100%')
         .height(40)
         .fontSize(14)
@@ -254,12 +255,12 @@ export struct NGFDemoDataStoragePage {
   @Builder
   private buildCacheSection(): void {
     Column({ space: 10 }) {
-      Text('内容缓存 (LRU)')
+      Text($r('app.string.ui_str_2242'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
-      TextInput({ text: this.cacheKey, placeholder: '缓存 Key' })
+      TextInput({ text: this.cacheKey, placeholder: $r('app.string.ui_str_2243') })
         .width('100%')
         .height(40)
         .fontSize(14)
@@ -267,7 +268,7 @@ export struct NGFDemoDataStoragePage {
           this.cacheKey = value;
         })
 
-      TextInput({ text: this.cacheValue, placeholder: '缓存 Value' })
+      TextInput({ text: this.cacheValue, placeholder: $r('app.string.ui_str_2244') })
         .width('100%')
         .height(40)
         .fontSize(14)
@@ -285,7 +286,7 @@ export struct NGFDemoDataStoragePage {
           .onClick((): void => {
             ngfContentCacheFacade.put(this.cacheKey, this.cacheValue, 300000);
             this.cacheMemorySize = ngfContentCacheFacade.memorySize();
-            this.statusMessage = `已放入缓存: ${this.cacheKey}`;
+            this.statusMessage = $r('app.string.ui_str_2245', this.cacheKey);
           })
         Button('Get')
           .layoutWeight(1)
@@ -295,7 +296,7 @@ export struct NGFDemoDataStoragePage {
           .backgroundColor($r('app.color.button_primary'))
           .onClick((): void => {
             const value = ngfContentCacheFacade.get(this.cacheKey);
-            this.cacheGetResult = value.length > 0 ? value : '(空)';
+            const valStr = typeof value === 'string' ? value : ''; this.cacheGetResult = valStr.length > 0 ? valStr : $r('app.string.ui_str_2246');
           })
         Button('Has')
           .layoutWeight(1)
@@ -305,7 +306,7 @@ export struct NGFDemoDataStoragePage {
           .backgroundColor($r('app.color.tag_purple'))
           .onClick((): void => {
             const exists = ngfContentCacheFacade.has(this.cacheKey);
-            this.cacheHasResult = exists ? '存在' : '不存在';
+            this.cacheHasResult = exists ? $r('app.string.ui_str_2247') : $r('app.string.ui_str_2248');
           })
         Button('Del')
           .layoutWeight(1)
@@ -316,14 +317,14 @@ export struct NGFDemoDataStoragePage {
           .onClick((): void => {
             ngfContentCacheFacade.remove(this.cacheKey);
             this.cacheMemorySize = ngfContentCacheFacade.memorySize();
-            this.statusMessage = `已删除缓存: ${this.cacheKey}`;
+            this.statusMessage = $r('app.string.ui_str_2249', this.cacheKey);
           })
       }
       .width('100%')
 
       Column({ space: 4 }) {
         Row() {
-          Text('Get 结果:')
+          Text($r('app.string.ui_str_2250'))
             .fontSize(12)
             .fontColor($r('app.color.text_tertiary'))
           Text(this.cacheGetResult)
@@ -335,7 +336,7 @@ export struct NGFDemoDataStoragePage {
         .justifyContent(FlexAlign.SpaceBetween)
 
         Row() {
-          Text('Has 结果:')
+          Text($r('app.string.ui_str_2251'))
             .fontSize(12)
             .fontColor($r('app.color.text_tertiary'))
           Text(this.cacheHasResult)
@@ -347,7 +348,7 @@ export struct NGFDemoDataStoragePage {
         .justifyContent(FlexAlign.SpaceBetween)
 
         Row() {
-          Text('内存条目数:')
+          Text($r('app.string.ui_str_2252'))
             .fontSize(12)
             .fontColor($r('app.color.text_tertiary'))
           Text(`${this.cacheMemorySize}`)
@@ -373,41 +374,43 @@ export struct NGFDemoDataStoragePage {
 
   private async handleFileWrite(): Promise<void> {
     try {
-      const success = FileUtils.writeText('ngf_demo.txt', this.fileWriteInput);
-      this.statusMessage = success ? '写入成功: ngf_demo.txt' : '写入失败';
+      const inputStr: string = typeof this.fileWriteInput === 'string' ? this.fileWriteInput : '';
+      const success: boolean = FileUtils.writeText('ngf_demo.txt', inputStr);
+      this.statusMessage = success ? $r('app.string.ui_str_2253') : $r('app.string.ui_str_2254');
       logger.info(TAG, `文件写入: success=${success}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.statusMessage = `写入异常: ${message}`;
+      this.statusMessage = $r('app.string.ui_str_2255', message);
     }
   }
 
   private async handleFileRead(): Promise<void> {
     try {
-      const content = FileUtils.readText('ngf_demo.txt');
-      this.fileReadResult = content.length > 0 ? content : '(文件为空或不存在)';
+      const content: string = FileUtils.readText('ngf_demo.txt');
+      const contentStr: string = typeof content === 'string' ? content : '';
+      this.fileReadResult = contentStr.length > 0 ? contentStr : resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2256'));
       logger.info(TAG, `文件读取: length=${content.length}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.fileReadResult = `读取异常: ${message}`;
+      this.fileReadResult = resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2257', message));
     }
   }
 
   private async handleListDirectory(): Promise<void> {
     try {
-      const entries = FileUtils.listDirectory('');
+      const entries: Array<NGFFileEntry> = FileUtils.listDirectory('');
       const result: Array<NGFDemoFileEntryDisplay> = [];
-      for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
-        const sizeText = entry.isDirectory ? '-' : `${entry.size}B`;
-        const typeText = entry.isDirectory ? 'DIR' : 'FILE';
+      for (let i: number = 0; i < entries.length; i++) {
+        const entry: NGFFileEntry = entries[i];
+        const sizeText: string = entry.isDirectory ? '-' : `${entry.size}B`;
+        const typeText: string = entry.isDirectory ? 'DIR' : 'FILE';
         result.push(new NGFDemoFileEntryDisplay(i + 1, entry.name, sizeText, typeText));
       }
       this.fileEntries = result;
       logger.info(TAG, `目录列表: count=${result.length}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.statusMessage = `列出目录异常: ${message}`;
+      this.statusMessage = $r('app.string.ui_str_2258', message);
     }
   }
 }

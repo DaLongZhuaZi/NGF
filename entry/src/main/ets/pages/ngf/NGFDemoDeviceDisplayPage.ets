@@ -36,11 +36,11 @@ const DEMO_DEVICE_TOP_CHROME: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromeP
 
 class NGFDemoCapabilityEntry {
   id: number;
-  name: string;
+  name: ResourceStr;
   available: boolean;
   detail: string;
 
-  constructor(id: number, name: string, available: boolean, detail: string) {
+  constructor(id: number, name: ResourceStr, available: boolean, detail: string) {
     this.id = id;
     this.name = name;
     this.available = available;
@@ -56,10 +56,10 @@ export struct NGFDemoDeviceDisplayPage {
   @State private capabilities: Array<NGFDemoCapabilityEntry> = [];
   @State private currentFontScale: number = 1.0;
   @State private currentFontLevel: string = 'NORMAL';
-  @State private statusMessage: string = '';
+  @State private statusMessage: ResourceStr = '';
 
   private readonly locales: Array<string> = ['zh-CN', 'en-US', 'ja-JP'];
-  private readonly localeLabels: Array<string> = ['中文', 'English', '日本語'];
+  private readonly localeLabels: Array<ResourceStr> = [$r('app.string.ui_str_2259'), $r('app.string.ui_str_2260')];
 
   aboutToAppear(): void {
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_DEVICE_DISPLAY);
@@ -93,8 +93,8 @@ export struct NGFDemoDeviceDisplayPage {
       .height('100%')
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '设备与显示',
-      '相对时间/能力检测/字体缩放',
+      $r('app.string.ui_str_2053'),
+      $r('app.string.ui_str_2261'),
       '#0A1A08',
       hdsMaterial.MaterialLevel.GENTLE,
       true,
@@ -118,11 +118,11 @@ export struct NGFDemoDeviceDisplayPage {
   @Builder
   private buildTitleCard(): void {
     Column({ space: 8 }) {
-      Text('设备与显示演示')
+      Text($r('app.string.ui_str_2262'))
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.panel_background'))
-      Text('RelativeTimeFormatter 多语言 / DeviceCapabilityDetector 硬件检测 / FontScaleManager 字体缩放')
+      Text($r('app.string.ui_str_2263'))
         .fontSize(13)
         .lineHeight(20)
         .fontColor($r('app.color.text_white_low'))
@@ -140,7 +140,7 @@ export struct NGFDemoDeviceDisplayPage {
   @Builder
   private buildRelativeTimeSection(): void {
     Column({ space: 10 }) {
-      Text('相对时间格式化')
+      Text($r('app.string.ui_str_2264'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
@@ -161,7 +161,7 @@ export struct NGFDemoDeviceDisplayPage {
       .width('100%')
 
       Row({ space: 8 }) {
-        Button('1分钟前')
+        Button($r('app.string.ui_str_2265'))
           .layoutWeight(1)
           .height(36)
           .fontSize(12)
@@ -170,7 +170,7 @@ export struct NGFDemoDeviceDisplayPage {
           .onClick((): void => {
             this.formatRelativeTime(60 * 1000);
           })
-        Button('1小时前')
+        Button($r('app.string.ui_str_2266'))
           .layoutWeight(1)
           .height(36)
           .fontSize(12)
@@ -179,7 +179,7 @@ export struct NGFDemoDeviceDisplayPage {
           .onClick((): void => {
             this.formatRelativeTime(60 * 60 * 1000);
           })
-        Button('1天前')
+        Button($r('app.string.ui_str_2267'))
           .layoutWeight(1)
           .height(36)
           .fontSize(12)
@@ -188,7 +188,7 @@ export struct NGFDemoDeviceDisplayPage {
           .onClick((): void => {
             this.formatRelativeTime(24 * 60 * 60 * 1000);
           })
-        Button('1月前')
+        Button($r('app.string.ui_str_2268'))
           .layoutWeight(1)
           .height(36)
           .fontSize(12)
@@ -232,12 +232,12 @@ export struct NGFDemoDeviceDisplayPage {
   @Builder
   private buildCapabilitySection(): void {
     Column({ space: 10 }) {
-      Text('设备能力检测')
+      Text($r('app.string.ui_str_2269'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
-      Button('检测全部能力 (13项)')
+      Button($r('app.string.ui_str_2270'))
         .width('100%')
         .height(40)
         .fontSize(14)
@@ -264,7 +264,7 @@ export struct NGFDemoDeviceDisplayPage {
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
 
-              Text(entry.available ? '可用' : '不可用')
+              Text(entry.available ? $r('app.string.ui_str_2271') : $r('app.string.ui_str_2272'))
                 .fontSize(11)
                 .fontWeight(FontWeight.Medium)
                 .fontColor($r('app.color.panel_background'))
@@ -292,13 +292,13 @@ export struct NGFDemoDeviceDisplayPage {
   @Builder
   private buildFontScaleSection(): void {
     Column({ space: 10 }) {
-      Text('字体缩放')
+      Text($r('app.string.ui_str_2273'))
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
       Row({ space: 8 }) {
-        Button('小 (0.85x)')
+        Button($r('app.string.ui_str_2274'))
           .layoutWeight(1)
           .height(36)
           .fontSize(12)
@@ -309,7 +309,7 @@ export struct NGFDemoDeviceDisplayPage {
             ngfFontScaleManagerFacade.setFontScaleLevel(NGFFontScaleLevel.SMALL);
             this.syncFontScale();
           })
-        Button('标准 (1.0x)')
+        Button($r('app.string.ui_str_2275'))
           .layoutWeight(1)
           .height(36)
           .fontSize(12)
@@ -320,7 +320,7 @@ export struct NGFDemoDeviceDisplayPage {
             ngfFontScaleManagerFacade.setFontScaleLevel(NGFFontScaleLevel.NORMAL);
             this.syncFontScale();
           })
-        Button('大 (1.15x)')
+        Button($r('app.string.ui_str_2276'))
           .layoutWeight(1)
           .height(36)
           .fontSize(12)
@@ -331,7 +331,7 @@ export struct NGFDemoDeviceDisplayPage {
             ngfFontScaleManagerFacade.setFontScaleLevel(NGFFontScaleLevel.LARGE);
             this.syncFontScale();
           })
-        Button('特大 (1.3x)')
+        Button($r('app.string.ui_str_2277'))
           .layoutWeight(1)
           .height(36)
           .fontSize(12)
@@ -345,7 +345,7 @@ export struct NGFDemoDeviceDisplayPage {
       }
       .width('100%')
 
-      Button('重置为系统默认')
+      Button($r('app.string.ui_str_2278'))
         .width('100%')
         .height(36)
         .fontSize(13)
@@ -358,7 +358,7 @@ export struct NGFDemoDeviceDisplayPage {
 
       Row({ space: 12 }) {
         Column({ space: 4 }) {
-          Text('当前级别')
+          Text($r('app.string.ui_str_2279'))
             .fontSize(11)
             .fontColor($r('app.color.text_tertiary'))
           Text(this.currentFontLevel)
@@ -373,7 +373,7 @@ export struct NGFDemoDeviceDisplayPage {
         .borderRadius(12)
 
         Column({ space: 4 }) {
-          Text('缩放倍数')
+          Text($r('app.string.ui_str_2280'))
             .fontSize(11)
             .fontColor($r('app.color.text_tertiary'))
           Text(`${this.currentFontScale}x`)
@@ -389,7 +389,7 @@ export struct NGFDemoDeviceDisplayPage {
       }
       .width('100%')
 
-      Text('这是一段预览文字，用于展示当前字体缩放效果。The quick brown fox jumps over the lazy dog.')
+      Text($r('app.string.ui_str_2281'))
         .fontSize(14)
         .fontColor($r('app.color.text_body'))
         .width('100%')
@@ -434,20 +434,20 @@ export struct NGFDemoDeviceDisplayPage {
     logger.info(TAG, `设备能力检测完成: total=${entries.length}`);
   }
 
-  private resolveCapabilityName(type: NGFCapabilityType): string {
-    if (type === NGFCapabilityType.CAMERA) return '摄像头';
+  private resolveCapabilityName(type: NGFCapabilityType): ResourceStr {
+    if (type === NGFCapabilityType.CAMERA) return $r('app.string.ui_str_2282');
     if (type === NGFCapabilityType.GPS) return 'GPS';
     if (type === NGFCapabilityType.NFC) return 'NFC';
-    if (type === NGFCapabilityType.BLUETOOTH) return '蓝牙';
+    if (type === NGFCapabilityType.BLUETOOTH) return $r('app.string.ui_str_2283');
     if (type === NGFCapabilityType.WIFI) return 'WiFi';
-    if (type === NGFCapabilityType.VIBRATION) return '振动';
-    if (type === NGFCapabilityType.FINGERPRINT) return '指纹';
-    if (type === NGFCapabilityType.FACE_RECOGNITION) return '人脸识别';
-    if (type === NGFCapabilityType.ACCELEROMETER) return '加速度计';
-    if (type === NGFCapabilityType.GYROSCOPE) return '陀螺仪';
-    if (type === NGFCapabilityType.BAROMETER) return '气压计';
-    if (type === NGFCapabilityType.AMBIENT_LIGHT) return '环境光';
-    if (type === NGFCapabilityType.PROXIMITY) return '接近传感器';
+    if (type === NGFCapabilityType.VIBRATION) return $r('app.string.ui_str_2284');
+    if (type === NGFCapabilityType.FINGERPRINT) return $r('app.string.ui_str_2285');
+    if (type === NGFCapabilityType.FACE_RECOGNITION) return $r('app.string.ui_str_2286');
+    if (type === NGFCapabilityType.ACCELEROMETER) return $r('app.string.ui_str_2287');
+    if (type === NGFCapabilityType.GYROSCOPE) return $r('app.string.ui_str_2288');
+    if (type === NGFCapabilityType.BAROMETER) return $r('app.string.ui_str_2289');
+    if (type === NGFCapabilityType.AMBIENT_LIGHT) return $r('app.string.ui_str_2290');
+    if (type === NGFCapabilityType.PROXIMITY) return $r('app.string.ui_str_2291');
     return type;
   }
 
@@ -462,7 +462,7 @@ export struct NGFDemoDeviceDisplayPage {
   private syncFontScale(): void {
     this.currentFontScale = ngfFontScaleManagerFacade.getCurrentScale();
     this.currentFontLevel = this.resolveLevelText(ngfFontScaleManagerFacade.getCurrentLevel());
-    this.statusMessage = `字体缩放: ${this.currentFontLevel} (${this.currentFontScale}x)`;
+    this.statusMessage = $r('app.string.ui_str_2292', this.currentFontLevel, this.currentFontScale);
     logger.info(TAG, `字体缩放更新: level=${this.currentFontLevel}, scale=${this.currentFontScale}`);
   }
 }

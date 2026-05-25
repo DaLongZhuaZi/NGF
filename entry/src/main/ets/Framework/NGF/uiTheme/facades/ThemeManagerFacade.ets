@@ -83,6 +83,9 @@ class ThemeManagerFacade implements IThemeManager {
   }
 
   initializeDefaults(): void {
+    PersistentStorage.persistProp<string>(STORAGE_KEY_THEME_OVERRIDE, 'auto');
+    PersistentStorage.persistProp<number>(STORAGE_KEY_SYSTEM_COLOR_MODE, ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    PersistentStorage.persistProp<boolean>(STORAGE_KEY_IS_DARK, false);
     if (AppStorage.get<string>(STORAGE_KEY_THEME_OVERRIDE) === undefined) {
       AppStorage.setOrCreate<string>(STORAGE_KEY_THEME_OVERRIDE, NGFThemeMode.AUTO);
     }

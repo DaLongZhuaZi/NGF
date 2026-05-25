@@ -3,6 +3,7 @@ import { relationalStore } from '@kit.ArkData';
 import { NGFIntegrationFacadeBase } from '../../core/facades/NGFIntegrationFacadeBase';
 import { NGFServiceRegistration } from '../../core/contracts/NGFServiceRegistration';
 import { logger } from '../../utils/Logger';
+import { FileUtils } from '../../utils/FileUtils';
 import { SettingsManager } from '../SettingsManager';
 import { uiContextManager } from '../../platformOhos/UIContextManager';
 import { ngfCacheStoreFacade } from './CacheStoreFacade';
@@ -35,6 +36,7 @@ export class NGFDataIntegrationFacade extends NGFIntegrationFacadeBase {
   protected onBootstrapped(): void {
     const context = uiContextManager.getFullAbilityContext();
     if (context !== null) {
+      FileUtils.setSandboxBaseDir(context.filesDir);
       void SettingsManager.getInstance().initialize(context);
       void this.initializeRdb(context);
     } else {

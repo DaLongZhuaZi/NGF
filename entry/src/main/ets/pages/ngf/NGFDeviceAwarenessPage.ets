@@ -20,13 +20,14 @@ import {
   ngfVisualEffectsFacade
 } from '../../Framework/NGF/deviceAwareness/index';
 import { logger } from '../../Framework/NGF/utils/Logger';
+import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 
 const TAG: string = 'NGFDeviceAwarenessPage';
 
 @Component
 struct NGFDeviceAwarenessStatusRow {
-  @Prop label: string = '';
-  @Prop value: string = '';
+  @Prop label: ResourceStr = '';
+  @Prop value: ResourceStr = '';
 
   build() {
     Row() {
@@ -88,7 +89,7 @@ export struct NGFDeviceAwarenessPage {
     this.applyDeviceInfo(ngfDeviceAdaptationFacade.getDeviceInfo());
     this.applyHoldingSnapshot(ngfHoldingAwarenessFacade.getSnapshot());
     this.applyVisualEffectsState(ngfVisualEffectsFacade.getState());
-    logger.lifecycle(TAG, '设备感知页面出现，刷新设备与握持状态');
+    logger.lifecycle(TAG, resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2347')));
     ngfDeviceAdaptationFacade.refresh('device_awareness_page_appear');
     void ngfHoldingAwarenessFacade.resume();
   }
@@ -100,11 +101,11 @@ export struct NGFDeviceAwarenessPage {
   build() {
     Column({ space: 12 }) {
       Column({ space: 4 }) {
-        Text(`实时握持：${this.describeSide(this.holdingSide)} / ${this.describeConfidence(this.holdingConfidence)}`)
+        Text(this.buildHoldingSummary())
           .fontSize(15)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
-        Text(`实时设备：${this.describeOrientation(this.deviceOrientation)} · ${this.formatVp(this.deviceScreenWidth)} x ${this.formatVp(this.deviceScreenHeight)} · ${this.describeUpdateReason(this.deviceUpdateReason)}`)
+        Text(this.buildDeviceSummary())
           .fontSize(12)
           .fontColor($r('app.color.text_secondary'))
       }
@@ -125,7 +126,7 @@ export struct NGFDeviceAwarenessPage {
   @Builder
   private buildHoldingCard(): void {
     Column({ space: 8 }) {
-      Text('握持感知')
+      Text($r('app.string.ui_str_2348'))
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
@@ -151,7 +152,7 @@ export struct NGFDeviceAwarenessPage {
   @Builder
   private buildDeviceCard(): void {
     Column({ space: 8 }) {
-      Text('设备信息')
+      Text($r('app.string.ui_str_2349'))
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
@@ -178,7 +179,7 @@ export struct NGFDeviceAwarenessPage {
   @Builder
   private buildVisualEffectsCard(): void {
     Column({ space: 8 }) {
-      Text('视觉效果')
+      Text($r('app.string.ui_str_2350'))
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
@@ -197,130 +198,130 @@ export struct NGFDeviceAwarenessPage {
   @Builder
   private buildPreferredAnchorRow(): void {
     NGFDeviceAwarenessStatusRow({
-      label: '推荐停靠',
-      value: this.preferredAnchor === NGFHoldingUiAnchor.LEFT ? '左侧' : '右侧'
+      label: $r('app.string.ui_str_2351'),
+      value: this.preferredAnchor === NGFHoldingUiAnchor.LEFT ? $r('app.string.ui_str_2352') : $r('app.string.ui_str_2353')
     })
   }
 
   @Builder
   private buildHoldingSideRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '握持侧', value: this.describeSide(this.holdingSide) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2354'), value: this.describeSide(this.holdingSide) })
   }
 
   @Builder
   private buildHoldingSourceRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '数据来源', value: this.describeSource(this.holdingSource) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2355'), value: this.describeSource(this.holdingSource) })
   }
 
   @Builder
   private buildHoldingConfidenceRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '置信度', value: this.describeConfidence(this.holdingConfidence) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2356'), value: this.describeConfidence(this.holdingConfidence) })
   }
 
   @Builder
   private buildHoldingAvailableRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '传感器可用', value: this.holdingAvailable ? '是' : '否' })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2357'), value: this.holdingAvailable ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359') })
   }
 
   @Builder
   private buildPreciseSupportedRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '精确握姿支持', value: this.preciseSupported ? '是' : '否' })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2360'), value: this.preciseSupported ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359') })
   }
 
   @Builder
   private buildOperatingHandSupportedRow(): void {
     NGFDeviceAwarenessStatusRow({
-      label: '操作手增强',
-      value: this.operatingHandSupported ? '可用或可尝试' : '当前设备不支持'
+      label: $r('app.string.ui_str_2361'),
+      value: this.operatingHandSupported ? $r('app.string.ui_str_2362') : $r('app.string.ui_str_2363')
     })
   }
 
   @Builder
   private buildDetectGestureRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: 'DETECT_GESTURE', value: this.detectGestureGranted ? '已授权' : '未授权' })
+    NGFDeviceAwarenessStatusRow({ label: 'DETECT_GESTURE', value: this.detectGestureGranted ? $r('app.string.ui_str_2364') : $r('app.string.ui_str_2365') })
   }
 
   @Builder
   private buildActivityMotionRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: 'ACTIVITY_MOTION', value: this.activityMotionGranted ? '已授权' : '未授权' })
+    NGFDeviceAwarenessStatusRow({ label: 'ACTIVITY_MOTION', value: this.activityMotionGranted ? $r('app.string.ui_str_2364') : $r('app.string.ui_str_2365') })
   }
 
   @Builder
   private buildHoldingUpdatedAtRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '握持刷新时间', value: this.formatUpdatedAt(this.holdingUpdatedAt) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2366'), value: this.formatUpdatedAt(this.holdingUpdatedAt) })
   }
 
   @Builder
   private buildDeviceTypeRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '设备类型', value: this.describeDeviceType(this.deviceType) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2367'), value: this.describeDeviceType(this.deviceType) })
   }
 
   @Builder
   private buildDeviceOrientationRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '屏幕方向', value: this.describeOrientation(this.deviceOrientation) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2368'), value: this.describeOrientation(this.deviceOrientation) })
   }
 
   @Builder
   private buildDeviceBreakpointRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '断点', value: this.deviceBreakpoint.toUpperCase() })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2369'), value: this.deviceBreakpoint.toUpperCase() })
   }
 
   @Builder
   private buildDeviceWidthRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '视口宽度', value: this.formatVp(this.deviceScreenWidth) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2370'), value: this.formatVp(this.deviceScreenWidth) })
   }
 
   @Builder
   private buildDeviceHeightRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '视口高度', value: this.formatVp(this.deviceScreenHeight) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2371'), value: this.formatVp(this.deviceScreenHeight) })
   }
 
   @Builder
   private buildIsTabletRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '平板类设备', value: this.isTablet ? '是' : '否' })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2372'), value: this.isTablet ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359') })
   }
 
   @Builder
   private buildIsFoldableRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '折叠屏', value: this.isFoldable ? '是' : '否' })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2373'), value: this.isFoldable ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359') })
   }
 
   @Builder
   private buildFoldStatusRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '折叠状态', value: this.describeFoldStatus(this.foldStatus) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2374'), value: this.describeFoldStatus(this.foldStatus) })
   }
 
   @Builder
   private buildIsLandscapeRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '横屏', value: this.isLandscape ? '是' : '否' })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2375'), value: this.isLandscape ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359') })
   }
 
   @Builder
   private buildDeviceUpdateReasonRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '刷新来源', value: this.describeUpdateReason(this.deviceUpdateReason) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2376'), value: this.describeUpdateReason(this.deviceUpdateReason) })
   }
 
   @Builder
   private buildDeviceUpdatedAtRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '刷新时间', value: this.formatUpdatedAt(this.deviceUpdatedAt) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2377'), value: this.formatUpdatedAt(this.deviceUpdatedAt) })
   }
 
   @Builder
   private buildMaterialModeRow(): void {
     NGFDeviceAwarenessStatusRow({
-      label: '材质模式',
-      value: this.materialMode === NGFVisualEffectsMaterialMode.ADAPTIVE ? '系统自适应' : '手动固定'
+      label: $r('app.string.ui_str_2378'),
+      value: this.materialMode === NGFVisualEffectsMaterialMode.ADAPTIVE ? $r('app.string.ui_str_2379') : $r('app.string.ui_str_2380')
     })
   }
 
   @Builder
   private buildMaterialLevelRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '当前材质等级', value: this.describeMaterialLevel(this.effectiveLevel) })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2381'), value: this.describeMaterialLevel(this.effectiveLevel) })
   }
 
   @Builder
   private buildSupportsImmersiveRow(): void {
-    NGFDeviceAwarenessStatusRow({ label: '支持沉浸式材质', value: this.supportsImmersive ? '是' : '否' })
+    NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2382'), value: this.supportsImmersive ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359') })
   }
 
   private attachLiveStateListeners(): void {
@@ -376,100 +377,118 @@ export struct NGFDeviceAwarenessPage {
     this.supportsImmersive = state.capability.supportsImmersiveMaterial;
   }
 
-  private describeSide(side: NGFHoldingAwarenessSide): string {
+  private buildHoldingSummary(): string {
+    const sideLabel = this.describeSide(this.holdingSide);
+    const confidenceLabel = this.describeConfidence(this.holdingConfidence);
+    const sideStr = resolveResourceString(this.getUIContext().getHostContext(), sideLabel);
+    const confidenceStr = resolveResourceString(this.getUIContext().getHostContext(), confidenceLabel);
+    return `实时握持：${sideStr} / ${confidenceStr}`;
+  }
+
+  private buildDeviceSummary(): string {
+    const orientationLabel = this.describeOrientation(this.deviceOrientation);
+    const updateReasonLabel = this.describeUpdateReason(this.deviceUpdateReason);
+    const orientationStr = resolveResourceString(this.getUIContext().getHostContext(), orientationLabel);
+    const widthStr = resolveResourceString(this.getUIContext().getHostContext(), this.formatVp(this.deviceScreenWidth));
+    const heightStr = resolveResourceString(this.getUIContext().getHostContext(), this.formatVp(this.deviceScreenHeight));
+    const reasonStr = resolveResourceString(this.getUIContext().getHostContext(), updateReasonLabel);
+    return `实时设备：${orientationStr} · ${widthStr} x ${heightStr} · ${reasonStr}`;
+  }
+
+  private describeSide(side: NGFHoldingAwarenessSide): ResourceStr {
     switch (side) {
       case NGFHoldingAwarenessSide.LEFT:
-        return '左手握持';
+        return $r('app.string.ui_str_2383');
       case NGFHoldingAwarenessSide.RIGHT:
-        return '右手握持';
+        return $r('app.string.ui_str_2384');
       case NGFHoldingAwarenessSide.BOTH:
-        return '双手握持';
+        return $r('app.string.ui_str_2385');
       case NGFHoldingAwarenessSide.NONE:
-        return '未握持';
+        return $r('app.string.ui_str_2386');
       default:
-        return '未知';
+        return $r('app.string.ui_str_2387');
     }
   }
 
-  private describeSource(source: NGFHoldingAwarenessSource): string {
+  private describeSource(source: NGFHoldingAwarenessSource): ResourceStr {
     switch (source) {
       case NGFHoldingAwarenessSource.HOLDING_HAND:
-        return '智感握姿';
+        return $r('app.string.ui_str_2388');
       case NGFHoldingAwarenessSource.OPERATING_HAND:
-        return '操作手';
+        return $r('app.string.ui_str_2389');
       case NGFHoldingAwarenessSource.COMBINED:
-        return '握姿+操作手联合';
+        return $r('app.string.ui_str_2390');
       default:
-        return '默认回退';
+        return $r('app.string.ui_str_2391');
     }
   }
 
-  private describeConfidence(confidence: NGFHoldingAwarenessConfidence): string {
+  private describeConfidence(confidence: NGFHoldingAwarenessConfidence): ResourceStr {
     switch (confidence) {
       case NGFHoldingAwarenessConfidence.EXACT:
-        return '精确';
+        return $r('app.string.ui_str_2392');
       case NGFHoldingAwarenessConfidence.INFERRED:
-        return '推断';
+        return $r('app.string.ui_str_2393');
       default:
-        return '回退';
+        return $r('app.string.ui_str_2394');
     }
   }
 
-  private describeDeviceType(type: NGFDeviceType): string {
+  private describeDeviceType(type: NGFDeviceType): ResourceStr {
     switch (type) {
       case NGFDeviceType.PHONE:
-        return '手机';
+        return $r('app.string.ui_str_2395');
       case NGFDeviceType.TABLET:
-        return '平板';
+        return $r('app.string.ui_str_2396');
       case NGFDeviceType.FOLDABLE:
-        return '折叠屏';
+        return $r('app.string.ui_str_2373');
       case NGFDeviceType.TWO_IN_ONE:
-        return '2in1设备';
+        return $r('app.string.ui_str_2397');
       default:
         return String(type);
     }
   }
 
-  private describeOrientation(orientation: NGFScreenOrientation): string {
-    return orientation === NGFScreenOrientation.LANDSCAPE ? '横屏' : '竖屏';
+  private describeOrientation(orientation: NGFScreenOrientation): ResourceStr {
+    return orientation === NGFScreenOrientation.LANDSCAPE ? $r('app.string.ui_str_2375') : $r('app.string.ui_str_2398');
   }
 
-  private describeUpdateReason(reason: string): string {
+  private describeUpdateReason(reason: string): ResourceStr {
     switch (reason) {
       case 'initialize':
-        return '初始化';
+        return $r('app.string.ui_str_2399');
       case 'bind_window_stage':
       case 'bind_same_window_stage':
-        return '窗口绑定';
+        return $r('app.string.ui_str_2400');
       case 'display_change':
-        return '屏幕变化';
+        return $r('app.string.ui_str_2401');
       case 'window_size_change':
-        return '窗口尺寸变化';
+        return $r('app.string.ui_str_2402');
       case 'fold_status_change':
-        return '折叠状态变化';
+        return $r('app.string.ui_str_2403');
       case 'configuration_update':
-        return '系统配置变化';
+        return $r('app.string.ui_str_2404');
       case 'ability_foreground':
-        return '应用回到前台';
+        return $r('app.string.ui_str_2405');
       case 'device_awareness_page_appear':
-        return '页面出现';
+        return $r('app.string.ui_str_2406');
       case 'clear_window_stage':
-        return '窗口释放';
+        return $r('app.string.ui_str_2407');
       default:
         return reason;
     }
   }
 
-  private formatVp(value: number): string {
+  private formatVp(value: number): ResourceStr {
     if (value <= 0) {
-      return '未知';
+      return $r('app.string.ui_str_2387');
     }
     return `${value.toFixed(0)}vp`;
   }
 
-  private formatUpdatedAt(value: number): string {
+  private formatUpdatedAt(value: number): ResourceStr {
     if (value <= 0) {
-      return '尚未刷新';
+      return $r('app.string.ui_str_2408');
     }
     const date: Date = new Date(value);
     return `${this.pad2(date.getHours())}:${this.pad2(date.getMinutes())}:${this.pad2(date.getSeconds())}`;
@@ -482,29 +501,29 @@ export struct NGFDeviceAwarenessPage {
     return String(value);
   }
 
-  private describeFoldStatus(status: NGFFoldStatus): string {
+  private describeFoldStatus(status: NGFFoldStatus): ResourceStr {
     switch (status) {
       case NGFFoldStatus.EXPANDED:
-        return '展开';
+        return $r('app.string.ui_str_2409');
       case NGFFoldStatus.FOLDED:
-        return '折叠';
+        return $r('app.string.ui_str_2410');
       case NGFFoldStatus.HALF_FOLDED:
-        return '半折叠/悬停';
+        return $r('app.string.ui_str_2411');
       default:
-        return '未知';
+        return $r('app.string.ui_str_2387');
     }
   }
 
-  private describeMaterialLevel(level: hdsMaterial.MaterialLevel): string {
+  private describeMaterialLevel(level: hdsMaterial.MaterialLevel): ResourceStr {
     switch (level) {
       case hdsMaterial.MaterialLevel.EXQUISITE:
-        return '精美';
+        return $r('app.string.ui_str_2412');
       case hdsMaterial.MaterialLevel.GENTLE:
-        return '轻柔';
+        return $r('app.string.ui_str_2413');
       case hdsMaterial.MaterialLevel.SMOOTH:
-        return '流畅';
+        return $r('app.string.ui_str_2414');
       case hdsMaterial.MaterialLevel.ADAPTIVE:
-        return '系统自适应';
+        return $r('app.string.ui_str_2379');
       default:
         return `未知(${level})`;
     }

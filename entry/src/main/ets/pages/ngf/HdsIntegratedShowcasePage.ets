@@ -8,6 +8,7 @@ import {
 } from '@kit.ArkUI';
 import { hdsEffect, hdsMaterial, HdsNavDestination, HdsNavDestinationTitleMode, HdsTabs, HdsTabsController } from '@kit.UIDesignKit';
 import { logger } from '../../Framework/NGF/utils/Logger';
+import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
 import {
   NGFImmersiveTopChromePresetFactory,
@@ -37,17 +38,17 @@ const NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BORDER: Resource = $r('app.color.comp
 
 class NGFHdsIntegratedCapabilityCard {
   id: string;
-  title: string;
-  subtitle: string;
-  description: string;
+  title: ResourceStr;
+  subtitle: ResourceStr;
+  description: ResourceStr;
   accentStart: string;
   accentEnd: string;
 
   constructor(
     id: string,
-    title: string,
-    subtitle: string,
-    description: string,
+    title: ResourceStr,
+    subtitle: ResourceStr,
+    description: ResourceStr,
     accentStart: string,
     accentEnd: string
   ) {
@@ -62,13 +63,13 @@ class NGFHdsIntegratedCapabilityCard {
 
 class NGFHdsIntegratedComponentCard {
   id: string;
-  title: string;
-  group: string;
-  tag: string;
-  description: string;
+  title: ResourceStr;
+  group: ResourceStr;
+  tag: ResourceStr;
+  description: ResourceStr;
   accentColor: string;
 
-  constructor(id: string, title: string, group: string, tag: string, description: string, accentColor: string) {
+  constructor(id: string, title: ResourceStr, group: ResourceStr, tag: ResourceStr, description: ResourceStr, accentColor: string) {
     this.id = id;
     this.title = title;
     this.group = group;
@@ -80,12 +81,12 @@ class NGFHdsIntegratedComponentCard {
 
 class NGFHdsIntegratedLayoutCard {
   id: string;
-  title: string;
-  section: string;
-  description: string;
+  title: ResourceStr;
+  section: ResourceStr;
+  description: ResourceStr;
   accentColor: string;
 
-  constructor(id: string, title: string, section: string, description: string, accentColor: string) {
+  constructor(id: string, title: ResourceStr, section: ResourceStr, description: ResourceStr, accentColor: string) {
     this.id = id;
     this.title = title;
     this.section = section;
@@ -96,13 +97,13 @@ class NGFHdsIntegratedLayoutCard {
 
 class NGFHdsIntegratedMotionSlide {
   id: string;
-  title: string;
-  subtitle: string;
-  description: string;
+  title: ResourceStr;
+  subtitle: ResourceStr;
+  description: ResourceStr;
   colorStart: string;
   colorEnd: string;
 
-  constructor(id: string, title: string, subtitle: string, description: string, colorStart: string, colorEnd: string) {
+  constructor(id: string, title: ResourceStr, subtitle: ResourceStr, description: ResourceStr, colorStart: string, colorEnd: string) {
     this.id = id;
     this.title = title;
     this.subtitle = subtitle;
@@ -173,7 +174,7 @@ class NGFHdsIntegratedEffectFactory {
 @Component
 export struct HdsIntegratedShowcasePage {
   @State private pathStack: NavPathStack = new NavPathStack();
-  @State private lastActionText: string = '等待激活融合示例能力卡片';
+  @State private lastActionText: ResourceStr = $r('app.string.ui_str_2081');
   @State private selectedCapabilityIndexes: Array<number> = [0];
   @State private componentSearchValue: string = '';
   @State private componentGroupIndexes: Array<number> = [0];
@@ -190,151 +191,145 @@ export struct HdsIntegratedShowcasePage {
   private readonly capabilityCards: Array<NGFHdsIntegratedCapabilityCard> = [
     new NGFHdsIntegratedCapabilityCard(
       'components',
-      '组件能力区',
+      $r('app.string.ui_str_2082'),
       'Search / SegmentButton / ChipGroup',
-      '在同一页面中直接验证搜索、筛选、分段切换与信息摘要的组合效果。',
+      $r('app.string.ui_str_2083'),
       '#0B1220',
       '#183B8C'
     ),
     new NGFHdsIntegratedCapabilityCard(
       'layouts',
-      '布局能力区',
-      'Tabs / 信息分区 / 服务入口',
-      '以统一卡片风格呈现内容布局、导航布局和服务入口骨架，不再拆成独立页面。',
+      $r('app.string.ui_str_2084'),
+      $r('app.string.ui_str_2085'),
+      $r('app.string.ui_str_2086'),
       '#17132F',
       '#5B21B6'
     ),
     new NGFHdsIntegratedCapabilityCard(
       'motion',
-      '动效能力区',
-      'Swiper / 焦点过渡 / 播放控制',
-      '保留轮播、焦点切换和动效模式调节能力，并与同页内容连续显示。',
+      $r('app.string.ui_str_2087'),
+      $r('app.string.ui_str_2088'),
+      $r('app.string.ui_str_2089'),
       '#072723',
       '#0F5C56'
     )
   ];
   @State private componentGroupOptions: SegmentButtonOptions = SegmentButtonOptions.tab({
     buttons: [
-      { text: '全部' },
-      { text: '组件' },
-      { text: '导航' },
-      { text: '反馈' }
+      { text: $r('app.string.ui_str_2090') },
+      { text: $r('app.string.ui_str_2091') },
+      { text: $r('app.string.ui_str_2092') },
+      { text: $r('app.string.ui_str_2093') }
     ]
   });
-  private readonly componentTagItems: Array<ChipGroupItemOptions> = [
-    { label: { text: '全部' } },
-    { label: { text: '表单' } },
-    { label: { text: '筛选' } },
-    { label: { text: '状态' } },
-    { label: { text: '组织' } }
-  ];
+  private componentTagItems: Array<ChipGroupItemOptions> = [];
   private readonly componentCards: Array<NGFHdsIntegratedComponentCard> = [
     new NGFHdsIntegratedComponentCard(
       'search',
-      'Search 搜索入口',
-      '组件',
-      '筛选',
-      '结合关键词过滤与结果统计，适合作为资源检索、命令筛选和列表定位入口。',
+      $r('app.string.ui_str_2098'),
+      $r('app.string.ui_str_2091'),
+      $r('app.string.ui_str_2095'),
+      $r('app.string.ui_str_2099'),
       '#2563EB'
     ),
     new NGFHdsIntegratedComponentCard(
       'segment',
-      'SegmentButton 分段切换',
-      '导航',
-      '组织',
-      '为多区块内容提供快速切换入口，保持页面上下文不被打断。',
+      $r('app.string.ui_str_2100'),
+      $r('app.string.ui_str_2092'),
+      $r('app.string.ui_str_2097'),
+      $r('app.string.ui_str_2101'),
       '#7C3AED'
     ),
     new NGFHdsIntegratedComponentCard(
       'chip',
-      'ChipGroup 轻量筛选',
-      '组件',
-      '表单',
-      '适合搭配搜索和分段控件进行快速筛选，强调状态可见与切换效率。',
+      $r('app.string.ui_str_2102'),
+      $r('app.string.ui_str_2091'),
+      $r('app.string.ui_str_2094'),
+      $r('app.string.ui_str_2103'),
       '#0EA5E9'
     ),
     new NGFHdsIntegratedComponentCard(
       'status',
-      '状态摘要卡',
-      '反馈',
-      '状态',
-      '将当前筛选、焦点区块和验证状态整合为即时反馈，提升框架验证可读性。',
+      $r('app.string.ui_str_2104'),
+      $r('app.string.ui_str_2093'),
+      $r('app.string.ui_str_2096'),
+      $r('app.string.ui_str_2105'),
       '#0F766E'
     )
   ];
   private readonly layoutCards: Array<NGFHdsIntegratedLayoutCard> = [
     new NGFHdsIntegratedLayoutCard(
       'content_grid',
-      '内容布局卡片区',
-      '内容布局',
-      '适合聚合推荐、组件示例和分区摘要，强调分层信息与滚动阅读体验。',
+      $r('app.string.ui_str_2106'),
+      $r('app.string.ui_str_2107'),
+      $r('app.string.ui_str_2108'),
       '#2563EB'
     ),
     new NGFHdsIntegratedLayoutCard(
       'content_panel',
-      '信息说明面板',
-      '内容布局',
-      '用于承载说明文本、状态提示和结果汇总，让验证信息集中呈现。',
+      $r('app.string.ui_str_2109'),
+      $r('app.string.ui_str_2107'),
+      $r('app.string.ui_str_2110'),
       '#0EA5E9'
     ),
     new NGFHdsIntegratedLayoutCard(
       'nav_tabs',
-      'Tabs 顶层切换',
-      '导航布局',
-      '保留单页内的导航切换语义，适合在同页整合多个能力区块。',
+      $r('app.string.ui_str_2111'),
+      $r('app.string.ui_str_2112'),
+      $r('app.string.ui_str_2113'),
       '#7C3AED'
     ),
     new NGFHdsIntegratedLayoutCard(
       'nav_focus',
-      '焦点入口卡片',
-      '导航布局',
-      '使用统一卡片样式替代旧独立页面跳转，使导航意图与视觉重点一致。',
+      $r('app.string.ui_str_2114'),
+      $r('app.string.ui_str_2112'),
+      $r('app.string.ui_str_2115'),
       '#8B5CF6'
     ),
     new NGFHdsIntegratedLayoutCard(
       'service_tools',
-      '服务工具入口',
-      '服务入口',
-      '把组件、布局和动效验证工具统一收束到同一页面，减少页面切换成本。',
+      $r('app.string.ui_str_2116'),
+      $r('app.string.ui_str_2117'),
+      $r('app.string.ui_str_2118'),
       '#0F766E'
     ),
     new NGFHdsIntegratedLayoutCard(
       'service_verify',
-      '验证链路摘要',
-      '服务入口',
-      '以框架视角汇总当前页面已接入的 SDK 能力、导航方式和窗口策略。',
+      $r('app.string.ui_str_2119'),
+      $r('app.string.ui_str_2117'),
+      $r('app.string.ui_str_2120'),
       '#14B8A6'
     )
   ];
   @State private motionModeOptions: SegmentButtonOptions = SegmentButtonOptions.tab({
     buttons: [
-      { text: '柔和' },
-      { text: '标准' },
-      { text: '强调' }
+      { text: $r('app.string.ui_str_2121') },
+      { text: $r('app.string.ui_str_2122') },
+      { text: $r('app.string.ui_str_2123') }
     ]
   });
   private readonly motionSlides: Array<NGFHdsIntegratedMotionSlide> = [
     new NGFHdsIntegratedMotionSlide(
       'banner',
-      'Banner 焦点位',
-      '标准缩放',
-      '适合首页头图和重点推荐位展示，在单页融合模式下仍保留明显的视觉重心。',
+      $r('app.string.ui_str_2124'),
+      $r('app.string.ui_str_2125'),
+      $r('app.string.ui_str_2126'),
       '#0F172A',
       '#2563EB'
     ),
     new NGFHdsIntegratedMotionSlide(
       'hero',
-      'Hero 说明卡',
-      '层次透明度',
-      '通过透明度与阴影变化强化内容主次，让融合页面中的重点能力更易识别。',
+      $r('app.string.ui_str_2127'),
+      $r('app.string.ui_str_2128'),
+      $r('app.string.ui_str_2129'),
       '#4C1D95',
       '#A855F7'
     ),
     new NGFHdsIntegratedMotionSlide(
       'gallery',
-      'Gallery 轮播区',
-      '平滑切页',
-      '结合指示器与按钮控制，验证轮播在 HDS 页面壳层中的连续过渡表现。',
+      $r('app.string.ui_str_2130'),
+      $r('app.string.ui_str_2131'),
+      $r('app.string.ui_str_2132'),
       '#134E4A',
       '#14B8A6'
     )
@@ -343,6 +338,13 @@ export struct HdsIntegratedShowcasePage {
   aboutToAppear(): void {
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_SHOWCASE);
     logger.lifecycle(TAG, '即将显示');
+    this.componentTagItems = [
+      { label: { text: resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2090')) } },
+      { label: { text: resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2094')) } },
+      { label: { text: resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2095')) } },
+      { label: { text: resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2096')) } },
+      { label: { text: resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2097')) } }
+    ];
   }
 
   aboutToDisappear(): void {
@@ -364,7 +366,7 @@ export struct HdsIntegratedShowcasePage {
 
   private updateFocusedCapability(index: number): void {
     this.selectedCapabilityIndexes = [index];
-    this.lastActionText = `当前聚焦：${this.capabilityCards[index].title}`;
+    this.lastActionText = $r('app.string.ui_str_2133', this.capabilityCards[index].title);
     logger.info(TAG, `聚焦能力卡片: index=${index}`);
   }
 
@@ -383,7 +385,7 @@ export struct HdsIntegratedShowcasePage {
     this.componentSearchValue = '';
     this.componentGroupIndexes = [0];
     this.componentTagIndexes = [0];
-    this.lastActionText = '已重置组件区筛选条件';
+    this.lastActionText = $r('app.string.ui_str_2134');
     logger.info(TAG, '重置组件筛选条件');
   }
 
@@ -413,10 +415,10 @@ export struct HdsIntegratedShowcasePage {
     if (searchText.length <= 0) {
       return true;
     }
-    const title = card.title.toLowerCase();
-    const description = card.description.toLowerCase();
-    const group = card.group.toLowerCase();
-    const tag = card.tag.toLowerCase();
+    const title = (typeof card.title === "string" ? card.title : '').toLowerCase();
+    const description = (typeof card.description === "string" ? card.description : '').toLowerCase();
+    const group = (typeof card.group === "string" ? card.group : '').toLowerCase();
+    const tag = (typeof card.tag === "string" ? card.tag : '').toLowerCase();
     return title.indexOf(searchText) >= 0 ||
       description.indexOf(searchText) >= 0 ||
       group.indexOf(searchText) >= 0 ||
@@ -428,12 +430,12 @@ export struct HdsIntegratedShowcasePage {
       return true;
     }
     if (groupIndex === 1) {
-      return card.group === '组件';
+      return card.group === $r('app.string.ui_str_2091');
     }
     if (groupIndex === 2) {
-      return card.group === '导航';
+      return card.group === $r('app.string.ui_str_2092');
     }
-    return card.group === '反馈';
+    return card.group === $r('app.string.ui_str_2093');
   }
 
   private matchesComponentTag(card: NGFHdsIntegratedComponentCard, tagIndex: number): boolean {
@@ -441,49 +443,49 @@ export struct HdsIntegratedShowcasePage {
       return true;
     }
     if (tagIndex === 1) {
-      return card.tag === '表单';
+      return card.tag === $r('app.string.ui_str_2094');
     }
     if (tagIndex === 2) {
-      return card.tag === '筛选';
+      return card.tag === $r('app.string.ui_str_2095');
     }
     if (tagIndex === 3) {
-      return card.tag === '状态';
+      return card.tag === $r('app.string.ui_str_2096');
     }
-    return card.tag === '组织';
+    return card.tag === $r('app.string.ui_str_2097');
   }
 
-  private resolveComponentGroupLabel(): string {
+  private resolveComponentGroupLabel(): ResourceStr {
     const groupIndex = this.componentGroupIndexes.length > 0 ? this.componentGroupIndexes[0] : 0;
     if (groupIndex === 1) {
-      return '组件';
+      return $r('app.string.ui_str_2091');
     }
     if (groupIndex === 2) {
-      return '导航';
+      return $r('app.string.ui_str_2092');
     }
     if (groupIndex === 3) {
-      return '反馈';
+      return $r('app.string.ui_str_2093');
     }
-    return '全部';
+    return $r('app.string.ui_str_2090');
   }
 
-  private resolveComponentTagLabel(): string {
+  private resolveComponentTagLabel(): ResourceStr {
     const tagIndex = this.componentTagIndexes.length > 0 ? this.componentTagIndexes[0] : 0;
     if (tagIndex === 1) {
-      return '表单';
+      return $r('app.string.ui_str_2094');
     }
     if (tagIndex === 2) {
-      return '筛选';
+      return $r('app.string.ui_str_2095');
     }
     if (tagIndex === 3) {
-      return '状态';
+      return $r('app.string.ui_str_2096');
     }
     if (tagIndex === 4) {
-      return '组织';
+      return $r('app.string.ui_str_2097');
     }
-    return '全部';
+    return $r('app.string.ui_str_2090');
   }
 
-  private buildLayoutCardsBySection(section: string): Array<NGFHdsIntegratedLayoutCard> {
+  private buildLayoutCardsBySection(section: ResourceStr): Array<NGFHdsIntegratedLayoutCard> {
     const visibleCards: Array<NGFHdsIntegratedLayoutCard> = [];
     for (let index = 0; index < this.layoutCards.length; index++) {
       const card = this.layoutCards[index];
@@ -500,19 +502,19 @@ export struct HdsIntegratedShowcasePage {
     this.motionAutoPlayEnabled = true;
     this.motionIntervalValue = 3200;
     this.swiperController.changeIndex(0, true);
-    this.lastActionText = '已重置动效区演示状态';
+    this.lastActionText = $r('app.string.ui_str_2135');
     logger.info(TAG, '重置动效区');
   }
 
-  private resolveMotionModeLabel(): string {
+  private resolveMotionModeLabel(): ResourceStr {
     const modeIndex = this.motionModeIndexes.length > 0 ? this.motionModeIndexes[0] : 1;
     if (modeIndex === 0) {
-      return '柔和';
+      return $r('app.string.ui_str_2121');
     }
     if (modeIndex === 2) {
-      return '强调';
+      return $r('app.string.ui_str_2123');
     }
-    return '标准';
+    return $r('app.string.ui_str_2122');
   }
 
   private resolveMotionScale(index: number): number {
@@ -546,7 +548,7 @@ export struct HdsIntegratedShowcasePage {
   private selectMotionSlide(index: number): void {
     this.motionCurrentIndex = index;
     this.swiperController.changeIndex(index, true);
-    this.lastActionText = `当前动效焦点：${this.motionSlides[index].title}`;
+    this.lastActionText = $r('app.string.ui_str_2136', this.motionSlides[index].title);
     logger.info(TAG, `选中动效幻灯片: index=${index}`);
   }
 
@@ -595,8 +597,8 @@ export struct HdsIntegratedShowcasePage {
       .backgroundColor($r('app.color.background_primary'))
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      'HDS 综合示例',
-      '以 HdsNavigation 风格统一展示组件 / 布局 / 动效',
+      $r('app.string.ui_str_2137'),
+      $r('app.string.ui_str_2138'),
       '#111827',
       hdsMaterial.MaterialLevel.GENTLE,
       true,
@@ -618,12 +620,12 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildHeroCard(): void {
     Column({ space: 12 }) {
-      Text('MainMenuPage → HDS 综合示例')
+      Text($r('app.string.ui_str_2139'))
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
         .fontColor('#FFFFFF')
 
-      Text('本页面将各类组件、布局和动效示例整合在一起，无需切换页面，上下滚动即可浏览。适合入门开发者一站式学习 HDS 框架用法。')
+      Text($r('app.string.ui_str_2140'))
         .fontSize(14)
         .lineHeight(22)
         .fontColor('#E6FFFFFF')
@@ -632,7 +634,7 @@ export struct HdsIntegratedShowcasePage {
         .fontSize(13)
         .fontColor('#CCFFFFFF')
 
-      Text(`当前聚焦区块：${this.capabilityCards[this.selectedCapabilityIndexes[0]].title}`)
+      Text($r('app.string.ui_str_2141', this.capabilityCards[this.selectedCapabilityIndexes[0]].title))
         .fontSize(13)
         .fontColor('#CCFFFFFF')
     }
@@ -652,7 +654,7 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildCapabilityEntryList(): void {
     Column({ space: 12 }) {
-      Text('融合能力入口')
+      Text($r('app.string.ui_str_2142'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
@@ -721,22 +723,22 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildFactCard(): void {
     Column({ space: 10 }) {
-      Text('页面结构说明')
+      Text($r('app.string.ui_str_2143'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
         .fontColor('#FFFFFF')
 
-      Text('1. 所有组件、布局和动效演示都整合在同一个页面中，无需跳转即可浏览全部内容。')
+      Text($r('app.string.ui_str_2144'))
         .width('100%')
         .fontSize(13)
         .fontColor('#E6FFFFFF')
 
-      Text('2. 使用 MainMenuPage 作为统一的导航根容器，管理所有页面的进入和返回。')
+      Text($r('app.string.ui_str_2145'))
         .width('100%')
         .fontSize(13)
         .fontColor('#E6FFFFFF')
 
-      Text('3. 三种能力演示区（组件/布局/动效）连续排列，上下滑动即可查看全部内容。')
+      Text($r('app.string.ui_str_2146'))
         .width('100%')
         .fontSize(13)
         .fontColor('#E6FFFFFF')
@@ -753,12 +755,12 @@ export struct HdsIntegratedShowcasePage {
   private buildComponentSection(): void {
     Column({ space: 14 }) {
       SubHeader({
-        primaryTitle: '组件能力区',
-        secondaryTitle: '在页面中体验搜索、分段切换和标签筛选等常见交互',
+        primaryTitle: $r('app.string.ui_str_2082'),
+        secondaryTitle: $r('app.string.ui_str_2147'),
         operationType: OperationType.BUTTON,
         operationItem: [
           {
-            value: '重置筛选',
+            value: $r('app.string.ui_str_2148'),
             action: (): void => {
               this.resetComponentFilters();
             }
@@ -766,8 +768,8 @@ export struct HdsIntegratedShowcasePage {
         ]
       })
 
-      Search({ value: this.componentSearchValue, placeholder: '快速查找组件示例（名称/分组/标签）' })
-        .searchButton('搜索')
+      Search({ value: this.componentSearchValue, placeholder: $r('app.string.ui_str_2149') })
+        .searchButton($r('app.string.ui_str_2150'))
         .width('100%')
         .backgroundColor(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND)
         .borderRadius(18)
@@ -781,7 +783,7 @@ export struct HdsIntegratedShowcasePage {
         selectedIndexes: this.componentGroupIndexes,
         onItemClicked: (index: number): void => {
           this.componentGroupIndexes = [index];
-          this.lastActionText = `组件区分组切换为：${this.resolveComponentGroupLabel()}`;
+          this.lastActionText = $r('app.string.ui_str_2151', this.resolveComponentGroupLabel());
           logger.info(TAG, `组件分组切换: index=${index}`);
         }
       })
@@ -795,7 +797,7 @@ export struct HdsIntegratedShowcasePage {
         multiple: false,
         onChange: (indexes: Array<number>): void => {
           this.componentTagIndexes = indexes.length > 0 ? indexes : [0];
-          this.lastActionText = `组件区标签切换为：${this.resolveComponentTagLabel()}`;
+          this.lastActionText = $r('app.string.ui_str_2152', this.resolveComponentTagLabel());
           logger.info(TAG, `组件标签切换: indexes=${JSON.stringify(this.componentTagIndexes)}`);
         }
       })
@@ -803,7 +805,7 @@ export struct HdsIntegratedShowcasePage {
       .borderRadius(18)
       .border({ width: 1, color: NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BORDER })
 
-      Text(`当前分组：${this.resolveComponentGroupLabel()} · 当前标签：${this.resolveComponentTagLabel()} · 可见组件：${this.buildVisibleComponentCards().length}`)
+      Text($r('app.string.ui_str_2153', this.resolveComponentGroupLabel(), this.resolveComponentTagLabel(), this.buildVisibleComponentCards().length))
         .width('100%')
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
@@ -856,25 +858,25 @@ export struct HdsIntegratedShowcasePage {
   private buildLayoutSection(): void {
     Column({ space: 14 }) {
       SubHeader({
-        primaryTitle: '布局能力区',
-        secondaryTitle: '内容布局、导航布局和服务入口的整合展示'
+        primaryTitle: $r('app.string.ui_str_2084'),
+        secondaryTitle: $r('app.string.ui_str_2154')
       })
 
       HdsTabs({ controller: this.layoutTabsController }) {
         TabContent() {
-          this.buildLayoutTabPanel('内容布局')
+          this.buildLayoutTabPanel($r('app.string.ui_str_2107'))
         }
-        .tabBar('内容布局')
+        .tabBar($r('app.string.ui_str_2107'))
 
         TabContent() {
-          this.buildLayoutTabPanel('导航布局')
+          this.buildLayoutTabPanel($r('app.string.ui_str_2112'))
         }
-        .tabBar('导航布局')
+        .tabBar($r('app.string.ui_str_2112'))
 
         TabContent() {
-          this.buildLayoutTabPanel('服务入口')
+          this.buildLayoutTabPanel($r('app.string.ui_str_2117'))
         }
-        .tabBar('服务入口')
+        .tabBar($r('app.string.ui_str_2117'))
       }
       .barPosition(BarPosition.Start)
       .barMode(BarMode.Fixed)
@@ -890,7 +892,7 @@ export struct HdsIntegratedShowcasePage {
       })
       .onChange((index: number): void => {
         this.layoutTabIndex = index;
-        this.lastActionText = `布局区切换为：${index === 0 ? '内容布局' : index === 1 ? '导航布局' : '服务入口'}`;
+        this.lastActionText = $r('app.string.ui_str_2155', index === 0 ? $r('app.string.ui_str_2107') : index === 1 ? $r('app.string.ui_str_2112') : $r('app.string.ui_str_2117'));
         logger.info(TAG, `布局标签切换: index=${index}`);
       })
     }
@@ -906,7 +908,7 @@ export struct HdsIntegratedShowcasePage {
   }
 
   @Builder
-  private buildLayoutTabPanel(section: string): void {
+  private buildLayoutTabPanel(section: ResourceStr): void {
     Column({ space: 12 }) {
       ForEach(this.buildLayoutCardsBySection(section), (card: NGFHdsIntegratedLayoutCard): void => {
         this.buildLayoutCard(card)
@@ -954,12 +956,12 @@ export struct HdsIntegratedShowcasePage {
   private buildMotionSection(): void {
     Column({ space: 14 }) {
       SubHeader({
-        primaryTitle: '动效能力区',
-        secondaryTitle: '轮播图、动效模式切换与播放控制演示',
+        primaryTitle: $r('app.string.ui_str_2087'),
+        secondaryTitle: $r('app.string.ui_str_2156'),
         operationType: OperationType.BUTTON,
         operationItem: [
           {
-            value: '重置动效',
+            value: $r('app.string.ui_str_2157'),
             action: (): void => {
               this.resetMotionSection();
             }
@@ -972,12 +974,12 @@ export struct HdsIntegratedShowcasePage {
         selectedIndexes: this.motionModeIndexes,
         onItemClicked: (index: number): void => {
           this.motionModeIndexes = [index];
-          this.lastActionText = `动效模式切换为：${this.resolveMotionModeLabel()}`;
+          this.lastActionText = $r('app.string.ui_str_2158', this.resolveMotionModeLabel());
           logger.info(TAG, `动效模式切换: index=${index}`);
         }
       })
 
-      Text(`当前动效模式：${this.resolveMotionModeLabel()} · 自动播放：${this.motionAutoPlayEnabled ? '开启' : '关闭'} · 轮播间隔：${this.motionIntervalValue}ms`)
+      Text($r('app.string.ui_str_2161', this.resolveMotionModeLabel(), this.motionAutoPlayEnabled ? $r('app.string.ui_str_2159') : $r('app.string.ui_str_2160'), this.motionIntervalValue))
         .width('100%')
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
@@ -1088,7 +1090,7 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildMotionActionRow(): void {
     Row({ space: 10 }) {
-      Button('上一张')
+      Button($r('app.string.ui_str_2162'))
         .layoutWeight(1)
         .height(42)
         .buttonStyle(ButtonStyleMode.NORMAL)
@@ -1098,7 +1100,7 @@ export struct HdsIntegratedShowcasePage {
           this.shiftMotionSlide(-1);
         })
 
-      Button(this.motionAutoPlayEnabled ? '关闭自动播放' : '开启自动播放')
+      Button(this.motionAutoPlayEnabled ? $r('app.string.ui_str_2163') : $r('app.string.ui_str_2164'))
         .layoutWeight(1)
         .height(42)
         .buttonStyle(ButtonStyleMode.NORMAL)
@@ -1106,11 +1108,11 @@ export struct HdsIntegratedShowcasePage {
         .fontColor($r('app.color.panel_background'))
         .onClick((): void => {
           this.motionAutoPlayEnabled = !this.motionAutoPlayEnabled;
-          this.lastActionText = this.motionAutoPlayEnabled ? '已开启自动播放' : '已关闭自动播放';
+          this.lastActionText = this.motionAutoPlayEnabled ? $r('app.string.ui_str_2165') : $r('app.string.ui_str_2166');
           logger.info(TAG, `切换动效自动播放: enabled=${this.motionAutoPlayEnabled}`);
         })
 
-      Button('下一张')
+      Button($r('app.string.ui_str_2167'))
         .layoutWeight(1)
         .height(42)
         .buttonStyle(ButtonStyleMode.NORMAL)
@@ -1126,12 +1128,12 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildVerificationCard(): void {
     Column({ space: 10 }) {
-      Text('验证目标')
+      Text($r('app.string.ui_str_2168'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
         .fontColor('#FFFFFF')
 
-      Text('本页面展示了 HDS 导航的完整实践：统一的顶部导航栏、沉浸式背景层、官方组件集成、标题栏滚动联动与窗口策略。适合入门开发者快速理解框架的核心用法。')
+      Text($r('app.string.ui_str_2169'))
         .width('100%')
         .fontSize(13)
         .lineHeight(20)

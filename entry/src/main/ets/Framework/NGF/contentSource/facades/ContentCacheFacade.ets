@@ -1,6 +1,7 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { util } from '@kit.ArkTS';
 import { logger } from '../../utils/Logger';
+import { uiContextManager } from '../../platformOhos/UIContextManager';
 import { IContentCache } from '../contracts/IContentCache';
 
 const TAG: string = 'NGFContentCacheFacade';
@@ -128,17 +129,24 @@ export class ContentCacheFacade implements IContentCache {
   }
 
   private putDisk(key: string, value: string, expiresAt: number): void {
+    this.ensureDir(this.getCacheDir());
     const filePath = this.buildDiskPath(key);
+    let file: fs.File | null = null;
     try {
       const content = `${expiresAt}\n${value}`;
-      const encoder = new util.TextEncoder();
-      const buffer = encoder.encodeInto(content);
-      const file = fs.openSync(filePath, fs.OpenMode.CREATE | fs.OpenMode.WRITE_ONLY);
-      fs.writeSync(file.fd, buffer);
-      fs.closeSync(file);
+      file = fs.openSync(filePath, fs.OpenMode.CREATE | fs.OpenMode.WRITE_ONLY | fs.OpenMode.TRUNC);
+      fs.writeSync(file.fd, content);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(TAG, `磁盘写入失败: key=${key}, error=${message}`);
+    } finally {
+      if (file !== null) {
+        try {
+          fs.closeSync(file);
+        } catch {
+          // ignore
+        }
+      }
     }
   }
 
@@ -225,6 +233,9 @@ export class ContentCacheFacade implements IContentCache {
       fs.readSync(file.fd, buffer);
       const decoder = new util.TextDecoder('utf-8');
       return decoder.decodeToString(new Uint8Array(buffer));
+    } catch (e) {
+      logger.error(TAG, `Read text sync failed: ${e}`);
+      return "";
     } finally {
       if (file !== null) {
         try {
@@ -243,7 +254,12 @@ export class ContentCacheFacade implements IContentCache {
 
   private getCacheDir(): string {
     if (this.filesDir.length <= 0) {
-      return '';
+      const ctx = uiContextManager.getAbilityContext();
+      if (ctx !== null && ctx.filesDir.length > 0) {
+        this.filesDir = ctx.filesDir;
+      } else {
+        return '';
+      }
     }
     return `${this.filesDir}/${ContentCacheFacade.CACHE_DIR_NAME}`;
   }
@@ -252,10 +268,13 @@ export class ContentCacheFacade implements IContentCache {
     if (path.length <= 0) {
       return;
     }
+    if (this.existsPath(path)) {
+      return;
+    }
     try {
       fs.mkdirSync(path, true);
     } catch {
-      // directory may already exist
+      // directory may already exist or filesDir not ready
     }
   }
 

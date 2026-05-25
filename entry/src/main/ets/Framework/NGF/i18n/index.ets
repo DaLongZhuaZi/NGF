@@ -13,3 +13,4 @@ export { ngfI18nManagerFacade } from './facades/I18nManagerFacade';
 export { ngfTranslationResourceFacade } from './facades/TranslationResourceFacade';
 export { RelativeTimeFormatterFacade, ngfRelativeTimeFormatterFacade } from './facades/RelativeTimeFormatterFacade';
 export { NGFI18nIntegrationFacade, ngfI18nIntegrationFacade } from './facades/NGFI18nIntegrationFacade';
+export { resolveResourceString } from './utils/ResourceStringResolver';
