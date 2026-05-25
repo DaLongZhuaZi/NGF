@@ -1,4 +1,4 @@
-﻿# AGENTS
+# AGENTS
 
 本文件是本仓库统一的代理工作规范，已整合以下规则来源：
 
@@ -34,6 +34,7 @@
 |---------|-------------------------------|
 | [`.rules/skill-hds-page-design.md`](.rules/skill-hds-page-design.md) | 新建页面到 `pages/ngf/`；涉及 `HdsNavDestination`/`HdsNavigation` 布局；涉及顶栏配置、沉浸式底板、安全区；涉及 `NGFHdsTitleBarOptionsFactory`、`NGFImmersiveTopChromeUnderlay`；涉及路由常量注册或 `buildNavDestination` 分发 |
 | [`.rules/skill-manager-apis.md`](.rules/skill-manager-apis.md) | 涉及主题切换/深色模式/`ngf_is_dark_mode`；涉及语言切换/`ngfI18nManagerFacade`；涉及视效档位/`ngfVisualEffectsFacade`/`hdsMaterial.MaterialLevel`；涉及握持感知/`ngfHoldingAwarenessFacade`；需要在 `aboutToAppear`/`aboutToDisappear` 中订阅或取消管理器回调 |
+| [`.rules/skill-system-tasks.md`](.rules/skill-system-tasks.md) | 涉及后台下载、文件上传、数据同步、常驻通知、进度条通知、任务派发或系统事件订阅监听时 |
 | [`.rules/skill-rules-update.md`](.rules/skill-rules-update.md) | 开发者明确要求将本次经验沉淀到规则库时（仅由开发者手动提起，不自动触发） |
 
 > **规则库使用原则**：规则文件各自在开头明确列出了触发条件，LLM 每次分析任务时应主动对照检查，无需等开发者提示。规则库内容以 `.rules/README.md` 为索引入口。
@@ -101,6 +102,19 @@
 - 当前机器已确认存在的 DevEco Studio 默认 HMS SDK 目录为 `F:\DevEco Studio\sdk\default\hms`。
 - 涉及 SDK 路径、toolchains、previewer、hvigor、构建环境或 IDE 绑定目录排查时，优先先核对以上路径，不要凭空假设其他安装位置。
 - 如果任务涉及“为什么能编译 / 为什么不能编译 / SDK 是否匹配”等问题，必须同时对照 `build-profile.json5`、本机路径、DevEco Studio 默认 SDK 目录以及用户实际报错，不能只看单一文件下结论。
+
+### 3.2 本机已验证的常用构建命令
+
+- 本机命令行可用的 Hvigor 入口已实测确认为：`F:\DevEco Studio\tools\hvigor\bin\hvigorw.bat`。
+- 在 PowerShell 中执行 HarmonyOS 构建命令前，优先先显式设置：
+  - `$env:DEVECO_SDK_HOME='F:\DevEco Studio\sdk'`
+- 执行任何 `hvigorw.bat` 命令前，必须先确认当前工作目录就是仓库根目录 `F:\DevEcoStudioProject\NGF`；不要在无关目录直接执行，否则 Hvigor 会解析异常。
+- 不要先后反复尝试 `hvigor`、`hvigorw`、`ohpm`、猜测 SDK 路径等无根据写法；除非上述已验证入口失效，否则默认直接使用该入口和该环境变量。
+- 已在本仓库根目录实测通过的常用命令包括：
+  - `& 'F:\DevEco Studio\tools\hvigor\bin\hvigorw.bat' -v`
+  - `& 'F:\DevEco Studio\tools\hvigor\bin\hvigorw.bat' clean --no-daemon`
+  - `& 'F:\DevEco Studio\tools\hvigor\bin\hvigorw.bat' assembleHap --no-daemon --stacktrace`
+- 遇到 `generator : Ninja does not match the generator used previously: Visual Studio 17 2022` 缓存冲突时，应优先判断为本地 `.cxx` / `CMakeCache.txt` 缓存冲突，只有在任务本身就是构建排障且允许处理缓存时，才清理报错指向的二进制目录（如 `entry\.cxx\default\default\debug\arm64-v8a`），禁止无差别清空整个 `entry`。
 
 ## 4. 框架目录与修改原则
 

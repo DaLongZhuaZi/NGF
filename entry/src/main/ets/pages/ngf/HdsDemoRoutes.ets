@@ -9,6 +9,7 @@ export class NGFHdsDemoRouteName {
   static readonly DEMO_WORKFLOW: string = 'ngf.demo.workflow';
   static readonly DEMO_DEVICE_DISPLAY: string = 'ngf.demo.device.display';
   static readonly SYSTEM_RESOURCE_PREVIEW: string = 'ngf.system.resource.preview';
+  static readonly TASK_MANAGER: string = 'ngf.task.manager';
 }
 
 

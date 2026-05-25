@@ -28,6 +28,7 @@ import { NGFDemoDataStoragePage } from './NGFDemoDataStoragePage';
 import { NGFDemoWorkflowPage } from './NGFDemoWorkflowPage';
 import { NGFDemoDeviceDisplayPage } from './NGFDemoDeviceDisplayPage';
 import { NGFSystemResourcePreviewPage } from './SystemResourcePreviewPage';
+import { NGFTaskManagerPage } from './NGFTaskManagerPage';
 
 const TAG: string = 'NGFStarterMainMenuPage';
 const NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT: number = 188;
@@ -47,6 +48,7 @@ class NGFMainMenuActionKey {
   static readonly DEMO_WORKFLOW: string = NGFHdsDemoRouteName.DEMO_WORKFLOW;
   static readonly DEMO_DEVICE_DISPLAY: string = NGFHdsDemoRouteName.DEMO_DEVICE_DISPLAY;
   static readonly SYSTEM_RESOURCE_PREVIEW: string = NGFHdsDemoRouteName.SYSTEM_RESOURCE_PREVIEW;
+  static readonly DEMO_TASK_MANAGER: string = NGFHdsDemoRouteName.TASK_MANAGER;
 }
 
 class NGFStarterLogEntry {
@@ -470,7 +472,8 @@ struct NGFStarterMainMenuPage {
       actionKey === NGFMainMenuActionKey.DEMO_DATA_STORAGE ||
       actionKey === NGFMainMenuActionKey.DEMO_WORKFLOW ||
       actionKey === NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY ||
-      actionKey === NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW) {
+      actionKey === NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW ||
+      actionKey === NGFMainMenuActionKey.DEMO_TASK_MANAGER) {
       this.handleOpenHdsDemoTap(actionKey, labelStr);
       return;
     }
@@ -689,6 +692,7 @@ struct NGFStarterMainMenuPage {
           TabContent() {
             Scroll() {
               Column({ space: 12 }) {
+                this.buildDemoTaskManagerCard()
                 this.buildDemoSecurityPerfCard()
                 this.buildDemoDataStorageCard()
                 this.buildDemoWorkflowCard()
@@ -954,6 +958,8 @@ struct NGFStarterMainMenuPage {
       NGFDemoDeviceDisplayPage()
     } else if (name === NGFHdsDemoRouteName.SYSTEM_RESOURCE_PREVIEW) {
       NGFSystemResourcePreviewPage()
+    } else if (name === NGFHdsDemoRouteName.TASK_MANAGER) {
+      NGFTaskManagerPage()
     }
   }
 
@@ -1531,5 +1537,34 @@ struct NGFStarterMainMenuPage {
     .backgroundColor($r('app.color.panel_background'))
     .borderRadius(14)
     .border({ width: 1, color: $r('app.color.panel_border') })
+  }
+
+  @Builder
+  private buildDemoTaskManagerCard(): void {
+    Row() {
+      Column({ space: 6 }) {
+        Text('后台任务与系统通知')
+          .fontSize(16)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_primary'))
+        Text('验证任务核心、EventBus同步、后台常驻及系统通知联动')
+          .fontSize(13)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .layoutWeight(1)
+      .alignItems(HorizontalAlign.Start)
+
+      SymbolGlyph($r('sys.symbol.arrow_right'))
+        .fontSize(20)
+        .fontColor([$r('app.color.text_secondary')])
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.panel_background'))
+    .borderRadius(14)
+    .border({ width: 1, color: $r('app.color.panel_border') })
+    .onClick(() => {
+      this.handleFeatureActionTap(NGFMainMenuActionKey.DEMO_TASK_MANAGER, '后台任务与通知');
+    })
   }
 }

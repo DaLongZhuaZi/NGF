@@ -21,6 +21,10 @@
       "value": "框架需要感知用户活动状态和操作手信息，用于实现握持侧识别和交互优化。"
     },
     {
+      "name": "background_task_reason",
+      "value": "框架需要后台运行权限以保证长时任务在后台时不会被中断。"
+    },
+    {
       "name": "main_menu_title",
       "value": "NGF MainMenuPage"
     },
