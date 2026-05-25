@@ -1,10 +1,38 @@
 # NGF (Neon Genesis Framework)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![HarmonyOS SDK](https://img.shields.io/badge/HarmonyOS_SDK-6.1.0_(API_23)-blue.svg)](https://developer.harmonyos.com/)
+[![Language](https://img.shields.io/badge/Language-ArkTS-orange.svg)]()
+
+**🌐 Language / 语言:** English | [中文](README.md)
+
 A reusable software development framework for HarmonyOS Next, featuring a 10-layer architecture that provides complete infrastructure from core bootstrapping and data management to internationalization and UI shell.
 
 ## Project Orientation
 
 NGF is a **framework project**, not a single business app. All capabilities are designed with reusability, low coupling, and extensibility in mind, following a unified `contracts/` + `facades/` + `index.ets` pattern where each layer achieves loose coupling through a DI container and service registration.
+
+---
+
+## 🤖 Vibe Coding Friendly
+
+This project is purpose-built for AI-assisted development workflows — Cursor, GitHub Copilot, Windsurf, Claude Code, and similar tools. Every pattern, contract, and facade is clearly documented and annotated so that LLMs can accurately understand and generate code that conforms to the framework conventions.
+
+**🚀 Quick Start for AI Developers / LLMs**
+
+Before starting any development task, read in this order:
+
+| Step | File | Why It Matters |
+|------|------|----------------|
+| 1️⃣ | [AGENTS.md](AGENTS.md) | **Highest priority**: project-wide conventions, ArkTS constraints, layering principles, and prohibited patterns. All agents must read this. |
+| 2️⃣ | [.rules/README.md](.rules/README.md) | Rules library index: discover what skill-rule files are available. |
+| 3️⃣ | [.rules/skill-hds-page-design.md](.rules/skill-hds-page-design.md) | **Read before creating any new page**: immersive top bar, safe area, material/light-effect standard patterns. |
+| 4️⃣ | [.rules/skill-manager-apis.md](.rules/skill-manager-apis.md) | **Read before using theme/i18n/visual-effects/holding-awareness**: reactive binding and listener lifecycle pairing patterns. |
+| 5️⃣ | [.rules/skill-rules-update.md](.rules/skill-rules-update.md) | **Read when distilling new experience**: rules library update workflow (manually triggered by the developer). |
+
+> **Note**: Rule files are not auto-triggered. Read the relevant skill file before starting the appropriate task. `AGENTS.md` takes precedence over the rules library; the rules library provides concrete skill supplements to `AGENTS.md`.
+
+---
 
 ## Tech Stack
 
@@ -231,13 +259,40 @@ hvigorw clean                  # Clean
 
 | Document | Description |
 |----------|-------------|
+| [AGENTS.md](AGENTS.md) | **Agent working guidelines (highest priority — all AI agents must read)** |
+| [.rules/ Library](.rules/README.md) | AI skill rules: HDS page design, manager APIs, rules rolling update |
 | [Framework README](entry/src/main/ets/Framework/NGF/README.md) | Internal framework architecture |
 | [Framework Status Analysis](docs/NGF_FRAMEWORK_STATUS.md) | Layer completion & feature gaps |
 | [Implementation Plan](docs/development/NGF_IMPLEMENTATION_PLAN.md) | Development roadmap |
 | [API 23 Migration Guide](docs/API23_Migration_Guide.md) | API 23 adaptation notes |
 | [Changelog](docs/CHANGELOG.md) | Version change log |
-| [AGENTS.md](AGENTS.md) | Agent working guidelines |
 
 ## License
 
-This is an internal framework project.
+This project is licensed under the [MIT License](LICENSE).
+
+```
+Copyright (c) 2026 DaLongzhuazi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+*NGF is developed and maintained by **DaLongzhuazi** as a general-purpose framework infrastructure for the HarmonyOS Next ecosystem.*

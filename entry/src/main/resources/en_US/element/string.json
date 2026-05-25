@@ -158,7 +158,7 @@
     },
     {
       "name": "settings_lang_zh",
-      "value": "简体中文"
+      "value": "Simplified Chinese"
     },
     {
       "name": "settings_lang_en",
@@ -594,7 +594,7 @@
     },
     {
       "name": "auto_str_1003",
-      "value": "半Folded/悬停"
+      "value": "Half-Folded/Hover"
     },
     {
       "name": "auto_str_1004",
@@ -602,139 +602,139 @@
     },
     {
       "name": "auto_str_1005",
-      "value": "方向检测: displayOrientation=%s, isDisplayLandscape=%s, "
+      "value": "Orientation detection: displayOrientation=%s, isDisplayLandscape=%s, "
     },
     {
       "name": "auto_str_1006",
-      "value": "isViewportLandscape=%s, 宽=%s, 高=%s, "
+      "value": "isViewportLandscape=%s, width=%s, height=%s, "
     },
     {
       "name": "auto_str_1007",
-      "value": "位置服务由系统提供"
+      "value": "Location services provided by system"
     },
     {
       "name": "auto_str_1008",
-      "value": "蓝牙由系统支持"
+      "value": "Bluetooth supported by system"
     },
     {
       "name": "auto_str_1009",
-      "value": "WiFi 由系统支持"
+      "value": "WiFi supported by system"
     },
     {
       "name": "auto_str_1010",
-      "value": "生物识别由系统Framework提供"
+      "value": "Biometrics provided by system framework"
     },
     {
       "name": "auto_str_1011",
-      "value": "Unknown能力类型"
+      "value": "Unknown capability type"
     },
     {
       "name": "auto_str_1012",
-      "value": "检测异常: %s"
+      "value": "Detection error: %s"
     },
     {
       "name": "auto_str_1013",
-      "value": "手机/折叠屏Device通常配备摄像头"
+      "value": "Phone/foldable devices typically have camera"
     },
     {
       "name": "auto_str_1014",
-      "value": "平板/二合一Device通常配备摄像头"
+      "value": "Tablet/2-in-1 devices typically have camera"
     },
     {
       "name": "auto_str_1015",
-      "value": "穿戴Device通常无摄像头"
+      "value": "Wearable devices typically have no camera"
     },
     {
       "name": "auto_str_1016",
-      "value": "该Device类型可能无摄像头"
+      "value": "This device type may have no camera"
     },
     {
       "name": "auto_str_1017",
-      "value": "假设Device配备摄像头"
+      "value": "Assuming device has camera"
     },
     {
       "name": "auto_str_1018",
-      "value": "手机/折叠屏Device通常支持 NFC"
+      "value": "Phone/foldable devices typically support NFC"
     },
     {
       "name": "auto_str_1019",
-      "value": "%s Device通常不支持 NFC"
+      "value": "%s device typically does not support NFC"
     },
     {
       "name": "auto_str_1020",
-      "value": "该Device类型通常支持振动"
+      "value": "This device type typically supports vibration"
     },
     {
       "name": "auto_str_1021",
-      "value": "%s Device通常不支持振动"
+      "value": "%s device typically does not support vibration"
     },
     {
       "name": "auto_str_1022",
-      "value": "%s Device通常配备 %s 传感器"
+      "value": "%s device typically has %s sensor"
     },
     {
       "name": "auto_str_1023",
-      "value": "平板通常配备 %s 传感器"
+      "value": "Tablets typically have %s sensor"
     },
     {
       "name": "auto_str_1024",
-      "value": "平板可能不配备 %s 传感器"
+      "value": "Tablets may not have %s sensor"
     },
     {
       "name": "auto_str_1025",
-      "value": "%s Device传感器状态未知"
+      "value": "%s device sensor status unknown"
     },
     {
       "name": "auto_str_1026",
-      "value": "ACTIVITY_MOTION 权限申请完成：弹窗结果=%s，最终授权=%s"
+      "value": "ACTIVITY_MOTION permission result: dialog=%s, granted=%s"
     },
     {
       "name": "auto_str_1027",
-      "value": "无法获取 accessTokenId"
+      "value": "Cannot get accessTokenId"
     },
     {
       "name": "auto_str_1028",
-      "value": "握持感知权限Status已刷新：DETECT_GESTURE=%s，ACTIVITY_MOTION=%s"
+      "value": "Holding permission status refreshed: DETECT_GESTURE=%s, ACTIVITY_MOTION=%s"
     },
     {
       "name": "auto_str_1029",
-      "value": "启用智感握姿监听Failed：原因=%s，错误码=%s，错误=%s"
+      "value": "Intelligent grip subscription failed: reason=%s, code=%s, error=%s"
     },
     {
       "name": "auto_str_1030",
-      "value": "启用操作手监听Failed：原因=%s，错误码=%s，错误=%s"
+      "value": "Operating hand subscription failed: reason=%s, code=%s, error=%s"
     },
     {
       "name": "auto_str_1031",
-      "value": "已刷新最近一次操作手Status：Status=%s，原因=%s"
+      "value": "Latest operating hand status refreshed: status=%s, reason=%s"
     },
     {
       "name": "auto_str_1032",
-      "value": "刷新最近一次操作手Status失败：原因=%s，错误码=%s，错误=%s"
+      "value": "Refresh operating hand status failed: reason=%s, code=%s, error=%s"
     },
     {
       "name": "auto_str_1033",
-      "value": "握持感知快照已更新：推荐停靠=%s，"
+      "value": "Holding snapshot updated: anchor=%s, "
     },
     {
       "name": "auto_str_1034",
-      "value": "握持侧=%s，来源=%s，"
+      "value": "side=%s, source=%s, "
     },
     {
       "name": "auto_str_1035",
-      "value": "置信度=%s，可用=%s，"
+      "value": "confidence=%s, available=%s, "
     },
     {
       "name": "auto_str_1036",
-      "value": "精确支持=%s，操作手增强=%s，"
+      "value": "precise=%s, enhancedOpHand=%s, "
     },
     {
       "name": "auto_str_1037",
-      "value": "ACTIVITY_MOTION=%s，原因=%s"
+      "value": "ACTIVITY_MOTION=%s, reason=%s"
     },
     {
       "name": "auto_str_1038",
-      "value": "操作手增强能力当前Device不支持，已降级为仅使用智感握姿：原因=%s，错误码=%s，错误=%s"
+      "value": "Enhanced operating hand not supported on this device, degraded to intelligent grip only: reason=%s, code=%s, error=%s"
     },
     {
       "name": "auto_str_1039",
@@ -746,511 +746,511 @@
     },
     {
       "name": "auto_str_1041",
-      "value": "左侧"
+      "value": "Left"
     },
     {
       "name": "auto_str_1042",
-      "value": "右侧"
+      "value": "Right"
     },
     {
       "name": "auto_str_1043",
-      "value": "未握持"
+      "value": "Not holding"
     },
     {
       "name": "auto_str_1044",
-      "value": "左手握持"
+      "value": "Left hand"
     },
     {
       "name": "auto_str_1045",
-      "value": "右手握持"
+      "value": "Right hand"
     },
     {
       "name": "auto_str_1046",
-      "value": "双手握持"
+      "value": "Both hands"
     },
     {
       "name": "auto_str_1047",
-      "value": "智感握姿"
+      "value": "Intelligent grip"
     },
     {
       "name": "auto_str_1048",
-      "value": "操作手"
+      "value": "Operating hand"
     },
     {
       "name": "auto_str_1049",
-      "value": "握姿+操作手联合判断"
+      "value": "Grip + operating hand"
     },
     {
       "name": "auto_str_1050",
-      "value": "默认回退"
+      "value": "Default fallback"
     },
     {
       "name": "auto_str_1051",
-      "value": "精确"
+      "value": "Exact"
     },
     {
       "name": "auto_str_1052",
-      "value": "推断"
+      "value": "Inferred"
     },
     {
       "name": "auto_str_1053",
-      "value": "回退"
+      "value": "Fallback"
     },
     {
       "name": "auto_str_1054",
-      "value": "未检测到握持"
+      "value": "No grip detected"
     },
     {
       "name": "auto_str_1055",
-      "value": "Unknown握姿"
+      "value": "Unknown grip"
     },
     {
       "name": "auto_str_1056",
-      "value": "左手操作"
+      "value": "Left hand operating"
     },
     {
       "name": "auto_str_1057",
-      "value": "右手操作"
+      "value": "Right hand operating"
     },
     {
       "name": "auto_str_1058",
-      "value": "Unknown操作手"
+      "value": "Unknown operating hand"
     },
     {
       "name": "auto_str_1059",
-      "value": "持久化存储"
+      "value": "Persistent storage"
     },
     {
       "name": "auto_str_1060",
-      "value": "系统检测"
+      "value": "System detection"
     },
     {
       "name": "auto_str_1061",
-      "value": "初始化视觉效果管理器完成：模式=%s，生效等级=%s，能力来源=%s"
+      "value": "Visual effects initialized: mode=%s, level=%s, source=%s"
     },
     {
       "name": "auto_str_1062",
-      "value": "NONE（无材质）"
+      "value": "NONE"
     },
     {
       "name": "auto_str_1063",
-      "value": "ADAPTIVE（系统自适应）"
+      "value": "ADAPTIVE"
     },
     {
       "name": "auto_str_1064",
-      "value": "IMMERSIVE（沉浸式）"
+      "value": "IMMERSIVE"
     },
     {
       "name": "auto_str_1065",
-      "value": "Unknown类型(%s)"
+      "value": "Unknown type (%s)"
     },
     {
       "name": "auto_str_1066",
-      "value": "EXQUISITE（精美）"
+      "value": "EXQUISITE"
     },
     {
       "name": "auto_str_1067",
-      "value": "GENTLE（轻柔）"
+      "value": "GENTLE"
     },
     {
       "name": "auto_str_1068",
-      "value": "SMOOTH（流畅）"
+      "value": "SMOOTH"
     },
     {
       "name": "auto_str_1069",
-      "value": "Unknown等级(%s)"
+      "value": "Unknown level (%s)"
     },
     {
       "name": "auto_str_1070",
-      "value": "手动固定档位"
+      "value": "Manual fixed level"
     },
     {
       "name": "auto_str_1071",
-      "value": "系统自适应（推荐）"
+      "value": "System adaptive (recommended)"
     },
     {
       "name": "auto_str_1072",
-      "value": "系统材质能力检测完成：支持沉浸式=%s，支持自适应=%s，类型=%s"
+      "value": "Material capability detection: immersive=%s, adaptive=%s, types=%s"
     },
     {
       "name": "auto_str_1073",
-      "value": "保留上次能力快照"
+      "value": "Using cached capability snapshot"
     },
     {
       "name": "auto_str_1074",
-      "value": "回退至保守默认值"
+      "value": "Fallback to defaults"
     },
     {
       "name": "auto_str_1075",
-      "value": "材质能力检测Failed，%s：%s"
+      "value": "Material capability detection failed, %s: %s"
     },
     {
       "name": "auto_str_1076",
-      "value": "已从持久化存储加载材质能力快照：检测时间=%s，有错误=%s，类型=%s"
+      "value": "Loaded capability snapshot from storage: time=%s, error=%s, types=%s"
     },
     {
       "name": "auto_str_1077",
-      "value": "just_now', ['刚刚"
+      "value": "just now"
     },
     {
       "name": "auto_str_1078",
-      "value": "second_ago', ['{}秒前"
+      "value": "{} second(s) ago"
     },
     {
       "name": "auto_str_1079",
-      "value": "minute_ago', ['{}分钟前"
+      "value": "{} minute(s) ago"
     },
     {
       "name": "auto_str_1080",
-      "value": "hour_ago', ['{}小时前"
+      "value": "{} hour(s) ago"
     },
     {
       "name": "auto_str_1081",
-      "value": "day_ago', ['{}天前"
+      "value": "{} day(s) ago"
     },
     {
       "name": "auto_str_1082",
-      "value": "week_ago', ['{}周前"
+      "value": "{} week(s) ago"
     },
     {
       "name": "auto_str_1083",
-      "value": "month_ago', ['{}个月前"
+      "value": "{} month(s) ago"
     },
     {
       "name": "auto_str_1084",
-      "value": "year_ago', ['{}年前"
+      "value": "{} year(s) ago"
     },
     {
       "name": "auto_str_1085",
-      "value": "second_later', ['{}秒后"
+      "value": "in {} second(s)"
     },
     {
       "name": "auto_str_1086",
-      "value": "minute_later', ['{}分钟后"
+      "value": "in {} minute(s)"
     },
     {
       "name": "auto_str_1087",
-      "value": "hour_later', ['{}小时后"
+      "value": "in {} hour(s)"
     },
     {
       "name": "auto_str_1088",
-      "value": "day_later', ['{}天后"
+      "value": "in {} day(s)"
     },
     {
       "name": "auto_str_1089",
-      "value": "week_later', ['{}周后"
+      "value": "in {} week(s)"
     },
     {
       "name": "auto_str_1090",
-      "value": "month_later', ['{}个月后"
+      "value": "in {} month(s)"
     },
     {
       "name": "auto_str_1091",
-      "value": "year_later', ['{}年后"
+      "value": "in {} year(s)"
     },
     {
       "name": "auto_str_1092",
-      "value": "just_now', ['たった今"
+      "value": "たった今"
     },
     {
       "name": "auto_str_1093",
-      "value": "minute_ago', ['{}分前"
+      "value": "{}分前"
     },
     {
       "name": "auto_str_1094",
-      "value": "hour_ago', ['{}時間前"
+      "value": "{}時間前"
     },
     {
       "name": "auto_str_1095",
-      "value": "day_ago', ['{}日前"
+      "value": "{}日前"
     },
     {
       "name": "auto_str_1096",
-      "value": "week_ago', ['{}週間前"
+      "value": "{}週間前"
     },
     {
       "name": "auto_str_1097",
-      "value": "month_ago', ['{}ヶ月前"
+      "value": "{}ヶ月前"
     },
     {
       "name": "auto_str_1098",
-      "value": "second_later', ['{}秒後"
+      "value": "{}秒後"
     },
     {
       "name": "auto_str_1099",
-      "value": "minute_later', ['{}分後"
+      "value": "{}分後"
     },
     {
       "name": "auto_str_1100",
-      "value": "hour_later', ['{}時間後"
+      "value": "{}時間後"
     },
     {
       "name": "auto_str_1101",
-      "value": "day_later', ['{}日後"
+      "value": "{}日後"
     },
     {
       "name": "auto_str_1102",
-      "value": "week_later', ['{}週間後"
+      "value": "{}週間後"
     },
     {
       "name": "auto_str_1103",
-      "value": "month_later', ['{}ヶ月後"
+      "value": "{}ヶ月後"
     },
     {
       "name": "auto_str_1104",
-      "value": "year_later', ['{}年後"
+      "value": "{}年後"
     },
     {
       "name": "auto_str_1105",
-      "value": "订阅观察者初始化Failed: listenerId=%s, error=%s"
+      "value": "Observer initialization failed: listenerId=%s, error=%s"
     },
     {
       "name": "auto_str_1106",
-      "value": "应用配置抛出异常: page=%s, error=%s"
+      "value": "Config apply error: page=%s, error=%s"
     },
     {
       "name": "auto_str_1107",
-      "value": "从阶段绑定主窗口Failed: %s"
+      "value": "Window stage binding failed: %s"
     },
     {
       "name": "auto_str_1108",
-      "value": "注册窗口阶段监听器Failed: %s"
+      "value": "Window stage listener registration failed: %s"
     },
     {
       "name": "auto_str_1109",
-      "value": "注销窗口阶段监听器Failed: %s"
+      "value": "Window stage listener unregistration failed: %s"
     },
     {
       "name": "auto_str_1110",
-      "value": "HarmonyOS 专属"
+      "value": "HarmonyOS Exclusive"
     },
     {
       "name": "auto_str_1111",
-      "value": "基础操作"
+      "value": "Basic"
     },
     {
       "name": "auto_str_1112",
-      "value": "方向箭头"
+      "value": "Arrows"
     },
     {
       "name": "auto_str_1113",
-      "value": "媒体音频"
+      "value": "Media & Audio"
     },
     {
       "name": "auto_str_1114",
-      "value": "通讯社交"
+      "value": "Communication"
     },
     {
       "name": "auto_str_1115",
-      "value": "人物账户"
+      "value": "People & Account"
     },
     {
       "name": "auto_str_1116",
-      "value": "文档文本"
+      "value": "Document & Text"
     },
     {
       "name": "auto_str_1117",
-      "value": "文件存储"
+      "value": "File & Storage"
     },
     {
       "name": "auto_str_1118",
-      "value": "时间日历"
+      "value": "Time & Calendar"
     },
     {
       "name": "auto_str_1119",
-      "value": "地图出行"
+      "value": "Map & Travel"
     },
     {
       "name": "auto_str_1120",
-      "value": "Device硬件"
+      "value": "Device Hardware"
     },
     {
       "name": "auto_str_1121",
-      "value": "家居建筑"
+      "value": "Home & Building"
     },
     {
       "name": "auto_str_1122",
-      "value": "天气自然"
+      "value": "Weather & Nature"
     },
     {
       "name": "auto_str_1123",
-      "value": "健康运动"
+      "value": "Health & Sports"
     },
     {
       "name": "auto_str_1124",
-      "value": "商业数据"
+      "value": "Business & Data"
     },
     {
       "name": "auto_str_1125",
-      "value": "图形形状"
+      "value": "Shapes & Graphics"
     },
     {
       "name": "auto_str_1126",
-      "value": "编程数学"
+      "value": "Coding & Math"
     },
     {
       "name": "auto_str_1127",
-      "value": "餐饮购物"
+      "value": "Dining & Shopping"
     },
     {
       "name": "auto_str_1128",
-      "value": "安全隐私"
+      "value": "Security & Privacy"
     },
     {
       "name": "auto_str_1129",
-      "value": "其他扩展"
+      "value": "Other Extensions"
     },
     {
       "name": "auto_str_1130",
-      "value": "柔光边框 / 无按压阴影"
+      "value": "Soft border / no press shadow"
     },
     {
       "name": "auto_str_1131",
-      "value": "强点光 / 白色混合阴影 / 高辉光"
+      "value": "Strong point light / white blend shadow / high glow"
     },
     {
       "name": "auto_str_1132",
-      "value": "柔点光 / 渐变按压阴影 / 中等毛玻璃"
+      "value": "Soft point light / gradient press shadow / medium glass"
     },
     {
       "name": "auto_str_1133",
-      "value": "pressShadow(BLEND_GRADIENT)，不叠加 pointLight"
+      "value": "pressShadow(BLEND_GRADIENT), no pointLight"
     },
     {
       "name": "auto_str_1134",
-      "value": "预览态：容器同步下沉；真实 pressShadow 请按住卡片观察"
+      "value": "Preview: container sinks; real pressShadow on long-press"
     },
     {
       "name": "auto_str_1135",
-      "value": "未按下：保留普通外投影"
+      "value": "Not pressed: normal outer shadow"
     },
     {
       "name": "auto_str_1136",
-      "value": "pointLight(%s)，不使用 pressShadow"
+      "value": "pointLight(%s), no pressShadow"
     },
     {
       "name": "auto_str_1137",
-      "value": "已激活：点光扩大、边框羽化高亮"
+      "value": "Activated: point light expands, border feather highlight"
     },
     {
       "name": "auto_str_1138",
-      "value": "未激活：柔和边框光"
+      "value": "Inactive: soft border glow"
     },
     {
       "name": "auto_str_1139",
-      "value": "已启动：双边流光场景正在播放"
+      "value": "Started: dual-edge flow light playing"
     },
     {
       "name": "auto_str_1140",
-      "value": "待启动：流光组件保持低亮预览"
+      "value": "Pending: flow light in dim preview"
     },
     {
       "name": "auto_str_1141",
-      "value": "双边流光 + 背景遮罩：已使用 60fps 预期帧率播放"
+      "value": "Dual-edge flow + mask: playing at 60fps"
     },
     {
       "name": "auto_str_1142",
-      "value": "双边流光 + 背景遮罩：低亮待启动"
+      "value": "Dual-edge flow + mask: dim pending"
     },
     {
       "name": "auto_str_1143",
-      "value": "已激活：阴影、点光、内容亮度同步增强"
+      "value": "Activated: shadow, point light, brightness enhanced"
     },
     {
       "name": "auto_str_1144",
-      "value": "未激活：组合效果待触发"
+      "value": "Inactive: combined effects pending"
     },
     {
       "name": "auto_str_1145",
-      "value": "🚫 关闭"
+      "value": "OFF"
     },
     {
       "name": "auto_str_1146",
-      "value": "🔍 调试"
+      "value": "DEBUG"
     },
     {
       "name": "auto_str_1147",
-      "value": "ℹ️ 信息"
+      "value": "INFO"
     },
     {
       "name": "auto_str_1148",
-      "value": "⚠️ 警告"
+      "value": "WARN"
     },
     {
       "name": "auto_str_1149",
-      "value": "❌ 错误"
+      "value": "ERROR"
     },
     {
       "name": "auto_str_1150",
-      "value": "💀 致命"
+      "value": "FATAL"
     },
     {
       "name": "auto_str_1151",
-      "value": "关闭"
+      "value": "Off"
     },
     {
       "name": "auto_str_1152",
-      "value": "GameFramework': '🎮 游戏Framework"
+      "value": "Game Framework"
     },
     {
       "name": "auto_str_1153",
-      "value": "EntryAbility': '🚀 应用入口"
+      "value": "App Entry"
     },
     {
       "name": "auto_str_1154",
-      "value": "EntryBackupAbility': '💾 备份恢复"
+      "value": "Backup & Restore"
     },
     {
       "name": "auto_str_1155",
-      "value": "GlobalContext': '🌐 全局上下文"
+      "value": "Global Context"
     },
     {
       "name": "auto_str_1156",
-      "value": "Engine': '⚙️ 游戏引擎"
+      "value": "Game Engine"
     },
     {
       "name": "auto_str_1157",
-      "value": "EntityManager': '👥 实体管理器"
+      "value": "Entity Manager"
     },
     {
       "name": "auto_str_1158",
-      "value": "ComponentManager': '🧩 组件管理器"
+      "value": "Component Manager"
     },
     {
       "name": "auto_str_1159",
-      "value": "SystemManager': '🔧 系统管理器"
+      "value": "System Manager"
     },
     {
       "name": "auto_str_1160",
-      "value": "SceneManager': '🎬 场景管理器"
+      "value": "Scene Manager"
     },
     {
       "name": "auto_str_1161",
-      "value": "DataManager': '📊 数据管理器"
+      "value": "Data Manager"
     },
     {
       "name": "auto_str_1162",
-      "value": "RenderSystem': '🎨 渲染系统"
+      "value": "Render System"
     },
     {
       "name": "auto_str_1163",
-      "value": "GameView': '🖼️ 游戏视图"
+      "value": "Game View"
     },
     {
       "name": "auto_str_1164",
-      "value": "Index': '🏠 主页面"
+      "value": "Home"
     },
     {
       "name": "auto_str_1165",
-      "value": "MainMenuScene': '📋 主菜单场景"
+      "value": "Main Menu Scene"
     },
     {
       "name": "auto_str_1166",
-      "value": "GameWorldScene': '🌍 游戏世界场景"
+      "value": "Game World Scene"
     },
     {
       "name": "auto_str_1167",
-      "value": "hilog输出级别已Settings为: %s"
+      "value": "Hilog output level set from Settings: %s"
     },
     {
       "name": "auto_str_1168",
@@ -1258,131 +1258,131 @@
     },
     {
       "name": "auto_str_1169",
-      "value": "🔄 生命周期事件: %s%s"
+      "value": "Lifecycle Event: %s%s"
     },
     {
       "name": "auto_str_1170",
-      "value": "🚀 启动过程: %s%s"
+      "value": "Startup: %s%s"
     },
     {
       "name": "auto_str_1171",
-      "value": "🔄 Status变化: %s → %s%s"
+      "value": "State change: %s -> %s%s"
     },
     {
       "name": "auto_str_1172",
-      "value": "📊 性能指标: %s = %s%s"
+      "value": "Performance: %s = %s%s"
     },
     {
       "name": "auto_str_1173",
-      "value": "从Settings初始化hilog输出等级: %s"
+      "value": "Initialized hilog level from Settings: %s"
     },
     {
       "name": "auto_str_1174",
-      "value": "无效的日志等级索引: %s，使用默认值DEBUG"
+      "value": "Invalid log level index: %s, using DEBUG"
     },
     {
       "name": "auto_str_1175",
-      "value": "未来时间"
+      "value": "Future"
     },
     {
       "name": "auto_str_1176",
-      "value": "刚刚"
+      "value": "Just now"
     },
     {
       "name": "auto_str_1177",
-      "value": "%s分钟前"
+      "value": "%s minute(s) ago"
     },
     {
       "name": "auto_str_1178",
-      "value": "%s小时前"
+      "value": "%s hour(s) ago"
     },
     {
       "name": "auto_str_1179",
-      "value": "%s天前"
+      "value": "%s day(s) ago"
     },
     {
       "name": "auto_str_1180",
-      "value": "%s个月前"
+      "value": "%s month(s) ago"
     },
     {
       "name": "auto_str_1181",
-      "value": "%s年前"
+      "value": "%s year(s) ago"
     },
     {
       "name": "auto_str_1182",
-      "value": "%s天%s小时"
+      "value": "%sd %sh"
     },
     {
       "name": "auto_str_1183",
-      "value": "%s小时%s分钟"
+      "value": "%sh %sm"
     },
     {
       "name": "auto_str_1184",
-      "value": "%s分钟%s秒"
+      "value": "%sm %ss"
     },
     {
       "name": "auto_str_1185",
-      "value": "%s秒"
+      "value": "%ss"
     },
     {
       "name": "auto_str_1186",
-      "value": "等待激活融合示例能力卡片"
+      "value": "Waiting to activate fusion capability card"
     },
     {
       "name": "auto_str_1187",
-      "value": "组件能力区"
+      "value": "Component Area"
     },
     {
       "name": "auto_str_1188",
-      "value": "在同一页面中直接验证搜索、筛选、分段切换与信息摘要的组合效果。"
+      "value": "Verify search, filter, segment switch & info summary in one page."
     },
     {
       "name": "auto_str_1189",
-      "value": "布局能力区"
+      "value": "Layout Area"
     },
     {
       "name": "auto_str_1190",
-      "value": "Tabs / 信息分区 / 服务入口"
+      "value": "Tabs / Info Sections / Service Entries"
     },
     {
       "name": "auto_str_1191",
-      "value": "以统一卡片风格呈现内容布局、导航布局和服务入口骨架，不再拆成独立页面。"
+      "value": "Present content layout, nav layout and service entries in unified card style."
     },
     {
       "name": "auto_str_1192",
-      "value": "动效能力区"
+      "value": "Motion Area"
     },
     {
       "name": "auto_str_1193",
-      "value": "Swiper / 焦点过渡 / 播放控制"
+      "value": "Swiper / Focus Transition / Playback Control"
     },
     {
       "name": "auto_str_1194",
-      "value": "保留轮播、焦点切换和动效模式调节能力，并与同页内容连续显示。"
+      "value": "Carousel, focus switching and motion mode adjustment in continuous display."
     },
     {
       "name": "auto_str_1195",
-      "value": "全部"
+      "value": "All"
     },
     {
       "name": "auto_str_1196",
-      "value": "组件"
+      "value": "Components"
     },
     {
       "name": "auto_str_1197",
-      "value": "导航"
+      "value": "Navigation"
     },
     {
       "name": "auto_str_1198",
-      "value": "反馈"
+      "value": "Feedback"
     },
     {
       "name": "auto_str_1199",
-      "value": "表单"
+      "value": "Forms"
     },
     {
       "name": "auto_str_1200",
-      "value": "筛选"
+      "value": "Filter"
     },
     {
       "name": "auto_str_1201",
@@ -1390,535 +1390,535 @@
     },
     {
       "name": "auto_str_1202",
-      "value": "组织"
+      "value": "Organization"
     },
     {
       "name": "auto_str_1203",
-      "value": "Search 搜索入口"
+      "value": "Search Entry"
     },
     {
       "name": "auto_str_1204",
-      "value": "结合关键词过滤与结果统计，适合作为资源检索、命令筛选和列表定位入口。"
+      "value": "Keyword filtering with result stats, suitable for resource search and list navigation."
     },
     {
       "name": "auto_str_1205",
-      "value": "SegmentButton 分段切换"
+      "value": "SegmentButton"
     },
     {
       "name": "auto_str_1206",
-      "value": "为多区块内容提供快速切换入口，保持页面上下文不被打断。"
+      "value": "Quick switching for multi-section content without breaking page context."
     },
     {
       "name": "auto_str_1207",
-      "value": "ChipGroup 轻量筛选"
+      "value": "ChipGroup Filter"
     },
     {
       "name": "auto_str_1208",
-      "value": "适合搭配搜索和分段控件进行快速筛选，强调Status可见与切换效率。"
+      "value": "Suitable for quick filtering with search and segment controls, emphasizing status visibility and switch efficiency."
     },
     {
       "name": "auto_str_1209",
-      "value": "Status摘要卡"
+      "value": "Status Summary Card"
     },
     {
       "name": "auto_str_1210",
-      "value": "将当前筛选、焦点区块和验证状态整合为即时反馈，提升Framework验证可读性。"
+      "value": "Integrates current filter, focus block and verification status for instant feedback, improving framework verification readability."
     },
     {
       "name": "auto_str_1211",
-      "value": "内容布局卡片区"
+      "value": "Content Layout Cards"
     },
     {
       "name": "auto_str_1212",
-      "value": "内容布局"
+      "value": "Content Layout"
     },
     {
       "name": "auto_str_1213",
-      "value": "适合聚合推荐、组件示例和分区摘要，强调分层信息与滚动阅读体验。"
+      "value": "Suitable for featured recommendations, component demos and section summaries."
     },
     {
       "name": "auto_str_1214",
-      "value": "信息说明面板"
+      "value": "Info Panel"
     },
     {
       "name": "auto_str_1215",
-      "value": "用于承载说明文本、Status提示和结果汇总，让验证信息集中呈现。"
+      "value": "Used for explanatory text, status hints and result summaries, presenting verification info centrally."
     },
     {
       "name": "auto_str_1216",
-      "value": "Tabs 顶层切换"
+      "value": "Tabs Top-level Switch"
     },
     {
       "name": "auto_str_1217",
-      "value": "导航布局"
+      "value": "Navigation Layout"
     },
     {
       "name": "auto_str_1218",
-      "value": "保留单页内的导航切换语义，适合在同页整合多个能力区块。"
+      "value": "In-page nav switching, suitable for integrating multiple capability blocks."
     },
     {
       "name": "auto_str_1219",
-      "value": "焦点入口卡片"
+      "value": "Focus Entry Card"
     },
     {
       "name": "auto_str_1220",
-      "value": "使用统一卡片样式替代旧独立页面跳转，使导航意图与视觉重点一致。"
+      "value": "Unified card style replaces old page jumps, aligning nav intent with visual focus."
     },
     {
       "name": "auto_str_1221",
-      "value": "服务工具入口"
+      "value": "Service Tools Entry"
     },
     {
       "name": "auto_str_1222",
-      "value": "服务入口"
+      "value": "Service Entry"
     },
     {
       "name": "auto_str_1223",
-      "value": "把组件、布局和动效验证工具统一收束到同一页面，减少页面切换成本。"
+      "value": "Consolidate component, layout and motion tools into one page."
     },
     {
       "name": "auto_str_1224",
-      "value": "验证链路摘要"
+      "value": "Verification Summary"
     },
     {
       "name": "auto_str_1225",
-      "value": "以Framework视角汇总当前页面已接入的 SDK 能力、导航方式和窗口策略。"
+      "value": "Summarize SDK capabilities, navigation patterns and window policies currently integrated, from a framework perspective."
     },
     {
       "name": "auto_str_1226",
-      "value": "柔和"
+      "value": "Gentle"
     },
     {
       "name": "auto_str_1227",
-      "value": "标准"
+      "value": "Standard"
     },
     {
       "name": "auto_str_1228",
-      "value": "强调"
+      "value": "Emphasis"
     },
     {
       "name": "auto_str_1229",
-      "value": "Banner 焦点位"
+      "value": "Banner Focus"
     },
     {
       "name": "auto_str_1230",
-      "value": "标准缩放"
+      "value": "Standard Scale"
     },
     {
       "name": "auto_str_1231",
-      "value": "适合首页头图和重点推荐位Showcase，在单页融合模式下仍保留明显的视觉重心。"
+      "value": "Suitable for home hero images and featured showcase positions, retaining clear visual focus in single-page fusion mode."
     },
     {
       "name": "auto_str_1232",
-      "value": "Hero 说明卡"
+      "value": "Hero Card"
     },
     {
       "name": "auto_str_1233",
-      "value": "层次透明度"
+      "value": "Layered Opacity"
     },
     {
       "name": "auto_str_1234",
-      "value": "通过透明度与阴影变化强化内容主次，让融合页面中的重点能力更易识别。"
+      "value": "Enhance content hierarchy via opacity and shadow, making key capabilities easier to identify."
     },
     {
       "name": "auto_str_1235",
-      "value": "Gallery 轮播区"
+      "value": "Gallery Carousel"
     },
     {
       "name": "auto_str_1236",
-      "value": "平滑切页"
+      "value": "Smooth Paging"
     },
     {
       "name": "auto_str_1237",
-      "value": "结合指示器与按钮控制，验证轮播在 HDS 页面壳层中的连续过渡表现。"
+      "value": "Carousel with indicators and button controls in HDS page shell."
     },
     {
       "name": "auto_str_1238",
-      "value": "当前聚焦：%s"
+      "value": "Current focus: %s"
     },
     {
       "name": "auto_str_1239",
-      "value": "已重置组件区筛选条件"
+      "value": "Component filter reset"
     },
     {
       "name": "auto_str_1240",
-      "value": "已重置动效区演示Status"
+      "value": "Motion area demo status reset"
     },
     {
       "name": "auto_str_1241",
-      "value": "当前动效焦点：%s"
+      "value": "Current motion focus: %s"
     },
     {
       "name": "auto_str_1242",
-      "value": "HDS 综合示例"
+      "value": "HDS Integrated Showcase"
     },
     {
       "name": "auto_str_1243",
-      "value": "以 HdsNavigation 风格统一Showcase组件 / 布局 / 动效"
+      "value": "Unified showcase of components / layout / motion in HdsNavigation style"
     },
     {
       "name": "auto_str_1244",
-      "value": "MainMenuPage → HDS 综合示例"
+      "value": "MainMenuPage -> HDS Showcase"
     },
     {
       "name": "auto_str_1245",
-      "value": "本页面将各类组件、布局和动效示例整合在一起，无需切换页面，上下滚动即可浏览。适合入门开发者一站式学习 HDS Framework用法。"
+      "value": "This page integrates various component, layout and motion demos together. No page switching needed - just scroll to browse. Suitable for beginner developers to learn HDS framework usage in one place."
     },
     {
       "name": "auto_str_1246",
-      "value": "当前聚焦区块：%s"
+      "value": "Current focused block: %s"
     },
     {
       "name": "auto_str_1247",
-      "value": "融合能力入口"
+      "value": "Fusion Entry"
     },
     {
       "name": "auto_str_1248",
-      "value": "页面结构说明"
+      "value": "Page Structure"
     },
     {
       "name": "auto_str_1249",
-      "value": "1. 所有组件、布局和动效演示都整合在同一个页面中，无需跳转即可浏览全部内容。"
+      "value": "1. All component, layout and motion demos integrated in one page."
     },
     {
       "name": "auto_str_1250",
-      "value": "2. 使用 MainMenuPage 作为统一的导航根容器，管理所有页面的进入和返回。"
+      "value": "2. MainMenuPage as unified nav root, managing all page entry/exit."
     },
     {
       "name": "auto_str_1251",
-      "value": "3. 三种能力演示区（组件/布局/动效）连续排列，上下滑动即可查看全部内容。"
+      "value": "3. Three capability areas (component/layout/motion) arranged continuously."
     },
     {
       "name": "auto_str_1252",
-      "value": "在页面中体验搜索、分段切换和标签筛选等常见交互"
+      "value": "Explore search, segment switch and tag filtering interactions"
     },
     {
       "name": "auto_str_1253",
-      "value": "重置筛选"
+      "value": "Reset Filter"
     },
     {
       "name": "auto_str_1254",
-      "value": "快速查找组件示例（名称/分组/标签）"
+      "value": "Quick search component demos (name/group/tag)"
     },
     {
       "name": "auto_str_1255",
-      "value": "搜索"
+      "value": "Search"
     },
     {
       "name": "auto_str_1256",
-      "value": "组件区分组切换为：%s"
+      "value": "Component group switched to: %s"
     },
     {
       "name": "auto_str_1257",
-      "value": "组件区标签切换为：%s"
+      "value": "Component tag switched to: %s"
     },
     {
       "name": "auto_str_1258",
-      "value": "当前分组：%s · 当前标签：%s · 可见组件：%s"
+      "value": "Group: %s / Tag: %s / Visible: %s"
     },
     {
       "name": "auto_str_1259",
-      "value": "内容布局、导航布局和服务入口的整合Showcase"
+      "value": "Integrated showcase of content layout, navigation layout and service entries"
     },
     {
       "name": "auto_str_1260",
-      "value": "布局区切换为：%s"
+      "value": "Layout section switched to: %s"
     },
     {
       "name": "auto_str_1261",
-      "value": "轮播图、动效模式切换与播放控制演示"
+      "value": "Carousel, motion mode switch & playback demo"
     },
     {
       "name": "auto_str_1262",
-      "value": "重置动效"
+      "value": "Reset Motion"
     },
     {
       "name": "auto_str_1263",
-      "value": "动效模式切换为：%s"
+      "value": "Motion mode switched to: %s"
     },
     {
       "name": "auto_str_1264",
-      "value": "开启"
+      "value": "On"
     },
     {
       "name": "auto_str_1265",
-      "value": "当前动效模式：%s · 自动播放：%s · 轮播间隔：%sms"
+      "value": "Motion mode: %s / Auto-play: %s / Interval: %sms"
     },
     {
       "name": "auto_str_1266",
-      "value": "上一张"
+      "value": "Previous"
     },
     {
       "name": "auto_str_1267",
-      "value": "关闭自动播放"
+      "value": "Stop Auto-play"
     },
     {
       "name": "auto_str_1268",
-      "value": "开启自动播放"
+      "value": "Start Auto-play"
     },
     {
       "name": "auto_str_1269",
-      "value": "已开启自动播放"
+      "value": "Auto-play started"
     },
     {
       "name": "auto_str_1270",
-      "value": "已关闭自动播放"
+      "value": "Auto-play stopped"
     },
     {
       "name": "auto_str_1271",
-      "value": "下一张"
+      "value": "Next"
     },
     {
       "name": "auto_str_1272",
-      "value": "验证目标"
+      "value": "Verification Target"
     },
     {
       "name": "auto_str_1273",
-      "value": "本页面展示了 HDS 导航的完整实践：统一的顶部导航栏、沉浸式背景层、官方组件集成、标题栏滚动联动与窗口策略。适合入门开发者快速理解Framework的核心用法。"
+      "value": "This page demonstrates complete HDS navigation practice: unified top nav bar, immersive background layer, official component integration, title bar scroll binding and window policy. Suitable for beginners to quickly understand core framework usage."
     },
     {
       "name": "auto_str_1274",
-      "value": "等待打开 HDS 官方目的地"
+      "value": "Waiting to open HDS official destination"
     },
     {
       "name": "auto_str_1275",
-      "value": "总览目的地"
+      "value": "Overview Destination"
     },
     {
       "name": "auto_str_1276",
-      "value": "HdsNavDestination 生命周期 / 滚动绑定"
+      "value": "HdsNavDestination Lifecycle / Scroll Binding"
     },
     {
       "name": "auto_str_1277",
-      "value": "验证 MainMenuPage 作为唯一 HdsNavigation 根容器时，后续页面如何继续沿用同一 NavPathStack。"
+      "value": "Verify that subsequent pages continue using the same NavPathStack under MainMenuPage as the sole HdsNavigation root."
     },
     {
       "name": "auto_str_1278",
-      "value": "材质目的地"
+      "value": "Material Destination"
     },
     {
       "name": "auto_str_1279",
-      "value": "在目的地标题栏中使用官方材质参数，Showcase沉浸式材质与滚动模糊的组合效果。"
+      "value": "Uses official material parameters in destination title bar, showcasing immersive material and scroll blur combination effects."
     },
     {
       "name": "auto_str_1280",
-      "value": "特效目的地"
+      "value": "Effect Destination"
     },
     {
       "name": "auto_str_1281",
-      "value": "通过官方视觉效果构建交互卡片，验证同栈 HDS 目的地中的点击反馈。"
+      "value": "Build interactive cards via official visual effects, verifying click feedback in same-stack HDS destinations."
     },
     {
       "name": "auto_str_1282",
-      "value": "已打开：%s"
+      "value": "Opened: %s"
     },
     {
       "name": "auto_str_1283",
-      "value": "打开Failed：%s"
+      "value": "Open failed: %s"
     },
     {
       "name": "auto_str_1284",
-      "value": "官方 HDS Navigation"
+      "value": "Official HDS Navigation"
     },
     {
       "name": "auto_str_1285",
-      "value": "MainMenuPage 统一承载 HdsNavigation，当前页为第一个 HdsNavDestination"
+      "value": "MainMenuPage hosts HdsNavigation; this is the first HdsNavDestination"
     },
     {
       "name": "auto_str_1286",
-      "value": "当前结构已调整为：MainMenuPage 作为唯一 HdsNavigation 根容器，后续官方示例页全部以 HdsNavDestination 形式加入同一主栈。"
+      "value": "MainMenuPage as sole HdsNavigation root; all official demo pages join the same main stack as HdsNavDestination."
     },
     {
       "name": "auto_str_1287",
-      "value": "已成功打开官方 HDS 目的地 %s 次"
+      "value": "Opened official HDS destination %s time(s)"
     },
     {
       "name": "auto_str_1288",
-      "value": "后续页面入口"
+      "value": "Subsequent Page Entries"
     },
     {
       "name": "auto_str_1289",
-      "value": "当前导航结构"
+      "value": "Current Nav Structure"
     },
     {
       "name": "auto_str_1290",
-      "value": "1. `main_pages.json` 入口仍为 MainMenuPage。"
+      "value": "1. main_pages.json entry remains MainMenuPage."
     },
     {
       "name": "auto_str_1291",
-      "value": "2. MainMenuPage 根节点切换为 HdsNavigation。"
+      "value": "2. MainMenuPage root is now HdsNavigation."
     },
     {
       "name": "auto_str_1292",
-      "value": "3. 当前页与后续 3 个子页都通过同一 NavPathStack 以 HdsNavDestination 推入主栈。"
+      "value": "3. Current and 3 sub-pages all push via the same NavPathStack as HdsNavDestination."
     },
     {
       "name": "auto_str_1293",
-      "value": "继续进入后续页面，可验证 HDS 标题栏、返回链路、材质参数和 hdsEffect 在同一主导航栈中的工作方式。"
+      "value": "Navigate to subsequent pages to verify HDS title bar, back chain, material params, and hdsEffect in one stack."
     },
     {
       "name": "auto_str_1294",
-      "value": "唯一根导航"
+      "value": "Single Root Nav"
     },
     {
       "name": "auto_str_1295",
-      "value": "MainMenuPage 负责创建唯一的 HdsNavigation 根容器，后续示例不再嵌套新的 HdsNavigation。"
+      "value": "MainMenuPage creates the sole HdsNavigation root; subsequent demos do not nest new HdsNavigation."
     },
     {
       "name": "auto_str_1296",
-      "value": "统一主栈"
+      "value": "Unified Main Stack"
     },
     {
       "name": "auto_str_1297",
-      "value": "当前页通过 NavDestinationContext.pathStack 绑定主栈，因此继续 push 的后续页都能自然接续。"
+      "value": "Current page binds main stack via NavDestinationContext.pathStack, so subsequent pushes chain naturally."
     },
     {
       "name": "auto_str_1298",
-      "value": "官方目的地"
+      "value": "Official Destinations"
     },
     {
       "name": "auto_str_1299",
-      "value": "当前页自身和后续材质/特效页都直接使用 HdsNavDestination，保持 HDS 导航语义闭环。"
+      "value": "Current page and material/effect sub-pages all use HdsNavDestination directly."
     },
     {
       "name": "auto_str_1300",
-      "value": "本页用于解释为什么要以 MainMenuPage 为唯一 HDS 根导航，以及这种结构如何正确支持后续页面。"
+      "value": "This page explains why MainMenuPage is the sole HDS nav root and how it supports subsequent pages."
     },
     {
       "name": "auto_str_1301",
-      "value": "HdsNavDestination 生命周期与主栈绑定"
+      "value": "HdsNavDestination Lifecycle Bound to Main Stack"
     },
     {
       "name": "auto_str_1302",
-      "value": "GENTLE — 柔和玻璃"
+      "value": "GENTLE - Soft Glass"
     },
     {
       "name": "auto_str_1303",
-      "value": "MaterialLevel.GENTLE 提供最实的材质层，模糊度最低、通透度最低，文字对比度最高。\\n适用于入口页标题栏等强调稳定可读性的场景。"
+      "value": "MaterialLevel.GENTLE provides the most opaque material layer with lowest blur and transparency, maximizing text contrast. Suitable for entry page title bars where stability and readability are critical."
     },
     {
       "name": "auto_str_1304",
-      "value": "SMOOTH — 平滑毛玻璃"
+      "value": "SMOOTH - Frosted Glass"
     },
     {
       "name": "auto_str_1305",
-      "value": "MaterialLevel.SMOOTH Yes均衡的毛玻璃效果，中等模糊与通透度。\\n适合内容目的地标题栏，兼顾文字识别与材质层次感。"
+      "value": "MaterialLevel.SMOOTH provides balanced frosted glass with medium blur and transparency. Suitable for content destination title bars, balancing text readability and material depth."
     },
     {
       "name": "auto_str_1306",
-      "value": "EXQUISITE — 精致高透"
+      "value": "EXQUISITE - High Transparency"
     },
     {
       "name": "auto_str_1307",
-      "value": "MaterialLevel.EXQUISITE 模糊最强、通透度最高，下层内容隐约可见。\\n适合强调型目的地标题栏，追求极致沉浸与通透质感。"
+      "value": "MaterialLevel.EXQUISITE has the strongest blur and transparency, revealing underlying content. Ideal for emphasis destination title bars seeking ultimate immersion."
     },
     {
       "name": "auto_str_1308",
-      "value": "本页标题栏通过官方 systemMaterialEffect 注入 `MaterialType.IMMERSIVE`，并使用不同的 MaterialLevel Showcase材质策略。"
+      "value": "This page title bar injects MaterialType.IMMERSIVE via official systemMaterialEffect, using different MaterialLevel values."
     },
     {
       "name": "auto_str_1309",
-      "value": "systemMaterialEffect + hdsMaterial 官方材质参数"
+      "value": "systemMaterialEffect + hdsMaterial params"
     },
     {
       "name": "auto_str_1310",
-      "value": "已按下：当前预设的 pressShadow / pointLight / backgroundEffect 正在使用按压参数。"
+      "value": "Pressed: current preset pressShadow/pointLight/backgroundEffect using press parameters."
     },
     {
       "name": "auto_str_1311",
-      "value": "按住卡片可观察该 MaterialLevel 对应的预设反馈。"
+      "value": "Long-press card to observe the MaterialLevel preset feedback."
     },
     {
       "name": "auto_str_1312",
-      "value": "等待触发 HDS 特效卡片"
+      "value": "Waiting to trigger HDS effect card"
     },
     {
       "name": "auto_str_1313",
-      "value": "PressShadow 按压阴影"
+      "value": "PressShadow"
     },
     {
       "name": "auto_str_1314",
-      "value": "只启用 hdsEffect.PressShadowType.BLEND_GRADIENT，不叠加 PointLight。\\nPressShadow Yes按压态效果，请按住卡片观察白色径向混合。"
+      "value": "Only enables hdsEffect.PressShadowType.BLEND_GRADIENT, no PointLight overlay. PressShadow is a press-state effect."
     },
     {
       "name": "auto_str_1315",
-      "value": "仅 PressShadow"
+      "value": "Only PressShadow"
     },
     {
       "name": "auto_str_1316",
-      "value": "阴影下沉"
+      "value": "Shadow Sink"
     },
     {
       "name": "auto_str_1317",
-      "value": "PointLight 点光聚焦"
+      "value": "PointLight Focus"
     },
     {
       "name": "auto_str_1318",
-      "value": "只启用 pointLight，点击后从 SOFT+BORDER 切换为 BRIGHT+DEFAULT_FEATHERING_BORDER。\\n适合焦点、选中和确认操作。"
+      "value": "Only pointLight; switches from SOFT+BORDER to BRIGHT+DEFAULT_FEATHERING_BORDER on click. Suitable for focus, selection and confirmation."
     },
     {
       "name": "auto_str_1319",
-      "value": "纯点光"
+      "value": "Pure PointLight"
     },
     {
       "name": "auto_str_1320",
-      "value": "点光聚焦"
+      "value": "Point Light Focus"
     },
     {
       "name": "auto_str_1321",
-      "value": "FlowLight 流光场景"
+      "value": "FlowLight Scene"
     },
     {
       "name": "auto_str_1322",
-      "value": "使用 HdsVisualComponent.scene 启动 DUAL_EDGE_FLOW_LIGHT_WITH_BACKGROUND_MASK。\\n点击后播放真实双边流光与背景遮罩动画。"
+      "value": "Uses HdsVisualComponent.scene for DUAL_EDGE_FLOW_LIGHT_WITH_BACKGROUND_MASK. Click to play real dual-edge flow light with background mask animation."
     },
     {
       "name": "auto_str_1323",
-      "value": "场景流光"
+      "value": "Scene FlowLight"
     },
     {
       "name": "auto_str_1324",
-      "value": "双边流光"
+      "value": "Dual-edge Flow"
     },
     {
       "name": "auto_str_1325",
-      "value": "已启动 HDS 流光场景：%s（%s）"
+      "value": "Started HDS flow scene: %s (%s)"
     },
     {
       "name": "auto_str_1326",
-      "value": "已切换 PressShadow 预览：%s。pressShadow 真实效果发生在按住卡片时。"
+      "value": "Switched PressShadow preview: %s. Real pressShadow effect occurs on long-press."
     },
     {
       "name": "auto_str_1327",
-      "value": "已激活 HDS 特效卡片：%s（%s）"
+      "value": "Activated HDS effect card: %s (%s)"
     },
     {
       "name": "auto_str_1328",
-      "value": "已关闭 HDS 特效卡片：%s"
+      "value": "Closed HDS effect card: %s"
     },
     {
       "name": "auto_str_1329",
-      "value": "以下卡片分别验证 pressShadow、pointLight 与 HdsVisualComponent.scene：点击可切换持久预览，第一张请按住观察真实按压态，第三张点击会启动流光场景。"
+      "value": "Cards below verify pressShadow, pointLight and HdsVisualComponent.scene: click to toggle preview. First card: long-press for real press state. Third card: click starts flow scene."
     },
     {
       "name": "auto_str_1330",
-      "value": "hdsEffect 按压阴影与点光效果组合"
+      "value": "hdsEffect press shadow & point light combination"
     },
     {
       "name": "auto_str_1331",
-      "value": "已激活"
+      "value": "Activated"
     },
     {
       "name": "auto_str_1332",
-      "value": "点击激活"
+      "value": "Click to Activate"
     },
     {
       "name": "auto_str_1333",
-      "value": "效果Status"
+      "value": "Effect Status"
     },
     {
       "name": "auto_str_1334",
-      "value": "○ 待触发"
+      "value": "Pending"
     },
     {
       "name": "auto_str_1335",
@@ -1950,7 +1950,7 @@
     },
     {
       "name": "auto_str_1342",
-      "value": "Module Bootstrap完成: phase=%s, success=%s, failure=%s"
+      "value": "Module Bootstrap complete: phase=%s, success=%s, failure=%s"
     },
     {
       "name": "auto_str_1343",
@@ -1974,7 +1974,7 @@
     },
     {
       "name": "auto_str_1348",
-      "value": "这Yes用于验证错误链路的示例异常"
+      "value": "This is a sample exception for verifying the error chain"
     },
     {
       "name": "auto_str_1349",
@@ -1982,11 +1982,11 @@
     },
     {
       "name": "auto_str_1350",
-      "value": "已打开 %s"
+      "value": "Opened %s"
     },
     {
       "name": "auto_str_1351",
-      "value": "打开 %s Failed: %s"
+      "value": "Open %s failed: %s"
     },
     {
       "name": "auto_str_1352",
@@ -1994,11 +1994,11 @@
     },
     {
       "name": "auto_str_1353",
-      "value": "已同步Module Bootstrap结果: phase=%s, success=%s, failure=%s"
+      "value": "Module Bootstrap result synced: phase=%s, success=%s, failure=%s"
     },
     {
       "name": "auto_str_1354",
-      "value": "NGF 运行Framework主入口 / HDS 根导航容器"
+      "value": "NGF Runtime Framework Entry / HDS Root Navigation Container"
     },
     {
       "name": "auto_str_1355",
@@ -2018,67 +2018,67 @@
     },
     {
       "name": "auto_str_1359",
-      "value": "API 23 轻核心入口（日志 / 事件 / 生命周期 / DI / WindowStage 统一窗口管理）"
+      "value": "API 23 Lightweight Core Entry (Log/Event/Lifecycle/DI/WindowStage)"
     },
     {
       "name": "auto_str_1360",
-      "value": "生命周期"
+      "value": "Lifecycle"
     },
     {
       "name": "auto_str_1361",
-      "value": "模块"
+      "value": "Modules"
     },
     {
       "name": "auto_str_1362",
-      "value": "窗口"
+      "value": "Window"
     },
     {
       "name": "auto_str_1363",
-      "value": "事件"
+      "value": "Events"
     },
     {
       "name": "auto_str_1364",
-      "value": "官方 HDS / ArkUI 示例页"
+      "value": "Official HDS / ArkUI Demo Pages"
     },
     {
       "name": "auto_str_1365",
-      "value": "基于 MainMenuPage 的 NavPathStack + navDestination 架构，统一接入官方 HDS Navigation 示例与单页融合示例。"
+      "value": "Based on MainMenuPage NavPathStack + navDestination architecture, integrating official HDS Navigation demos and single-page fusion examples."
     },
     {
       "name": "auto_str_1366",
-      "value": "旧的 HDS 组件页、布局页和动效页已删除，并重组为一个完全遵循 HDSNavigation 视觉模式的综合示例页。"
+      "value": "Legacy HDS component, layout and motion pages removed, reorganized into a comprehensive demo fully compliant with HDSNavigation visual patterns."
     },
     {
       "name": "auto_str_1367",
-      "value": "官方 HDS Navigation 示例页"
+      "value": "Official HDS Navigation Demo"
     },
     {
       "name": "auto_str_1368",
-      "value": "验证统一主栈、官方目的地与多Features顶栏页面结构。"
+      "value": "Verify unified main stack, official destinations and multi-feature top bar page structure."
     },
     {
       "name": "auto_str_1369",
-      "value": "HDS 综合融合示例页"
+      "value": "HDS Integrated Fusion Demo"
     },
     {
       "name": "auto_str_1370",
-      "value": "在同一页面内融合组件、布局与动效验证能力。"
+      "value": "Integrates component, layout and motion verification in one page."
     },
     {
       "name": "auto_str_1371",
-      "value": "快速操作"
+      "value": "Quick Actions"
     },
     {
       "name": "auto_str_1372",
-      "value": "把高频调试动作收束成统一光效按钮，便于在沉浸式主页中快速验证核心链路。"
+      "value": "High-frequency debug actions unified into glass-effect buttons for quick core path verification."
     },
     {
       "name": "auto_str_1373",
-      "value": "初始化核心服务"
+      "value": "Initialize Core Services"
     },
     {
       "name": "auto_str_1374",
-      "value": "重新确认容器、日志、事件总线和基础能力是否Ready。"
+      "value": "Re-confirm container, logger, event bus and basic capabilities are ready."
     },
     {
       "name": "auto_str_1375",
@@ -2086,7 +2086,7 @@
     },
     {
       "name": "auto_str_1376",
-      "value": "向核心事件总线发送演示消息，检查链路与日志反馈。"
+      "value": "Send demo message to core event bus, verify chain and log feedback."
     },
     {
       "name": "auto_str_1377",
@@ -2094,131 +2094,131 @@
     },
     {
       "name": "auto_str_1378",
-      "value": "模拟Framework分阶段推进，观察状态卡片与日志变化。"
+      "value": "Simulate framework phased advancement, observe status card and log changes."
     },
     {
       "name": "auto_str_1379",
-      "value": "触发演示错误"
+      "value": "Trigger Demo Error"
     },
     {
       "name": "auto_str_1380",
-      "value": "验证错误处理器、Error Count与统一日志采集效果。"
+      "value": "Verify error handler, error count and unified log collection."
     },
     {
       "name": "auto_str_1381",
-      "value": "安全与性能"
+      "value": "Security & Performance"
     },
     {
       "name": "auto_str_1382",
-      "value": "SHA 哈希、AES-GCM 加解密、性能打点、内存快照。"
+      "value": "SHA hash, AES-GCM encryption, performance timing, memory snapshots."
     },
     {
       "name": "auto_str_1383",
-      "value": "数据与存储"
+      "value": "Data & Storage"
     },
     {
       "name": "auto_str_1384",
-      "value": "FileUtils 文件读写、目录操作、ContentCache LRU 缓存管理。"
+      "value": "FileUtils read/write, directory operations, ContentCache LRU management."
     },
     {
       "name": "auto_str_1385",
-      "value": "流程编排"
+      "value": "Workflow"
     },
     {
       "name": "auto_str_1386",
-      "value": "工作流 DSL 多步骤执行、条件分支、Status持久化与恢复。"
+      "value": "Workflow DSL multi-step execution, conditional branching, state persistence and recovery."
     },
     {
       "name": "auto_str_1387",
-      "value": "Device与显示"
+      "value": "Device & Display"
     },
     {
       "name": "auto_str_1388",
-      "value": "多语言相对时间、Device能力检测、字体缩放控制。"
+      "value": "Multi-language relative time, device capability detection, font scaling control."
     },
     {
       "name": "auto_str_1389",
-      "value": "系统 Symbol 图标库"
+      "value": "System Symbol Library"
     },
     {
       "name": "auto_str_1390",
-      "value": "浏览 HarmonyOS sys.symbol 分组、搜索并复制系统图标资源引用。"
+      "value": "Browse HarmonyOS sys.symbol groups, search and copy system icon resource references."
     },
     {
       "name": "auto_str_1391",
-      "value": "运行Status"
+      "value": "Runtime Status"
     },
     {
       "name": "auto_str_1392",
-      "value": "核心Status: %s"
+      "value": "Core Status: %s"
     },
     {
       "name": "auto_str_1393",
-      "value": "生命周期: %s"
+      "value": "Lifecycle: %s"
     },
     {
       "name": "auto_str_1394",
-      "value": "进度: %s%"
+      "value": "Progress: %s%%"
     },
     {
       "name": "auto_str_1395",
-      "value": "已完成: %s"
+      "value": "Completed: %s"
     },
     {
       "name": "auto_str_1396",
-      "value": "事件计数: %s"
+      "value": "Event Count: %s"
     },
     {
       "name": "auto_str_1397",
-      "value": "最新事件: %s"
+      "value": "Latest Event: %s"
     },
     {
       "name": "auto_str_1398",
-      "value": "模块阶段: %s"
+      "value": "Module Phase: %s"
     },
     {
       "name": "auto_str_1399",
-      "value": "模块成功: %s/%s"
+      "value": "Module Success: %s/%s"
     },
     {
       "name": "auto_str_1400",
-      "value": "模块Failed: %s"
+      "value": "Module Failed: %s"
     },
     {
       "name": "auto_str_1401",
-      "value": "窗口监控"
+      "value": "Window Monitor"
     },
     {
       "name": "auto_str_1402",
-      "value": "窗口Ready: %s"
+      "value": "Window Ready: %s"
     },
     {
       "name": "auto_str_1403",
-      "value": "当前页面: %s"
+      "value": "Current Page: %s"
     },
     {
       "name": "auto_str_1404",
-      "value": "显示模式: %s"
+      "value": "Display Mode: %s"
     },
     {
       "name": "auto_str_1405",
-      "value": "窗口Status: %s"
+      "value": "Window Status: %s"
     },
     {
       "name": "auto_str_1406",
-      "value": "最近更新: %s"
+      "value": "Last Updated: %s"
     },
     {
       "name": "auto_str_1407",
-      "value": "模块明细"
+      "value": "Module Details"
     },
     {
       "name": "auto_str_1408",
-      "value": "当前暂无模块运行时快照"
+      "value": "No module runtime snapshots"
     },
     {
       "name": "auto_str_1409",
-      "value": "阶段: %s"
+      "value": "Phase: %s"
     },
     {
       "name": "auto_str_1410",
@@ -2226,143 +2226,143 @@
     },
     {
       "name": "auto_str_1411",
-      "value": "依赖: %s"
+      "value": "Dependencies: %s"
     },
     {
       "name": "auto_str_1412",
-      "value": "服务: %s"
+      "value": "Services: %s"
     },
     {
       "name": "auto_str_1413",
-      "value": "消息: %s"
+      "value": "Message: %s"
     },
     {
       "name": "auto_str_1414",
-      "value": "运行日志"
+      "value": "Runtime Logs"
     },
     {
       "name": "auto_str_1415",
-      "value": "NGF Framework 数据存储测试"
+      "value": "NGF Framework Data Storage Test"
     },
     {
       "name": "auto_str_1416",
-      "value": "FileUtils/目录/ContentCache"
+      "value": "FileUtils/Directory/ContentCache"
     },
     {
       "name": "auto_str_1417",
-      "value": "数据与存储演示"
+      "value": "Data & Storage Demo"
     },
     {
       "name": "auto_str_1418",
-      "value": "FileUtils 文件读写 / 目录操作 / ContentCache LRU 缓存管理"
+      "value": "FileUtils file read/write / directory operations / ContentCache LRU cache management"
     },
     {
       "name": "auto_str_1419",
-      "value": "文件读写"
+      "value": "File Read/Write"
     },
     {
       "name": "auto_str_1420",
-      "value": "输入要写入的内容"
+      "value": "Enter content to write"
     },
     {
       "name": "auto_str_1421",
-      "value": "写入文件"
+      "value": "Write File"
     },
     {
       "name": "auto_str_1422",
-      "value": "读取文件"
+      "value": "Read File"
     },
     {
       "name": "auto_str_1423",
-      "value": "读取结果"
+      "value": "Read Result"
     },
     {
       "name": "auto_str_1424",
-      "value": "目录操作"
+      "value": "Directory Operations"
     },
     {
       "name": "auto_str_1425",
-      "value": "列出应用文件目录"
+      "value": "List App File Directory"
     },
     {
       "name": "auto_str_1426",
-      "value": "内容缓存 (LRU)"
+      "value": "Content Cache (LRU)"
     },
     {
       "name": "auto_str_1427",
-      "value": "缓存 Key"
+      "value": "Cache Key"
     },
     {
       "name": "auto_str_1428",
-      "value": "缓存 Value"
+      "value": "Cache Value"
     },
     {
       "name": "auto_str_1429",
-      "value": "已放入缓存: %s"
+      "value": "Cached: %s"
     },
     {
       "name": "auto_str_1430",
-      "value": "(空)"
+      "value": "(empty)"
     },
     {
       "name": "auto_str_1431",
-      "value": "存在"
+      "value": "Exists"
     },
     {
       "name": "auto_str_1432",
-      "value": "不存在"
+      "value": "Not Exists"
     },
     {
       "name": "auto_str_1433",
-      "value": "已删除缓存: %s"
+      "value": "Cache removed: %s"
     },
     {
       "name": "auto_str_1434",
-      "value": "Get 结果:"
+      "value": "Get Result:"
     },
     {
       "name": "auto_str_1435",
-      "value": "Has 结果:"
+      "value": "Has Result:"
     },
     {
       "name": "auto_str_1436",
-      "value": "内存条目数:"
+      "value": "Memory Entries:"
     },
     {
       "name": "auto_str_1437",
-      "value": "写入成功: ngf_demo.txt"
+      "value": "Write success: ngf_demo.txt"
     },
     {
       "name": "auto_str_1438",
-      "value": "写入Failed"
+      "value": "Write Failed"
     },
     {
       "name": "auto_str_1439",
-      "value": "写入异常: %s"
+      "value": "Write error: %s"
     },
     {
       "name": "auto_str_1440",
-      "value": "(文件为空或不存在)"
+      "value": "(file empty or not found)"
     },
     {
       "name": "auto_str_1441",
-      "value": "读取异常: %s"
+      "value": "Read error: %s"
     },
     {
       "name": "auto_str_1442",
-      "value": "列出目录异常: %s"
+      "value": "List directory error: %s"
     },
     {
       "name": "auto_str_1443",
-      "value": "中文"
+      "value": "Chinese"
     },
     {
       "name": "auto_str_1444",
-      "value": "English', '日本語"
+      "value": "English"
     },
     {
       "name": "auto_str_1445",
-      "value": "相对时间/能力检测/字体缩放"
+      "value": "Relative Time / Capability Detection / Font Scale"
     },
     {
       "name": "auto_str_1446",
@@ -2370,127 +2370,127 @@
     },
     {
       "name": "auto_str_1447",
-      "value": "RelativeTimeFormatter 多语言 / DeviceCapabilityDetector 硬件检测 / FontScaleManager 字体缩放"
+      "value": "RelativeTimeFormatter / DeviceCapabilityDetector / FontScaleManager"
     },
     {
       "name": "auto_str_1448",
-      "value": "相对时间格式化"
+      "value": "Relative Time Formatting"
     },
     {
       "name": "auto_str_1449",
-      "value": "1分钟前"
+      "value": "1 minute ago"
     },
     {
       "name": "auto_str_1450",
-      "value": "1小时前"
+      "value": "1 hour ago"
     },
     {
       "name": "auto_str_1451",
-      "value": "1天前"
+      "value": "1 day ago"
     },
     {
       "name": "auto_str_1452",
-      "value": "1月前"
+      "value": "1 month ago"
     },
     {
       "name": "auto_str_1453",
-      "value": "Device能力检测"
+      "value": "Device Capability Detection"
     },
     {
       "name": "auto_str_1454",
-      "value": "检测全部能力 (13项)"
+      "value": "Detect All Capabilities (13)"
     },
     {
       "name": "auto_str_1455",
-      "value": "可用"
+      "value": "Available"
     },
     {
       "name": "auto_str_1456",
-      "value": "不可用"
+      "value": "Unavailable"
     },
     {
       "name": "auto_str_1457",
-      "value": "字体缩放"
+      "value": "Font Scale"
     },
     {
       "name": "auto_str_1458",
-      "value": "小 (0.85x)"
+      "value": "Small (0.85x)"
     },
     {
       "name": "auto_str_1459",
-      "value": "标准 (1.0x)"
+      "value": "Standard (1.0x)"
     },
     {
       "name": "auto_str_1460",
-      "value": "大 (1.15x)"
+      "value": "Large (1.15x)"
     },
     {
       "name": "auto_str_1461",
-      "value": "特大 (1.3x)"
+      "value": "Extra Large (1.3x)"
     },
     {
       "name": "auto_str_1462",
-      "value": "重置为系统默认"
+      "value": "Reset to System Default"
     },
     {
       "name": "auto_str_1463",
-      "value": "当前级别"
+      "value": "Current Level"
     },
     {
       "name": "auto_str_1464",
-      "value": "缩放倍数"
+      "value": "Scale Factor"
     },
     {
       "name": "auto_str_1465",
-      "value": "这是一段预览文字，用于Showcase当前字体缩放效果。The quick brown fox jumps over the lazy dog."
+      "value": "This is preview text to showcase the current font scale effect. The quick brown fox jumps over the lazy dog."
     },
     {
       "name": "auto_str_1466",
-      "value": "摄像头"
+      "value": "Camera"
     },
     {
       "name": "auto_str_1467",
-      "value": "蓝牙"
+      "value": "Bluetooth"
     },
     {
       "name": "auto_str_1468",
-      "value": "振动"
+      "value": "Vibration"
     },
     {
       "name": "auto_str_1469",
-      "value": "指纹"
+      "value": "Fingerprint"
     },
     {
       "name": "auto_str_1470",
-      "value": "人脸识别"
+      "value": "Face Recognition"
     },
     {
       "name": "auto_str_1471",
-      "value": "加速度计"
+      "value": "Accelerometer"
     },
     {
       "name": "auto_str_1472",
-      "value": "陀螺仪"
+      "value": "Gyroscope"
     },
     {
       "name": "auto_str_1473",
-      "value": "气压计"
+      "value": "Barometer"
     },
     {
       "name": "auto_str_1474",
-      "value": "环境光"
+      "value": "Ambient Light"
     },
     {
       "name": "auto_str_1475",
-      "value": "接近传感器"
+      "value": "Proximity Sensor"
     },
     {
       "name": "auto_str_1476",
-      "value": "字体缩放: %s (%sx)"
+      "value": "Font Scale: %s (%sx)"
     },
     {
       "name": "auto_str_1477",
-      "value": "SHA/AES/性能打点/内存快照"
+      "value": "SHA/AES/Performance/Memory"
     },
     {
       "name": "auto_str_1478",
@@ -2498,119 +2498,119 @@
     },
     {
       "name": "auto_str_1479",
-      "value": "SecurityToolkit SHA 哈希 / AES-GCM 加解密 / PerformanceMonitor 打点与内存快照"
+      "value": "SecurityToolkit SHA hash / AES-GCM encrypt/decrypt / PerformanceMonitor timing & memory snapshots"
     },
     {
       "name": "auto_str_1480",
-      "value": "SHA 哈希"
+      "value": "SHA Hash"
     },
     {
       "name": "auto_str_1481",
-      "value": "输入待哈希文本"
+      "value": "Enter text to hash"
     },
     {
       "name": "auto_str_1482",
-      "value": "计算哈希"
+      "value": "Compute Hash"
     },
     {
       "name": "auto_str_1483",
-      "value": "哈希结果"
+      "value": "Hash Result"
     },
     {
       "name": "auto_str_1484",
-      "value": "AES-GCM 加解密"
+      "value": "AES-GCM Encryption"
     },
     {
       "name": "auto_str_1485",
-      "value": "输入明文"
+      "value": "Enter plaintext"
     },
     {
       "name": "auto_str_1486",
-      "value": "加密"
+      "value": "Encrypt"
     },
     {
       "name": "auto_str_1487",
-      "value": "解密"
+      "value": "Decrypt"
     },
     {
       "name": "auto_str_1488",
-      "value": "密文 (Base64)"
+      "value": "Ciphertext (Base64)"
     },
     {
       "name": "auto_str_1489",
-      "value": "解密结果"
+      "value": "Decrypt Result"
     },
     {
       "name": "auto_str_1490",
-      "value": "性能打点"
+      "value": "Performance Timing"
     },
     {
       "name": "auto_str_1491",
-      "value": "开始打点"
+      "value": "Start Timing"
     },
     {
       "name": "auto_str_1492",
-      "value": "结束打点"
+      "value": "End Timing"
     },
     {
       "name": "auto_str_1493",
-      "value": "内存快照"
+      "value": "Memory Snapshot"
     },
     {
       "name": "auto_str_1494",
-      "value": "拍摄内存快照"
+      "value": "Take Memory Snapshot"
     },
     {
       "name": "auto_str_1495",
-      "value": "错误: %s"
+      "value": "Error: %s"
     },
     {
       "name": "auto_str_1496",
-      "value": "加密Failed"
+      "value": "Encryption Failed"
     },
     {
       "name": "auto_str_1497",
-      "value": "请先加密"
+      "value": "Please encrypt first"
     },
     {
       "name": "auto_str_1498",
-      "value": "解密Failed"
+      "value": "Decryption Failed"
     },
     {
       "name": "auto_str_1499",
-      "value": "工作流 DSL / 条件分支 / Status持久化"
+      "value": "Workflow DSL / Conditional Branching / State Persistence"
     },
     {
       "name": "auto_str_1500",
-      "value": "流程编排演示"
+      "value": "Workflow Demo"
     },
     {
       "name": "auto_str_1501",
-      "value": "WorkflowDefinition DSL 多步骤工作流 + 条件分支 / WorkflowPersistence Status持久化"
+      "value": "WorkflowDefinition DSL multi-step workflow + conditional branching / WorkflowPersistence state persistence"
     },
     {
       "name": "auto_str_1502",
-      "value": "工作流 DSL"
+      "value": "Workflow DSL"
     },
     {
       "name": "auto_str_1503",
-      "value": "注册一个包含 4 个步骤的示例工作流（含条件分支），然后执行它。"
+      "value": "Register a 4-step demo workflow (with conditional branching), then execute it."
     },
     {
       "name": "auto_str_1504",
-      "value": "注册示例工作流"
+      "value": "Register Demo Workflow"
     },
     {
       "name": "auto_str_1505",
-      "value": "执行工作流"
+      "value": "Execute Workflow"
     },
     {
       "name": "auto_str_1506",
-      "value": "已注册: %s"
+      "value": "Registered: %s"
     },
     {
       "name": "auto_str_1507",
-      "value": "成功"
+      "value": "Success"
     },
     {
       "name": "auto_str_1508",
@@ -2618,95 +2618,95 @@
     },
     {
       "name": "auto_str_1509",
-      "value": "执行结果: %s"
+      "value": "Execution result: %s"
     },
     {
       "name": "auto_str_1510",
-      "value": "输出 JSON"
+      "value": "Output JSON"
     },
     {
       "name": "auto_str_1511",
-      "value": "工作流持久化"
+      "value": "Workflow Persistence"
     },
     {
       "name": "auto_str_1512",
-      "value": "保存Status"
+      "value": "Save State"
     },
     {
       "name": "auto_str_1513",
-      "value": "加载Status"
+      "value": "Load State"
     },
     {
       "name": "auto_str_1514",
-      "value": "列出已保存"
+      "value": "List Saved"
     },
     {
       "name": "auto_str_1515",
-      "value": "清除全部"
+      "value": "Clear All"
     },
     {
       "name": "auto_str_1516",
-      "value": "已清除所有保存的工作流Status"
+      "value": "All saved workflow states cleared"
     },
     {
       "name": "auto_str_1517",
-      "value": "步骤 %s"
+      "value": "Step %s"
     },
     {
       "name": "auto_str_1518",
-      "value": "数据校验"
+      "value": "Data Validation"
     },
     {
       "name": "auto_str_1519",
-      "value": "条件处理"
+      "value": "Conditional Processing"
     },
     {
       "name": "auto_str_1520",
-      "value": "结果缓存"
+      "value": "Result Caching"
     },
     {
       "name": "auto_str_1521",
-      "value": "演示用多步骤工作流（含条件分支）"
+      "value": "Demo multi-step workflow (with conditional branches)"
     },
     {
       "name": "auto_str_1522",
-      "value": "已注册工作流: %s, 步骤数=%s"
+      "value": "Registered workflow: %s, steps=%s"
     },
     {
       "name": "auto_str_1523",
-      "value": "请先注册工作流"
+      "value": "Please register workflow first"
     },
     {
       "name": "auto_str_1524",
-      "value": "跳过"
+      "value": "Skip"
     },
     {
       "name": "auto_str_1525",
-      "value": "执行异常: %s"
+      "value": "Execution error: %s"
     },
     {
       "name": "auto_str_1526",
-      "value": "请先注册并执行工作流"
+      "value": "Please register and execute workflow first"
     },
     {
       "name": "auto_str_1527",
-      "value": "已保存工作流Status: %s"
+      "value": "Workflow state saved: %s"
     },
     {
       "name": "auto_str_1528",
-      "value": "已加载: stepIndex=%s, savedAt=%s"
+      "value": "Loaded: stepIndex=%s, savedAt=%s"
     },
     {
       "name": "auto_str_1529",
-      "value": "未找到已保存的Status"
+      "value": "No saved state found"
     },
     {
       "name": "auto_str_1530",
-      "value": "已保存的工作流: %s 个"
+      "value": "Saved workflows: %s"
     },
     {
       "name": "auto_str_1531",
-      "value": "app.string.device_awareness_is_landscape') : '竖屏"
+      "value": "Portrait"
     },
     {
       "name": "ui_str_2001",
@@ -2722,67 +2722,67 @@
     },
     {
       "name": "ui_str_2004",
-      "value": "Lifecycle State: %s, progress=%s"
+      "value": "Lifecycle state changed: %s (progress %s%%)"
     },
     {
       "name": "ui_str_2005",
-      "value": "Error Count: %s"
+      "value": "Core error occurred: %s recent errors"
     },
     {
       "name": "ui_str_2006",
-      "value": "Received Demo Event: count=%s"
+      "value": "Demo event received (%s total)"
     },
     {
       "name": "ui_str_2007",
-      "value": "Module Startup: success=%s/%s"
+      "value": "Modules bootstrapped: %s/%s succeeded"
     },
     {
       "name": "ui_str_2008",
-      "value": "Module Startup Complete: phase=%s, success=%s, failure=%s"
+      "value": "Module bootstrap: phase=%s, success=%s/%s"
     },
     {
       "name": "ui_str_2009",
-      "value": "Core Service Re-verified"
+      "value": "Core framework is ready"
     },
     {
       "name": "ui_str_2010",
-      "value": "Core Service Startup Failed"
+      "value": "Core framework failed to start"
     },
     {
       "name": "ui_str_2011",
-      "value": "Lifecycle completed, no further advancement needed"
+      "value": "Lifecycle already completed"
     },
     {
       "name": "ui_str_2012",
-      "value": "Lifecycle marked as completed"
+      "value": "All lifecycle phases completed"
     },
     {
       "name": "ui_str_2013",
-      "value": "Advancing lifecycle phase: %s"
+      "value": "Lifecycle phase completed: %s"
     },
     {
       "name": "ui_str_2014",
-      "value": "This is a sample exception to verify error handling"
+      "value": "Simulated demo error triggered"
     },
     {
       "name": "ui_str_2015",
-      "value": "Submitted demo error to core error handler"
+      "value": "Demo error handled successfully"
     },
     {
       "name": "ui_str_2016",
-      "value": "Opened %s"
+      "value": "Opened HDS demo: %s"
     },
     {
       "name": "ui_str_2017",
-      "value": "Failed to open %s: %s"
+      "value": "Failed to open HDS demo %s: %s"
     },
     {
       "name": "ui_str_2018",
-      "value": "Unrecognized home action: %s"
+      "value": "Action triggered: %s"
     },
     {
       "name": "ui_str_2019",
-      "value": "Synced module startup result: phase=%s, success=%s, failure=%s"
+      "value": "Bootstrap report: phase=%s, success=%s/%s"
     },
     {
       "name": "ui_str_2020",
@@ -2838,11 +2838,11 @@
     },
     {
       "name": "ui_str_2033",
-      "value": "Official HDS Navigation Showcase"
+      "value": "Official HDS Navigation"
     },
     {
       "name": "ui_str_2034",
-      "value": "Verify unified main stack, official destinations, and multi-function top bar structure."
+      "value": "Official HDS Navigation demo pages"
     },
     {
       "name": "ui_str_2035",
@@ -2850,7 +2850,7 @@
     },
     {
       "name": "ui_str_2036",
-      "value": "Integrate components, layouts, and motion capabilities within a single page."
+      "value": "Component, layout & motion in one page"
     },
     {
       "name": "ui_str_2037",
@@ -2858,7 +2858,7 @@
     },
     {
       "name": "ui_str_2038",
-      "value": "Consolidate high-frequency debugging actions into uniform light-effect buttons for quick verification."
+      "value": "High-frequency debug actions for core path verification"
     },
     {
       "name": "ui_str_2039",
@@ -2866,7 +2866,7 @@
     },
     {
       "name": "ui_str_2040",
-      "value": "Re-verify container, logging, event bus, and basic capabilities."
+      "value": "Re-confirm container, logger, event bus ready"
     },
     {
       "name": "ui_str_2041",
@@ -2874,7 +2874,7 @@
     },
     {
       "name": "ui_str_2042",
-      "value": "Send demo message to core event bus and check logs."
+      "value": "Send demo message to verify event chain"
     },
     {
       "name": "ui_str_2043",
@@ -2882,15 +2882,15 @@
     },
     {
       "name": "ui_str_2044",
-      "value": "Simulate framework phased advancement and observe state changes."
+      "value": "Step through lifecycle phases"
     },
     {
       "name": "ui_str_2045",
-      "value": "Trigger Demo Error"
+      "value": "Simulate Error"
     },
     {
       "name": "ui_str_2046",
-      "value": "Verify error handler, error count, and unified log collection."
+      "value": "Trigger demo error for error handler verification"
     },
     {
       "name": "ui_str_2047",
@@ -2898,7 +2898,7 @@
     },
     {
       "name": "ui_str_2048",
-      "value": "SHA Hash, AES-GCM Encryption, Performance Metrics, Memory Snapshots."
+      "value": "SHA hash, AES-GCM, performance timing, memory snapshots"
     },
     {
       "name": "ui_str_2049",
@@ -2906,31 +2906,31 @@
     },
     {
       "name": "ui_str_2050",
-      "value": "FileUtils read/write, directory operations, ContentCache LRU cache."
+      "value": "FileUtils file read/write, ContentCache LRU management"
     },
     {
       "name": "ui_str_2051",
-      "value": "Workflow Orchestration"
+      "value": "Workflow"
     },
     {
       "name": "ui_str_2052",
-      "value": "Workflow DSL execution, conditional branching, state persistence."
+      "value": "Workflow DSL: register, execute, persist"
     },
     {
       "name": "ui_str_2053",
-      "value": "Device & Display"
+      "value": "Device Display"
     },
     {
       "name": "ui_str_2054",
-      "value": "Multi-language relative time, device capabilities, font scaling."
+      "value": "Relative time, capability detection, font scaling"
     },
     {
       "name": "ui_str_2055",
-      "value": "System Symbol Library"
+      "value": "System Symbol Preview"
     },
     {
       "name": "ui_str_2056",
-      "value": "Browse HarmonyOS sys.symbol groups, search and copy symbol resources."
+      "value": "Browse, search and copy sys.symbol references"
     },
     {
       "name": "ui_str_2057",
@@ -3078,31 +3078,31 @@
     },
     {
       "name": "ui_str_2093",
-      "value": "Feedback"
-    },
-    {
-      "name": "ui_str_2094",
-      "value": "Forms"
-    },
-    {
-      "name": "ui_str_2095",
-      "value": "Filters"
-    },
-    {
-      "name": "ui_str_2096",
-      "value": "Status"
-    },
-    {
-      "name": "ui_str_2097",
       "value": "Organization"
     },
     {
+      "name": "ui_str_2094",
+      "value": "Feedback"
+    },
+    {
+      "name": "ui_str_2095",
+      "value": "Forms"
+    },
+    {
+      "name": "ui_str_2096",
+      "value": "Filter"
+    },
+    {
+      "name": "ui_str_2097",
+      "value": "Media"
+    },
+    {
       "name": "ui_str_2098",
-      "value": "Search Entry"
+      "value": "Search"
     },
     {
       "name": "ui_str_2099",
-      "value": "Filter by keywords, suitable for resource retrieval and list positioning."
+      "value": "Keyword filter with result statistics"
     },
     {
       "name": "ui_str_2100",
@@ -3126,11 +3126,11 @@
     },
     {
       "name": "ui_str_2105",
-      "value": "Integrate current filters and verification status for clear readability."
+      "value": "Segment switch for multi-section content"
     },
     {
       "name": "ui_str_2106",
-      "value": "Layout Cards Area"
+      "value": "Content Grid"
     },
     {
       "name": "ui_str_2107",
@@ -3138,19 +3138,19 @@
     },
     {
       "name": "ui_str_2108",
-      "value": "Ideal for recommendations and summaries, emphasizing tiered information."
+      "value": "Suitable for featured recommendations and demos"
     },
     {
       "name": "ui_str_2109",
-      "value": "Info Panel"
+      "value": "Content Panel"
     },
     {
       "name": "ui_str_2110",
-      "value": "Hosts instructions, tips, and result summaries in a centralized view."
+      "value": "Layered information with scrolling reading experience"
     },
     {
       "name": "ui_str_2111",
-      "value": "Tabs Switching"
+      "value": "Nav Tabs"
     },
     {
       "name": "ui_str_2112",
@@ -3158,19 +3158,19 @@
     },
     {
       "name": "ui_str_2113",
-      "value": "Retain navigation semantics within a single page."
+      "value": "In-page nav switching semantics"
     },
     {
       "name": "ui_str_2114",
-      "value": "Focus Entry Card"
+      "value": "Nav Focus"
     },
     {
       "name": "ui_str_2115",
-      "value": "Use unified cards instead of standalone page jumps."
+      "value": "Unified card style for nav intent"
     },
     {
       "name": "ui_str_2116",
-      "value": "Service Tools Entry"
+      "value": "Service Tools"
     },
     {
       "name": "ui_str_2117",
@@ -3178,19 +3178,19 @@
     },
     {
       "name": "ui_str_2118",
-      "value": "Consolidate tool entries into a single page to reduce switching costs."
+      "value": "Consolidated verification tools"
     },
     {
       "name": "ui_str_2119",
-      "value": "Validation Summary"
+      "value": "Service Verify"
     },
     {
       "name": "ui_str_2120",
-      "value": "Summarize integrated SDK capabilities and navigation strategies."
+      "value": "Verification summary links"
     },
     {
       "name": "ui_str_2121",
-      "value": "Gentle"
+      "value": "Banner"
     },
     {
       "name": "ui_str_2122",
@@ -3198,7 +3198,7 @@
     },
     {
       "name": "ui_str_2123",
-      "value": "Emphasized"
+      "value": "Emphasis"
     },
     {
       "name": "ui_str_2124",
@@ -3246,7 +3246,7 @@
     },
     {
       "name": "ui_str_2135",
-      "value": "Motion status reset"
+      "value": "Motion reset to default"
     },
     {
       "name": "ui_str_2136",
@@ -3294,7 +3294,7 @@
     },
     {
       "name": "ui_str_2147",
-      "value": "Experience search, segmentation, and tags"
+      "value": "On-page validation of search, filter, segment switch & info summary"
     },
     {
       "name": "ui_str_2148",
@@ -3322,7 +3322,7 @@
     },
     {
       "name": "ui_str_2154",
-      "value": "Integrated Content, Navigation, and Services"
+      "value": "Unified card style presentation for content layout, nav layout and service entry"
     },
     {
       "name": "ui_str_2155",
@@ -3330,7 +3330,7 @@
     },
     {
       "name": "ui_str_2156",
-      "value": "Carousel, motion switching, and playback controls"
+      "value": "Carousel, focus transition and motion mode adjustment"
     },
     {
       "name": "ui_str_2157",
@@ -3630,11 +3630,11 @@
     },
     {
       "name": "ui_str_2231",
-      "value": "NGF Framework Data Storage Test"
+      "value": "NGF Demo Content"
     },
     {
       "name": "ui_str_2232",
-      "value": "FileUtils / Directory / ContentCache"
+      "value": "Data & Storage"
     },
     {
       "name": "ui_str_2233",
@@ -3690,15 +3690,15 @@
     },
     {
       "name": "ui_str_2246",
-      "value": "(Empty)"
+      "value": "(empty)"
     },
     {
       "name": "ui_str_2247",
-      "value": "Exists"
+      "value": "Yes"
     },
     {
       "name": "ui_str_2248",
-      "value": "Not Exists"
+      "value": "No"
     },
     {
       "name": "ui_str_2249",
@@ -3718,23 +3718,23 @@
     },
     {
       "name": "ui_str_2253",
-      "value": "Write Success: ngf_demo.txt"
+      "value": "Write successful"
     },
     {
       "name": "ui_str_2254",
-      "value": "Write Failed"
+      "value": "Write failed"
     },
     {
       "name": "ui_str_2255",
-      "value": "Write Exception: %s"
+      "value": "Write error: %s"
     },
     {
       "name": "ui_str_2256",
-      "value": "(File empty or missing)"
+      "value": "(file empty or not found)"
     },
     {
       "name": "ui_str_2257",
-      "value": "Read Exception: %s"
+      "value": "Read error: %s"
     },
     {
       "name": "ui_str_2258",
@@ -3742,7 +3742,7 @@
     },
     {
       "name": "ui_str_2259",
-      "value": "Chinese"
+      "value": "Simplified Chinese"
     },
     {
       "name": "ui_str_2260",
@@ -3950,11 +3950,11 @@
     },
     {
       "name": "ui_str_2311",
-      "value": "Error: %s"
+      "value": "Encryption error: %s"
     },
     {
       "name": "ui_str_2312",
-      "value": "Encryption Failed"
+      "value": "Encryption failed"
     },
     {
       "name": "ui_str_2313",
@@ -3962,7 +3962,7 @@
     },
     {
       "name": "ui_str_2314",
-      "value": "Decryption Failed"
+      "value": "Decryption failed"
     },
     {
       "name": "ui_str_2315",
@@ -4034,7 +4034,7 @@
     },
     {
       "name": "ui_str_2332",
-      "value": "Cleared all saved workflow states"
+      "value": "All saved states cleared"
     },
     {
       "name": "ui_str_2333",
@@ -4046,23 +4046,23 @@
     },
     {
       "name": "ui_str_2335",
-      "value": "Condition Handling"
+      "value": "Conditional Processing"
     },
     {
       "name": "ui_str_2336",
-      "value": "Result Cache"
+      "value": "Result Caching"
     },
     {
       "name": "ui_str_2337",
-      "value": "Demo Workflow (with branching)"
+      "value": "Demo Multi-Step Workflow"
     },
     {
       "name": "ui_str_2338",
-      "value": "Registered: %s, steps=%s"
+      "value": "Registered workflow: %s, %s steps"
     },
     {
       "name": "ui_str_2339",
-      "value": "Please register workflow first"
+      "value": "Please register a workflow first"
     },
     {
       "name": "ui_str_2340",
@@ -4070,19 +4070,19 @@
     },
     {
       "name": "ui_str_2341",
-      "value": "Execution Exception: %s"
+      "value": "Execution error: %s"
     },
     {
       "name": "ui_str_2342",
-      "value": "Please register and execute workflow first"
+      "value": "Please register a workflow first"
     },
     {
       "name": "ui_str_2343",
-      "value": "Saved Workflow State: %s"
+      "value": "Workflow state saved: %s"
     },
     {
       "name": "ui_str_2344",
-      "value": "Loaded: stepIndex=%s, savedAt=%s"
+      "value": "Loaded: stepIndex=%s, time=%s"
     },
     {
       "name": "ui_str_2345",
@@ -4090,11 +4090,11 @@
     },
     {
       "name": "ui_str_2346",
-      "value": "Saved Workflows: %s"
+      "value": "Loaded %s saved workflow(s)"
     },
     {
       "name": "ui_str_2347",
-      "value": "设备感知页面出现，刷新设备与握持状态"
+      "value": "Device awareness page appeared, refreshing device & holding state"
     },
     {
       "name": "ui_str_2348",
@@ -4102,7 +4102,7 @@
     },
     {
       "name": "ui_str_2349",
-      "value": "设备信息"
+      "value": "Device Info"
     },
     {
       "name": "ui_str_2350",
@@ -4110,31 +4110,31 @@
     },
     {
       "name": "ui_str_2351",
-      "value": "推荐停靠"
+      "value": "Preferred Anchor"
     },
     {
       "name": "ui_str_2352",
-      "value": "左侧"
+      "value": "Left"
     },
     {
       "name": "ui_str_2353",
-      "value": "右侧"
+      "value": "Right"
     },
     {
       "name": "ui_str_2354",
-      "value": "握持侧"
+      "value": "Holding Side"
     },
     {
       "name": "ui_str_2355",
-      "value": "数据来源"
+      "value": "Data Source"
     },
     {
       "name": "ui_str_2356",
-      "value": "置信度"
+      "value": "Confidence"
     },
     {
       "name": "ui_str_2357",
-      "value": "Sensors Available"
+      "value": "Holding Available"
     },
     {
       "name": "ui_str_2358",
@@ -4146,19 +4146,19 @@
     },
     {
       "name": "ui_str_2360",
-      "value": "精确握姿支持"
+      "value": "Precise Supported"
     },
     {
       "name": "ui_str_2361",
-      "value": "操作手增强"
+      "value": "Enhanced Op Hand"
     },
     {
       "name": "ui_str_2362",
-      "value": "可用或可尝试"
+      "value": "Available"
     },
     {
       "name": "ui_str_2363",
-      "value": "当前设备不支持"
+      "value": "Device Not Supported"
     },
     {
       "name": "ui_str_2364",
@@ -4166,55 +4166,55 @@
     },
     {
       "name": "ui_str_2365",
-      "value": "Not Granted"
+      "value": "Denied"
     },
     {
       "name": "ui_str_2366",
-      "value": "握持刷新时间"
+      "value": "Holding Updated At"
     },
     {
       "name": "ui_str_2367",
-      "value": "设备类型"
+      "value": "Device Type"
     },
     {
       "name": "ui_str_2368",
-      "value": "屏幕方向"
+      "value": "Screen Orientation"
     },
     {
       "name": "ui_str_2369",
-      "value": "断点"
+      "value": "Breakpoint"
     },
     {
       "name": "ui_str_2370",
-      "value": "视口宽度"
+      "value": "Viewport Width"
     },
     {
       "name": "ui_str_2371",
-      "value": "视口高度"
+      "value": "Viewport Height"
     },
     {
       "name": "ui_str_2372",
-      "value": "平板类设备"
+      "value": "Tablet Device"
     },
     {
       "name": "ui_str_2373",
-      "value": "折叠屏"
+      "value": "Foldable"
     },
     {
       "name": "ui_str_2374",
-      "value": "折叠状态"
+      "value": "Fold Status"
     },
     {
       "name": "ui_str_2375",
-      "value": "横屏"
+      "value": "Landscape"
     },
     {
       "name": "ui_str_2376",
-      "value": "刷新来源"
+      "value": "Update Source"
     },
     {
       "name": "ui_str_2377",
-      "value": "刷新时间"
+      "value": "Updated At"
     },
     {
       "name": "ui_str_2378",
@@ -4222,7 +4222,7 @@
     },
     {
       "name": "ui_str_2379",
-      "value": "System Adaptive"
+      "value": "ADAPTIVE"
     },
     {
       "name": "ui_str_2380",
@@ -4238,131 +4238,131 @@
     },
     {
       "name": "ui_str_2383",
-      "value": "左手握持"
+      "value": "Left Hand"
     },
     {
       "name": "ui_str_2384",
-      "value": "右手握持"
+      "value": "Right Hand"
     },
     {
       "name": "ui_str_2385",
-      "value": "双手握持"
+      "value": "Both Hands"
     },
     {
       "name": "ui_str_2386",
-      "value": "未握持"
+      "value": "Not Holding"
     },
     {
       "name": "ui_str_2387",
-      "value": "未知"
+      "value": "Unknown"
     },
     {
       "name": "ui_str_2388",
-      "value": "智感握姿"
+      "value": "Intelligent Grip"
     },
     {
       "name": "ui_str_2389",
-      "value": "操作手"
+      "value": "Operating Hand"
     },
     {
       "name": "ui_str_2390",
-      "value": "握姿+操作手联合"
+      "value": "Grip + Op Hand"
     },
     {
       "name": "ui_str_2391",
-      "value": "默认回退"
+      "value": "Default Fallback"
     },
     {
       "name": "ui_str_2392",
-      "value": "精确"
+      "value": "Exact"
     },
     {
       "name": "ui_str_2393",
-      "value": "推断"
+      "value": "Inferred"
     },
     {
       "name": "ui_str_2394",
-      "value": "回退"
+      "value": "Fallback"
     },
     {
       "name": "ui_str_2395",
-      "value": "手机"
+      "value": "Phone"
     },
     {
       "name": "ui_str_2396",
-      "value": "平板"
+      "value": "Tablet"
     },
     {
       "name": "ui_str_2397",
-      "value": "2in1设备"
+      "value": "2-in-1"
     },
     {
       "name": "ui_str_2398",
-      "value": "竖屏"
+      "value": "Portrait"
     },
     {
       "name": "ui_str_2399",
-      "value": "初始化"
+      "value": "Initialize"
     },
     {
       "name": "ui_str_2400",
-      "value": "窗口绑定"
+      "value": "Window Bind"
     },
     {
       "name": "ui_str_2401",
-      "value": "屏幕变化"
+      "value": "Display Change"
     },
     {
       "name": "ui_str_2402",
-      "value": "窗口尺寸变化"
+      "value": "Window Resize"
     },
     {
       "name": "ui_str_2403",
-      "value": "折叠状态变化"
+      "value": "Fold Status Change"
     },
     {
       "name": "ui_str_2404",
-      "value": "系统配置变化"
+      "value": "Config Update"
     },
     {
       "name": "ui_str_2405",
-      "value": "应用回到前台"
+      "value": "App Foreground"
     },
     {
       "name": "ui_str_2406",
-      "value": "页面出现"
+      "value": "Page Appear"
     },
     {
       "name": "ui_str_2407",
-      "value": "窗口释放"
+      "value": "Window Release"
     },
     {
       "name": "ui_str_2408",
-      "value": "尚未刷新"
+      "value": "Not Yet"
     },
     {
       "name": "ui_str_2409",
-      "value": "展开"
+      "value": "Expanded"
     },
     {
       "name": "ui_str_2410",
-      "value": "折叠"
+      "value": "Folded"
     },
     {
       "name": "ui_str_2411",
-      "value": "半折叠/悬停"
+      "value": "Half-Folded/Hover"
     },
     {
       "name": "ui_str_2412",
-      "value": "Exquisite"
+      "value": "EXQUISITE"
     },
     {
       "name": "ui_str_2413",
-      "value": "Soft"
+      "value": "GENTLE"
     },
     {
       "name": "ui_str_2414",
-      "value": "Fluent"
+      "value": "SMOOTH"
     },
     {
       "name": "ui_str_2415",
@@ -4438,75 +4438,75 @@
     },
     {
       "name": "ui_str_2433",
-      "value": "开启"
+      "value": "On"
     },
     {
       "name": "ui_str_2434",
-      "value": "关闭"
+      "value": "Off"
     },
     {
       "name": "ui_str_2435",
-      "value": "点击任一图标可复制 sys.symbol 资源引用"
+      "value": "Tap any icon to copy sys.symbol resource reference"
     },
     {
       "name": "ui_str_2436",
-      "value": "系统 Symbol 图标库"
+      "value": "System Symbol Library"
     },
     {
       "name": "ui_str_2437",
-      "value": "HarmonyOS sys.symbol 资源预览"
+      "value": "HarmonyOS sys.symbol Resource Preview"
     },
     {
       "name": "ui_str_2438",
-      "value": "总数"
+      "value": "Total"
     },
     {
       "name": "ui_str_2439",
-      "value": "分组"
+      "value": "Groups"
     },
     {
       "name": "ui_str_2440",
-      "value": "当前"
+      "value": "Current"
     },
     {
       "name": "ui_str_2441",
-      "value": "复制引用"
+      "value": "Copy Reference"
     },
     {
       "name": "ui_str_2442",
-      "value": "搜索 sys.symbol 名称"
+      "value": "Search sys.symbol name"
     },
     {
       "name": "ui_str_2443",
-      "value": "搜索"
+      "value": "Search"
     },
     {
       "name": "ui_str_2444",
-      "value": "全部"
+      "value": "All"
     },
     {
       "name": "ui_str_2445",
-      "value": "资源分组"
+      "value": "Resource Groups"
     },
     {
       "name": "ui_str_2446",
-      "value": "未找到匹配的系统 Symbol"
+      "value": "No matching system symbol found"
     },
     {
       "name": "ui_str_2447",
-      "value": "搜索结果"
+      "value": "Search Results"
     },
     {
       "name": "ui_str_2448",
-      "value": "未选择分组"
+      "value": "No group selected"
     },
     {
       "name": "ui_str_2449",
-      "value": "请选择一个 Symbol 分组"
+      "value": "Please select a Symbol group"
     },
     {
       "name": "ui_str_2450",
-      "value": "复制失败"
+      "value": "Copy failed"
     }
   ]
 }

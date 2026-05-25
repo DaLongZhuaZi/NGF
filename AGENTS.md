@@ -1,4 +1,4 @@
-# AGENTS
+﻿# AGENTS
 
 本文件是本仓库统一的代理工作规范，已整合以下规则来源：
 
@@ -23,6 +23,20 @@
 - 修复完成后，必须再次检查是否符合 ArkTS 规则、当前仓库实际结构与本文件规范。
 - 每次修复后都应回顾本次问题是否值得沉淀为长期规则；只有真正可复用的规则才能补充到本文件，不要为一次性问题临时加规则。
 - 忽略本仓库中的 `--allowArbitraryExtensions` 相关问题，除非用户明确要求处理。
+
+### 1.1 技能规则库（.rules/）
+
+本仓库在根目录下设有 `.rules/` 技能规则库，是对本文件的**具体技能补充**，优先级低于本文件，但高于自由发挥。
+
+所有 Agent 和开发者在开始任务前，应先检查是否命中以下任意规则文件的触发条件，若命中则**在动手前先阅读对应文件**：
+
+| 规则文件 | 触发条件（命中任意一条即应阅读） |
+|---------|-------------------------------|
+| [`.rules/skill-hds-page-design.md`](.rules/skill-hds-page-design.md) | 新建页面到 `pages/ngf/`；涉及 `HdsNavDestination`/`HdsNavigation` 布局；涉及顶栏配置、沉浸式底板、安全区；涉及 `NGFHdsTitleBarOptionsFactory`、`NGFImmersiveTopChromeUnderlay`；涉及路由常量注册或 `buildNavDestination` 分发 |
+| [`.rules/skill-manager-apis.md`](.rules/skill-manager-apis.md) | 涉及主题切换/深色模式/`ngf_is_dark_mode`；涉及语言切换/`ngfI18nManagerFacade`；涉及视效档位/`ngfVisualEffectsFacade`/`hdsMaterial.MaterialLevel`；涉及握持感知/`ngfHoldingAwarenessFacade`；需要在 `aboutToAppear`/`aboutToDisappear` 中订阅或取消管理器回调 |
+| [`.rules/skill-rules-update.md`](.rules/skill-rules-update.md) | 开发者明确要求将本次经验沉淀到规则库时（仅由开发者手动提起，不自动触发） |
+
+> **规则库使用原则**：规则文件各自在开头明确列出了触发条件，LLM 每次分析任务时应主动对照检查，无需等开发者提示。规则库内容以 `.rules/README.md` 为索引入口。
 
 ## 2. 项目定位
 
@@ -316,6 +330,7 @@
 
 ## 9. 提交修改前的简明检查清单
 
+- **规则库命中检查（任务开始时）**：是否已对照 `1.1 技能规则库` 的触发条件扫描本次任务，并在动手前阅读了命中的 `.rules/` 规则文件？
 - 是否先核对了最新 HarmonyOS 官方文档与目标模块源码。
 - 是否确认本次修改是在建设 NGF 框架能力，而不是无意中把仓库往某个单一 App 方向收窄。
 - 是否完成了最小必要的环境核查，并确认当前实际 SDK、入口页、模块层级与工作目录。
@@ -327,4 +342,5 @@
 - 是否避免在共享规则和共享模块中重新引入单一业务视角内容。
 - 是否在完成修复后再次检查 ArkTS 兼容性与本文件规则。
 - 如果未执行构建、运行、预览或测试，是否已明确说明原因；如果执行了，是否已明确说明命令与结果。
-- 是否避免把“修改完成后手动触发自动编译”作为默认动作，除非用户明确要求这样做。
+- 是否避免把"修改完成后手动触发自动编译"作为默认动作，除非用户明确要求这样做。
+- **规则沉淀回顾（交付前）**：本次修复是否发现了新的可复用规律？若有，是否已提示开发者考虑运行 `.rules/skill-rules-update.md` 流程进行沉淀？

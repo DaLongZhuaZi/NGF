@@ -1,10 +1,38 @@
 # NGF (Neon Genesis Framework)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![HarmonyOS SDK](https://img.shields.io/badge/HarmonyOS_SDK-6.1.0_(API_23)-blue.svg)](https://developer.harmonyos.com/)
+[![Language](https://img.shields.io/badge/Language-ArkTS-orange.svg)]()
+
+**🌐 语言 / Language:** 中文 | [English](README.en.md)
+
 面向 HarmonyOS Next 的可复用软件开发框架，采用 10 层分层架构，提供从核心启动、数据管理、国际化到 UI 壳层的完整基础设施。
 
 ## 项目定位
 
 NGF 是一个**框架工程**，不是单一业务 App。所有能力以"可复用、低耦合、可扩展"为目标设计，遵循 `contracts/` + `facades/` + `index.ets` 统一模式，每层通过 DI 容器 + 服务注册实现松耦合依赖。
+
+---
+
+## 🤖 对 AI 辅助开发（Vibe Coding）友好
+
+本项目在架构设计和文档体系上对 AI 编程助手（Cursor、GitHub Copilot、Windsurf、Claude Code 等）以及各类 Vibe Coding 工作流做了专项适配。所有模式、契约、门面均有清晰的文档和注释，LLM 可以准确理解并生成符合框架规范的代码。
+
+**🚀 AI 开发者 / LLM 快速上手路径**
+
+在开始任何开发任务前，请按以下顺序阅读：
+
+| 步骤 | 文件 | 必读原因 |
+|------|------|--------|
+| 1️⃣ | [AGENTS.md](AGENTS.md) | **最高优先级**：项目总规范、ArkTS 约束、分层原则、禁止事项。所有 Agent 必读。 |
+| 2️⃣ | [.rules/README.md](.rules/README.md) | 规则库索引：了解有哪些可用的开发技能规则。 |
+| 3️⃣ | [.rules/skill-hds-page-design.md](.rules/skill-hds-page-design.md) | **新建页面前必读**：沉浸式顶栏、安全区、光效/材质配置的标准模式。 |
+| 4️⃣ | [.rules/skill-manager-apis.md](.rules/skill-manager-apis.md) | **使用主题/语言/视效/握持感知前必读**：响应式接入、订阅生命周期配对模式。 |
+| 5️⃣ | [.rules/skill-rules-update.md](.rules/skill-rules-update.md) | **沉淀新经验时阅读**：规则库更新流程（由开发者手动触发）。 |
+
+> **提示**：规则库不会自动触发，请在合适的任务开始前主动阅读对应的技能文件。`AGENTS.md` 优先级高于规则库，规则库是对 `AGENTS.md` 的具体技能补充。
+
+---
 
 ## 技术栈
 
@@ -231,13 +259,31 @@ hvigorw clean                  # 清理
 
 | 文档 | 说明 |
 |------|------|
+| [AGENTS.md](AGENTS.md) | **代理工作规范（最高优先级，所有 AI Agent 必读）** |
+| [.rules/ 规则库](.rules/README.md) | AI 技能规则库：HDS 页面设计、管理器 API、规则滚动更新 |
 | [框架 README](entry/src/main/ets/Framework/NGF/README.md) | 框架内部架构详解 |
 | [框架状态分析](docs/NGF_FRAMEWORK_STATUS.md) | 各层完成度与功能缺口 |
 | [实施计划](docs/development/NGF_IMPLEMENTATION_PLAN.md) | 开发路线图 |
 | [API 23 迁移指南](docs/API23_Migration_Guide.md) | API 23 适配说明 |
 | [变更日志](docs/CHANGELOG.md) | 版本变更记录 |
-| [AGENTS.md](AGENTS.md) | 代理工作规范 |
 
 ## 许可证
 
-本项目为内部框架工程项目。
+本项目基于 [MIT License](LICENSE) 开源。
+
+```
+Copyright (c) 2026 DaLongzhuazi
+
+特此免费授予任何获得本软件及相关文档副本的人无限制使用、复制、修改、合并、
+发布、分发、再许可或销售该软件副本的权利，但须满足以下条件：
+
+上述版权声明及本许可证声明须包含于软件的所有副本或实质性部分中。
+
+本软件按「原样」提供，不作任何形式的明示或默示保证，包括但不限于对
+适销性、特定用途适用性及不侵权的保证。在任何情况下，作者或版权持有
+人均不对任何索赔、损害或其他责任负责。
+```
+
+---
+
+*本框架由 **DaLongzhuazi** 开发维护，面向 HarmonyOS Next 生态提供通用框架基础设施。*
