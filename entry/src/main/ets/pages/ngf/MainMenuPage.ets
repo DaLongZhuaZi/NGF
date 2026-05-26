@@ -746,6 +746,7 @@ struct NGFStarterMainMenuPage {
             .height('100%')
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.PARENT_FIRST })
             .backgroundColor($r('app.color.background_transparent'))
           }
           .tabBar(this.buildTabItem($r('app.string.tab_framework'), 'sys.symbol.house', 0))
@@ -774,6 +775,7 @@ struct NGFStarterMainMenuPage {
             .height('100%')
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.PARENT_FIRST })
             .backgroundColor($r('app.color.background_transparent'))
           }
           .tabBar(this.buildTabItem($r('app.string.tab_features'), 'sys.symbol.more', 1))
@@ -799,6 +801,7 @@ struct NGFStarterMainMenuPage {
             .height('100%')
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.PARENT_FIRST })
             .backgroundColor($r('app.color.background_transparent'))
           }
           .tabBar(this.buildTabItem($r('app.string.tab_capabilities'), 'sys.symbol.grid', 2))
@@ -820,6 +823,7 @@ struct NGFStarterMainMenuPage {
             .height('100%')
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.PARENT_FIRST })
             .backgroundColor($r('app.color.background_transparent'))
           }
           .tabBar(this.buildTabItem($r('app.string.tab_device'), 'sys.symbol.scroll_vertical', 3))
@@ -841,6 +845,7 @@ struct NGFStarterMainMenuPage {
             .height('100%')
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.PARENT_FIRST })
             .backgroundColor($r('app.color.background_transparent'))
           }
           .tabBar(this.buildTabItem($r('app.string.tab_settings'), 'sys.symbol.gearshape', 4))
@@ -873,10 +878,10 @@ struct NGFStarterMainMenuPage {
       $r('app.string.ui_str_2020'),
       $r('app.color.background_primary'),
       hdsMaterial.MaterialLevel.EXQUISITE,
-      false,
+      true,
       false
     ))
-    .titleMode(HdsNavigationTitleMode.FULL)
+    .titleMode(HdsNavigationTitleMode.FREE)
     .hideBackButton(true)
     .navDestination(this.buildNavDestination)
     .mode(NavigationMode.Stack)

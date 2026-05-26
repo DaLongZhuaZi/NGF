@@ -593,6 +593,8 @@ export struct HdsIntegratedShowcasePage {
         .width('100%')
         .height('100%')
         .scrollBar(BarState.Auto)
+        .edgeEffect(EdgeEffect.Spring)
+        .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.SELF_FIRST })
         .backgroundColor('#00000000')
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
       }

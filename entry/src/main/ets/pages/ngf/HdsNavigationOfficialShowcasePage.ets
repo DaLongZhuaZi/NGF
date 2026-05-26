@@ -278,6 +278,8 @@ export struct HdsNavigationOfficialShowcasePage {
         .height('100%')
         .scrollBar(BarState.Auto)
         .backgroundColor('#00000000')
+        .edgeEffect(EdgeEffect.Spring)
+        .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.SELF_FIRST })
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
       }
       .width('100%')
@@ -549,6 +551,8 @@ export struct HdsNavigationOfficialOverviewPage {
         .width('100%')
         .height('100%')
         .backgroundColor('#00000000')
+        .edgeEffect(EdgeEffect.Spring)
+        .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.SELF_FIRST })
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
       }
       .width('100%')
@@ -735,6 +739,8 @@ export struct HdsNavigationOfficialMaterialPage {
         .width('100%')
         .height('100%')
         .backgroundColor('#00000000')
+        .edgeEffect(EdgeEffect.Spring)
+        .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.SELF_FIRST })
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
       }
       .width('100%')
@@ -1168,6 +1174,8 @@ export struct HdsNavigationOfficialEffectPage {
         .width('100%')
         .height('100%')
         .backgroundColor('#00000000')
+        .edgeEffect(EdgeEffect.Spring)
+        .nestedScroll({ scrollForward: NestedScrollMode.PARENT_FIRST, scrollBackward: NestedScrollMode.SELF_FIRST })
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
       }
       .width('100%')
