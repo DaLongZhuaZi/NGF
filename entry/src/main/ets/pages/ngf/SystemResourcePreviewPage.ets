@@ -34,6 +34,7 @@ type NGFSystemSymbolError = Error | string | number | boolean | null | undefined
 @Component
 export struct NGFSystemResourcePreviewPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private selectedGroupName: string = '';
   @State private currentGroupItems: Array<string> = [];
   @State private visibleGroupSymbols: Array<string> = [];
@@ -48,6 +49,9 @@ export struct NGFSystemResourcePreviewPage {
   private readonly scroller: Scroller = new Scroller();
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.SYSTEM_RESOURCE_PREVIEW);
     this.ensureSelectedGroup();
     this.ensureSelectedSymbol();
@@ -78,7 +82,7 @@ export struct NGFSystemResourcePreviewPage {
           .padding({
             left: 16,
             right: 16,
-            top: SYSTEM_SYMBOL_TOP_CHROME.metrics.contentTopInset,
+            top: this.topInsetVp,
             bottom: 36
           })
         }

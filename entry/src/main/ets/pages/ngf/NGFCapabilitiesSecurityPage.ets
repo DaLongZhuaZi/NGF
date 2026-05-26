@@ -21,10 +21,14 @@ const DEMO_TOP_CHROME: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFa
 @Component
 export struct NGFCapabilitiesSecurityPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private statusMessage: ResourceStr = '';
   @State private authResult: string = '';
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
   }
 
   build() {
@@ -38,7 +42,7 @@ export struct NGFCapabilitiesSecurityPage {
             this.buildActionCard()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: DEMO_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
+          .padding({ left: 16, right: 16, top: this.topInsetVp, bottom: 36 })
         }
         .width('100%')
         .height('100%')

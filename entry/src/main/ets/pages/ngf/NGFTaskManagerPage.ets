@@ -21,9 +21,13 @@ const DEMO_TOP_CHROME_BLUE: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePre
 export struct NGFTaskManagerPage {
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private tasks: Array<NGFTaskInfo> = [];
+  @State private topInsetVp: number = DEMO_TOP_CHROME_BLUE.metrics.contentTopInset;
   private readonly listenerId = 'NGFTaskManagerPage_Listener';
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, DEMO_TOP_CHROME_BLUE.metrics.contentTopInset, (inset) => {
+      this.topInsetVp = inset;
+    });
     this.refreshTasks();
     const handleEvent = () => {
       this.refreshTasks();
@@ -133,7 +137,7 @@ export struct NGFTaskManagerPage {
             .scrollBar(BarState.Auto)
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: DEMO_TOP_CHROME_BLUE.metrics.contentTopInset, bottom: 36 })
+          .padding({ left: 16, right: 16, top: this.topInsetVp, bottom: 36 })
         }
         .width('100%')
         .height('100%')

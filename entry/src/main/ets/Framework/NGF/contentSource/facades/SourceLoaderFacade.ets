@@ -28,8 +28,8 @@ export class SourceLoaderFacade implements ISourceLoader {
    * @param filesDir 文件目录路径
    * @note API 23 适配：通过依赖注入传入路径，替代直接依赖 GlobalContext
    */
-  initialize(filesDir: string): void {
-    this.filesDir = filesDir;
+  initialize(filesDir: string | undefined): void {
+    this.filesDir = filesDir || '';
     logger.info(TAG, `源码加载器初始化完成: filesDir=${filesDir}`);
   }
 

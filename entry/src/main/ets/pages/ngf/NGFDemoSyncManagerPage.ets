@@ -93,6 +93,7 @@ class DemoSyncHandler implements ISyncDataHandler {
 @Component
 export struct NGFDemoSyncManagerPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private isOnline: boolean = false;
   @State private conflictStrategy: NGFConflictStrategy = NGFConflictStrategy.CLIENT_WINS;
   @State private queueItems: Array<NGFSyncQueueDisplay> = [];
@@ -103,6 +104,9 @@ export struct NGFDemoSyncManagerPage {
   private nextItemId: number = 1;
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_WORKFLOW);
     ngfSyncManagerFacade.setSyncHandler(this.handler);
     ngfSyncManagerFacade.setConflictStrategy(this.conflictStrategy);
@@ -199,7 +203,7 @@ export struct NGFDemoSyncManagerPage {
             this.buildResultCard()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: DEMO_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
+          .padding({ left: 16, right: 16, top: this.topInsetVp, bottom: 36 })
         }
         .width('100%')
         .height('100%')
@@ -280,10 +284,16 @@ export struct NGFDemoSyncManagerPage {
       .width('100%')
 
       if ((typeof this.statusMessage === 'string' ? this.statusMessage : '').length > 0) {
-        Text(this.statusMessage)
-          .fontSize(12)
-          .fontColor($r('app.color.text_muted'))
-          .width('100%')
+        Row({ space: 6 }) {
+          SymbolGlyph($r('sys.symbol.info_circle'))
+            .fontSize(12)
+            .fontColor([$r('app.color.text_muted')])
+          Text(this.statusMessage)
+            .fontSize(12)
+            .fontColor($r('app.color.text_muted'))
+            .layoutWeight(1)
+        }
+        .width('100%')
       }
     }
     .width('100%')
@@ -315,35 +325,65 @@ export struct NGFDemoSyncManagerPage {
         .fontColor($r('app.color.text_tertiary'))
 
       Row({ space: 8 }) {
-        Button($r('app.string.sync_enqueue_create'))
-          .layoutWeight(1)
-          .height(36)
-          .fontSize(12)
-          .borderRadius(10)
-          .backgroundColor($r('app.color.tag_green'))
-          .onClick((): void => {
-            this.handleEnqueue(NGFSyncOperation.CREATE);
-          })
+        Button() {
+          Row({ space: 4 }) {
+            SymbolGlyph($r('sys.symbol.plus'))
+              .fontSize(14)
+              .fontColor(['#FFFFFF'])
+            Text($r('app.string.sync_enqueue_create'))
+              .fontSize(12)
+              .fontColor('#FFFFFF')
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.Center)
+        }
+        .layoutWeight(1)
+        .height(36)
+        .borderRadius(10)
+        .backgroundColor($r('app.color.tag_green'))
+        .onClick((): void => {
+          this.handleEnqueue(NGFSyncOperation.CREATE);
+        })
 
-        Button($r('app.string.sync_enqueue_update'))
-          .layoutWeight(1)
-          .height(36)
-          .fontSize(12)
-          .borderRadius(10)
-          .backgroundColor('#FF2563EB')
-          .onClick((): void => {
-            this.handleEnqueue(NGFSyncOperation.UPDATE);
-          })
+        Button() {
+          Row({ space: 4 }) {
+            SymbolGlyph($r('sys.symbol.square_and_pencil'))
+              .fontSize(14)
+              .fontColor(['#FFFFFF'])
+            Text($r('app.string.sync_enqueue_update'))
+              .fontSize(12)
+              .fontColor('#FFFFFF')
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.Center)
+        }
+        .layoutWeight(1)
+        .height(36)
+        .borderRadius(10)
+        .backgroundColor('#FF2563EB')
+        .onClick((): void => {
+          this.handleEnqueue(NGFSyncOperation.UPDATE);
+        })
 
-        Button($r('app.string.sync_enqueue_delete'))
-          .layoutWeight(1)
-          .height(36)
-          .fontSize(12)
-          .borderRadius(10)
-          .backgroundColor($r('app.color.tag_red'))
-          .onClick((): void => {
-            this.handleEnqueue(NGFSyncOperation.DELETE);
-          })
+        Button() {
+          Row({ space: 4 }) {
+            SymbolGlyph($r('sys.symbol.xmark'))
+              .fontSize(14)
+              .fontColor(['#FFFFFF'])
+            Text($r('app.string.sync_enqueue_delete'))
+              .fontSize(12)
+              .fontColor('#FFFFFF')
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.Center)
+        }
+        .layoutWeight(1)
+        .height(36)
+        .borderRadius(10)
+        .backgroundColor($r('app.color.tag_red'))
+        .onClick((): void => {
+          this.handleEnqueue(NGFSyncOperation.DELETE);
+        })
       }
       .width('100%')
 
@@ -463,12 +503,17 @@ export struct NGFDemoSyncManagerPage {
         }
         .width('100%')
 
-        Text((this.lastResult as NGFSyncResultDisplay).success ? $r('app.string.sync_result_success') : $r('app.string.sync_result_partial'))
-          .fontSize(13)
-          .fontColor((this.lastResult as NGFSyncResultDisplay).success ? $r('app.color.tag_green') : $r('app.color.tag_red'))
-          .fontWeight(FontWeight.Medium)
-          .width('100%')
-          .textAlign(TextAlign.Center)
+        Row({ space: 6 }) {
+          SymbolGlyph((this.lastResult as NGFSyncResultDisplay).success ? $r('sys.symbol.checkmark_circle') : $r('sys.symbol.exclamationmark_triangle'))
+            .fontSize(14)
+            .fontColor([(this.lastResult as NGFSyncResultDisplay).success ? $r('app.color.tag_green') : $r('app.color.tag_red')])
+          Text((this.lastResult as NGFSyncResultDisplay).success ? $r('app.string.sync_result_success') : $r('app.string.sync_result_partial'))
+            .fontSize(13)
+            .fontColor((this.lastResult as NGFSyncResultDisplay).success ? $r('app.color.tag_green') : $r('app.color.tag_red'))
+            .fontWeight(FontWeight.Medium)
+        }
+        .width('100%')
+        .justifyContent(FlexAlign.Center)
       }
       .width('100%')
       .padding(16)

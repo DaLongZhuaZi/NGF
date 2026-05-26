@@ -2,8 +2,11 @@ export { ITaskManager, NGFTaskExecutor, NGFTaskInfo, NGFTaskState } from './cont
 export { ISystemIntegration, NGFTaskEventListener } from './contracts/ISystemIntegration';
 export { ISystemNotificationManager, NGFNotificationRequest } from './contracts/ISystemNotificationManager';
 export { IBackgroundTaskManager } from './contracts/IBackgroundTaskManager';
-
+export { ILiveViewManager } from './contracts/ILiveViewManager';
+export { IWidgetManager } from './contracts/IWidgetManager';
 export { ngfTaskManager } from './facades/TaskManagerFacade';
 export { ngfSystemNotificationManager } from './facades/SystemNotificationManagerFacade';
 export { ngfBackgroundTaskManager } from './facades/BackgroundTaskManagerFacade';
 export { ngfSystem } from './facades/SystemIntegrationFacade';
+export { LiveViewManagerFacade, ngfLiveViewManagerFacade } from './facades/LiveViewManagerFacade';
+export { WidgetManagerFacade, ngfWidgetManagerFacade } from './facades/WidgetManagerFacade';

@@ -2,6 +2,7 @@ export { ISourceRepository } from './contracts/ISourceRepository';
 export { ISourceLoader } from './contracts/ISourceLoader';
 export { ISourceRegistry } from './contracts/ISourceRegistry';
 export { IHttpClient, NGFHttpMethod, NGFHttpRequestOptions, NGFHttpResponse } from './contracts/IHttpClient';
+export { IHttpInterceptor } from './contracts/IHttpInterceptor';
 export { IContentCache } from './contracts/IContentCache';
 export {
   IContentPipeline,

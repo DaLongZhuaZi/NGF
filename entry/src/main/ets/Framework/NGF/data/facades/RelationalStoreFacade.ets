@@ -8,7 +8,11 @@ export class RelationalStoreFacade {
   private rdbStore: relationalStore.RdbStore | null = null;
   private initialized: boolean = false;
 
-  async initialize(context: common.UIAbilityContext, storeConfig: relationalStore.StoreConfig): Promise<void> {
+  async initialize(context?: common.UIAbilityContext, storeConfig?: relationalStore.StoreConfig): Promise<void> {
+    if (!context || !storeConfig) {
+      logger.debug(TAG, '缺少参数，暂缓初始化');
+      return;
+    }
     if (this.initialized) {
       logger.debug(TAG, '已初始化，跳过');
       return;

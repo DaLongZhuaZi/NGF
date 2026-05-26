@@ -41,6 +41,7 @@ class NGFDemoFileEntryDisplay {
 @Component
 export struct NGFDemoDataStoragePage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private fileWriteInput: ResourceStr = $r('app.string.ui_str_2231');
   @State private fileReadResult: string = '';
   @State private fileEntries: Array<NGFDemoFileEntryDisplay> = [];
@@ -52,6 +53,9 @@ export struct NGFDemoDataStoragePage {
   @State private statusMessage: ResourceStr = '';
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_DATA_STORAGE);
   }
 
@@ -68,7 +72,7 @@ export struct NGFDemoDataStoragePage {
             this.buildCacheSection()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: DEMO_DATA_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
+          .padding({ left: 16, right: 16, top: this.topInsetVp, bottom: 36 })
         }
         .width('100%')
         .height('100%')

@@ -4,6 +4,7 @@ import { window } from '@kit.ArkUI';
 import { clearContext, NGFAbilityContextLike, setContext } from '../GlobalContext';
 import { uiContextManager } from '../Framework/NGF/platformOhos/UIContextManager';
 import { ngfStarterKernel } from '../Framework/NGF/core/starter/index';
+
 import { ngfPlatformWindowManagerFacade } from '../Framework/NGF/platformOhos';
 import { ngfThemeManagerFacade } from '../Framework/NGF/uiTheme/facades/ThemeManagerFacade';
 import { ngfI18nManagerFacade } from '../Framework/NGF/i18n/facades/I18nManagerFacade';
@@ -11,6 +12,7 @@ import { ngfHoldingAwarenessFacade } from '../Framework/NGF/deviceAwareness/faca
 import { ngfDeviceAdaptationFacade } from '../Framework/NGF/deviceAwareness/facades/DeviceAdaptationFacade';
 import { ngfVisualEffectsFacade } from '../Framework/NGF/deviceAwareness/facades/VisualEffectsFacade';
 import { logger } from '../Framework/NGF/utils/Logger';
+import { crashAnalytics } from '../Framework/NGF/utils/CrashAnalyticsFacade';
 
 const TAG: string = 'EntryAbility';
 
@@ -20,6 +22,7 @@ export default class EntryAbility extends UIAbility {
     setContext(abilityContext);
     uiContextManager.bindAbilityContext(abilityContext);
     const bootstrapResult = ngfStarterKernel.bootstrap();
+    crashAnalytics.initialize();
     logger.startup(TAG, 'NGF 引导启动完成', `成功=${bootstrapResult}`);
 
     /**
@@ -42,6 +45,7 @@ export default class EntryAbility extends UIAbility {
     ngfHoldingAwarenessFacade.destroy();
     uiContextManager.clearAbilityContext();
     clearContext();
+    crashAnalytics.terminate();
     logger.lifecycle(TAG, '生命周期: onDestroy');
   }
 

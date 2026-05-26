@@ -36,12 +36,16 @@ class NGFErrorLogEntry {
 @Component
 export struct NGFDemoErrorRecoveryPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private statusMessage: ResourceStr = '';
   @State private errorLog: Array<NGFErrorLogEntry> = [];
   @State private recentErrorCount: number = 0;
   @State private strategyRegistered: boolean = false;
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_WORKFLOW);
     this.registerRecoveryStrategy();
   }
@@ -113,7 +117,7 @@ export struct NGFDemoErrorRecoveryPage {
             this.buildLogCard()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: DEMO_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
+          .padding({ left: 16, right: 16, top: this.topInsetVp, bottom: 36 })
         }
         .width('100%')
         .height('100%')

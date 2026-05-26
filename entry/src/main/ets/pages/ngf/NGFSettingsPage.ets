@@ -31,7 +31,6 @@ export struct NGFSettingsPage {
       this.buildAboutCard()
     }
     .width('100%')
-    .padding(16)
   }
 
   @Builder

@@ -57,14 +57,20 @@ import {
 } from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
 
 const TAG: string = 'MyNewPage';
-// 顶部底板高度和内容避让高度（参考 MainMenuPage 的常量）
+// 顶部底板高度（参考 MainMenuPage 的常量）
 const MY_PAGE_UNDERLAY_HEIGHT: number = 168;
-const MY_PAGE_CONTENT_TOP_INSET: number = 92;
 
 @Component
 export struct MyNewPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108; // 默认避让值，aboutToAppear中动态计算
   private readonly scroller: Scroller = new Scroller();
+
+  aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
+  }
 
   build() {
     HdsNavDestination() {
@@ -77,8 +83,7 @@ export struct MyNewPage {
             '#0A1626',   // gradientEnd
             '#2854F0E8', // primaryGlowColor
             '#32A4F2D8', // secondaryGlowColor
-            MY_PAGE_UNDERLAY_HEIGHT,
-            MY_PAGE_CONTENT_TOP_INSET
+            MY_PAGE_UNDERLAY_HEIGHT
           )
         })
 
@@ -88,7 +93,7 @@ export struct MyNewPage {
             // 页面实际内容
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: MY_PAGE_CONTENT_TOP_INSET, bottom: 32 })
+          .padding({ left: 16, right: 16, top: this.topInsetVp, bottom: 32 })
         }
         .width('100%')
         .height('100%')

@@ -4530,15 +4530,15 @@
     },
     {
       "name": "err_strategy_registered",
-      "value": "✅ 恢复策略已就绪"
+      "value": "恢复策略已就绪"
     },
     {
       "name": "err_recovered",
-      "value": "✅ [%s] 级别错误已恢复"
+      "value": "[%s] 级别错误已恢复"
     },
     {
       "name": "err_not_recovered",
-      "value": "⚠️ [%s] 级别错误未恢复（触发降级）"
+      "value": "[%s] 级别错误未恢复（触发降级）"
     },
     {
       "name": "err_trigger_section",
@@ -4658,11 +4658,11 @@
     },
     {
       "name": "sync_network_on",
-      "value": "✅ 网络已恢复 — 可执行同步"
+      "value": "网络已恢复 — 可执行同步"
     },
     {
       "name": "sync_network_off",
-      "value": "📴 网络已断开 — 新操作将入队"
+      "value": "网络已断开 — 新操作将入队"
     },
     {
       "name": "sync_queue_label",
@@ -4674,15 +4674,15 @@
     },
     {
       "name": "sync_enqueue_create",
-      "value": "+ 创建"
+      "value": "创建"
     },
     {
       "name": "sync_enqueue_update",
-      "value": "✏ 更新"
+      "value": "更新"
     },
     {
       "name": "sync_enqueue_delete",
-      "value": "✕ 删除"
+      "value": "删除"
     },
     {
       "name": "sync_flush_btn",
@@ -4702,11 +4702,11 @@
     },
     {
       "name": "sync_flush_success",
-      "value": "✅ 全部同步完成，共 %d 条"
+      "value": "全部同步完成，共 %d 条"
     },
     {
       "name": "sync_flush_partial",
-      "value": "⚠️ 部分成功: 成功 %d 条，失败 %d 条"
+      "value": "部分成功: 成功 %d 条，失败 %d 条"
     },
     {
       "name": "sync_queue_cleared",
@@ -4750,11 +4750,11 @@
     },
     {
       "name": "sync_result_success",
-      "value": "✅ 全部同步成功"
+      "value": "全部同步成功"
     },
     {
       "name": "sync_result_partial",
-      "value": "⚠️ 部分条目同步失败"
+      "value": "部分条目同步失败"
     }
   ]
 }

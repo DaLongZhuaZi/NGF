@@ -120,7 +120,6 @@ export struct NGFDeviceAwarenessPage {
       this.buildVisualEffectsCard()
     }
     .width('100%')
-    .padding(16)
   }
 
   @Builder

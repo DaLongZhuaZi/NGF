@@ -182,6 +182,7 @@ class NGFHdsOfficialEffectEntry {
 @Component
 export struct HdsNavigationOfficialShowcasePage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private lastActionText: ResourceStr = $r('app.string.ui_str_2170');
   @State private openedCount: number = 0;
 
@@ -217,6 +218,9 @@ export struct HdsNavigationOfficialShowcasePage {
   ];
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
     logger.lifecycle(TAG, '官方展示即将显示');
   }
@@ -266,7 +270,7 @@ export struct HdsNavigationOfficialShowcasePage {
           .padding({
             left: 16,
             right: 16,
-            top: HDS_OFFICIAL_SHOWCASE_TOP_CHROME_SPEC.metrics.contentTopInset,
+            top: this.topInsetVp,
             bottom: 24
           })
         }
@@ -463,7 +467,7 @@ export struct HdsNavigationOfficialShowcasePage {
 @Component
 export struct HdsNavigationOfficialOverviewPage {
   @State private pathStack: NavPathStack = new NavPathStack();
-
+  @State private topInsetVp: number = 108;
   private readonly scroller: Scroller = new Scroller();
   private readonly overviewItems: Array<NGFHdsOfficialHighlightItem> = [
     new NGFHdsOfficialHighlightItem(
@@ -487,6 +491,9 @@ export struct HdsNavigationOfficialOverviewPage {
   ];
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION_OVERVIEW);
     logger.lifecycle(TAG, '官方概览即将显示');
   }
@@ -535,7 +542,7 @@ export struct HdsNavigationOfficialOverviewPage {
           .padding({
             left: 16,
             right: 16,
-            top: HDS_OFFICIAL_OVERVIEW_TOP_CHROME_SPEC.metrics.contentTopInset,
+            top: this.topInsetVp,
             bottom: 24
           })
         }
@@ -602,6 +609,7 @@ export struct HdsNavigationOfficialOverviewPage {
 @Component
 export struct HdsNavigationOfficialMaterialPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private pressedMaterialItemId: string = '';
 
   private readonly scroller: Scroller = new Scroller();
@@ -636,6 +644,9 @@ export struct HdsNavigationOfficialMaterialPage {
   ];
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION_MATERIAL);
     logger.lifecycle(TAG, '官方材质即将显示');
   }
@@ -717,7 +728,7 @@ export struct HdsNavigationOfficialMaterialPage {
           .padding({
             left: 16,
             right: 16,
-            top: HDS_OFFICIAL_MATERIAL_TOP_CHROME_SPEC.metrics.contentTopInset,
+            top: this.topInsetVp,
             bottom: 24
           })
         }
@@ -897,6 +908,7 @@ export struct HdsNavigationOfficialMaterialPage {
 @Component
 export struct HdsNavigationOfficialEffectPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private lastEffectText: ResourceStr = $r('app.string.ui_str_2208');
   @State private pressedEffectEntryId: string = '';
   @State private activeEffectEntryId: string = '';
@@ -947,6 +959,9 @@ export struct HdsNavigationOfficialEffectPage {
   private clickPulseClearTimer: number = -1;
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION_EFFECT);
     this.configureFlowLightScene(false);
     logger.lifecycle(TAG, '官方特效即将显示');
@@ -1146,7 +1161,7 @@ export struct HdsNavigationOfficialEffectPage {
           .padding({
             left: 16,
             right: 16,
-            top: HDS_OFFICIAL_EFFECT_TOP_CHROME_SPEC.metrics.contentTopInset,
+            top: this.topInsetVp,
             bottom: 24
           })
         }

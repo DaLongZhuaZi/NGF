@@ -51,6 +51,7 @@ class NGFDemoCapabilityEntry {
 @Component
 export struct NGFDemoDeviceDisplayPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private localeIndexes: Array<number> = [0];
   @State private relativeTimeResults: Array<string> = [];
   @State private capabilities: Array<NGFDemoCapabilityEntry> = [];
@@ -62,6 +63,9 @@ export struct NGFDemoDeviceDisplayPage {
   private readonly localeLabels: Array<ResourceStr> = [$r('app.string.ui_str_2259'), $r('app.string.ui_str_2260')];
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_DEVICE_DISPLAY);
     this.currentFontScale = ngfFontScaleManagerFacade.getCurrentScale();
     this.currentFontLevel = this.resolveLevelText(ngfFontScaleManagerFacade.getCurrentLevel());
@@ -80,7 +84,7 @@ export struct NGFDemoDeviceDisplayPage {
             this.buildFontScaleSection()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: DEMO_DEVICE_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
+          .padding({ left: 16, right: 16, top: this.topInsetVp, bottom: 36 })
         }
         .width('100%')
         .height('100%')

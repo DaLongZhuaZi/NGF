@@ -58,7 +58,7 @@ private readBottomInset(): void {
   // 强类型安全调用，获取底部导航指示条高度并转换为 vp
   window.getLastWindow(hostCtx).then((lastWindow: window.Window): void => {
     const avoidArea: window.AvoidArea = lastWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-    this.bottomInsetVp = px2vp(avoidArea.bottomRect.height);
+    this.bottomInsetVp = uiCtx.px2vp(avoidArea.bottomRect.height);
   }).catch((_err: Error): void => {
     this.bottomInsetVp = 0;
   });

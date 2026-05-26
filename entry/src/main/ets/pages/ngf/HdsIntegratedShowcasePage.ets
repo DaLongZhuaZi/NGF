@@ -174,6 +174,7 @@ class NGFHdsIntegratedEffectFactory {
 @Component
 export struct HdsIntegratedShowcasePage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private lastActionText: ResourceStr = $r('app.string.ui_str_2081');
   @State private selectedCapabilityIndexes: Array<number> = [0];
   @State private componentSearchValue: string = '';
@@ -336,6 +337,9 @@ export struct HdsIntegratedShowcasePage {
   ];
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.HDS_SHOWCASE);
     logger.lifecycle(TAG, '即将显示');
     this.componentTagItems = [
@@ -582,7 +586,7 @@ export struct HdsIntegratedShowcasePage {
           .padding({
             left: 16,
             right: 16,
-            top: HDS_INTEGRATED_TOP_CHROME_SPEC.metrics.contentTopInset,
+            top: this.topInsetVp,
             bottom: 24
           })
         }

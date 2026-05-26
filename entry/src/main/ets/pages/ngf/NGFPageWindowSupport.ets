@@ -10,6 +10,8 @@ import {
 import { ngfPlatformWindowManagerFacade } from '../../Framework/NGF/platformOhos/facades/PlatformWindowManagerFacade';
 import { NGFHdsDemoRouteName } from './HdsDemoRoutes';
 
+import window from '@ohos.window';
+
 const TAG: string = 'NGFPageWindowSupport';
 
 export class NGFPageWindowName {
@@ -58,6 +60,25 @@ class NGFPageWindowStyleFactory {
 
 export class NGFPageWindowSupport {
   private static initialized: boolean = false;
+
+  static loadDynamicTopInset(uiCtx: UIContext | undefined, baseTitleHeight: number, fallbackInset: number, callback: (inset: number) => void): void {
+    if (!uiCtx) {
+      callback(fallbackInset);
+      return;
+    }
+    const hostCtx = uiCtx.getHostContext();
+    if (!hostCtx) {
+      callback(fallbackInset);
+      return;
+    }
+    window.getLastWindow(hostCtx).then((lastWindow: window.Window): void => {
+      const topArea: window.AvoidArea = lastWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+      const statusBarHeightVp = uiCtx.px2vp(topArea.topRect.height);
+      callback(statusBarHeightVp + baseTitleHeight);
+    }).catch((_err: Error): void => {
+      callback(fallbackInset);
+    });
+  }
 
   static ensureProfilesRegistered(): void {
     if (NGFPageWindowSupport.initialized) {

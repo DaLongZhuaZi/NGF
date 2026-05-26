@@ -22,8 +22,8 @@ export class ContentCacheFacade implements IContentCache {
   private readonly memoryCache: Map<string, NGFContentCacheEntry> = new Map<string, NGFContentCacheEntry>();
   private filesDir: string = '';
 
-  initialize(filesDir: string): void {
-    this.filesDir = filesDir;
+  initialize(filesDir: string | undefined): void {
+    this.filesDir = filesDir || '';
     const cacheDir = this.getCacheDir();
     this.ensureDir(cacheDir);
     logger.info(TAG, `内容缓存初始化: dir=${cacheDir}`);

@@ -5,6 +5,7 @@ import { ngfPageWindowPolicyResolverFacade } from './PageWindowPolicyResolverFac
 import { ngfPlatformWindowManagerFacade } from './PlatformWindowManagerFacade';
 import { ngfPlatformWindowControllerFacade } from './PlatformWindowControllerFacade';
 import { ngfMultiWindowManagerFacade } from './MultiWindowManagerFacade';
+import { ngfPermissionManagerFacade } from './PermissionManagerFacade';
 
 export class NGFPlatformOhosIntegrationFacade extends NGFIntegrationFacadeBase {
   protected readonly tag: string = 'NGFPlatformOhosIntegrationFacade';
@@ -17,6 +18,7 @@ export class NGFPlatformOhosIntegrationFacade extends NGFIntegrationFacadeBase {
     registrations.push(new NGFServiceRegistration('ngf.platform.page_policy_resolver', 'PageWindowPolicyResolverFacade', ngfPageWindowPolicyResolverFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.platform.context_bridge', 'OhosContextBridgeFacade', ngfOhosContextBridgeFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.platform.multi_window_manager', 'MultiWindowManagerFacade', ngfMultiWindowManagerFacade as object));
+    registrations.push(new NGFServiceRegistration('ngf.platform.permission_manager', 'PermissionManagerFacade', ngfPermissionManagerFacade as object));
     return registrations;
   }
 

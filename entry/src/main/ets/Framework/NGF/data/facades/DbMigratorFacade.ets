@@ -13,7 +13,10 @@ export class DbMigratorFacade implements IDbMigrator {
   private readonly migrationSteps: Array<INGFMigrationStep> = [];
   private rdbStore: relationalStore.RdbStore | null = null;
 
-  initialize(rdbStore: relationalStore.RdbStore): void {
+  initialize(rdbStore?: relationalStore.RdbStore): void {
+    if (!rdbStore) {
+      return;
+    }
     this.rdbStore = rdbStore;
     this.ensureVersionTable();
     logger.info(TAG, 'DbMigrator RDB 初始化完成');

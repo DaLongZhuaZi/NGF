@@ -1,30 +1,49 @@
 import { http } from '@kit.NetworkKit';
 import { logger } from '../../utils/Logger';
 import { IHttpClient, NGFHttpRequestOptions, NGFHttpResponse, NGFHttpMethod } from '../contracts/IHttpClient';
+import { IHttpInterceptor } from '../contracts/IHttpInterceptor';
 
 const TAG: string = 'NGFHttpClientFacade';
 
 export class HttpClientFacade implements IHttpClient {
+  private interceptors: IHttpInterceptor[] = [];
+
+  public addInterceptor(interceptor: IHttpInterceptor): void {
+    this.interceptors.push(interceptor);
+  }
+
   async request(options: NGFHttpRequestOptions): Promise<NGFHttpResponse> {
+    let finalOptions = options;
+    for (let i = 0; i < this.interceptors.length; i++) {
+      finalOptions = await this.interceptors[i].onRequest(finalOptions);
+    }
+
+    let finalResponse: NGFHttpResponse;
     const httpRequest = http.createHttp();
     try {
       const response = await httpRequest.request(
-        options.url,
-        this.buildOptions(options)
+        finalOptions.url,
+        this.buildOptions(finalOptions)
       ) as http.HttpResponse;
       const headerStr = this.stringifyHeaders(response.header as object);
       const rawResult = response.result;
       const resultStr = typeof rawResult === 'string' ? rawResult : '';
       const cookies = response.cookies !== undefined ? response.cookies : '';
-      logger.debug(TAG, `请求完成: url=${options.url}, status=${response.responseCode}`);
-      return new NGFHttpResponse(response.responseCode, headerStr, resultStr, cookies);
+      logger.debug(TAG, `请求完成: url=${finalOptions.url}, status=${response.responseCode}`);
+      finalResponse = new NGFHttpResponse(response.responseCode, headerStr, resultStr, cookies);
     } catch (error) {
       const message = this.errorToString(error as Object | string | number | boolean);
-      logger.error(TAG, `请求失败: url=${options.url}, error=${message}`);
+      logger.error(TAG, `请求失败: url=${finalOptions.url}, error=${message}`);
       throw new Error(`HTTP request failed: ${message}`);
     } finally {
       httpRequest.destroy();
     }
+
+    for (let i = this.interceptors.length - 1; i >= 0; i--) {
+      finalResponse = await this.interceptors[i].onResponse(finalResponse);
+    }
+
+    return finalResponse;
   }
 
   private buildOptions(options: NGFHttpRequestOptions): http.HttpRequestOptions {

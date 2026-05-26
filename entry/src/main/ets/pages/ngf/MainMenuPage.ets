@@ -294,6 +294,7 @@ struct NGFStarterMainMenuPage {
   @State private pressedTabIndex: number = -1;
   @State private tabGlowStrength: number = 0.88;
   @State private bottomInsetVp: number = 0;
+  @State private topInsetVp: number = NGF_MAIN_MENU_CONTENT_TOP_INSET;
   @StorageProp('ngf_window_ready') private windowReady: boolean = false;
   @StorageProp('ngf_window_active_page') private windowActivePage: string = '';
   @StorageProp('ngf_window_display_mode') private windowDisplayMode: string = 'default';
@@ -301,7 +302,11 @@ struct NGFStarterMainMenuPage {
   @StorageProp('ngf_window_snapshot_updated_at') private windowSnapshotUpdatedAt: number = 0;
   @StorageProp('ngf_window_snapshot_json') private windowSnapshotJson: string = '{}';
 
-  private readonly scroller: Scroller = new Scroller();
+  private readonly scroller0: Scroller = new Scroller();
+  private readonly scroller1: Scroller = new Scroller();
+  private readonly scroller2: Scroller = new Scroller();
+  private readonly scroller3: Scroller = new Scroller();
+  private readonly scroller4: Scroller = new Scroller();
   private readonly tabsController: HdsTabsController = new HdsTabsController();
   private readonly starter = ngfStarterKernel;
   private readonly phaseOrder: Array<string> = ['context_setup', 'core_services', 'ready'];
@@ -338,10 +343,15 @@ struct NGFStarterMainMenuPage {
       return;
     }
     window.getLastWindow(hostCtx).then((lastWindow: window.Window): void => {
-      const avoidArea: window.AvoidArea = lastWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-      this.bottomInsetVp = px2vp(avoidArea.bottomRect.height);
+      const bottomArea: window.AvoidArea = lastWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+      this.bottomInsetVp = uiCtx.px2vp(bottomArea.bottomRect.height);
+      const topArea: window.AvoidArea = lastWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+      const statusBarHeightVp = uiCtx.px2vp(topArea.topRect.height);
+      // TitleBar FULL mode: status bar + large title + subtitle + margins (≈144vp)
+      this.topInsetVp = statusBarHeightVp + 108;
     }).catch((_err: Error): void => {
       this.bottomInsetVp = 0;
+      this.topInsetVp = NGF_MAIN_MENU_CONTENT_TOP_INSET;
     });
   }
 
@@ -507,7 +517,9 @@ struct NGFStarterMainMenuPage {
       actionKey === NGFMainMenuActionKey.DEMO_WORKFLOW ||
       actionKey === NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY ||
       actionKey === NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW ||
-      actionKey === NGFMainMenuActionKey.DEMO_TASK_MANAGER) {
+      actionKey === NGFMainMenuActionKey.DEMO_TASK_MANAGER ||
+      actionKey === NGFMainMenuActionKey.DEMO_ERROR_RECOVERY ||
+      actionKey === NGFMainMenuActionKey.DEMO_SYNC_MANAGER) {
       this.handleOpenHdsDemoTap(actionKey, labelStr);
       return;
     }
@@ -712,7 +724,7 @@ struct NGFStarterMainMenuPage {
 
         HdsTabs({ barPosition: BarPosition.End, controller: this.tabsController }) {
           TabContent() {
-            Scroll(this.scroller) {
+            Scroll(this.scroller0) {
               Column({ space: 12 }) {
                 this.buildHeaderCard()
                 this.buildHdsDemoCard()
@@ -726,7 +738,7 @@ struct NGFStarterMainMenuPage {
               .padding({
                 left: 16,
                 right: 16,
-                top: NGF_MAIN_MENU_CONTENT_TOP_INSET,
+                top: this.topInsetVp,
                 bottom: 76
               })
             }
@@ -739,7 +751,7 @@ struct NGFStarterMainMenuPage {
           .tabBar(this.buildTabItem($r('app.string.tab_framework'), 'sys.symbol.house', 0))
 
           TabContent() {
-            Scroll() {
+            Scroll(this.scroller1) {
               Column({ space: 12 }) {
                 this.buildDemoTaskManagerCard()
                 this.buildDemoSecurityPerfCard()
@@ -754,7 +766,7 @@ struct NGFStarterMainMenuPage {
               .padding({
                 left: 16,
                 right: 16,
-                top: NGF_MAIN_MENU_CONTENT_TOP_INSET,
+                top: this.topInsetVp,
                 bottom: 76
               })
             }
@@ -767,11 +779,20 @@ struct NGFStarterMainMenuPage {
           .tabBar(this.buildTabItem($r('app.string.tab_features'), 'sys.symbol.more', 1))
 
           TabContent() {
-            Scroll() {
-              NGFCapabilitiesTabContent({
-                onActionTap: (actionKey: string, label: ResourceStr) => {
-                  this.handleFeatureActionTap(actionKey, label);
-                }
+            Scroll(this.scroller2) {
+              Column({ space: 12 }) {
+                NGFCapabilitiesTabContent({
+                  onActionTap: (actionKey: string, label: ResourceStr) => {
+                    this.handleFeatureActionTap(actionKey, label);
+                  }
+                })
+              }
+              .width('100%')
+              .padding({
+                left: 16,
+                right: 16,
+                top: this.topInsetVp,
+                bottom: 76
               })
             }
             .width('100%')
@@ -783,28 +804,44 @@ struct NGFStarterMainMenuPage {
           .tabBar(this.buildTabItem($r('app.string.tab_capabilities'), 'sys.symbol.grid', 2))
 
           TabContent() {
-            Scroll() {
-              NGFDeviceAwarenessPage()
+            Scroll(this.scroller3) {
+              Column({ space: 12 }) {
+                NGFDeviceAwarenessPage()
+              }
+              .width('100%')
+              .padding({
+                left: 16,
+                right: 16,
+                top: this.topInsetVp,
+                bottom: 76
+              })
             }
             .width('100%')
             .height('100%')
-            .padding({ top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 76 })
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
-            .backgroundColor($r('app.color.background_primary'))
+            .backgroundColor($r('app.color.background_transparent'))
           }
           .tabBar(this.buildTabItem($r('app.string.tab_device'), 'sys.symbol.scroll_vertical', 3))
 
           TabContent() {
-            Scroll() {
-              NGFSettingsPage()
+            Scroll(this.scroller4) {
+              Column({ space: 12 }) {
+                NGFSettingsPage()
+              }
+              .width('100%')
+              .padding({
+                left: 16,
+                right: 16,
+                top: this.topInsetVp,
+                bottom: 76
+              })
             }
             .width('100%')
             .height('100%')
-            .padding({ top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 76 })
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
-            .backgroundColor($r('app.color.background_primary'))
+            .backgroundColor($r('app.color.background_transparent'))
           }
           .tabBar(this.buildTabItem($r('app.string.tab_settings'), 'sys.symbol.gearshape', 4))
         }
@@ -847,6 +884,7 @@ struct NGFStarterMainMenuPage {
     .width('100%')
     .height('100%')
     .backgroundColor($r('app.color.background_primary'))
+    .bindToScrollable([this.scroller0, this.scroller1, this.scroller2, this.scroller3, this.scroller4])
   }
 
   @Builder

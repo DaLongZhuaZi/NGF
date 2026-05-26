@@ -5,6 +5,7 @@ import { ngfPagePolicyHostFacade } from './PagePolicyHostFacade';
 import { ngfRouteInterceptorFacade } from './RouteInterceptorFacade';
 import { ngfDeepLinkFacade } from './DeepLinkFacade';
 import { ngfPageStateStoreFacade } from './PageStateStoreFacade';
+import { ngfOverlayManagerFacade } from './OverlayManagerFacade';
 
 export class NGFUiShellIntegrationFacade extends NGFIntegrationFacadeBase {
   protected readonly tag: string = 'NGFUiShellIntegrationFacade';
@@ -17,6 +18,7 @@ export class NGFUiShellIntegrationFacade extends NGFIntegrationFacadeBase {
     registrations.push(new NGFServiceRegistration('ngf.ui.route_interceptor', 'RouteInterceptorFacade', ngfRouteInterceptorFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.ui.deep_link', 'DeepLinkFacade', ngfDeepLinkFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.ui.page_state_store', 'PageStateStoreFacade', ngfPageStateStoreFacade as object));
+    registrations.push(new NGFServiceRegistration('ngf.ui.overlay_manager', 'OverlayManagerFacade', ngfOverlayManagerFacade as object));
     return registrations;
   }
 }

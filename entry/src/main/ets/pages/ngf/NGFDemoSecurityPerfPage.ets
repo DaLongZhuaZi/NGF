@@ -56,6 +56,7 @@ class NGFDemoMemoryEntry {
 @Component
 export struct NGFDemoSecurityPerfPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private shaInput: string = 'Hello NGF Framework';
   @State private shaAlgorithmIndexes: Array<number> = [0];
   @State private shaResult: ResourceStr = '';
@@ -72,6 +73,9 @@ export struct NGFDemoSecurityPerfPage {
   private readonly algorithms: Array<string> = ['SHA256', 'SHA384', 'SHA512'];
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_SECURITY_PERF);
   }
 
@@ -89,7 +93,7 @@ export struct NGFDemoSecurityPerfPage {
             this.buildMemorySection()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: DEMO_SECURITY_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
+          .padding({ left: 16, right: 16, top: this.topInsetVp, bottom: 36 })
         }
         .width('100%')
         .height('100%')

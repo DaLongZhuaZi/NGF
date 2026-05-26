@@ -68,6 +68,7 @@ class NGFDemoSavedStateEntry {
 @Component
 export struct NGFDemoWorkflowPage {
   @State private pathStack: NavPathStack = new NavPathStack();
+  @State private topInsetVp: number = 108;
   @State private registeredName: string = '';
   @State private stepResults: Array<NGFDemoStepResultEntry> = [];
   @State private executionSuccess: boolean = false;
@@ -76,6 +77,9 @@ export struct NGFDemoWorkflowPage {
   @State private statusMessage: ResourceStr = '';
 
   aboutToAppear(): void {
+    NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
+      this.topInsetVp = inset;
+    });
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_WORKFLOW);
   }
 
@@ -91,7 +95,7 @@ export struct NGFDemoWorkflowPage {
             this.buildPersistenceSection()
           }
           .width('100%')
-          .padding({ left: 16, right: 16, top: DEMO_WORKFLOW_TOP_CHROME.metrics.contentTopInset, bottom: 36 })
+          .padding({ left: 16, right: 16, top: this.topInsetVp, bottom: 36 })
         }
         .width('100%')
         .height('100%')
