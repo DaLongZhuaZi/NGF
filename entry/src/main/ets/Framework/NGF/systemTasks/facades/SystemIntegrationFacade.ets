@@ -62,6 +62,12 @@ class SystemIntegrationFacade implements ISystemIntegration {
     return ngfStarterKernel.eventBus.unsubscribe(eventName, listenerId);
   }
 
+  publishNotification(request: import('../contracts/ISystemNotificationManager').NGFNotificationRequest): Promise<void> {
+    return import('./SystemNotificationManagerFacade').then(module => {
+      return module.ngfSystemNotificationManager.publish(request);
+    });
+  }
+
   private subscribeTaskEvent(eventName: string, listenerId: string, listener: NGFTaskEventListener): boolean {
     const rawListener: NGFEventListener = (payload: NGFEventPayload) => {
       try {

@@ -4519,6 +4519,242 @@
     {
       "name": "ui_str_2450",
       "value": "复制失败"
+    },
+    {
+      "name": "demo_error_recovery_title",
+      "value": "错误恢复与降级策略"
+    },
+    {
+      "name": "demo_error_recovery_desc",
+      "value": "触发多级错误，观察框架的捕获、恢复与降级流程"
+    },
+    {
+      "name": "err_strategy_registered",
+      "value": "✅ 恢复策略已就绪"
+    },
+    {
+      "name": "err_recovered",
+      "value": "✅ [%s] 级别错误已恢复"
+    },
+    {
+      "name": "err_not_recovered",
+      "value": "⚠️ [%s] 级别错误未恢复（触发降级）"
+    },
+    {
+      "name": "err_trigger_section",
+      "value": "触发错误"
+    },
+    {
+      "name": "err_trigger_desc",
+      "value": "选择错误级别触发，观察 ErrorHandler 如何响应"
+    },
+    {
+      "name": "err_trigger_low",
+      "value": "触发 LOW 错误"
+    },
+    {
+      "name": "err_trigger_medium",
+      "value": "触发 MEDIUM 错误"
+    },
+    {
+      "name": "err_trigger_high",
+      "value": "触发 HIGH 错误"
+    },
+    {
+      "name": "err_trigger_critical",
+      "value": "触发 CRITICAL 错误（不恢复）"
+    },
+    {
+      "name": "err_recent_count",
+      "value": "累计错误次数："
+    },
+    {
+      "name": "err_strategy_section",
+      "value": "恢复策略规则"
+    },
+    {
+      "name": "err_strategy_active",
+      "value": "已激活"
+    },
+    {
+      "name": "err_strategy_inactive",
+      "value": "未注册"
+    },
+    {
+      "name": "err_rule_low",
+      "value": "LOW"
+    },
+    {
+      "name": "err_rule_low_desc",
+      "value": "自动恢复，继续正常流程"
+    },
+    {
+      "name": "err_rule_medium",
+      "value": "MEDIUM"
+    },
+    {
+      "name": "err_rule_medium_desc",
+      "value": "自动恢复，记录告警日志"
+    },
+    {
+      "name": "err_rule_high",
+      "value": "HIGH"
+    },
+    {
+      "name": "err_rule_high_desc",
+      "value": "自动恢复，触发重试机制"
+    },
+    {
+      "name": "err_rule_critical",
+      "value": "CRITICAL"
+    },
+    {
+      "name": "err_rule_critical_desc",
+      "value": "不恢复，触发安全模式降级"
+    },
+    {
+      "name": "err_log_section",
+      "value": "错误历史记录"
+    },
+    {
+      "name": "err_log_empty",
+      "value": "尚无错误记录，点击上方按钮触发"
+    },
+    {
+      "name": "err_recovered_tag",
+      "value": "已恢复"
+    },
+    {
+      "name": "err_failed_tag",
+      "value": "降级"
+    },
+    {
+      "name": "demo_sync_title",
+      "value": "数据同步与冲突解决"
+    },
+    {
+      "name": "demo_sync_desc",
+      "value": "模拟离线入队 → 恢复同步 → 冲突策略全流程"
+    },
+    {
+      "name": "sync_network_label",
+      "value": "模拟网络状态"
+    },
+    {
+      "name": "sync_online",
+      "value": "在线"
+    },
+    {
+      "name": "sync_offline",
+      "value": "离线（数据入队）"
+    },
+    {
+      "name": "sync_go_online",
+      "value": "恢复网络"
+    },
+    {
+      "name": "sync_go_offline",
+      "value": "模拟断网"
+    },
+    {
+      "name": "sync_network_on",
+      "value": "✅ 网络已恢复 — 可执行同步"
+    },
+    {
+      "name": "sync_network_off",
+      "value": "📴 网络已断开 — 新操作将入队"
+    },
+    {
+      "name": "sync_queue_label",
+      "value": "等待同步队列"
+    },
+    {
+      "name": "sync_queue_hint",
+      "value": "网络断开时入队，恢复后执行 flush"
+    },
+    {
+      "name": "sync_enqueue_create",
+      "value": "+ 创建"
+    },
+    {
+      "name": "sync_enqueue_update",
+      "value": "✏ 更新"
+    },
+    {
+      "name": "sync_enqueue_delete",
+      "value": "✕ 删除"
+    },
+    {
+      "name": "sync_flush_btn",
+      "value": "执行同步 Flush"
+    },
+    {
+      "name": "sync_clear_btn",
+      "value": "清空队列"
+    },
+    {
+      "name": "sync_enqueued",
+      "value": "入队成功: %s"
+    },
+    {
+      "name": "sync_flushing",
+      "value": "同步中…"
+    },
+    {
+      "name": "sync_flush_success",
+      "value": "✅ 全部同步完成，共 %d 条"
+    },
+    {
+      "name": "sync_flush_partial",
+      "value": "⚠️ 部分成功: 成功 %d 条，失败 %d 条"
+    },
+    {
+      "name": "sync_queue_cleared",
+      "value": "队列已清空"
+    },
+    {
+      "name": "sync_strategy_label",
+      "value": "冲突解决策略"
+    },
+    {
+      "name": "sync_client_wins",
+      "value": "客户端优先"
+    },
+    {
+      "name": "sync_server_wins",
+      "value": "服务端优先"
+    },
+    {
+      "name": "sync_manual",
+      "value": "手动解决"
+    },
+    {
+      "name": "sync_strategy_set",
+      "value": "策略已切换: %s"
+    },
+    {
+      "name": "sync_result_label",
+      "value": "上次同步结果"
+    },
+    {
+      "name": "sync_stat_synced",
+      "value": "已同步"
+    },
+    {
+      "name": "sync_stat_failed",
+      "value": "失败"
+    },
+    {
+      "name": "sync_stat_conflict",
+      "value": "冲突"
+    },
+    {
+      "name": "sync_result_success",
+      "value": "✅ 全部同步成功"
+    },
+    {
+      "name": "sync_result_partial",
+      "value": "⚠️ 部分条目同步失败"
     }
   ]
 }

@@ -56,6 +56,17 @@ export class NGFModuleRegistry {
     return exists;
   }
 
+  unregisterModule(moduleName: string): boolean {
+    const normalizedName = moduleName.trim();
+    if (this.registrations.has(normalizedName)) {
+      this.registrations.delete(normalizedName);
+      logger.info(TAG, `注销模块成功：模块=${normalizedName}`);
+      return true;
+    }
+    logger.debug(TAG, `注销模块失败，模块不存在：模块=${normalizedName}`);
+    return false;
+  }
+
   resolveModule(moduleName: string): NGFModuleRegistration | null {
     const normalizedName = moduleName.trim();
     const registration = this.registrations.get(normalizedName);

@@ -5,6 +5,7 @@ export enum NGFTaskState {
   FAILED = 'FAILED'
 }
 
+@Observed
 export class NGFTaskInfo {
   taskId: string;
   name: string;

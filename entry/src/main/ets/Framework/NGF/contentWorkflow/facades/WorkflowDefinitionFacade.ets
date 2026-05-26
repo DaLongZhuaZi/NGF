@@ -3,6 +3,7 @@ import {
   IWorkflowDefinitionManager,
   NGFWorkflowDefinition,
   NGFWorkflowExecutionResult,
+  NGFWorkflowParallelGroup,
   NGFWorkflowStepCondition,
   NGFWorkflowStepDefinition,
   NGFWorkflowStepResult
@@ -65,6 +66,22 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
     const stepResults: Array<NGFWorkflowStepResult> = [];
     let lastOutput: string = contextJson;
 
+    // 并行组执行（在串行步骤前执行）
+    if (definition.parallelGroups.length > 0) {
+      for (let gi = 0; gi < definition.parallelGroups.length; gi++) {
+        const group = definition.parallelGroups[gi];
+        const groupResult = await this.executeParallelGroup(group, lastOutput);
+        for (let ri = 0; ri < groupResult.length; ri++) {
+          stepResults.push(groupResult[ri]);
+          if (!groupResult[ri].success) {
+            logger.warn(TAG, `并行组步骤失败: group=${group.groupName}, step=${groupResult[ri].stepName}`);
+            return new NGFWorkflowExecutionResult(name, false, stepResults, lastOutput);
+          }
+        }
+      }
+    }
+
+    // 串行步骤执行（支持超时）
     for (let index = 0; index < definition.steps.length; index++) {
       const step = definition.steps[index];
 
@@ -75,11 +92,7 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
       }
 
       logger.debug(TAG, `执行步骤: step=${step.stepName}, type=${step.actionType}`);
-      const actionResult: NGFActionResult = await ngfActionExecutorFacade.executeAction(
-        step.actionType,
-        step.actionJson,
-        lastOutput
-      );
+      const actionResult: NGFActionResult = await this.executeStepWithTimeout(step, lastOutput);
 
       stepResults.push(new NGFWorkflowStepResult(
         step.stepName,
@@ -99,6 +112,73 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
 
     logger.info(TAG, `工作流执行完成: name=${name}, steps=${stepResults.length}`);
     return new NGFWorkflowExecutionResult(name, true, stepResults, lastOutput);
+  }
+
+  /**
+   * 并行组执行：组内所有步骤并发执行，投入 Promise.all
+   */
+  private async executeParallelGroup(
+    group: NGFWorkflowParallelGroup,
+    contextJson: string
+  ): Promise<Array<NGFWorkflowStepResult>> {
+    logger.debug(TAG, `并行组开始: group=${group.groupName}, steps=${group.steps.length}`);
+    const promises: Array<Promise<NGFWorkflowStepResult>> = [];
+    for (let i = 0; i < group.steps.length; i++) {
+      const step = group.steps[i];
+      const p = this.executeStepWithTimeout(step, contextJson).then(
+        (result: NGFActionResult): NGFWorkflowStepResult => {
+          return new NGFWorkflowStepResult(step.stepName, step.actionType, result.success, result.outputJson, false);
+        }
+      );
+      promises.push(p);
+    }
+
+    let results: Array<NGFWorkflowStepResult>;
+    if (group.timeoutMs !== null) {
+      const timeoutPromise = new Promise<Array<NGFWorkflowStepResult>>(
+        (_resolve: (v: Array<NGFWorkflowStepResult>) => void, reject: (e: Error) => void) => {
+          setTimeout(() => reject(new Error(`并行组超时: group=${group.groupName}, timeout=${group.timeoutMs}ms`)), group.timeoutMs as number);
+        }
+      );
+      results = await Promise.race<Array<NGFWorkflowStepResult>>([
+        Promise.all<NGFWorkflowStepResult>(promises),
+        timeoutPromise
+      ]);
+    } else {
+      results = await Promise.all<NGFWorkflowStepResult>(promises);
+    }
+
+    logger.info(TAG, `并行组完成: group=${group.groupName}, results=${results.length}`);
+    return results;
+  }
+
+  /**
+   * 单步骤执行（包装超时逻辑）
+   */
+  private async executeStepWithTimeout(
+    step: NGFWorkflowStepDefinition,
+    contextJson: string
+  ): Promise<NGFActionResult> {
+    const actionPromise = ngfActionExecutorFacade.executeAction(step.actionType, step.actionJson, contextJson);
+    if (step.timeoutMs === null) {
+      return actionPromise;
+    }
+    const timeoutMs = step.timeoutMs as number;
+    const timeoutPromise = new Promise<NGFActionResult>(
+      (_resolve: (v: NGFActionResult) => void, reject: (e: Error) => void) => {
+        setTimeout(
+          () => reject(new Error(`步骤超时: step=${step.stepName}, timeout=${timeoutMs}ms`)),
+          timeoutMs
+        );
+      }
+    );
+    try {
+      return await Promise.race<NGFActionResult>([actionPromise, timeoutPromise]);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      logger.warn(TAG, `步骤超时或异常: step=${step.stepName}, err=${msg}`);
+      return new NGFActionResult(false, '');
+    }
   }
 
   private evaluateCondition(condition: NGFWorkflowStepCondition, contextJson: string): boolean {

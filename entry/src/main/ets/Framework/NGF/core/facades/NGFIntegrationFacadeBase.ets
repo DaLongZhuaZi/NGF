@@ -39,8 +39,30 @@ export abstract class NGFIntegrationFacadeBase implements IModuleBootstrap {
     return this.bootstrapped;
   }
 
+  shutdown(): boolean {
+    if (!this.bootstrapped) {
+      return true;
+    }
+    
+    try {
+      this.onShutdown();
+      this.bootstrapped = false;
+      this.syncAppStorage(false);
+      logger.info(this.tag, `${this.tag} 卸载完成`);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(this.tag, `${this.tag} 卸载失败：${message}`);
+      return false;
+    }
+  }
+
   protected onBootstrapped(): void {
     // Override in subclass for post-bootstrap hooks
+  }
+
+  protected onShutdown(): void {
+    // Override in subclass for post-shutdown hooks
   }
 
   private register(container: DependencyContainer, registration: NGFServiceRegistration): void {

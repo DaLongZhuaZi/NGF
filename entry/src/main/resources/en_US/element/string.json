@@ -4507,6 +4507,110 @@
     {
       "name": "ui_str_2450",
       "value": "Copy failed"
+    },
+    {
+      "name": "tab_capabilities",
+      "value": "Capabilities"
+    },
+    {
+      "name": "card_network_title",
+      "value": "Network"
+    },
+    {
+      "name": "card_network_desc",
+      "value": "Secure HTTP requests & interceptors via RCP"
+    },
+    {
+      "name": "card_rdb_title",
+      "value": "Database"
+    },
+    {
+      "name": "card_rdb_desc",
+      "value": "SQLite local storage via ArkData"
+    },
+    {
+      "name": "card_web_title",
+      "value": "WebBridge"
+    },
+    {
+      "name": "card_web_desc",
+      "value": "NGFWebView JSBridge integration"
+    },
+    {
+      "name": "card_security_title",
+      "value": "Security"
+    },
+    {
+      "name": "card_security_desc",
+      "value": "Biometric auth and Keystore (AssetStore) vault"
+    },
+    {
+      "name": "card_hardware_title",
+      "value": "Hardware & Location"
+    },
+    {
+      "name": "card_hardware_desc",
+      "value": "GPS coordinates and accelerometer sensing"
+    },
+    {
+      "name": "card_media_title",
+      "value": "Media System"
+    },
+    {
+      "name": "card_media_desc",
+      "value": "Secure PhotoPicker and native video playback"
+    },
+    {
+      "name": "card_push_title",
+      "value": "Push Service"
+    },
+    {
+      "name": "card_push_desc",
+      "value": "Huawei Push Token and down-link messages"
+    },
+    {
+      "name": "card_interconnect_title",
+      "value": "Interconnect"
+    },
+    {
+      "name": "card_interconnect_desc",
+      "value": "AppLinking and cross-device Super Terminal sharing"
+    },
+    {
+      "name": "btn_fetch_data",
+      "value": "Fetch Network Data"
+    },
+    {
+      "name": "btn_db_insert",
+      "value": "Insert Record"
+    },
+    {
+      "name": "btn_db_query",
+      "value": "Query Records"
+    },
+    {
+      "name": "btn_auth_fingerprint",
+      "value": "Authenticate Identity"
+    },
+    {
+      "name": "btn_hardware_location",
+      "value": "Get Coordinates"
+    },
+    {
+      "name": "btn_hardware_sensor",
+      "value": "Start Shake Listener"
+    },
+    {
+      "name": "btn_media_picker",
+      "value": "Launch PhotoPicker"
+    },
+    {
+      "name": "btn_push_token",
+      "value": "Get Cloud Token"
+    },
+    {
+      "name": "btn_interconnect_share",
+      "value": "Open Share Panel"
     }
   ]
 }

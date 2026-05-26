@@ -1,7 +1,7 @@
 import { ITaskManager, NGFTaskInfo, NGFTaskState, NGFTaskExecutor } from '../contracts/ITaskManager';
 import { ngfSystemNotificationManager } from './SystemNotificationManagerFacade';
 import { ngfBackgroundTaskManager } from './BackgroundTaskManagerFacade';
-import { NGFNotificationRequest } from '../contracts/ISystemNotificationManager';
+import { NGFNotificationRequest, NGFNotificationType } from '../contracts/ISystemNotificationManager';
 import { logger } from '../../utils/Logger';
 import { ngfStarterKernel } from '../../core/starter/StarterKernel';
 import { NGFEventPayload } from '../../core/contracts/IEventBus';
@@ -108,6 +108,7 @@ class TaskManagerFacade implements ITaskManager {
       notifId,
       taskInfo.name,
       taskInfo.message,
+      NGFNotificationType.PROGRESS,
       taskInfo.progress,
       taskInfo.total,
       isOngoing

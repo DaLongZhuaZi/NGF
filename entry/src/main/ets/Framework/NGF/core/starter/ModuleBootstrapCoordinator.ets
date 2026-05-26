@@ -98,6 +98,42 @@ export class NGFModuleBootstrapCoordinator {
     return report;
   }
 
+  shutdownPhase(phaseName: string): NGFModuleBootstrapReport {
+    this.ensureDefaultModulesRegistered();
+    const modules = this.registry.listModulesByPhase(phaseName);
+    // 逆序卸载
+    const reversedModules = modules.slice().reverse();
+    const results: Array<NGFModuleBootstrapResult> = [];
+    let successCount: number = 0;
+    let failureCount: number = 0;
+
+    for (let index = 0; index < reversedModules.length; index++) {
+      const moduleRegistration = reversedModules[index];
+      const result = this.shutdownModule(moduleRegistration);
+      results.push(result);
+      // 更新该模块的最近执行状态
+      this.lastResultsByModule.set(result.moduleName, result);
+      if (result.success) {
+        successCount += 1;
+      } else {
+        failureCount += 1;
+      }
+    }
+
+    const report = new NGFModuleBootstrapReport(
+      phaseName,
+      failureCount === 0,
+      reversedModules.length,
+      successCount,
+      failureCount,
+      results,
+      Date.now()
+    );
+    this.lastReportsByPhase.set(phaseName, report);
+    logger.info(TAG, `卸载阶段完成：阶段=${phaseName}, 总数=${report.totalCount}, 成功=${report.successCount}, 失败=${report.failureCount}`);
+    return report;
+  }
+
   getLatestModuleResult(moduleName: string): NGFModuleBootstrapResult | null {
     const normalizedModuleName = moduleName.trim();
     const result = this.lastResultsByModule.get(normalizedModuleName);
@@ -143,6 +179,29 @@ export class NGFModuleBootstrapCoordinator {
     } catch (error) {
       const message = this.errorToString(error as Object | string | number | boolean);
       logger.error(TAG, `引导模块异常：模块=${moduleName}, 错误=${message}`);
+      return new NGFModuleBootstrapResult(moduleName, false, message, Date.now());
+    }
+  }
+
+  private shutdownModule(registration: NGFModuleRegistration): NGFModuleBootstrapResult {
+    const moduleName = registration.definition.moduleName;
+    if (!registration.runtime.isBootstrapped()) {
+      logger.info(TAG, `卸载模块被跳过：模块=${moduleName}, 原因=未引导或已卸载`);
+      return new NGFModuleBootstrapResult(moduleName, true, 'already shutdown', Date.now());
+    }
+
+    try {
+      const success = registration.runtime.shutdown();
+      const message = success ? 'shutdown' : 'shutdown returned false';
+      if (success) {
+        logger.info(TAG, `卸载模块成功：模块=${moduleName}`);
+      } else {
+        logger.warn(TAG, `卸载模块失败：模块=${moduleName}`);
+      }
+      return new NGFModuleBootstrapResult(moduleName, success, message, Date.now());
+    } catch (error) {
+      const message = this.errorToString(error as Object | string | number | boolean);
+      logger.error(TAG, `卸载模块异常：模块=${moduleName}, 错误=${message}`);
       return new NGFModuleBootstrapResult(moduleName, false, message, Date.now());
     }
   }

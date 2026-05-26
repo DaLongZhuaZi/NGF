@@ -10,6 +10,14 @@ export class NGFHdsDemoRouteName {
   static readonly DEMO_DEVICE_DISPLAY: string = 'ngf.demo.device.display';
   static readonly SYSTEM_RESOURCE_PREVIEW: string = 'ngf.system.resource.preview';
   static readonly TASK_MANAGER: string = 'ngf.task.manager';
+  static readonly DEMO_ERROR_RECOVERY: string = 'ngf.demo.error.recovery';
+  static readonly DEMO_SYNC_MANAGER: string = 'ngf.demo.sync.manager';
+  static readonly CAPABILITY_NETWORK: string = 'ngf.capability.network';
+  static readonly CAPABILITY_RDB: string = 'ngf.capability.rdb';
+  static readonly CAPABILITY_WEB_BRIDGE: string = 'ngf.capability.web.bridge';
+  static readonly CAPABILITY_SECURITY: string = 'ngf.capability.security';
+  static readonly CAPABILITY_HARDWARE: string = 'ngf.capability.hardware';
+  static readonly CAPABILITY_MEDIA: string = 'ngf.capability.media';
 }
 
 

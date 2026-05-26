@@ -1,5 +1,6 @@
 export interface IModuleBootstrap {
   bootstrap(): boolean;
+  shutdown(): boolean;
   isBootstrapped(): boolean;
 }
 

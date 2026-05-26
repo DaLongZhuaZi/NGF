@@ -53,4 +53,9 @@ export interface ISystemIntegration {
    * 基础底层：取消订阅通用系统事件。
    */
   unsubscribeSystemEvent(eventName: string, listenerId: string): boolean;
+
+  /**
+   * 发布系统通知。
+   */
+  publishNotification(request: import('./ISystemNotificationManager').NGFNotificationRequest): Promise<void>;
 }

@@ -188,6 +188,23 @@ class I18nManagerFacade implements II18nManager {
     }
   }
 
+  /**
+   * 检测当前语言是否为 RTL（从右到左）布局语言
+   * Phase F2：接口预埋，基于 locale 代码判断
+   */
+  isRtl(): boolean {
+    const locale = this.getCurrentLocale();
+    const rtlLanguages: Array<string> = ['ar', 'he', 'fa', 'ur', 'ps', 'sd', 'ku', 'dv'];
+    const langCode = locale.split('-')[0].toLowerCase();
+    for (let i = 0; i < rtlLanguages.length; i++) {
+      if (rtlLanguages[i] === langCode) {
+        logger.debug(TAG, `RTL 语言检测: locale=${locale}, isRtl=true`);
+        return true;
+      }
+    }
+    return false;
+  }
+
   private getSystemLocale(): string {
     const systemLocale = AppStorage.get<string>(STORAGE_KEY_SYSTEM_LOCALE);
     if (systemLocale !== undefined && systemLocale !== null && systemLocale.length > 0) {

@@ -57,17 +57,41 @@ export class NGFWorkflowStepDefinition {
   readonly actionType: string;
   readonly actionJson: string;
   readonly condition: NGFWorkflowStepCondition | null;
+  /** 步骤超时时间（毫秒），null 表示不限制 */
+  readonly timeoutMs: number | null;
 
   constructor(
     stepName: string,
     actionType: string,
     actionJson: string,
-    condition: NGFWorkflowStepCondition | null = null
+    condition: NGFWorkflowStepCondition | null = null,
+    timeoutMs: number | null = null
   ) {
     this.stepName = stepName;
     this.actionType = actionType;
     this.actionJson = actionJson;
     this.condition = condition;
+    this.timeoutMs = timeoutMs;
+  }
+}
+
+/**
+ * 并行步骤组 — 组内步骤并发执行，全部完成后继续
+ */
+export class NGFWorkflowParallelGroup {
+  readonly groupName: string;
+  readonly steps: Array<NGFWorkflowStepDefinition>;
+  /** 并行组超时时间（毫秒），null 表示不限制 */
+  readonly timeoutMs: number | null;
+
+  constructor(
+    groupName: string,
+    steps: Array<NGFWorkflowStepDefinition>,
+    timeoutMs: number | null = null
+  ) {
+    this.groupName = groupName;
+    this.steps = steps;
+    this.timeoutMs = timeoutMs;
   }
 }
 
@@ -78,11 +102,19 @@ export class NGFWorkflowDefinition {
   readonly workflowName: string;
   readonly description: string;
   readonly steps: Array<NGFWorkflowStepDefinition>;
+  /** 并行组列表（可选） */
+  readonly parallelGroups: Array<NGFWorkflowParallelGroup>;
 
-  constructor(workflowName: string, description: string, steps: Array<NGFWorkflowStepDefinition>) {
+  constructor(
+    workflowName: string,
+    description: string,
+    steps: Array<NGFWorkflowStepDefinition>,
+    parallelGroups: Array<NGFWorkflowParallelGroup> = []
+  ) {
     this.workflowName = workflowName;
     this.description = description;
     this.steps = steps;
+    this.parallelGroups = parallelGroups;
   }
 }
 

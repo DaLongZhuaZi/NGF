@@ -4507,6 +4507,110 @@
     {
       "name": "ui_str_2450",
       "value": "复制失败"
+    },
+    {
+      "name": "tab_capabilities",
+      "value": "能力"
+    },
+    {
+      "name": "card_network_title",
+      "value": "网络请求"
+    },
+    {
+      "name": "card_network_desc",
+      "value": "基于 RCP 的安全网络请求与 Header 拦截验证"
+    },
+    {
+      "name": "card_rdb_title",
+      "value": "关系型数据库"
+    },
+    {
+      "name": "card_rdb_desc",
+      "value": "基于 ArkData 的 SQLite 本地结构化数据存储"
+    },
+    {
+      "name": "card_web_title",
+      "value": "混合开发桥接"
+    },
+    {
+      "name": "card_web_desc",
+      "value": "NGFWebView 组件与安全 JSBridge 的双向调用"
+    },
+    {
+      "name": "card_security_title",
+      "value": "安全认证与密钥库"
+    },
+    {
+      "name": "card_security_desc",
+      "value": "指纹/人脸识别调起，与芯片级资产 (AssetStore) 存取"
+    },
+    {
+      "name": "card_hardware_title",
+      "value": "硬件与定位服务"
+    },
+    {
+      "name": "card_hardware_desc",
+      "value": "高精度 GPS 探测与加速度计 (摇一摇) 传感器读取"
+    },
+    {
+      "name": "card_media_title",
+      "value": "多媒体系统"
+    },
+    {
+      "name": "card_media_desc",
+      "value": "基于免权机制的安全相册选择器与原生视频播放"
+    },
+    {
+      "name": "card_push_title",
+      "value": "云端推送服务"
+    },
+    {
+      "name": "card_push_desc",
+      "value": "向华为云端申请 Push Token 与监听系统下行透传"
+    },
+    {
+      "name": "card_interconnect_title",
+      "value": "跨端互联互通"
+    },
+    {
+      "name": "card_interconnect_desc",
+      "value": "AppLinking 通用短链生成与超级终端数据跨端分享"
+    },
+    {
+      "name": "btn_fetch_data",
+      "value": "发起网络请求"
+    },
+    {
+      "name": "btn_db_insert",
+      "value": "插入演示数据"
+    },
+    {
+      "name": "btn_db_query",
+      "value": "查询数据库记录"
+    },
+    {
+      "name": "btn_auth_fingerprint",
+      "value": "拉起身份验证"
+    },
+    {
+      "name": "btn_hardware_location",
+      "value": "获取当前经纬度"
+    },
+    {
+      "name": "btn_hardware_sensor",
+      "value": "启动摇一摇监听"
+    },
+    {
+      "name": "btn_media_picker",
+      "value": "拉起相册选择器"
+    },
+    {
+      "name": "btn_push_token",
+      "value": "获取云端 Token"
+    },
+    {
+      "name": "btn_interconnect_share",
+      "value": "拉起系统分享面板"
     }
   ]
 }

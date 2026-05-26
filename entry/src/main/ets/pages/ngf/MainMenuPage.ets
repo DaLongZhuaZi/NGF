@@ -1,4 +1,4 @@
-import { hdsEffect, hdsMaterial, HdsNavigation, HdsNavigationTitleMode } from '@kit.UIDesignKit';
+import { hdsEffect, hdsMaterial, HdsNavigation, HdsNavigationTitleMode, HdsTabs, HdsTabsController } from '@kit.UIDesignKit';
 import { uiContextManager } from '../../Framework/NGF/platformOhos/UIContextManager';
 import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 import { NGFErrorContext, NGFErrorSeverity } from '../../Framework/NGF/core/contracts/IErrorHandler';
@@ -29,6 +29,15 @@ import { NGFDemoWorkflowPage } from './NGFDemoWorkflowPage';
 import { NGFDemoDeviceDisplayPage } from './NGFDemoDeviceDisplayPage';
 import { NGFSystemResourcePreviewPage } from './SystemResourcePreviewPage';
 import { NGFTaskManagerPage } from './NGFTaskManagerPage';
+import { NGFCapabilitiesTabContent } from './NGFCapabilitiesTabContent';
+import { NGFCapabilitiesNetworkPage } from './NGFCapabilitiesNetworkPage';
+import { NGFCapabilitiesDatabasePage } from './NGFCapabilitiesDatabasePage';
+import { NGFCapabilitiesWebBridgePage } from './NGFCapabilitiesWebBridgePage';
+import { NGFCapabilitiesSecurityPage } from './NGFCapabilitiesSecurityPage';
+import { NGFCapabilitiesHardwarePage } from './NGFCapabilitiesHardwarePage';
+import { NGFCapabilitiesMediaPage } from './NGFCapabilitiesMediaPage';
+import { NGFDemoErrorRecoveryPage } from './NGFDemoErrorRecoveryPage';
+import { NGFDemoSyncManagerPage } from './NGFDemoSyncManagerPage';
 
 const TAG: string = 'NGFStarterMainMenuPage';
 const NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT: number = 188;
@@ -49,6 +58,8 @@ class NGFMainMenuActionKey {
   static readonly DEMO_DEVICE_DISPLAY: string = NGFHdsDemoRouteName.DEMO_DEVICE_DISPLAY;
   static readonly SYSTEM_RESOURCE_PREVIEW: string = NGFHdsDemoRouteName.SYSTEM_RESOURCE_PREVIEW;
   static readonly DEMO_TASK_MANAGER: string = NGFHdsDemoRouteName.TASK_MANAGER;
+  static readonly DEMO_ERROR_RECOVERY: string = NGFHdsDemoRouteName.DEMO_ERROR_RECOVERY;
+  static readonly DEMO_SYNC_MANAGER: string = NGFHdsDemoRouteName.DEMO_SYNC_MANAGER;
 }
 
 class NGFStarterLogEntry {
@@ -237,7 +248,7 @@ class NGFMainMenuGlassEffectFactory {
     );
     const pointLightEffect = new NGFMainMenuPointLightEffect(
       pressed ? hdsEffect.PointLightSourceType.BRIGHT : hdsEffect.PointLightSourceType.SOFT,
-      hdsEffect.PointLightIlluminatedType.BORDER_CONTENT,
+      hdsEffect.PointLightIlluminatedType.CONTENT,
       pointLightOptions
     );
     return new hdsEffect.HdsEffectBuilder()
@@ -246,11 +257,14 @@ class NGFMainMenuGlassEffectFactory {
       .buildEffect();
   }
 
-  static buildTabItemGlowEffect(): VisualEffect {
-    const pointLightOptions = new NGFMainMenuPointLightOptions($r('app.color.button_primary'), 0.46, 24, 0.32);
+  static buildTabItemGlowEffect(active: boolean): VisualEffect {
+    if (!active) {
+      return new hdsEffect.HdsEffectBuilder().buildEffect();
+    }
+    const pointLightOptions = new NGFMainMenuPointLightOptions($r('app.color.button_primary'), 0.58, 30, 0.45);
     const pointLightEffect = new NGFMainMenuPointLightEffect(
       hdsEffect.PointLightSourceType.BRIGHT,
-      hdsEffect.PointLightIlluminatedType.BORDER,
+      hdsEffect.PointLightIlluminatedType.CONTENT,
       pointLightOptions
     );
     return new hdsEffect.HdsEffectBuilder()
@@ -286,7 +300,7 @@ struct NGFStarterMainMenuPage {
   @StorageProp('ngf_window_snapshot_json') private windowSnapshotJson: string = '{}';
 
   private readonly scroller: Scroller = new Scroller();
-  private readonly tabsController: TabsController = new TabsController();
+  private readonly tabsController: HdsTabsController = new HdsTabsController();
   private readonly starter = ngfStarterKernel;
   private readonly phaseOrder: Array<string> = ['context_setup', 'core_services', 'ready'];
   private readonly stateListenerId: string = 'NGFStarterMainMenuPage_State';
@@ -474,6 +488,16 @@ struct NGFStarterMainMenuPage {
       actionKey === NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY ||
       actionKey === NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW ||
       actionKey === NGFMainMenuActionKey.DEMO_TASK_MANAGER) {
+      this.handleOpenHdsDemoTap(actionKey, labelStr);
+      return;
+    }
+
+    if (actionKey === NGFHdsDemoRouteName.CAPABILITY_NETWORK ||
+        actionKey === NGFHdsDemoRouteName.CAPABILITY_RDB ||
+        actionKey === NGFHdsDemoRouteName.CAPABILITY_WEB_BRIDGE ||
+        actionKey === NGFHdsDemoRouteName.CAPABILITY_SECURITY ||
+        actionKey === NGFHdsDemoRouteName.CAPABILITY_HARDWARE ||
+        actionKey === NGFHdsDemoRouteName.CAPABILITY_MEDIA) {
       this.handleOpenHdsDemoTap(actionKey, labelStr);
       return;
     }
@@ -666,7 +690,7 @@ struct NGFStarterMainMenuPage {
       Stack({ alignContent: Alignment.TopStart }) {
         this.buildTitleBarUnderlay()
 
-        Tabs({ barPosition: BarPosition.End, index: this.selectedTabIndex, controller: this.tabsController }) {
+        HdsTabs({ barPosition: BarPosition.End, controller: this.tabsController }) {
           TabContent() {
             Scroll(this.scroller) {
               Column({ space: 12 }) {
@@ -679,15 +703,21 @@ struct NGFStarterMainMenuPage {
                 this.buildLogCard()
               }
               .width('100%')
-              .padding({ left: 16, right: 16, top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 76 })
+              .padding({
+                left: 16,
+                right: 16,
+                top: NGF_MAIN_MENU_CONTENT_TOP_INSET,
+                bottom: 76
+              })
             }
             .width('100%')
             .height('100%')
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
             .backgroundColor($r('app.color.background_transparent'))
+            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
           }
-          .tabBar(null)
+          .tabBar(this.buildTabItem($r('app.string.tab_framework'), 'sys.symbol.house', 0))
 
           TabContent() {
             Scroll() {
@@ -698,17 +728,42 @@ struct NGFStarterMainMenuPage {
                 this.buildDemoWorkflowCard()
                 this.buildDemoDeviceDisplayCard()
                 this.buildSystemResourcePreviewCard()
+                this.buildDemoErrorRecoveryCard()
+                this.buildDemoSyncManagerCard()
               }
               .width('100%')
-              .padding({ left: 16, right: 16, top: NGF_MAIN_MENU_CONTENT_TOP_INSET, bottom: 76 })
+              .padding({
+                left: 16,
+                right: 16,
+                top: NGF_MAIN_MENU_CONTENT_TOP_INSET,
+                bottom: 76
+              })
             }
             .width('100%')
             .height('100%')
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
             .backgroundColor($r('app.color.background_transparent'))
+            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
           }
-          .tabBar(null)
+          .tabBar(this.buildTabItem($r('app.string.tab_features'), 'sys.symbol.more', 1))
+
+          TabContent() {
+            Scroll() {
+              NGFCapabilitiesTabContent({
+                onActionTap: (actionKey: string, label: ResourceStr) => {
+                  this.handleFeatureActionTap(actionKey, label);
+                }
+              })
+            }
+            .width('100%')
+            .height('100%')
+            .scrollBar(BarState.Off)
+            .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
+            .backgroundColor($r('app.color.background_transparent'))
+            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
+          }
+          .tabBar(this.buildTabItem($r('app.string.tab_capabilities'), 'sys.symbol.grid', 2))
 
           TabContent() {
             Scroll() {
@@ -720,8 +775,9 @@ struct NGFStarterMainMenuPage {
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
             .backgroundColor($r('app.color.background_primary'))
+            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
           }
-          .tabBar(null)
+          .tabBar(this.buildTabItem($r('app.string.tab_device'), 'sys.symbol.scroll_vertical', 3))
 
           TabContent() {
             Scroll() {
@@ -733,21 +789,27 @@ struct NGFStarterMainMenuPage {
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
             .backgroundColor($r('app.color.background_primary'))
+            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
           }
-          .tabBar(null)
+          .tabBar(this.buildTabItem($r('app.string.tab_settings'), 'sys.symbol.gearshape', 4))
         }
         .width('100%')
         .height('100%')
-        .barHeight(0)
-        .barWidth(0)
+        .barMode(BarMode.Fixed)
+        .barOverlap(true)
+        .barFloatingStyle({
+          adaptToHandedness: true,
+          systemMaterialEffect: {
+            materialType: hdsMaterial.MaterialType.IMMERSIVE,
+            materialLevel: hdsMaterial.MaterialLevel.EXQUISITE
+          },
+          thermoCtrl: true,
+          barOpacity: 0.95
+        })
         .scrollable(true)
-        .animationDuration(300)
-        .animationMode(AnimationMode.CONTENT_FIRST)
         .onChange((index: number): void => {
           this.selectedTabIndex = index;
         })
-
-        this.buildFloatingTabBar()
       }
       .width('100%')
       .height('100%')
@@ -765,7 +827,7 @@ struct NGFStarterMainMenuPage {
     .hideBackButton(true)
     .navDestination(this.buildNavDestination)
     .mode(NavigationMode.Stack)
-    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP])
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
     .width('100%')
     .height('100%')
     .backgroundColor($r('app.color.background_primary'))
@@ -780,6 +842,7 @@ struct NGFStarterMainMenuPage {
         .fontColor([this.selectedTabIndex === tabIndex
           ? $r('app.color.button_primary')
           : $r('app.color.text_secondary')])
+        .symbolEffect(new BounceSymbolEffect(EffectScope.WHOLE, EffectDirection.UP), this.selectedTabIndex === tabIndex)
       Text(title)
         .fontSize(11)
         .fontColor(this.selectedTabIndex === tabIndex
@@ -787,7 +850,7 @@ struct NGFStarterMainMenuPage {
           : $r('app.color.text_secondary'))
         .fontWeight(this.selectedTabIndex === tabIndex ? FontWeight.Medium : FontWeight.Normal)
     }
-    .width('25%')
+    .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Center)
     .scale(this.pressedTabIndex === tabIndex
@@ -798,10 +861,8 @@ struct NGFStarterMainMenuPage {
     .onTouch((event: TouchEvent): void => {
       if (event.type === TouchType.Down) {
         this.pressedTabIndex = tabIndex;
-        this.animateTabGlow(0.96);
       } else if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
         this.pressedTabIndex = -1;
-        this.animateTabGlow(0.88);
         if (event.type === TouchType.Up) {
           this.tabsController.changeIndex(tabIndex);
         }
@@ -809,80 +870,6 @@ struct NGFStarterMainMenuPage {
     })
   }
 
-  private animateTabGlow(target: number): void {
-    const uiContext: UIContext | undefined = this.getUIContext();
-    if (uiContext) {
-      uiContext.animateTo({
-        duration: 200,
-        curve: Curve.EaseOut
-      }, (): void => {
-        this.tabGlowStrength = target;
-      });
-    }
-  }
-
-  @Builder
-  private buildFloatingTabBar(): void {
-    Stack({ alignContent: Alignment.Bottom }) {
-      Column() {}
-        .width('76%')
-        .height(40)
-        .borderRadius(40)
-        .backgroundColor($r('app.color.glow_circle_blue'))
-        .opacity(this.tabGlowStrength * 0.18)
-        .position({ left: '18%', bottom: 32 })
-        .shadow({
-          radius: 48,
-          color: $r('app.color.glow_circle_blue_shadow'),
-          offsetX: 0,
-          offsetY: 6
-        })
-        .animation({ duration: 250, curve: Curve.EaseInOut })
-
-      Column() {}
-        .width('52%')
-        .height(32)
-        .borderRadius(32)
-        .backgroundColor($r('app.color.glow_circle_cyan'))
-        .opacity(this.tabGlowStrength * 0.14)
-        .position({ left: '30%', bottom: 36 })
-        .shadow({
-          radius: 38,
-          color: $r('app.color.glow_circle_cyan_shadow'),
-          offsetX: 0,
-          offsetY: 4
-        })
-        .animation({ duration: 250, curve: Curve.EaseInOut })
-
-      Row() {
-        this.buildTabItem($r('app.string.ui_str_2021'), 'sys.symbol.house', 0)
-        this.buildTabItem($r('app.string.ui_str_2022'), 'sys.symbol.more', 1)
-        this.buildTabItem($r('app.string.ui_str_2023'), 'sys.symbol.scroll_vertical', 2)
-        this.buildTabItem($r('app.string.ui_str_2024'), 'sys.symbol.gearshape', 3)
-      }
-      .width('88%')
-      .height(56)
-      .backgroundColor($r('app.color.glass_bg_menu_bar'))
-      .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK, {
-        colorMode: ThemeColorMode.SYSTEM,
-        adaptiveColor: AdaptiveColor.DEFAULT,
-        scale: 1.0
-      })
-      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(28, 1.18, 1.06, $r('app.color.glass_bg_effect')))
-      .visualEffect(NGFMainMenuGlassEffectFactory.buildTabBarEffect(this.pressedTabIndex >= 0))
-      .borderRadius(28)
-      .shadow({
-        radius: 28,
-        color: $r('app.color.glass_shadow_menu'),
-        offsetX: 0,
-        offsetY: 6
-      })
-      .animation({ duration: 200, curve: Curve.EaseOut })
-    }
-    .width('100%')
-    .height(96)
-    .position({ left: 0, bottom: 16 })
-  }
 
   @Builder
   private buildTitleBarUnderlay(): void {
@@ -960,6 +947,22 @@ struct NGFStarterMainMenuPage {
       NGFSystemResourcePreviewPage()
     } else if (name === NGFHdsDemoRouteName.TASK_MANAGER) {
       NGFTaskManagerPage()
+    } else if (name === NGFHdsDemoRouteName.CAPABILITY_NETWORK) {
+      NGFCapabilitiesNetworkPage()
+    } else if (name === NGFHdsDemoRouteName.CAPABILITY_RDB) {
+      NGFCapabilitiesDatabasePage()
+    } else if (name === NGFHdsDemoRouteName.CAPABILITY_WEB_BRIDGE) {
+      NGFCapabilitiesWebBridgePage()
+    } else if (name === NGFHdsDemoRouteName.CAPABILITY_SECURITY) {
+      NGFCapabilitiesSecurityPage()
+    } else if (name === NGFHdsDemoRouteName.CAPABILITY_HARDWARE) {
+      NGFCapabilitiesHardwarePage()
+    } else if (name === NGFHdsDemoRouteName.CAPABILITY_MEDIA) {
+      NGFCapabilitiesMediaPage()
+    } else if (name === NGFHdsDemoRouteName.DEMO_ERROR_RECOVERY) {
+      NGFDemoErrorRecoveryPage()
+    } else if (name === NGFHdsDemoRouteName.DEMO_SYNC_MANAGER) {
+      NGFDemoSyncManagerPage()
     }
   }
 
@@ -1358,6 +1361,32 @@ struct NGFStarterMainMenuPage {
       '#7C3AED',
       '#C4B5FDFF',
       NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW
+    )
+  }
+
+  @Builder
+  private buildDemoErrorRecoveryCard(): void {
+    this.buildFeatureActionButton(
+      'ERROR',
+      $r('app.string.demo_error_recovery_title'),
+      $r('app.string.demo_error_recovery_desc'),
+      '#881337',
+      '#F43F5E',
+      '#FDA4AFFF',
+      NGFMainMenuActionKey.DEMO_ERROR_RECOVERY
+    )
+  }
+
+  @Builder
+  private buildDemoSyncManagerCard(): void {
+    this.buildFeatureActionButton(
+      'SYNC',
+      $r('app.string.demo_sync_title'),
+      $r('app.string.demo_sync_desc'),
+      '#1E3A8A',
+      '#3B82F6',
+      '#93C5FDFF',
+      NGFMainMenuActionKey.DEMO_SYNC_MANAGER
     )
   }
 
