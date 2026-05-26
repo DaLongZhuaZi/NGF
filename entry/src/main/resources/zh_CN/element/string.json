@@ -4611,6 +4611,374 @@
     {
       "name": "btn_interconnect_share",
       "value": "拉起系统分享面板"
+    },
+    {
+      "name": "activity_motion_reason",
+      "value": "框架需要感知用户活动状态和操作手信息，用于实现握持侧识别和交互优化。"
+    },
+    {
+      "name": "background_task_reason",
+      "value": "框架需要后台运行权限以保证长时任务在后台时不会被中断。"
+    },
+    {
+      "name": "demo_error_recovery_desc",
+      "value": "触发多级错误，观察框架的捕获、恢复与降级流程"
+    },
+    {
+      "name": "demo_error_recovery_title",
+      "value": "错误恢复与降级策略"
+    },
+    {
+      "name": "demo_sync_desc",
+      "value": "模拟离线入队 → 恢复同步 → 冲突策略全流程"
+    },
+    {
+      "name": "demo_sync_title",
+      "value": "数据同步与冲突解决"
+    },
+    {
+      "name": "detect_gesture_reason",
+      "value": "框架需要检测用户握持手势，用于实现自适应界面布局和握持感知导航。"
+    },
+    {
+      "name": "err_failed_tag",
+      "value": "降级"
+    },
+    {
+      "name": "err_log_empty",
+      "value": "尚无错误记录，点击上方按钮触发"
+    },
+    {
+      "name": "err_log_section",
+      "value": "错误历史记录"
+    },
+    {
+      "name": "err_not_recovered",
+      "value": "[%s] 级别错误未恢复（触发降级）"
+    },
+    {
+      "name": "err_recent_count",
+      "value": "累计错误次数："
+    },
+    {
+      "name": "err_recovered",
+      "value": "[%s] 级别错误已恢复"
+    },
+    {
+      "name": "err_recovered_tag",
+      "value": "已恢复"
+    },
+    {
+      "name": "err_rule_critical",
+      "value": "CRITICAL"
+    },
+    {
+      "name": "err_rule_critical_desc",
+      "value": "不恢复，触发安全模式降级"
+    },
+    {
+      "name": "err_rule_high",
+      "value": "HIGH"
+    },
+    {
+      "name": "err_rule_high_desc",
+      "value": "自动恢复，触发重试机制"
+    },
+    {
+      "name": "err_rule_low",
+      "value": "LOW"
+    },
+    {
+      "name": "err_rule_low_desc",
+      "value": "自动恢复，继续正常流程"
+    },
+    {
+      "name": "err_rule_medium",
+      "value": "MEDIUM"
+    },
+    {
+      "name": "err_rule_medium_desc",
+      "value": "自动恢复，记录告警日志"
+    },
+    {
+      "name": "err_strategy_active",
+      "value": "已激活"
+    },
+    {
+      "name": "err_strategy_inactive",
+      "value": "未注册"
+    },
+    {
+      "name": "err_strategy_registered",
+      "value": "恢复策略已就绪"
+    },
+    {
+      "name": "err_strategy_section",
+      "value": "恢复策略规则"
+    },
+    {
+      "name": "err_trigger_critical",
+      "value": "触发 CRITICAL 错误（不恢复）"
+    },
+    {
+      "name": "err_trigger_desc",
+      "value": "选择错误级别触发，观察 ErrorHandler 如何响应"
+    },
+    {
+      "name": "err_trigger_high",
+      "value": "触发 HIGH 错误"
+    },
+    {
+      "name": "err_trigger_low",
+      "value": "触发 LOW 错误"
+    },
+    {
+      "name": "err_trigger_medium",
+      "value": "触发 MEDIUM 错误"
+    },
+    {
+      "name": "err_trigger_section",
+      "value": "触发错误"
+    },
+    {
+      "name": "sync_clear_btn",
+      "value": "清空队列"
+    },
+    {
+      "name": "sync_client_wins",
+      "value": "客户端优先"
+    },
+    {
+      "name": "sync_enqueue_create",
+      "value": "创建"
+    },
+    {
+      "name": "sync_enqueue_delete",
+      "value": "删除"
+    },
+    {
+      "name": "sync_enqueue_update",
+      "value": "更新"
+    },
+    {
+      "name": "sync_enqueued",
+      "value": "入队成功: %s"
+    },
+    {
+      "name": "sync_flush_btn",
+      "value": "执行同步 Flush"
+    },
+    {
+      "name": "sync_flush_partial",
+      "value": "部分成功: 成功 %d 条，失败 %d 条"
+    },
+    {
+      "name": "sync_flush_success",
+      "value": "全部同步完成，共 %d 条"
+    },
+    {
+      "name": "sync_flushing",
+      "value": "同步中…"
+    },
+    {
+      "name": "sync_go_offline",
+      "value": "模拟断网"
+    },
+    {
+      "name": "sync_go_online",
+      "value": "恢复网络"
+    },
+    {
+      "name": "sync_manual",
+      "value": "手动解决"
+    },
+    {
+      "name": "sync_network_label",
+      "value": "模拟网络状态"
+    },
+    {
+      "name": "sync_network_off",
+      "value": "网络已断开 — 新操作将入队"
+    },
+    {
+      "name": "sync_network_on",
+      "value": "网络已恢复 — 可执行同步"
+    },
+    {
+      "name": "sync_offline",
+      "value": "离线（数据入队）"
+    },
+    {
+      "name": "sync_online",
+      "value": "在线"
+    },
+    {
+      "name": "sync_queue_cleared",
+      "value": "队列已清空"
+    },
+    {
+      "name": "sync_queue_hint",
+      "value": "网络断开时入队，恢复后执行 flush"
+    },
+    {
+      "name": "sync_queue_label",
+      "value": "等待同步队列"
+    },
+    {
+      "name": "sync_result_label",
+      "value": "上次同步结果"
+    },
+    {
+      "name": "sync_result_partial",
+      "value": "部分条目同步失败"
+    },
+    {
+      "name": "sync_result_success",
+      "value": "全部同步成功"
+    },
+    {
+      "name": "sync_server_wins",
+      "value": "服务端优先"
+    },
+    {
+      "name": "sync_stat_conflict",
+      "value": "冲突"
+    },
+    {
+      "name": "sync_stat_failed",
+      "value": "失败"
+    },
+    {
+      "name": "sync_stat_synced",
+      "value": "已同步"
+    },
+    {
+      "name": "sync_strategy_label",
+      "value": "冲突解决策略"
+    },
+    {
+      "name": "sync_strategy_set",
+      "value": "策略已切换: %s"
+    },
+    {
+      "name": "task_manager_title",
+      "value": "后台任务与系统通知"
+    },
+    {
+      "name": "task_manager_desc",
+      "value": "验证任务核心、EventBus同步、后台常驻及系统通知联动"
+    },
+    {
+      "name": "task_manager_route_label",
+      "value": "后台任务与通知"
+    },
+    {
+      "name": "task_manager_titlebar_sub",
+      "value": "长时任务、通知与事件总线联动"
+    },
+    {
+      "name": "task_manager_intro",
+      "value": "支持长时任务和通知机制，可在息屏或后台继续运行并报告进度。"
+    },
+    {
+      "name": "task_manager_test_queue",
+      "value": "测试任务排队与执行"
+    },
+    {
+      "name": "task_manager_submit_download",
+      "value": "提交模拟下载任务 (带进度模板)"
+    },
+    {
+      "name": "task_manager_test_notify",
+      "value": "测试多类型通知"
+    },
+    {
+      "name": "task_manager_basic_notify",
+      "value": "基础通知"
+    },
+    {
+      "name": "task_manager_longtext_notify",
+      "value": "长文本通知"
+    },
+    {
+      "name": "task_manager_multiline_notify",
+      "value": "多行通知"
+    },
+    {
+      "name": "task_manager_custom_notify",
+      "value": "自定义进度模板"
+    },
+    {
+      "name": "task_manager_basic_body",
+      "value": "这是一条普通的基础文本通知"
+    },
+    {
+      "name": "task_manager_longtext_title",
+      "value": "长文本通知"
+    },
+    {
+      "name": "task_manager_longtext_summary",
+      "value": "这是简短摘要内容..."
+    },
+    {
+      "name": "task_manager_longtext_body",
+      "value": "This is a very long text content. It demonstrates how the system notification panel collapses and expands long notifications. Users can pull down to view more details, making it ideal for displaying detailed error logs or descriptions."
+    },
+    {
+      "name": "task_manager_multiline_title",
+      "value": "多行通知测试"
+    },
+    {
+      "name": "task_manager_multiline_body",
+      "value": "您有3条新消息"
+    },
+    {
+      "name": "task_manager_msg1",
+      "value": "消息1: 你好"
+    },
+    {
+      "name": "task_manager_msg2",
+      "value": "消息2: 请查看附件"
+    },
+    {
+      "name": "task_manager_msg3",
+      "value": "消息3: 会议时间改了"
+    },
+    {
+      "name": "task_manager_download_title",
+      "value": "下载中"
+    },
+    {
+      "name": "task_manager_download_file",
+      "value": "测试自定义文件.zip"
+    },
+    {
+      "name": "task_manager_download_custom",
+      "value": "正在下载(自定义)"
+    },
+    {
+      "name": "task_manager_test_file",
+      "value": "测试文件下载"
+    },
+    {
+      "name": "task_manager_preparing",
+      "value": "准备下载..."
+    },
+    {
+      "name": "task_manager_downloading",
+      "value": "正在下载 (%s%%)"
+    },
+    {
+      "name": "task_manager_done",
+      "value": "下载完成"
+    },
+    {
+      "name": "task_manager_submitted",
+      "value": "任务已提交: %s"
+    },
+    {
+      "name": "task_manager_submit_failed",
+      "value": "任务提交失败: %s"
     }
   ]
 }

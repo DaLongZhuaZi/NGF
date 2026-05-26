@@ -695,13 +695,13 @@ export struct NGFSystemResourcePreviewPage {
       const systemPasteboard: pasteboard.SystemPasteboard = pasteboard.getSystemPasteboard();
       await systemPasteboard.setData(pasteData);
       this.statusText = `已复制 ${fullName}`;
-      this.getUIContext().getPromptAction().showToast({ message: `已复制 ${fullName}` });
+      this.getUIContext().getPromptAction().openToast({ message: `已复制 ${fullName}` });
       logger.info(TAG, `复制系统 Symbol 引用：${fullName}`);
     } catch (error) {
       const message: string = this.formatError(error as NGFSystemSymbolError);
       this.statusText = `复制失败：${message}`;
       try {
-        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.ui_str_2450') });
+        this.getUIContext().getPromptAction().openToast({ message: $r('app.string.ui_str_2450') });
       } catch (toastError) {
         logger.warn(TAG, `复制失败后 Toast 显示异常：${toastError}`);
       }

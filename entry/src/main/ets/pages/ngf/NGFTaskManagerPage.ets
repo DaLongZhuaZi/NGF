@@ -8,6 +8,7 @@ import {
 import { ngfSystem, NGFTaskInfo, NGFTaskState } from '../../Framework/NGF/systemTasks/index';
 import { NGFNotificationRequest, NGFNotificationType } from '../../Framework/NGF/systemTasks/contracts/ISystemNotificationManager';
 import { NGFPageWindowSupport } from './NGFPageWindowSupport';
+import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 
 const DEMO_TOP_CHROME_BLUE: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFactory.build(
   '#07101E', '#0C2341', '#0A1626', '#3B82F6D8', '#22D3EED8', 160, 88
@@ -61,13 +62,13 @@ export struct NGFTaskManagerPage {
           Column({ space: 16 }) {
             this.buildTitleCard()
             
-            Text('测试任务排队与执行')
+            Text($r('app.string.task_manager_test_queue'))
               .fontSize(14)
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_secondary'))
               .margin({ top: 8, bottom: -8 })
 
-            Button('提交模拟下载任务 (带进度模板)', { type: ButtonType.Capsule })
+            Button($r('app.string.task_manager_submit_download'), { type: ButtonType.Capsule })
               .width('100%')
               .height(44)
               .fontSize(14)
@@ -76,14 +77,14 @@ export struct NGFTaskManagerPage {
                 this.submitMockDownloadTask();
               })
 
-            Text('测试多类型通知')
+            Text($r('app.string.task_manager_test_notify'))
               .fontSize(14)
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_secondary'))
               .margin({ top: 8, bottom: -8 })
 
             Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.SpaceBetween }) {
-              Button('基础通知', { type: ButtonType.Normal })
+              Button($r('app.string.task_manager_basic_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
                 .height(40)
@@ -93,7 +94,7 @@ export struct NGFTaskManagerPage {
                 .margin({ bottom: 12 })
                 .onClick(() => this.testBasicNotification())
 
-              Button('长文本通知', { type: ButtonType.Normal })
+              Button($r('app.string.task_manager_longtext_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
                 .height(40)
@@ -103,7 +104,7 @@ export struct NGFTaskManagerPage {
                 .margin({ bottom: 12 })
                 .onClick(() => this.testLongTextNotification())
 
-              Button('多行通知', { type: ButtonType.Normal })
+              Button($r('app.string.task_manager_multiline_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
                 .height(40)
@@ -113,7 +114,7 @@ export struct NGFTaskManagerPage {
                 .margin({ bottom: 12 })
                 .onClick(() => this.testMultiLineNotification())
 
-              Button('自定义进度模板', { type: ButtonType.Normal })
+              Button($r('app.string.task_manager_custom_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
                 .height(40)
@@ -150,8 +151,8 @@ export struct NGFTaskManagerPage {
       .height('100%')
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
-      '后台任务与通知',
-      '长时任务、通知与事件总线联动',
+      $r('app.string.task_manager_route_label'),
+      $r('app.string.task_manager_titlebar_sub'),
       '#07101E',
       hdsMaterial.MaterialLevel.GENTLE,
       true,
@@ -171,11 +172,11 @@ export struct NGFTaskManagerPage {
   @Builder
   private buildTitleCard(): void {
     Column({ space: 8 }) {
-      Text('后台任务与通知')
+      Text($r('app.string.task_manager_route_label'))
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.panel_background'))
-      Text('支持长时任务和通知机制，可在息屏或后台继续运行并报告进度。')
+      Text($r('app.string.task_manager_intro'))
         .fontSize(13)
         .lineHeight(20)
         .fontColor($r('app.color.text_white_low'))
@@ -191,26 +192,32 @@ export struct NGFTaskManagerPage {
   }
 
   private submitMockDownloadTask() {
-    ngfSystem.submitTask('测试文件下载', async (taskId: string, updateCallback: (progress: number, total: number, message: string) => void) => {
+    const hostCtx = this.getUIContext().getHostContext();
+    ngfSystem.submitTask(
+      resolveResourceString(hostCtx, $r('app.string.task_manager_test_file')),
+      async (taskId: string, updateCallback: (progress: number, total: number, message: string) => void) => {
       const totalSize = 100;
       let currentProgress = 0;
-      updateCallback(0, totalSize, '准备下载...');
+      updateCallback(0, totalSize, resolveResourceString(hostCtx, $r('app.string.task_manager_preparing')));
       
       for (let i = 0; i < 10; i++) {
         await this.delay(500);
         currentProgress += 10;
-        updateCallback(currentProgress, totalSize, `正在下载 (${currentProgress}%)`);
+        updateCallback(currentProgress, totalSize,
+          resolveResourceString(hostCtx, $r('app.string.task_manager_downloading', currentProgress)));
       }
-      updateCallback(totalSize, totalSize, '下载完成');
+      updateCallback(totalSize, totalSize, resolveResourceString(hostCtx, $r('app.string.task_manager_done')));
     }).then((taskId: string) => {
-      const context = this.getUIContext().getHostContext();
-      if (context) {
-        this.getUIContext().getPromptAction().showToast({ message: `任务已提交: ${taskId}` });
+      if (hostCtx) {
+        this.getUIContext().getPromptAction().openToast({
+          message: resolveResourceString(hostCtx, $r('app.string.task_manager_submitted', taskId))
+        });
       }
     }).catch((e: Error) => {
-      const context = this.getUIContext().getHostContext();
-      if (context) {
-        this.getUIContext().getPromptAction().showToast({ message: `任务提交失败: ${e.message}` });
+      if (hostCtx) {
+        this.getUIContext().getPromptAction().openToast({
+          message: resolveResourceString(hostCtx, $r('app.string.task_manager_submit_failed', e.message))
+        });
       }
     });
   }
@@ -229,35 +236,51 @@ export struct NGFTaskManagerPage {
   }
   private testBasicNotification() {
     const req = new NGFNotificationRequest(
-      30001, '基础通知', '这是一条普通的基础文本通知', NGFNotificationType.BASIC
+      30001,
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_basic_notify')),
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_basic_body')),
+      NGFNotificationType.BASIC
     );
     ngfSystem.publishNotification(req);
   }
 
   private testLongTextNotification() {
     const req = new NGFNotificationRequest(
-      30002, '长文本通知', '这是简短摘要内容...', NGFNotificationType.LONG_TEXT
+      30002,
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_longtext_title')),
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_longtext_summary')),
+      NGFNotificationType.LONG_TEXT
     );
-    req.longText = '这是一段非常长的文本内容。它展示了如果通知内容较多时，系统通知栏是如何将其折叠和展开的。用户可以通过下拉手势查看更多详细信息，非常适合用于展示详细错误日志或说明。';
+    req.longText = resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_longtext_body'));
     ngfSystem.publishNotification(req);
   }
 
   private testMultiLineNotification() {
     const req = new NGFNotificationRequest(
-      30003, '多行通知测试', '您有3条新消息', NGFNotificationType.MULTILINE
+      30003,
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_multiline_title')),
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_multiline_body')),
+      NGFNotificationType.MULTILINE
     );
-    req.lines = ['消息1: 你好', '消息2: 请查看附件', '消息3: 会议时间改了'];
+    req.lines = [
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_msg1')),
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_msg2')),
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_msg3'))
+    ];
     ngfSystem.publishNotification(req);
   }
 
   private testCustomNotification() {
     const req = new NGFNotificationRequest(
-      30004, '下载中', '测试自定义文件.zip', NGFNotificationType.CUSTOM
+      30004,
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_download_title')),
+      resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_download_file')),
+      NGFNotificationType.CUSTOM
     );
     req.templateName = 'downloadTemplate';
     let data: Record<string, Object> = {
-      'title': '正在下载(自定义)' as Object,
-      'fileName': '测试自定义文件.zip' as Object,
+      'title': resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_download_custom')) as Object,
+      'fileName': resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.task_manager_download_file')) as Object,
       'progressValue': 60 as Object,
       'progressMaxValue': 100 as Object
     };

@@ -4611,6 +4611,374 @@
     {
       "name": "btn_interconnect_share",
       "value": "Open Share Panel"
+    },
+    {
+      "name": "activity_motion_reason",
+      "value": "The framework needs to perceive user activity status and operating hand information for holding-side recognition and interaction optimization."
+    },
+    {
+      "name": "background_task_reason",
+      "value": "The framework requires background running permission to ensure long-running tasks are not interrupted in the background."
+    },
+    {
+      "name": "demo_error_recovery_desc",
+      "value": "Trigger multi-level errors and observe the framework capture, recovery and degradation flow"
+    },
+    {
+      "name": "demo_error_recovery_title",
+      "value": "Error Recovery & Degradation"
+    },
+    {
+      "name": "demo_sync_desc",
+      "value": "Simulate offline enqueue → resume sync → conflict strategy full flow"
+    },
+    {
+      "name": "demo_sync_title",
+      "value": "Data Sync & Conflict Resolution"
+    },
+    {
+      "name": "detect_gesture_reason",
+      "value": "The framework needs to detect user holding gestures for adaptive UI layout and holding-aware navigation."
+    },
+    {
+      "name": "err_failed_tag",
+      "value": "Degraded"
+    },
+    {
+      "name": "err_log_empty",
+      "value": "No error records yet. Tap the buttons above to trigger."
+    },
+    {
+      "name": "err_log_section",
+      "value": "Error History"
+    },
+    {
+      "name": "err_not_recovered",
+      "value": "[%s] level error not recovered (degradation triggered)"
+    },
+    {
+      "name": "err_recent_count",
+      "value": "Cumulative error count: "
+    },
+    {
+      "name": "err_recovered",
+      "value": "[%s] level error recovered"
+    },
+    {
+      "name": "err_recovered_tag",
+      "value": "Recovered"
+    },
+    {
+      "name": "err_rule_critical",
+      "value": "CRITICAL"
+    },
+    {
+      "name": "err_rule_critical_desc",
+      "value": "No recovery, trigger safe mode degradation"
+    },
+    {
+      "name": "err_rule_high",
+      "value": "HIGH"
+    },
+    {
+      "name": "err_rule_high_desc",
+      "value": "Auto-recover, trigger retry mechanism"
+    },
+    {
+      "name": "err_rule_low",
+      "value": "LOW"
+    },
+    {
+      "name": "err_rule_low_desc",
+      "value": "Auto-recover, continue normal flow"
+    },
+    {
+      "name": "err_rule_medium",
+      "value": "MEDIUM"
+    },
+    {
+      "name": "err_rule_medium_desc",
+      "value": "Auto-recover, log warning"
+    },
+    {
+      "name": "err_strategy_active",
+      "value": "Active"
+    },
+    {
+      "name": "err_strategy_inactive",
+      "value": "Not Registered"
+    },
+    {
+      "name": "err_strategy_registered",
+      "value": "Recovery strategy ready"
+    },
+    {
+      "name": "err_strategy_section",
+      "value": "Recovery Strategy Rules"
+    },
+    {
+      "name": "err_trigger_critical",
+      "value": "Trigger CRITICAL Error (No Recovery)"
+    },
+    {
+      "name": "err_trigger_desc",
+      "value": "Select error level to trigger and observe how ErrorHandler responds"
+    },
+    {
+      "name": "err_trigger_high",
+      "value": "Trigger HIGH Error"
+    },
+    {
+      "name": "err_trigger_low",
+      "value": "Trigger LOW Error"
+    },
+    {
+      "name": "err_trigger_medium",
+      "value": "Trigger MEDIUM Error"
+    },
+    {
+      "name": "err_trigger_section",
+      "value": "Trigger Error"
+    },
+    {
+      "name": "sync_clear_btn",
+      "value": "Clear Queue"
+    },
+    {
+      "name": "sync_client_wins",
+      "value": "Client Wins"
+    },
+    {
+      "name": "sync_enqueue_create",
+      "value": "Create"
+    },
+    {
+      "name": "sync_enqueue_delete",
+      "value": "Delete"
+    },
+    {
+      "name": "sync_enqueue_update",
+      "value": "Update"
+    },
+    {
+      "name": "sync_enqueued",
+      "value": "Enqueued: %s"
+    },
+    {
+      "name": "sync_flush_btn",
+      "value": "Execute Sync Flush"
+    },
+    {
+      "name": "sync_flush_partial",
+      "value": "Partial success: %d succeeded, %d failed"
+    },
+    {
+      "name": "sync_flush_success",
+      "value": "All synced, %d total"
+    },
+    {
+      "name": "sync_flushing",
+      "value": "Syncing..."
+    },
+    {
+      "name": "sync_go_offline",
+      "value": "Simulate Offline"
+    },
+    {
+      "name": "sync_go_online",
+      "value": "Restore Network"
+    },
+    {
+      "name": "sync_manual",
+      "value": "Manual Resolve"
+    },
+    {
+      "name": "sync_network_label",
+      "value": "Simulated Network Status"
+    },
+    {
+      "name": "sync_network_off",
+      "value": "Network disconnected — new operations will be queued"
+    },
+    {
+      "name": "sync_network_on",
+      "value": "Network restored — sync can be executed"
+    },
+    {
+      "name": "sync_offline",
+      "value": "Offline (Data Queued)"
+    },
+    {
+      "name": "sync_online",
+      "value": "Online"
+    },
+    {
+      "name": "sync_queue_cleared",
+      "value": "Queue cleared"
+    },
+    {
+      "name": "sync_queue_hint",
+      "value": "Enqueued when offline, execute flush after restore"
+    },
+    {
+      "name": "sync_queue_label",
+      "value": "Pending Sync Queue"
+    },
+    {
+      "name": "sync_result_label",
+      "value": "Last Sync Result"
+    },
+    {
+      "name": "sync_result_partial",
+      "value": "Some entries failed to sync"
+    },
+    {
+      "name": "sync_result_success",
+      "value": "All entries synced successfully"
+    },
+    {
+      "name": "sync_server_wins",
+      "value": "Server Wins"
+    },
+    {
+      "name": "sync_stat_conflict",
+      "value": "Conflict"
+    },
+    {
+      "name": "sync_stat_failed",
+      "value": "Failed"
+    },
+    {
+      "name": "sync_stat_synced",
+      "value": "Synced"
+    },
+    {
+      "name": "sync_strategy_label",
+      "value": "Conflict Resolution Strategy"
+    },
+    {
+      "name": "sync_strategy_set",
+      "value": "Strategy changed: %s"
+    },
+    {
+      "name": "task_manager_title",
+      "value": "Background Tasks & Notifications"
+    },
+    {
+      "name": "task_manager_desc",
+      "value": "Verify task core, EventBus sync, background persistence and system notification linkage"
+    },
+    {
+      "name": "task_manager_route_label",
+      "value": "Tasks & Notifications"
+    },
+    {
+      "name": "task_manager_titlebar_sub",
+      "value": "Long-running tasks, notifications and EventBus linkage"
+    },
+    {
+      "name": "task_manager_intro",
+      "value": "Supports long-running tasks and notification mechanism, can continue running and report progress when screen is off or in background."
+    },
+    {
+      "name": "task_manager_test_queue",
+      "value": "Test Task Queuing & Execution"
+    },
+    {
+      "name": "task_manager_submit_download",
+      "value": "Submit Simulated Download Task (with progress template)"
+    },
+    {
+      "name": "task_manager_test_notify",
+      "value": "Test Multi-Type Notifications"
+    },
+    {
+      "name": "task_manager_basic_notify",
+      "value": "Basic Notification"
+    },
+    {
+      "name": "task_manager_longtext_notify",
+      "value": "Long Text Notification"
+    },
+    {
+      "name": "task_manager_multiline_notify",
+      "value": "Multi-line Notification"
+    },
+    {
+      "name": "task_manager_custom_notify",
+      "value": "Custom Progress Template"
+    },
+    {
+      "name": "task_manager_basic_body",
+      "value": "This is a basic text notification"
+    },
+    {
+      "name": "task_manager_longtext_title",
+      "value": "Long Text Notification"
+    },
+    {
+      "name": "task_manager_longtext_summary",
+      "value": "This is a brief summary..."
+    },
+    {
+      "name": "task_manager_longtext_body",
+      "value": "This is a very long text content. It demonstrates how the system notification panel collapses and expands long notifications. Users can pull down to view more details, making it ideal for displaying detailed error logs or descriptions."
+    },
+    {
+      "name": "task_manager_multiline_title",
+      "value": "Multi-line Notification Test"
+    },
+    {
+      "name": "task_manager_multiline_body",
+      "value": "You have 3 new messages"
+    },
+    {
+      "name": "task_manager_msg1",
+      "value": "Message 1: Hello"
+    },
+    {
+      "name": "task_manager_msg2",
+      "value": "Message 2: Please check attachment"
+    },
+    {
+      "name": "task_manager_msg3",
+      "value": "Message 3: Meeting time changed"
+    },
+    {
+      "name": "task_manager_download_title",
+      "value": "Downloading"
+    },
+    {
+      "name": "task_manager_download_file",
+      "value": "test_custom_file.zip"
+    },
+    {
+      "name": "task_manager_download_custom",
+      "value": "Downloading (Custom)"
+    },
+    {
+      "name": "task_manager_test_file",
+      "value": "Test File Download"
+    },
+    {
+      "name": "task_manager_preparing",
+      "value": "Preparing..."
+    },
+    {
+      "name": "task_manager_downloading",
+      "value": "Downloading (%s%%)"
+    },
+    {
+      "name": "task_manager_done",
+      "value": "Download Complete"
+    },
+    {
+      "name": "task_manager_submitted",
+      "value": "Task submitted: %s"
+    },
+    {
+      "name": "task_manager_submit_failed",
+      "value": "Task submission failed: %s"
     }
   ]
 }

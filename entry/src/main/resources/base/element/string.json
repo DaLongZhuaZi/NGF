@@ -4755,6 +4755,230 @@
     {
       "name": "sync_result_partial",
       "value": "部分条目同步失败"
+    },
+    {
+      "name": "task_manager_title",
+      "value": "后台任务与系统通知"
+    },
+    {
+      "name": "task_manager_desc",
+      "value": "验证任务核心、EventBus同步、后台常驻及系统通知联动"
+    },
+    {
+      "name": "task_manager_route_label",
+      "value": "后台任务与通知"
+    },
+    {
+      "name": "task_manager_titlebar_sub",
+      "value": "长时任务、通知与事件总线联动"
+    },
+    {
+      "name": "task_manager_intro",
+      "value": "支持长时任务和通知机制，可在息屏或后台继续运行并报告进度。"
+    },
+    {
+      "name": "task_manager_test_queue",
+      "value": "测试任务排队与执行"
+    },
+    {
+      "name": "task_manager_submit_download",
+      "value": "提交模拟下载任务 (带进度模板)"
+    },
+    {
+      "name": "task_manager_test_notify",
+      "value": "测试多类型通知"
+    },
+    {
+      "name": "task_manager_basic_notify",
+      "value": "基础通知"
+    },
+    {
+      "name": "task_manager_longtext_notify",
+      "value": "长文本通知"
+    },
+    {
+      "name": "task_manager_multiline_notify",
+      "value": "多行通知"
+    },
+    {
+      "name": "task_manager_custom_notify",
+      "value": "自定义进度模板"
+    },
+    {
+      "name": "task_manager_basic_body",
+      "value": "这是一条普通的基础文本通知"
+    },
+    {
+      "name": "task_manager_longtext_title",
+      "value": "长文本通知"
+    },
+    {
+      "name": "task_manager_longtext_summary",
+      "value": "这是简短摘要内容..."
+    },
+    {
+      "name": "task_manager_longtext_body",
+      "value": "This is a very long text content. It demonstrates how the system notification panel collapses and expands long notifications. Users can pull down to view more details, making it ideal for displaying detailed error logs or descriptions."
+    },
+    {
+      "name": "task_manager_multiline_title",
+      "value": "多行通知测试"
+    },
+    {
+      "name": "task_manager_multiline_body",
+      "value": "您有3条新消息"
+    },
+    {
+      "name": "task_manager_msg1",
+      "value": "消息1: 你好"
+    },
+    {
+      "name": "task_manager_msg2",
+      "value": "消息2: 请查看附件"
+    },
+    {
+      "name": "task_manager_msg3",
+      "value": "消息3: 会议时间改了"
+    },
+    {
+      "name": "task_manager_download_title",
+      "value": "下载中"
+    },
+    {
+      "name": "task_manager_download_file",
+      "value": "测试自定义文件.zip"
+    },
+    {
+      "name": "task_manager_download_custom",
+      "value": "正在下载(自定义)"
+    },
+    {
+      "name": "task_manager_test_file",
+      "value": "测试文件下载"
+    },
+    {
+      "name": "task_manager_preparing",
+      "value": "准备下载..."
+    },
+    {
+      "name": "task_manager_downloading",
+      "value": "正在下载 (%s%%)"
+    },
+    {
+      "name": "task_manager_done",
+      "value": "下载完成"
+    },
+    {
+      "name": "task_manager_submitted",
+      "value": "任务已提交: %s"
+    },
+    {
+      "name": "task_manager_submit_failed",
+      "value": "任务提交失败: %s"
+    },
+    {
+      "name": "tab_capabilities",
+      "value": "能力"
+    },
+    {
+      "name": "card_network_title",
+      "value": "网络请求"
+    },
+    {
+      "name": "card_network_desc",
+      "value": "基于 RCP 的安全网络请求与 Header 拦截验证"
+    },
+    {
+      "name": "card_rdb_title",
+      "value": "关系型数据库"
+    },
+    {
+      "name": "card_rdb_desc",
+      "value": "基于 ArkData 的 SQLite 本地结构化数据存储"
+    },
+    {
+      "name": "card_web_title",
+      "value": "混合开发桥接"
+    },
+    {
+      "name": "card_web_desc",
+      "value": "NGFWebView 组件与安全 JSBridge 的双向调用"
+    },
+    {
+      "name": "card_security_title",
+      "value": "安全认证与密钥库"
+    },
+    {
+      "name": "card_security_desc",
+      "value": "指纹/人脸识别调起，与芯片级资产 (AssetStore) 存取"
+    },
+    {
+      "name": "card_hardware_title",
+      "value": "硬件与定位服务"
+    },
+    {
+      "name": "card_hardware_desc",
+      "value": "高精度 GPS 探测与加速度计 (摇一摇) 传感器读取"
+    },
+    {
+      "name": "card_media_title",
+      "value": "多媒体系统"
+    },
+    {
+      "name": "card_media_desc",
+      "value": "基于免权机制的安全相册选择器与原生视频播放"
+    },
+    {
+      "name": "card_push_title",
+      "value": "云端推送服务"
+    },
+    {
+      "name": "card_push_desc",
+      "value": "向华为云端申请 Push Token 与监听系统下行透传"
+    },
+    {
+      "name": "card_interconnect_title",
+      "value": "跨端互联互通"
+    },
+    {
+      "name": "card_interconnect_desc",
+      "value": "AppLinking 通用短链生成与超级终端数据跨端分享"
+    },
+    {
+      "name": "btn_fetch_data",
+      "value": "发起网络请求"
+    },
+    {
+      "name": "btn_db_insert",
+      "value": "插入演示数据"
+    },
+    {
+      "name": "btn_db_query",
+      "value": "查询数据库记录"
+    },
+    {
+      "name": "btn_auth_fingerprint",
+      "value": "拉起身份验证"
+    },
+    {
+      "name": "btn_hardware_location",
+      "value": "获取当前经纬度"
+    },
+    {
+      "name": "btn_hardware_sensor",
+      "value": "启动摇一摇监听"
+    },
+    {
+      "name": "btn_media_picker",
+      "value": "拉起相册选择器"
+    },
+    {
+      "name": "btn_push_token",
+      "value": "获取云端 Token"
+    },
+    {
+      "name": "btn_interconnect_share",
+      "value": "拉起系统分享面板"
     }
   ]
 }

@@ -46,24 +46,24 @@ export class OverlayManagerFacade implements IOverlayManager {
     const uiContext = uiContextManager.getUIContext();
     if (uiContext) {
       try {
-        uiContext.getPromptAction().showToast({
+        uiContext.getPromptAction().openToast({
           message: message,
           duration: 2000
         });
         return;
       } catch (e) {
-        logger.warn(TAG, `UIContext showToast failed, falling back to global: ${e}`);
+        logger.warn(TAG, `UIContext openToast failed, falling back to global: ${e}`);
       }
     }
     
     // Fallback to global promptAction if uiContext fails or is missing
     try {
-      promptAction.showToast({
+      promptAction.openToast({
         message: message,
         duration: 2000
       });
     } catch (e) {
-      logger.error(TAG, `Global promptAction.showToast failed: ${e}`);
+      logger.error(TAG, `Global promptAction.openToast failed: ${e}`);
     }
   }
 }

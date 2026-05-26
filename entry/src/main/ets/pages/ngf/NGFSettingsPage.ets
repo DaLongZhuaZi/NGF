@@ -307,7 +307,8 @@ export struct NGFSettingsPage {
   private applyImmersiveToggle(enabled: boolean): void {
     try {
       ngfVisualEffectsFacade.setMaterialMode(enabled ? NGFVisualEffectsMaterialMode.ADAPTIVE : NGFVisualEffectsMaterialMode.MANUAL);
-      logger.info(TAG, `沉浸光效已${enabled ? $r('app.string.ui_str_2433') : $r('app.string.ui_str_2434')}`);
+      const stateLabel: ResourceStr = enabled ? $r('app.string.ui_str_2433') : $r('app.string.ui_str_2434');
+      logger.info(TAG, `沉浸光效已${typeof stateLabel === 'string' ? stateLabel : resolveResourceString(this.getUIContext().getHostContext(), stateLabel)}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(TAG, `切换沉浸光效失败: ${message}`);
@@ -323,7 +324,8 @@ export struct NGFSettingsPage {
           ngfVisualEffectsFacade.setManualMaterialLevel(level);
         });
       }
-      logger.info(TAG, `材质等级已切换为: ${this.describeMaterialLevel(level)}`);
+      const levelLabel = this.describeMaterialLevel(level);
+      logger.info(TAG, `材质等级已切换为: ${typeof levelLabel === 'string' ? levelLabel : resolveResourceString(this.getUIContext().getHostContext(), levelLabel)}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(TAG, `切换材质等级失败: ${message}`);

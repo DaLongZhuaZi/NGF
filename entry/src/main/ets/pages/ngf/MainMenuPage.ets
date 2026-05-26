@@ -1631,11 +1631,11 @@ struct NGFStarterMainMenuPage {
   private buildDemoTaskManagerCard(): void {
     Row() {
       Column({ space: 6 }) {
-        Text('后台任务与系统通知')
+        Text($r('app.string.task_manager_title'))
           .fontSize(16)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
-        Text('验证任务核心、EventBus同步、后台常驻及系统通知联动')
+        Text($r('app.string.task_manager_desc'))
           .fontSize(13)
           .fontColor($r('app.color.text_secondary'))
       }
@@ -1652,7 +1652,7 @@ struct NGFStarterMainMenuPage {
     .borderRadius(14)
     .border({ width: 1, color: $r('app.color.panel_border') })
     .onClick(() => {
-      this.handleFeatureActionTap(NGFMainMenuActionKey.DEMO_TASK_MANAGER, '后台任务与通知');
+      this.handleFeatureActionTap(NGFMainMenuActionKey.DEMO_TASK_MANAGER, $r('app.string.task_manager_route_label'));
     })
   }
 }
