@@ -33,6 +33,7 @@
 | 规则文件 | 触发条件（命中任意一条即应阅读） |
 |---------|-------------------------------|
 | [`.rules/skill-hds-page-design.md`](.rules/skill-hds-page-design.md) | 新建页面到 `pages/ngf/`；涉及 `HdsNavDestination`/`HdsNavigation` 布局；涉及顶栏配置、沉浸式底板、安全区；涉及 `NGFHdsTitleBarOptionsFactory`、`NGFImmersiveTopChromeUnderlay`；涉及路由常量注册或 `buildNavDestination` 分发 |
+| [`.rules/skill-hds-tab.md`](.rules/skill-hds-tab.md) | 涉及 `HdsTabs`/`Tabs` 组件修改；涉及底部标签栏遮挡、贴边显示或安全区避让时；涉及 `barFloatingStyle` 浮动样式配置时 |
 | [`.rules/skill-manager-apis.md`](.rules/skill-manager-apis.md) | 涉及主题切换/深色模式/`ngf_is_dark_mode`；涉及语言切换/`ngfI18nManagerFacade`；涉及视效档位/`ngfVisualEffectsFacade`/`hdsMaterial.MaterialLevel`；涉及握持感知/`ngfHoldingAwarenessFacade`；需要在 `aboutToAppear`/`aboutToDisappear` 中订阅或取消管理器回调 |
 | [`.rules/skill-system-tasks.md`](.rules/skill-system-tasks.md) | 涉及后台下载、文件上传、数据同步、常驻通知、进度条通知、任务派发或系统事件订阅监听时 |
 | [`.rules/skill-arkts-types.md`](.rules/skill-arkts-types.md) | 涉及 ArkUI 组件中 Map 或 Array 的遍历（如 ForEach）、异常捕获（catch）、需要显式类型推断以解决 any/unknown 编译报错时 |

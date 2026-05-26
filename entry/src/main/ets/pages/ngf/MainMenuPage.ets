@@ -1,4 +1,5 @@
 import { hdsEffect, hdsMaterial, HdsNavigation, HdsNavigationTitleMode, HdsTabs, HdsTabsController } from '@kit.UIDesignKit';
+import window from '@ohos.window';
 import { uiContextManager } from '../../Framework/NGF/platformOhos/UIContextManager';
 import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 import { NGFErrorContext, NGFErrorSeverity } from '../../Framework/NGF/core/contracts/IErrorHandler';
@@ -292,6 +293,7 @@ struct NGFStarterMainMenuPage {
   @State private selectedTabIndex: number = 0;
   @State private pressedTabIndex: number = -1;
   @State private tabGlowStrength: number = 0.88;
+  @State private bottomInsetVp: number = 0;
   @StorageProp('ngf_window_ready') private windowReady: boolean = false;
   @StorageProp('ngf_window_active_page') private windowActivePage: string = '';
   @StorageProp('ngf_window_display_mode') private windowDisplayMode: string = 'default';
@@ -323,6 +325,24 @@ struct NGFStarterMainMenuPage {
     NGFPageWindowSupport.apply(NGFPageWindowName.MAIN_MENU);
     this.attachStarterEventListeners();
     this.appendLog(this.statusMessage);
+    this.readBottomInset();
+  }
+
+  private readBottomInset(): void {
+    const uiCtx = this.getUIContext();
+    if (!uiCtx) {
+      return;
+    }
+    const hostCtx = uiCtx.getHostContext();
+    if (!hostCtx) {
+      return;
+    }
+    window.getLastWindow(hostCtx).then((lastWindow: window.Window): void => {
+      const avoidArea: window.AvoidArea = lastWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+      this.bottomInsetVp = px2vp(avoidArea.bottomRect.height);
+    }).catch((_err: Error): void => {
+      this.bottomInsetVp = 0;
+    });
   }
 
   aboutToDisappear(): void {
@@ -715,7 +735,6 @@ struct NGFStarterMainMenuPage {
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
             .backgroundColor($r('app.color.background_transparent'))
-            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
           }
           .tabBar(this.buildTabItem($r('app.string.tab_framework'), 'sys.symbol.house', 0))
 
@@ -744,7 +763,6 @@ struct NGFStarterMainMenuPage {
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
             .backgroundColor($r('app.color.background_transparent'))
-            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
           }
           .tabBar(this.buildTabItem($r('app.string.tab_features'), 'sys.symbol.more', 1))
 
@@ -761,7 +779,6 @@ struct NGFStarterMainMenuPage {
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
             .backgroundColor($r('app.color.background_transparent'))
-            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
           }
           .tabBar(this.buildTabItem($r('app.string.tab_capabilities'), 'sys.symbol.grid', 2))
 
@@ -775,7 +792,6 @@ struct NGFStarterMainMenuPage {
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
             .backgroundColor($r('app.color.background_primary'))
-            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
           }
           .tabBar(this.buildTabItem($r('app.string.tab_device'), 'sys.symbol.scroll_vertical', 3))
 
@@ -789,7 +805,6 @@ struct NGFStarterMainMenuPage {
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring, new NGFMainMenuEdgeEffectOptions(true))
             .backgroundColor($r('app.color.background_primary'))
-            .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
           }
           .tabBar(this.buildTabItem($r('app.string.tab_settings'), 'sys.symbol.gearshape', 4))
         }
@@ -804,7 +819,8 @@ struct NGFStarterMainMenuPage {
             materialLevel: hdsMaterial.MaterialLevel.EXQUISITE
           },
           thermoCtrl: true,
-          barOpacity: 0.95
+          barOpacity: 0.95,
+          barBottomMargin: this.bottomInsetVp
         })
         .scrollable(true)
         .onChange((index: number): void => {
@@ -827,7 +843,7 @@ struct NGFStarterMainMenuPage {
     .hideBackButton(true)
     .navDestination(this.buildNavDestination)
     .mode(NavigationMode.Stack)
-    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP])
     .width('100%')
     .height('100%')
     .backgroundColor($r('app.color.background_primary'))
