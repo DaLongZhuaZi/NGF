@@ -41,10 +41,31 @@ export interface NGFDeviceInfo {
   updateReason: string;
 }
 
+export interface NGFAppThreadInfo {
+  threadId: number;
+  cpuUsage: number;
+}
+
+export interface NGFRuntimeStatus {
+  processId: number;
+  uid: number;
+  is64Bit: boolean;
+  uptime: number;
+  appMemoryLimit: number;
+  appNativeMemSize: number;
+  systemCpuUsage: number;
+  appCpuUsage: number;
+  threads: Array<NGFAppThreadInfo>;
+  batterySOC: number;
+  batteryTemperature: number;
+  isCharging: boolean;
+}
+
 export type NGFDeviceChangeListener = (deviceInfo: NGFDeviceInfo) => void;
 
 export interface IDeviceAdaptationManager {
   getDeviceInfo(): NGFDeviceInfo;
+  getDeviceRuntimeStatus(): NGFRuntimeStatus;
   refresh(reason: string): void;
   addListener(listener: NGFDeviceChangeListener): void;
   removeListener(listener: NGFDeviceChangeListener): void;

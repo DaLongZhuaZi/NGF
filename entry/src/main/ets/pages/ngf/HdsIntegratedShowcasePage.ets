@@ -15,6 +15,9 @@ import {
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
 } from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
+import {
+  NGFHdsEffectPresetFactory
+} from '../../Framework/NGF/uiShell/components/NGFHdsEffectPresets';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFHdsIntegratedShowcasePage';
@@ -27,9 +30,6 @@ const HDS_INTEGRATED_TOP_CHROME_SPEC: NGFImmersiveTopChromeSpec = NGFImmersiveTo
   160,
   88
 );
-const NGF_HDS_INTEGRATED_SURFACE_BACKGROUND: Resource = $r('app.color.background_surface');
-const NGF_HDS_INTEGRATED_SURFACE_BORDER: Resource = $r('app.color.card_border');
-const NGF_HDS_INTEGRATED_SURFACE_SHADOW: Resource = $r('app.color.card_shadow_demo');
 const NGF_HDS_INTEGRATED_INNER_BACKGROUND: Resource = $r('app.color.panel_background');
 const NGF_HDS_INTEGRATED_INNER_BORDER: Resource = $r('app.color.card_border_inner');
 const NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND: Resource = $r('app.color.button_inactive_bg');
@@ -113,63 +113,7 @@ class NGFHdsIntegratedMotionSlide {
   }
 }
 
-class NGFHdsIntegratedPointLightOptions implements hdsEffect.PointLightOptions {
-  color?: ResourceColor;
-  intensity?: number;
-  height?: Dimension;
-  bloom?: number;
 
-  constructor(color: ResourceColor, intensity: number, height: Dimension, bloom: number) {
-    this.color = color;
-    this.intensity = intensity;
-    this.height = height;
-    this.bloom = bloom;
-  }
-}
-
-class NGFHdsIntegratedPointLightEffect implements hdsEffect.PointLightEffect {
-  sourceType?: hdsEffect.PointLightSourceType;
-  illuminatedType?: hdsEffect.PointLightIlluminatedType;
-  options?: hdsEffect.PointLightOptions;
-
-  constructor(
-    sourceType: hdsEffect.PointLightSourceType,
-    illuminatedType: hdsEffect.PointLightIlluminatedType,
-    options: hdsEffect.PointLightOptions
-  ) {
-    this.sourceType = sourceType;
-    this.illuminatedType = illuminatedType;
-    this.options = options;
-  }
-}
-
-class NGFHdsIntegratedEffectFactory {
-  static buildPrimaryCardEffect(): VisualEffect {
-    const pointLightOptions = new NGFHdsIntegratedPointLightOptions('#E6FFFFFF', 0.34, 30, 0.28);
-    const pointLightEffect = new NGFHdsIntegratedPointLightEffect(
-      hdsEffect.PointLightSourceType.SOFT,
-      hdsEffect.PointLightIlluminatedType.BORDER_CONTENT,
-      pointLightOptions
-    );
-    return new hdsEffect.HdsEffectBuilder()
-      .pressShadow(hdsEffect.PressShadowType.BLEND_GRADIENT)
-      .pointLight(pointLightEffect)
-      .buildEffect();
-  }
-
-  static buildAccentCardEffect(): VisualEffect {
-    const pointLightOptions = new NGFHdsIntegratedPointLightOptions('#CCFFFFFF', 0.24, 26, 0.18);
-    const pointLightEffect = new NGFHdsIntegratedPointLightEffect(
-      hdsEffect.PointLightSourceType.BRIGHT,
-      hdsEffect.PointLightIlluminatedType.BORDER,
-      pointLightOptions
-    );
-    return new hdsEffect.HdsEffectBuilder()
-      .pressShadow(hdsEffect.PressShadowType.BLEND_WHITE)
-      .pointLight(pointLightEffect)
-      .buildEffect();
-  }
-}
 
 @Component
 export struct HdsIntegratedShowcasePage {
@@ -221,7 +165,10 @@ export struct HdsIntegratedShowcasePage {
       { text: $r('app.string.ui_str_2091') },
       { text: $r('app.string.ui_str_2092') },
       { text: $r('app.string.ui_str_2093') }
-    ]
+    ],
+    fontColor: $r('app.color.text_primary'),
+    selectedFontColor: $r('app.color.text_white'),
+    backgroundColor: $r('app.color.component_control_bg')
   });
   private componentTagItems: Array<ChipGroupItemOptions> = [];
   private readonly componentCards: Array<NGFHdsIntegratedComponentCard> = [
@@ -307,7 +254,10 @@ export struct HdsIntegratedShowcasePage {
       { text: $r('app.string.ui_str_2121') },
       { text: $r('app.string.ui_str_2122') },
       { text: $r('app.string.ui_str_2123') }
-    ]
+    ],
+    fontColor: $r('app.color.text_primary'),
+    selectedFontColor: $r('app.color.text_white'),
+    backgroundColor: $r('app.color.component_control_bg')
   });
   private readonly motionSlides: Array<NGFHdsIntegratedMotionSlide> = [
     new NGFHdsIntegratedMotionSlide(
@@ -493,7 +443,7 @@ export struct HdsIntegratedShowcasePage {
     const visibleCards: Array<NGFHdsIntegratedLayoutCard> = [];
     for (let index = 0; index < this.layoutCards.length; index++) {
       const card = this.layoutCards[index];
-      if (card.section === section) {
+      if (JSON.stringify(card.section) === JSON.stringify(section)) {
         visibleCards.push(card);
       }
     }
@@ -629,32 +579,36 @@ export struct HdsIntegratedShowcasePage {
       Text($r('app.string.ui_str_2139'))
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#FFFFFF')
+        .fontColor($r('app.color.text_white'))
 
       Text($r('app.string.ui_str_2140'))
         .fontSize(14)
         .lineHeight(22)
-        .fontColor('#E6FFFFFF')
+        .fontColor($r('app.color.text_glass_body'))
 
       Text(this.lastActionText)
         .fontSize(13)
-        .fontColor('#CCFFFFFF')
+        .fontColor($r('app.color.text_glass_desc'))
 
       Text($r('app.string.ui_str_2141', this.capabilityCards[this.selectedCapabilityIndexes[0]].title))
         .fontSize(13)
-        .fontColor('#CCFFFFFF')
+        .fontColor($r('app.color.text_glass_desc'))
     }
     .width('100%')
     .padding(20)
     .linearGradient({
-      angle: 135,
+      angle: 145,
       colors: [
-        ['#0F172A', 0],
-        ['#1D4ED8', 1]
+        ['#08111F', 0],
+        ['#122746', 0.48],
+        ['#091624', 1]
       ]
     })
-    .borderRadius(28)
-    .visualEffect(NGFHdsIntegratedEffectFactory.buildPrimaryCardEffect())
+    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
+    .borderRadius(26)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
+    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
   @Builder
@@ -675,52 +629,69 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildCapabilityCard(card: NGFHdsIntegratedCapabilityCard, index: number): void {
     Button() {
-      Column({ space: 8 }) {
-        Text(card.title)
-          .width('100%')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-          .fontColor('#FFFFFF')
-          .textAlign(TextAlign.Start)
+      Stack({ alignContent: Alignment.Start }) {
+        Row({ space: 12 }) {
+          Column({ space: 6 }) {
+            Text(card.title)
+              .fontSize(10)
+              .fontWeight(FontWeight.Medium)
+              .fontColor($r('app.color.text_glass_badge'))
 
-        Text(card.subtitle)
-          .width('100%')
-          .fontSize(13)
-          .fontColor('#E6FFFFFF')
-          .textAlign(TextAlign.Start)
+            Text(card.subtitle)
+              .width('100%')
+              .fontSize(15)
+              .fontWeight(FontWeight.Medium)
+              .fontColor($r('app.color.text_white'))
+              .maxLines(2)
 
-        Text(card.description)
-          .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
-          .fontColor('#CCFFFFFF')
-          .textAlign(TextAlign.Start)
+            Text(card.description)
+              .width('100%')
+              .fontSize(12)
+              .lineHeight(18)
+              .fontColor($r('app.color.text_glass_desc'))
+              .maxLines(2)
+          }
+          .width('82%')
+          .alignItems(HorizontalAlign.Start)
+
+          Row() {
+            Text('›')
+              .fontSize(22)
+              .fontWeight(FontWeight.Bold)
+              .fontColor($r('app.color.text_primary'))
+              .margin({ bottom: 4 })
+          }
+          .width(28)
+          .height(28)
+          .borderRadius(14)
+          .backgroundColor($r('app.color.panel_background'))
+          .justifyContent(FlexAlign.Center)
+        }
+        .width('100%')
+        .alignItems(VerticalAlign.Center)
       }
       .width('100%')
-      .alignItems(HorizontalAlign.Start)
-      .padding(14)
-      .backgroundColor('#18000000')
-      .borderRadius(18)
-      .border({ width: 1, color: '#16FFFFFF' })
+      .padding({ left: 16, right: 16, top: 14, bottom: 14 })
+      .linearGradient({
+        angle: 140,
+        colors: [
+          [card.accentStart, 0],
+          [card.accentEnd, 1]
+        ]
+      })
+      .backgroundEffect({ radius: 24, saturation: 1.2, brightness: 1.05, color: $r('app.color.glass_bg_effect') })
+      .borderRadius(22)
+      .border({
+        width: this.selectedCapabilityIndexes[0] === index ? 2 : 1,
+        color: this.selectedCapabilityIndexes[0] === index ? $r('app.color.glass_border_strong') : $r('app.color.glass_border_light')
+      })
+      .shadow({ radius: 14, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 8 })
+      .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
     }
     .width('100%')
-    .height(126)
-    .padding(18)
+    .padding(0)
+    .backgroundColor($r('app.color.background_transparent'))
     .buttonStyle(ButtonStyleMode.NORMAL)
-    .linearGradient({
-      angle: 135,
-      colors: [
-        [card.accentStart, 0],
-        [card.accentEnd, 1]
-      ]
-    })
-    .borderRadius(24)
-    .shadow({ radius: 16, color: '#220F172A', offsetX: 0, offsetY: 10 })
-    .border({
-      width: this.selectedCapabilityIndexes[0] === index ? 2 : 1,
-      color: this.selectedCapabilityIndexes[0] === index ? '#66FFFFFF' : '#24FFFFFF'
-    })
-    .visualEffect(NGFHdsIntegratedEffectFactory.buildPrimaryCardEffect())
     .onClick((): void => {
       this.updateFocusedCapability(index);
     })
@@ -732,29 +703,38 @@ export struct HdsIntegratedShowcasePage {
       Text($r('app.string.ui_str_2143'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FFFFFF')
+        .fontColor($r('app.color.text_white'))
 
       Text($r('app.string.ui_str_2144'))
         .width('100%')
         .fontSize(13)
-        .fontColor('#E6FFFFFF')
+        .fontColor($r('app.color.text_glass_body'))
 
       Text($r('app.string.ui_str_2145'))
         .width('100%')
         .fontSize(13)
-        .fontColor('#E6FFFFFF')
+        .fontColor($r('app.color.text_glass_body'))
 
       Text($r('app.string.ui_str_2146'))
         .width('100%')
         .fontSize(13)
-        .fontColor('#E6FFFFFF')
+        .fontColor($r('app.color.text_glass_body'))
     }
     .width('100%')
     .padding(16)
-    .backgroundColor(NGF_HDS_INTEGRATED_SURFACE_BACKGROUND)
-    .borderRadius(20)
-    .border({ width: 1, color: NGF_HDS_INTEGRATED_SURFACE_BORDER })
-    .shadow({ radius: 12, color: NGF_HDS_INTEGRATED_SURFACE_SHADOW, offsetX: 0, offsetY: 6 })
+    .linearGradient({
+      angle: 145,
+      colors: [
+        ['#08111F', 0],
+        ['#122746', 0.48],
+        ['#091624', 1]
+      ]
+    })
+    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
+    .borderRadius(26)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
+    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
   @Builder
@@ -790,28 +770,11 @@ export struct HdsIntegratedShowcasePage {
         onItemClicked: (index: number): void => {
           this.componentGroupIndexes = [index];
           this.lastActionText = $r('app.string.ui_str_2151', this.resolveComponentGroupLabel());
-          logger.info(TAG, `组件分组切换: index=${index}`);
+          logger.info(TAG, `组件大类切换: indexes=${JSON.stringify(this.componentGroupIndexes)}`);
         }
       })
-      .backgroundColor(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND)
-      .borderRadius(18)
-      .border({ width: 1, color: NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BORDER })
 
-      ChipGroup({
-        items: this.componentTagItems,
-        selectedIndexes: this.componentTagIndexes,
-        multiple: false,
-        onChange: (indexes: Array<number>): void => {
-          this.componentTagIndexes = indexes.length > 0 ? indexes : [0];
-          this.lastActionText = $r('app.string.ui_str_2152', this.resolveComponentTagLabel());
-          logger.info(TAG, `组件标签切换: indexes=${JSON.stringify(this.componentTagIndexes)}`);
-        }
-      })
-      .backgroundColor(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND)
-      .borderRadius(18)
-      .border({ width: 1, color: NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BORDER })
-
-      Text($r('app.string.ui_str_2153', this.resolveComponentGroupLabel(), this.resolveComponentTagLabel(), this.buildVisibleComponentCards().length))
+      Text($r('app.string.ui_str_2153', this.resolveComponentGroupLabel(), $r('app.string.ui_str_2090'), this.buildVisibleComponentCards().length))
         .width('100%')
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
@@ -822,13 +785,22 @@ export struct HdsIntegratedShowcasePage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor(NGF_HDS_INTEGRATED_SURFACE_BACKGROUND)
+    .linearGradient({
+      angle: 145,
+      colors: [
+        ['#08111F', 0],
+        ['#122746', 0.48],
+        ['#091624', 1]
+      ]
+    })
+    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
     .borderRadius(24)
     .border({
       width: this.isFocusedCapability('components') ? 2 : 1,
-      color: this.isFocusedCapability('components') ? '#3B82F666' : NGF_HDS_INTEGRATED_SURFACE_BORDER
+      color: this.isFocusedCapability('components') ? '#3B82F666' : $r('app.color.glass_border_subtle')
     })
-    .shadow({ radius: 12, color: NGF_HDS_INTEGRATED_SURFACE_SHADOW, offsetX: 0, offsetY: 6 })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
+    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
   @Builder
@@ -838,7 +810,7 @@ export struct HdsIntegratedShowcasePage {
         Text(card.title)
           .fontSize(17)
           .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_primary'))
+          .fontColor($r('app.color.text_white'))
         Blank()
         Text(card.group)
           .fontSize(12)
@@ -850,7 +822,7 @@ export struct HdsIntegratedShowcasePage {
         .width('100%')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor($r('app.color.text_glass_body'))
     }
     .width('100%')
     .padding(14)
@@ -904,13 +876,22 @@ export struct HdsIntegratedShowcasePage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor(NGF_HDS_INTEGRATED_SURFACE_BACKGROUND)
+    .linearGradient({
+      angle: 145,
+      colors: [
+        ['#08111F', 0],
+        ['#122746', 0.48],
+        ['#091624', 1]
+      ]
+    })
+    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
     .borderRadius(24)
     .border({
       width: this.isFocusedCapability('layouts') ? 2 : 1,
-      color: this.isFocusedCapability('layouts') ? '#8B5CF666' : NGF_HDS_INTEGRATED_SURFACE_BORDER
+      color: this.isFocusedCapability('layouts') ? '#8B5CF666' : $r('app.color.glass_border_subtle')
     })
-    .shadow({ radius: 12, color: NGF_HDS_INTEGRATED_SURFACE_SHADOW, offsetX: 0, offsetY: 6 })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
+    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
   @Builder
@@ -939,13 +920,13 @@ export struct HdsIntegratedShowcasePage {
           .width('100%')
           .fontSize(16)
           .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_primary'))
+          .fontColor($r('app.color.text_white'))
 
         Text(card.description)
           .width('100%')
           .fontSize(13)
           .lineHeight(20)
-          .fontColor($r('app.color.text_secondary'))
+          .fontColor($r('app.color.text_glass_body'))
       }
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)
@@ -963,16 +944,7 @@ export struct HdsIntegratedShowcasePage {
     Column({ space: 14 }) {
       SubHeader({
         primaryTitle: $r('app.string.ui_str_2087'),
-        secondaryTitle: $r('app.string.ui_str_2156'),
-        operationType: OperationType.BUTTON,
-        operationItem: [
-          {
-            value: $r('app.string.ui_str_2157'),
-            action: (): void => {
-              this.resetMotionSection();
-            }
-          }
-        ]
+        secondaryTitle: $r('app.string.ui_str_2156')
       })
 
       SegmentButton({
@@ -1021,13 +993,6 @@ export struct HdsIntegratedShowcasePage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor(NGF_HDS_INTEGRATED_SURFACE_BACKGROUND)
-    .borderRadius(24)
-    .border({
-      width: this.isFocusedCapability('motion') ? 2 : 1,
-      color: this.isFocusedCapability('motion') ? '#14B8A666' : NGF_HDS_INTEGRATED_SURFACE_BORDER
-    })
-    .shadow({ radius: 12, color: NGF_HDS_INTEGRATED_SURFACE_SHADOW, offsetX: 0, offsetY: 6 })
   }
 
   @Builder
@@ -1071,7 +1036,7 @@ export struct HdsIntegratedShowcasePage {
       offsetX: 0,
       offsetY: 8
     })
-    .visualEffect(NGFHdsIntegratedEffectFactory.buildAccentCardEffect())
+    .visualEffect(NGFHdsEffectPresetFactory.buildAccentCardEffect())
   }
 
   @Builder
@@ -1137,19 +1102,28 @@ export struct HdsIntegratedShowcasePage {
       Text($r('app.string.ui_str_2168'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#FFFFFF')
+        .fontColor($r('app.color.text_white'))
 
       Text($r('app.string.ui_str_2169'))
         .width('100%')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor('#E6FFFFFF')
+        .fontColor($r('app.color.text_glass_body'))
     }
     .width('100%')
     .padding(16)
-    .backgroundColor(NGF_HDS_INTEGRATED_SURFACE_BACKGROUND)
-    .borderRadius(20)
-    .border({ width: 1, color: NGF_HDS_INTEGRATED_SURFACE_BORDER })
-    .shadow({ radius: 12, color: NGF_HDS_INTEGRATED_SURFACE_SHADOW, offsetX: 0, offsetY: 6 })
+    .linearGradient({
+      angle: 145,
+      colors: [
+        ['#08111F', 0],
+        ['#122746', 0.48],
+        ['#091624', 1]
+      ]
+    })
+    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
+    .borderRadius(26)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
+    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 }

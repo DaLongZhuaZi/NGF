@@ -5,6 +5,9 @@
 import { display } from '@kit.ArkUI';
 import { window } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import process from '@ohos.process';
+import batteryInfo from '@ohos.batteryInfo';
+import { hidebug } from '@kit.PerformanceAnalysisKit';
 import { logger } from '../../utils/Logger';
 import {
   IDeviceAdaptationManager,
@@ -13,7 +16,9 @@ import {
   NGFScreenOrientation,
   NGFBreakpoint,
   NGFFoldStatus,
-  NGFDeviceChangeListener
+  NGFDeviceChangeListener,
+  NGFRuntimeStatus,
+  NGFAppThreadInfo
 } from '../contracts/IDeviceAdaptationManager';
 
 const TAG: string = 'NGFDeviceAdaptationFacade';
@@ -643,6 +648,67 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
     const currentIndex: number = BREAKPOINT_ORDER.indexOf(this.getCurrentBreakpoint());
     const targetIndex: number = BREAKPOINT_ORDER.indexOf(targetBreakpoint);
     return currentIndex >= targetIndex;
+  }
+
+  /**
+   * 获取设备运行状态与性能信息
+   */
+  public getDeviceRuntimeStatus(): NGFRuntimeStatus {
+    const status: NGFRuntimeStatus = {
+      processId: 0,
+      uid: 0,
+      is64Bit: false,
+      uptime: 0,
+      appMemoryLimit: 0,
+      appNativeMemSize: 0,
+      systemCpuUsage: 0,
+      appCpuUsage: 0,
+      threads: [],
+      batterySOC: 0,
+      batteryTemperature: 0,
+      isCharging: false
+    };
+
+    try {
+      status.processId = process.pid;
+      status.uid = process.uid;
+      status.is64Bit = process.is64Bit();
+      status.uptime = process.uptime();
+    } catch (e) {
+      logger.warn(TAG, `获取进程信息失败: ${e}`);
+    }
+
+    try {
+      const memoryLimit = hidebug.getAppMemoryLimit();
+      status.appMemoryLimit = memoryLimit ? Number(memoryLimit.rssLimit) / 1024 : 0;
+      const nativeMem = hidebug.getAppNativeMemInfo();
+      status.appNativeMemSize = nativeMem ? Number(nativeMem.pss) : 0;
+      status.systemCpuUsage = hidebug.getSystemCpuUsage();
+      status.appCpuUsage = hidebug.getCpuUsage();
+      
+      const cpuThreads = hidebug.getAppThreadCpuUsage();
+      if (cpuThreads && Array.isArray(cpuThreads)) {
+        status.threads = cpuThreads.map((t) => {
+          return {
+            threadId: t.threadId,
+            cpuUsage: t.cpuUsage
+          } as NGFAppThreadInfo;
+        });
+      }
+    } catch (e) {
+      logger.warn(TAG, `获取性能信息失败: ${e}`);
+    }
+
+    try {
+      status.batterySOC = batteryInfo.batterySOC;
+      status.batteryTemperature = batteryInfo.batteryTemperature;
+      status.isCharging = batteryInfo.chargingStatus === batteryInfo.BatteryChargeState.ENABLE ||
+                          batteryInfo.chargingStatus === batteryInfo.BatteryChargeState.FULL;
+    } catch (e) {
+      logger.warn(TAG, `获取电池信息失败: ${e}`);
+    }
+
+    return status;
   }
 
   /**

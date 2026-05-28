@@ -60,9 +60,6 @@ const HDS_OFFICIAL_EFFECT_TOP_CHROME_SPEC: NGFImmersiveTopChromeSpec = NGFImmers
   160,
   88
 );
-const NGF_HDS_OFFICIAL_SURFACE_BACKGROUND: string = '#F8FBFF';
-const NGF_HDS_OFFICIAL_SURFACE_BORDER: string = '#D7E3F0';
-const NGF_HDS_OFFICIAL_SURFACE_SHADOW: Resource = $r('app.color.card_shadow_demo');
 
 class NGFHdsOfficialActionCard {
   id: string;
@@ -318,31 +315,35 @@ export struct HdsNavigationOfficialShowcasePage {
       Text('MainMenuPage → HdsNavigation')
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.panel_background'))
+        .fontColor($r('app.color.text_white'))
 
       Text($r('app.string.ui_str_2182'))
         .fontSize(14)
         .lineHeight(22)
-        .fontColor('#E6FFFFFF')
+        .fontColor($r('app.color.text_glass_body'))
 
       Text(this.lastActionText)
         .fontSize(13)
-        .fontColor('#CCFFFFFF')
+        .fontColor($r('app.color.text_glass_desc'))
 
       Text($r('app.string.ui_str_2183', this.openedCount))
         .fontSize(13)
-        .fontColor('#CCFFFFFF')
+        .fontColor($r('app.color.text_glass_desc'))
     }
     .width('100%')
     .padding(20)
     .linearGradient({
-      angle: 135,
+      angle: 145,
       colors: [
-        ['#0F172A', 0],
-        ['#1D4ED8', 1]
+        ['#08111F', 0],
+        ['#122746', 0.48],
+        ['#091624', 1]
       ]
     })
-    .borderRadius(28)
+    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
+    .borderRadius(26)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
     .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
@@ -364,49 +365,66 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildActionCard(card: NGFHdsOfficialActionCard): void {
     Button() {
-      Column({ space: 8 }) {
-        Text(card.title)
-          .width('100%')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.panel_background'))
-          .textAlign(TextAlign.Start)
+      Stack({ alignContent: Alignment.Start }) {
+        Row({ space: 12 }) {
+          Column({ space: 6 }) {
+            Text(card.title)
+              .fontSize(10)
+              .fontWeight(FontWeight.Medium)
+              .fontColor($r('app.color.text_glass_badge'))
 
-        Text(card.subtitle)
-          .width('100%')
-          .fontSize(13)
-          .fontColor('#E6FFFFFF')
-          .textAlign(TextAlign.Start)
+            Text(card.subtitle)
+              .width('100%')
+              .fontSize(15)
+              .fontWeight(FontWeight.Medium)
+              .fontColor($r('app.color.text_white'))
+              .maxLines(2)
 
-        Text(card.description)
-          .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
-          .fontColor('#E6FFFFFF')
-          .textAlign(TextAlign.Start)
+            Text(card.description)
+              .width('100%')
+              .fontSize(12)
+              .lineHeight(18)
+              .fontColor($r('app.color.text_glass_desc'))
+              .maxLines(2)
+          }
+          .width('82%')
+          .alignItems(HorizontalAlign.Start)
+
+          Row() {
+            Text('›')
+              .fontSize(22)
+              .fontWeight(FontWeight.Bold)
+              .fontColor($r('app.color.text_primary'))
+              .margin({ bottom: 4 })
+          }
+          .width(28)
+          .height(28)
+          .borderRadius(14)
+          .backgroundColor($r('app.color.panel_background'))
+          .justifyContent(FlexAlign.Center)
+        }
+        .width('100%')
+        .alignItems(VerticalAlign.Center)
       }
       .width('100%')
-      .alignItems(HorizontalAlign.Start)
-      .padding(14)
-      .backgroundColor('#18000000')
-      .borderRadius(18)
-      .border({ width: 1, color: '#16FFFFFF' })
+      .padding({ left: 16, right: 16, top: 14, bottom: 14 })
+      .linearGradient({
+        angle: 140,
+        colors: [
+          [card.accentStart, 0],
+          [card.accentEnd, 1]
+        ]
+      })
+      .backgroundEffect({ radius: 24, saturation: 1.2, brightness: 1.05, color: $r('app.color.glass_bg_effect') })
+      .borderRadius(22)
+      .border({ width: 1, color: $r('app.color.glass_border_light') })
+      .shadow({ radius: 14, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 8 })
+      .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
     }
     .width('100%')
-    .height(126)
-    .padding(18)
+    .padding(0)
+    .backgroundColor($r('app.color.background_transparent'))
     .buttonStyle(ButtonStyleMode.NORMAL)
-    .linearGradient({
-      angle: 135,
-      colors: [
-        [card.accentStart, 0],
-        [card.accentEnd, 1]
-      ]
-    })
-    .borderRadius(24)
-    .border({ width: 1, color: '#24FFFFFF' })
-    .shadow({ radius: 16, color: '#220F172A', offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
     .onClick((): void => {
       this.openDestination(card);
     })
@@ -418,29 +436,38 @@ export struct HdsNavigationOfficialShowcasePage {
       Text($r('app.string.ui_str_2185'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_primary'))
+        .fontColor($r('app.color.text_white'))
 
       Text($r('app.string.ui_str_2186'))
         .width('100%')
         .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor($r('app.color.text_glass_body'))
 
       Text($r('app.string.ui_str_2187'))
         .width('100%')
         .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor($r('app.color.text_glass_body'))
 
       Text($r('app.string.ui_str_2188'))
         .width('100%')
         .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor($r('app.color.text_glass_body'))
     }
     .width('100%')
     .padding(16)
-    .backgroundColor(NGF_HDS_OFFICIAL_SURFACE_BACKGROUND)
-    .borderRadius(20)
-    .border({ width: 1, color: NGF_HDS_OFFICIAL_SURFACE_BORDER })
-    .shadow({ radius: 12, color: NGF_HDS_OFFICIAL_SURFACE_SHADOW, offsetX: 0, offsetY: 6 })
+    .linearGradient({
+      angle: 145,
+      colors: [
+        ['#08111F', 0],
+        ['#122746', 0.48],
+        ['#091624', 1]
+      ]
+    })
+    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
+    .borderRadius(26)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
+    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
   @Builder
@@ -449,20 +476,29 @@ export struct HdsNavigationOfficialShowcasePage {
       Text($r('app.string.ui_str_2168'))
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_primary'))
+        .fontColor($r('app.color.text_white'))
 
       Text($r('app.string.ui_str_2189'))
         .width('100%')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor($r('app.color.text_glass_body'))
     }
     .width('100%')
     .padding(16)
-    .backgroundColor(NGF_HDS_OFFICIAL_SURFACE_BACKGROUND)
-    .borderRadius(20)
-    .border({ width: 1, color: NGF_HDS_OFFICIAL_SURFACE_BORDER })
-    .shadow({ radius: 12, color: NGF_HDS_OFFICIAL_SURFACE_SHADOW, offsetX: 0, offsetY: 6 })
+    .linearGradient({
+      angle: 145,
+      colors: [
+        ['#08111F', 0],
+        ['#122746', 0.48],
+        ['#091624', 1]
+      ]
+    })
+    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
+    .borderRadius(26)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
+    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 }
 
@@ -591,21 +627,29 @@ export struct HdsNavigationOfficialOverviewPage {
         Text(item.title)
           .fontSize(16)
           .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_primary'))
+          .fontColor($r('app.color.text_white'))
       }
 
       Text(item.description)
         .width('100%')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor($r('app.color.text_secondary'))
+        .fontColor($r('app.color.text_glass_body'))
     }
     .width('100%')
     .padding(16)
-    .backgroundColor(NGF_HDS_OFFICIAL_SURFACE_BACKGROUND)
-    .borderRadius(20)
-    .border({ width: 1, color: NGF_HDS_OFFICIAL_SURFACE_BORDER })
-    .shadow({ radius: 12, color: NGF_HDS_OFFICIAL_SURFACE_SHADOW, offsetX: 0, offsetY: 6 })
+    .linearGradient({
+      angle: 145,
+      colors: [
+        ['#08111F', 0],
+        ['#122746', 0.48],
+        ['#091624', 1]
+      ]
+    })
+    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
+    .borderRadius(26)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
     .visualEffect(NGFHdsEffectPresetFactory.buildAccentCardEffect())
   }
 }

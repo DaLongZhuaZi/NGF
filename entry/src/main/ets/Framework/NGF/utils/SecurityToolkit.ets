@@ -157,9 +157,15 @@ class SecurityToolkit {
   }
 
   private generateRandomBytes(length: number): Uint8Array {
-    const rand = cryptoFramework.createRandom();
-    const blob = rand.generateRandomSync(length);
-    return blob.data;
+    try {
+      const rand = cryptoFramework.createRandom();
+      const blob = rand.generateRandomSync(length);
+      return blob.data;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      logger.error(TAG, `generateRandomBytes failed: ${msg}`);
+      throw new Error(msg);
+    }
   }
 
   private concatUint8Arrays(a: Uint8Array, b: Uint8Array): Uint8Array {

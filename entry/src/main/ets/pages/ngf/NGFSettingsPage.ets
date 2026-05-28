@@ -14,7 +14,7 @@ const TAG: string = 'NGFSettingsPage';
 
 class AboutSheetOptions implements SheetOptions {
   preferType: SheetType = SheetType.BOTTOM;
-  detents: [SheetSize, SheetSize, SheetSize] = [SheetSize.FIT_CONTENT, SheetSize.MEDIUM, SheetSize.LARGE];
+  detents: [SheetSize, SheetSize] = [SheetSize.LARGE, SheetSize.MEDIUM];
   dragBar: boolean = true;
   showClose: boolean = false;
   blurStyle: BlurStyle;

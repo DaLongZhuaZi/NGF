@@ -11,6 +11,8 @@ import {
   NGFModuleBootstrapReport,
   NGFModuleRuntimeSnapshot
 } from '../../Framework/NGF/core/contracts/IModuleBootstrap';
+import { ngfDeviceAdaptationFacade } from '../../Framework/NGF/deviceAwareness/facades/DeviceAdaptationFacade';
+import { NGFRuntimeStatus, NGFAppThreadInfo } from '../../Framework/NGF/deviceAwareness/contracts/IDeviceAdaptationManager';
 import { NGFStarterEventName, ngfStarterKernel } from '../../Framework/NGF/core/starter/index';
 import { HdsIntegratedShowcasePage } from './HdsIntegratedShowcasePage';
 import {
@@ -293,6 +295,10 @@ struct NGFStarterMainMenuPage {
   @State private selectedTabIndex: number = 0;
   @State private pressedTabIndex: number = -1;
   @State private tabGlowStrength: number = 0.88;
+  @State private isStatusDetailSheetOpen: boolean = false;
+  @State private isPerformanceSheetOpen: boolean = false;
+  @State private runtimeStatus: NGFRuntimeStatus | null = null;
+  private perfMonitorInterval: number = -1;
   @State private bottomInsetVp: number = 0;
   @State private topInsetVp: number = NGF_MAIN_MENU_CONTENT_TOP_INSET;
   @StorageProp('ngf_window_ready') private windowReady: boolean = false;
@@ -322,13 +328,13 @@ struct NGFStarterMainMenuPage {
       uiContextManager.bindUIContext(uiContext);
     }
     this.starter.logger.setLevel(NGFLogLevel.DEBUG);
+    this.attachStarterEventListeners();
     this.isCoreReady = this.starter.bootstrap();
     this.lifecycleState = this.starter.lifecycle.getCurrentState();
     this.statusMessage = this.isCoreReady ? $r('app.string.ui_str_2002') : $r('app.string.ui_str_2003');
     this.syncModuleBootstrapReport();
     this.syncFrameworkRuntimeSnapshot();
     NGFPageWindowSupport.apply(NGFPageWindowName.MAIN_MENU);
-    this.attachStarterEventListeners();
     this.appendLog(this.statusMessage);
     this.readBottomInset();
   }
@@ -683,7 +689,19 @@ struct NGFStarterMainMenuPage {
   }
 
   private appendLog(message: ResourceStr): void {
-    const msgStr = typeof message === "string" ? message : '';
+    let msgStr = '';
+    if (typeof message === 'string') {
+      msgStr = message;
+    } else {
+      try {
+        const hostCtx = this.getUIContext()?.getHostContext();
+        if (hostCtx) {
+          msgStr = resolveResourceString(hostCtx, message);
+        }
+      } catch (e) {
+        msgStr = 'Unknown resource';
+      }
+    }
     const now = new Date();
     const timeText = `${this.pad2(now.getHours())}:${this.pad2(now.getMinutes())}:${this.pad2(now.getSeconds())}`;
     const nextId = this.logs.length > 0 ? this.logs[this.logs.length - 1].id + 1 : 1;
@@ -726,13 +744,10 @@ struct NGFStarterMainMenuPage {
           TabContent() {
             Scroll(this.scroller0) {
               Column({ space: 12 }) {
-                this.buildHeaderCard()
+                this.buildHeaderActionSwiper()
                 this.buildHdsDemoCard()
-                this.buildActionCard()
                 this.buildStatusCard()
                 this.buildWindowMonitorCard()
-                this.buildModuleDetailCard()
-                this.buildLogCard()
               }
               .width('100%')
               .padding({
@@ -1026,11 +1041,36 @@ struct NGFStarterMainMenuPage {
   }
 
   @Builder
+  private buildHeaderActionSwiper(): void {
+    Swiper() {
+      this.buildHeaderCard()
+      this.buildActionCard()
+    }
+    .width('100%')
+    .height(NGF_MAIN_MENU_HEADER_HEIGHT)
+    .loop(true)
+    .autoPlay(false)
+    .itemSpace(16)
+    .displayCount(1)
+    .nextMargin(24)
+    .prevMargin(24)
+    .indicator(
+      Indicator.dot()
+        .itemWidth(8)
+        .itemHeight(8)
+        .selectedItemWidth(24)
+        .selectedItemHeight(8)
+        .color($r('app.color.glass_divider_strong'))
+        .selectedColor($r('app.color.text_white'))
+    )
+  }
+
+  @Builder
   private buildHeaderCard(): void {
     Stack({ alignContent: Alignment.BottomStart }) {
       Column() {}
         .width('100%')
-        .height(NGF_MAIN_MENU_HEADER_HEIGHT)
+        .height('100%')
         .linearGradient({
           angle: 145,
           colors: [
@@ -1041,6 +1081,7 @@ struct NGFStarterMainMenuPage {
           ]
         })
         .borderRadius(30)
+        .shadow({ radius: 18, color: $r('app.color.card_shadow'), offsetX: 0, offsetY: 10 })
 
       Column() {}
         .width(196)
@@ -1073,16 +1114,12 @@ struct NGFStarterMainMenuPage {
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_glass_value'))
 
-        Text($r('app.string.ui_str_2025'))
-          .fontSize(14)
-          .lineHeight(21)
-          .fontColor($r('app.color.text_glass_subtitle'))
-
         Text(this.statusMessage)
           .fontSize(13)
           .lineHeight(20)
           .fontColor($r('app.color.text_glass_status'))
-          .maxLines(2)
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
 
         Column({ space: 10 }) {
           Row({ space: 10 }) {
@@ -1100,15 +1137,61 @@ struct NGFStarterMainMenuPage {
         .width('100%')
       }
       .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.End)
       .padding({ top: NGF_MAIN_MENU_HEADER_CONTENT_TOP_PADDING, right: 20, bottom: 24, left: 20 })
       .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(44, 1.28, 1.06, $r('app.color.glass_bg_effect_strong')))
       .borderRadius(30)
       .border({ width: 1, color: $r('app.color.glass_border_strong') })
-      .shadow({ radius: 18, color: $r('app.color.card_shadow'), offsetX: 0, offsetY: 10 })
       .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
     }
     .width('100%')
-    .height(NGF_MAIN_MENU_HEADER_HEIGHT)
+    .height('100%')
+  }
+
+  @Builder
+  private buildActionCard(): void {
+    Stack({ alignContent: Alignment.TopStart }) {
+      Column({ space: 12 }) {
+        Text($r('app.string.ui_str_2037'))
+          .fontSize(18)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_white'))
+
+        Row({ space: 12 }) {
+          this.buildSmallActionButton('CORE', $r('app.string.ui_str_2039'), '#155E75', '#0891B2', NGFMainMenuActionKey.BOOTSTRAP)
+          this.buildSmallActionButton('EVENT', $r('app.string.ui_str_2041'), '#1D4ED8', '#2563EB', NGFMainMenuActionKey.PUBLISH_EVENT)
+        }
+        .width('100%')
+        .layoutWeight(1)
+
+        Row({ space: 12 }) {
+          this.buildSmallActionButton('LIFECYCLE', $r('app.string.ui_str_2043'), '#0F766E', '#14B8A6', NGFMainMenuActionKey.ADVANCE_LIFECYCLE)
+          this.buildSmallActionButton('ERROR', $r('app.string.ui_str_2045'), '#9A3412', '#F97316', NGFMainMenuActionKey.SIMULATE_ERROR)
+        }
+        .width('100%')
+        .layoutWeight(1)
+      }
+      .width('100%')
+      .height('100%')
+      .alignItems(HorizontalAlign.Start)
+      .padding(18)
+    }
+    .width('100%')
+    .height('100%')
+    .linearGradient({
+      angle: 145,
+      colors: [
+        ['#09111D', 0],
+        ['#10263A', 0.5],
+        ['#0A1828', 1]
+      ]
+    })
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.22, 1.05, $r('app.color.glass_bg_effect')))
+    .borderRadius(26)
+    .border({ width: 1, color: $r('app.color.glass_border_medium') })
+    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
+    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
   }
 
   @Builder
@@ -1146,14 +1229,7 @@ struct NGFStarterMainMenuPage {
   ): void {
     Button() {
       Stack({ alignContent: Alignment.Start }) {
-        Column() {}
-          .width(108)
-          .height(108)
-          .borderRadius(108)
-          .backgroundColor(glowColor)
-          .opacity(0.24)
-          .margin({ left: 216, top: -18 })
-          .shadow({ radius: 34, color: glowColor, offsetX: 0, offsetY: 10 })
+
 
         Row({ space: 12 }) {
           Column({ space: 6 }) {
@@ -1179,10 +1255,18 @@ struct NGFStarterMainMenuPage {
           .width('82%')
           .alignItems(HorizontalAlign.Start)
 
-          Text('›')
-            .fontSize(22)
-            .fontWeight(FontWeight.Bold)
-            .fontColor($r('app.color.text_glass_arrow'))
+          Row() {
+            Text('›')
+              .fontSize(22)
+              .fontWeight(FontWeight.Bold)
+              .fontColor($r('app.color.text_primary'))
+              .margin({ bottom: 4 })
+          }
+          .width(28)
+          .height(28)
+          .borderRadius(14)
+          .backgroundColor($r('app.color.panel_background'))
+          .justifyContent(FlexAlign.Center)
         }
         .width('100%')
         .alignItems(VerticalAlign.Center)
@@ -1212,16 +1296,59 @@ struct NGFStarterMainMenuPage {
   }
 
   @Builder
+  private buildSmallActionButton(
+    badge: string,
+    title: ResourceStr,
+    accentStart: string,
+    accentEnd: string,
+    actionKey: string
+  ): void {
+    Button() {
+      Column({ space: 8 }) {
+        Text(badge)
+          .fontSize(10)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_glass_badge'))
+
+        Text(title)
+          .fontSize(14)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_white'))
+          .maxLines(1)
+      }
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
+    }
+    .layoutWeight(1)
+    .height('100%')
+    .padding({ left: 16, right: 16, top: 16, bottom: 16 })
+    .linearGradient({
+      angle: 140,
+      colors: [
+        [accentStart, 0],
+        [accentEnd, 1]
+      ]
+    })
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(24, 1.2, 1.05, $r('app.color.glass_bg_effect')))
+    .borderRadius(20)
+    .border({ width: 1, color: $r('app.color.glass_border_light') })
+    .shadow({ radius: 14, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 8 })
+    .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
+    .buttonStyle(ButtonStyleMode.NORMAL)
+    .onClick((): void => {
+      const labelStr = typeof title === 'string' ? title : resolveResourceString(this.getUIContext().getHostContext(), title);
+      this.getUIContext().getPromptAction().showToast({
+        message: labelStr,
+        duration: 2000
+      });
+      this.handleFeatureActionTap(actionKey, title);
+    })
+  }
+
+  @Builder
   private buildHdsDemoCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width(146)
-        .height(146)
-        .borderRadius(146)
-        .backgroundColor($r('app.color.glow_circle_indigo'))
-        .opacity(0.22)
-        .margin({ left: 198, top: -18 })
-        .shadow({ radius: 52, color: $r('app.color.glow_circle_indigo_shadow'), offsetX: 10, offsetY: 12 })
+
 
       Column({ space: 12 }) {
         Text($r('app.string.ui_str_2030'))
@@ -1278,85 +1405,6 @@ struct NGFStarterMainMenuPage {
     .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
   }
 
-  @Builder
-  private buildActionCard(): void {
-    Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width(152)
-        .height(152)
-        .borderRadius(152)
-        .backgroundColor($r('app.color.glow_circle_sky'))
-        .opacity(0.18)
-        .margin({ left: 210, top: -12 })
-        .shadow({ radius: 48, color: $r('app.color.glow_circle_sky_shadow'), offsetX: 8, offsetY: 10 })
-
-      Column({ space: 12 }) {
-        Text($r('app.string.ui_str_2037'))
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_white'))
-
-        Text($r('app.string.ui_str_2038'))
-          .fontSize(13)
-          .lineHeight(20)
-          .fontColor($r('app.color.text_glass_hint'))
-
-        this.buildFeatureActionButton(
-          'CORE',
-          $r('app.string.ui_str_2039'),
-          $r('app.string.ui_str_2040'),
-          '#155E75',
-          '#0891B2',
-          '#5FDBFFFF',
-          NGFMainMenuActionKey.BOOTSTRAP
-        )
-        this.buildFeatureActionButton(
-          'EVENT',
-          $r('app.string.ui_str_2041'),
-          $r('app.string.ui_str_2042'),
-          '#1D4ED8',
-          '#2563EB',
-          '#79A6FFFF',
-          NGFMainMenuActionKey.PUBLISH_EVENT
-        )
-        this.buildFeatureActionButton(
-          'LIFECYCLE',
-          $r('app.string.ui_str_2043'),
-          $r('app.string.ui_str_2044'),
-          '#0F766E',
-          '#14B8A6',
-          '#5EF2E2FF',
-          NGFMainMenuActionKey.ADVANCE_LIFECYCLE
-        )
-        this.buildFeatureActionButton(
-          'ERROR',
-          $r('app.string.ui_str_2045'),
-          $r('app.string.ui_str_2046'),
-          '#9A3412',
-          '#F97316',
-          '#FFB37DFF',
-          NGFMainMenuActionKey.SIMULATE_ERROR
-        )
-      }
-      .width('100%')
-      .alignItems(HorizontalAlign.Start)
-      .padding(18)
-    }
-    .width('100%')
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#09111D', 0],
-        ['#10263A', 0.5],
-        ['#0A1828', 1]
-      ]
-    })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.22, 1.05, $r('app.color.glass_bg_effect')))
-    .borderRadius(26)
-    .border({ width: 1, color: $r('app.color.glass_border_medium') })
-    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
-  }
 
   @Builder
   private buildDemoSecurityPerfCard(): void {
@@ -1463,28 +1511,28 @@ struct NGFStarterMainMenuPage {
       Text($r('app.string.ui_str_2059', this.lifecycleState.phaseName))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text($r('app.string.ui_str_2060', this.lifecycleState.progress))
+      Text($r('app.string.ui_str_2060', String(this.lifecycleState.progress)))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2061', this.lifecycleState.isCompleted ? 'true' : 'false'))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text($r('app.string.ui_str_2062', this.demoEventCount))
+      Text($r('app.string.ui_str_2062', String(this.demoEventCount)))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text($r('app.string.ui_str_2063', this.lastEventType))
+      Text($r('app.string.ui_str_2063', String(this.lastEventType)))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text($r('app.string.ui_str_2005', this.starter.errorHandler.getRecentErrorCount()))
+      Text($r('app.string.ui_str_2005', String(this.starter.errorHandler.getRecentErrorCount())))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text($r('app.string.ui_str_2064', this.modulePhaseName))
+      Text($r('app.string.ui_str_2064', String(this.modulePhaseName)))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text($r('app.string.ui_str_2065', this.moduleSuccessCount, this.moduleTotalCount))
+      Text($r('app.string.ui_str_2065', String(this.moduleSuccessCount), String(this.moduleTotalCount)))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
-      Text($r('app.string.ui_str_2066', this.moduleFailureCount))
+      Text($r('app.string.ui_str_2066', String(this.moduleFailureCount)))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
     }
@@ -1493,6 +1541,49 @@ struct NGFStarterMainMenuPage {
     .backgroundColor($r('app.color.panel_background'))
     .borderRadius(14)
     .border({ width: 1, color: $r('app.color.panel_border') })
+    .onClick(() => {
+      this.isStatusDetailSheetOpen = true;
+    })
+    .bindSheet($$this.isStatusDetailSheetOpen, this.buildStatusDetailSheetContent(), {
+      preferType: SheetType.BOTTOM,
+      detents: [SheetSize.LARGE, SheetSize.MEDIUM],
+      dragBar: true,
+      showClose: false,
+      backgroundColor: Color.Transparent,
+      blurStyle: BlurStyle.NONE,
+      maskColor: '#66000000',
+      keyboardAvoidMode: SheetKeyboardAvoidMode.RESIZE_ONLY
+    })
+  }
+
+  @Builder
+  private buildStatusDetailSheetContent(): void {
+    Column({ space: 0 }) {
+      Row() {
+        Text($r('app.string.ui_str_2057'))
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
+      }
+      .width('100%')
+      .padding({ top: 12, bottom: 4 })
+      .justifyContent(FlexAlign.Center)
+
+      List({ space: 12 }) {
+        ListItem() { this.buildModuleDetailCard() }
+        ListItem() { this.buildLogCard() }
+      }
+      .width('100%')
+      .layoutWeight(1)
+      .scrollBar(BarState.Off)
+      .edgeEffect(EdgeEffect.Spring)
+      .padding({ top: 12, bottom: 16, left: 16, right: 16 })
+    }
+    .width('100%')
+    .height('100%')
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(40, 1.26, 1.06, $r('app.color.glass_bg_effect')))
+    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
   }
 
   @Builder
@@ -1529,6 +1620,284 @@ struct NGFStarterMainMenuPage {
     .backgroundColor($r('app.color.panel_background'))
     .borderRadius(14)
     .border({ width: 1, color: $r('app.color.panel_border') })
+    .onClick(() => {
+      this.runtimeStatus = ngfDeviceAdaptationFacade.getDeviceRuntimeStatus();
+      this.isPerformanceSheetOpen = true;
+    })
+    .bindSheet($$this.isPerformanceSheetOpen, this.buildPerformanceSheetContent(), {
+      preferType: SheetType.BOTTOM,
+      detents: [SheetSize.LARGE, SheetSize.MEDIUM],
+      dragBar: true,
+      showClose: false,
+      backgroundColor: Color.Transparent,
+      blurStyle: BlurStyle.NONE,
+      maskColor: '#66000000',
+      keyboardAvoidMode: SheetKeyboardAvoidMode.RESIZE_ONLY
+    })
+  }
+
+  @Builder
+  private buildPerformanceSheetContent(): void {
+    Column({ space: 0 }) {
+      Row() {
+        Text('系统监控与性能')
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
+      }
+      .width('100%')
+      .padding({ top: 12, bottom: 4 })
+      .justifyContent(FlexAlign.Center)
+
+      List({ space: 12 }) {
+        ListItem() { this.buildPerfProcessCard() }
+        ListItem() { this.buildPerfMemoryCard() }
+        ListItem() { this.buildPerfCpuCard() }
+        ListItem() { this.buildPerfBatteryCard() }
+        ListItem() { this.buildPerfThreadsCard() }
+      }
+      .width('100%')
+      .layoutWeight(1)
+      .scrollBar(BarState.Off)
+      .edgeEffect(EdgeEffect.Spring)
+      .padding({ top: 12, bottom: 16, left: 16, right: 16 })
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(40, 1.26, 1.06, $r('app.color.glass_bg_effect')))
+    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
+    .onAppear(() => this.startPerformanceMonitor())
+    .onDisAppear(() => this.stopPerformanceMonitor())
+  }
+
+  private startPerformanceMonitor(): void {
+    this.runtimeStatus = ngfDeviceAdaptationFacade.getDeviceRuntimeStatus();
+    this.perfMonitorInterval = setInterval(() => {
+      this.runtimeStatus = ngfDeviceAdaptationFacade.getDeviceRuntimeStatus();
+    }, 1000);
+  }
+
+  private stopPerformanceMonitor(): void {
+    if (this.perfMonitorInterval !== -1) {
+      clearInterval(this.perfMonitorInterval);
+      this.perfMonitorInterval = -1;
+    }
+  }
+
+  private formatUptime(uptime: number | undefined): string {
+    if (uptime === undefined || uptime < 0) return '0s';
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const seconds = Math.floor(uptime % 60);
+    let result = '';
+    if (hours > 0) result += `${hours}h `;
+    if (minutes > 0 || hours > 0) result += `${minutes}m `;
+    result += `${seconds}s`;
+    return result;
+  }
+
+  @Builder
+  private buildPerfProcessCard(): void {
+    Column({ space: 10 }) {
+      Text('进程与运行时间')
+        .fontSize(14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_glass_label'))
+        .width('100%')
+
+      this.buildPerfInfoRow('PID / UID', `${this.runtimeStatus?.processId} / ${this.runtimeStatus?.uid}`)
+      this.buildPerfDivider()
+      this.buildPerfInfoRow('架构', this.runtimeStatus?.is64Bit ? '64-bit' : '32-bit')
+      this.buildPerfDivider()
+      this.buildPerfInfoRow('运行时间 (uptime)', this.formatUptime(this.runtimeStatus?.uptime))
+    }
+    .width('100%')
+    .padding(14)
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .borderRadius(16)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+  }
+
+  @Builder
+  private buildPerfMemoryCard(): void {
+    Column({ space: 10 }) {
+      Text('内存信息')
+        .fontSize(14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_glass_label'))
+        .width('100%')
+
+      this.buildPerfInfoRow('App 内存限制', `${this.runtimeStatus?.appMemoryLimit || 0} MB`)
+      this.buildPerfDivider()
+      
+      Text('Native 分配内存')
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
+        .width('100%')
+      
+      Progress({ value: (this.runtimeStatus?.appNativeMemSize || 0) / 1024, total: this.runtimeStatus?.appMemoryLimit || 1024, type: ProgressType.Capsule })
+        .width('100%')
+        .height(16)
+        .color($r('app.color.button_primary'))
+        
+      Text(`${((this.runtimeStatus?.appNativeMemSize || 0) / 1024).toFixed(1)} MB`)
+        .fontSize(12)
+        .fontColor($r('app.color.text_primary'))
+        .width('100%')
+        .textAlign(TextAlign.End)
+    }
+    .width('100%')
+    .padding(14)
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .borderRadius(16)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+  }
+
+  @Builder
+  private buildPerfCpuCard(): void {
+    Column({ space: 10 }) {
+      Text('CPU 使用率')
+        .fontSize(14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_glass_label'))
+        .width('100%')
+
+      Row() {
+        Column({ space: 8 }) {
+          Progress({ value: (this.runtimeStatus?.systemCpuUsage || 0) * 100, total: 100, type: ProgressType.Ring })
+            .width(64)
+            .height(64)
+            .color($r('app.color.button_primary'))
+            .style({ strokeWidth: 6 })
+          Text(`系统 CPU\n${((this.runtimeStatus?.systemCpuUsage || 0) * 100).toFixed(1)}%`)
+            .fontSize(12)
+            .fontColor($r('app.color.text_primary'))
+            .textAlign(TextAlign.Center)
+        }.layoutWeight(1)
+
+        Column({ space: 8 }) {
+          Progress({ value: (this.runtimeStatus?.appCpuUsage || 0) * 100, total: 100, type: ProgressType.Ring })
+            .width(64)
+            .height(64)
+            .color($r('app.color.button_primary'))
+            .style({ strokeWidth: 6 })
+          Text(`APP CPU\n${((this.runtimeStatus?.appCpuUsage || 0) * 100).toFixed(1)}%`)
+            .fontSize(12)
+            .fontColor($r('app.color.text_primary'))
+            .textAlign(TextAlign.Center)
+        }.layoutWeight(1)
+      }
+      .width('100%')
+      .justifyContent(FlexAlign.SpaceEvenly)
+    }
+    .width('100%')
+    .padding(14)
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .borderRadius(16)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+  }
+
+  @Builder
+  private buildPerfBatteryCard(): void {
+    Column({ space: 10 }) {
+      Text('电池与温度')
+        .fontSize(14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_glass_label'))
+        .width('100%')
+
+      Row({ space: 8 }) {
+        Text('电量')
+          .fontSize(13)
+          .fontColor($r('app.color.text_secondary'))
+        Progress({ value: this.runtimeStatus?.batterySOC || 0, total: 100, type: ProgressType.Capsule })
+          .layoutWeight(1)
+          .height(14)
+          .color(this.runtimeStatus?.batterySOC && this.runtimeStatus.batterySOC < 20 ? Color.Red : 
+                (this.runtimeStatus?.isCharging ? Color.Green : $r('app.color.button_primary')))
+        Text(`${this.runtimeStatus?.batterySOC || 0}%`)
+          .fontSize(13)
+          .fontColor($r('app.color.text_primary'))
+          .fontWeight(FontWeight.Medium)
+      }.width('100%')
+      
+      this.buildPerfDivider()
+      this.buildPerfInfoRow('温度', `${((this.runtimeStatus?.batteryTemperature || 0) / 10).toFixed(1)} °C`)
+      this.buildPerfDivider()
+      this.buildPerfInfoRow('充电状态', this.runtimeStatus?.isCharging ? '充电中 / 已满' : '未充电')
+    }
+    .width('100%')
+    .padding(14)
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .borderRadius(16)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+  }
+
+  @Builder
+  private buildPerfThreadsCard(): void {
+    Column({ space: 10 }) {
+      Text('线程信息 (TOP 10)')
+        .fontSize(14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_glass_label'))
+        .width('100%')
+
+      if (this.runtimeStatus && this.runtimeStatus.threads && this.runtimeStatus.threads.length > 0) {
+        ForEach(this.runtimeStatus.threads.slice(0, 10), (thread: NGFAppThreadInfo, index: number) => {
+          Row({ space: 8 }) {
+            Text(`TID: ${thread.threadId}`)
+              .fontSize(12)
+              .fontColor($r('app.color.text_secondary'))
+              .width(60)
+            Progress({ value: thread.cpuUsage * 100, total: 100, type: ProgressType.Linear })
+              .layoutWeight(1)
+              .color($r('app.color.button_primary'))
+            Text(`${(thread.cpuUsage * 100).toFixed(1)}%`)
+              .fontSize(12)
+              .fontColor($r('app.color.text_primary'))
+              .width(44)
+              .textAlign(TextAlign.End)
+          }.width('100%')
+          
+          if (index < Math.min(this.runtimeStatus!.threads.length, 10) - 1) {
+            this.buildPerfDivider()
+          }
+        }, (thread: NGFAppThreadInfo) => String(thread.threadId))
+      } else {
+        Text('暂无线程数据')
+          .fontSize(13)
+          .fontColor($r('app.color.text_secondary'))
+      }
+    }
+    .width('100%')
+    .padding(14)
+    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .borderRadius(16)
+    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+  }
+
+  @Builder
+  private buildPerfInfoRow(label: string, value: string): void {
+    Row() {
+      Text(label)
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
+        .layoutWeight(1)
+      Text(value)
+        .fontSize(13)
+        .fontColor($r('app.color.text_primary'))
+        .fontWeight(FontWeight.Medium)
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+    }
+    .width('100%')
+  }
+
+  @Builder
+  private buildPerfDivider(): void {
+    Divider()
+      .color($r('app.color.glass_divider'))
+      .opacity(0.5)
   }
 
   private resolveWindowUpdatedAtText(): string {
@@ -1629,30 +1998,14 @@ struct NGFStarterMainMenuPage {
 
   @Builder
   private buildDemoTaskManagerCard(): void {
-    Row() {
-      Column({ space: 6 }) {
-        Text($r('app.string.task_manager_title'))
-          .fontSize(16)
-          .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_primary'))
-        Text($r('app.string.task_manager_desc'))
-          .fontSize(13)
-          .fontColor($r('app.color.text_secondary'))
-      }
-      .layoutWeight(1)
-      .alignItems(HorizontalAlign.Start)
-
-      SymbolGlyph($r('sys.symbol.arrow_right'))
-        .fontSize(20)
-        .fontColor([$r('app.color.text_secondary')])
-    }
-    .width('100%')
-    .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(14)
-    .border({ width: 1, color: $r('app.color.panel_border') })
-    .onClick(() => {
-      this.handleFeatureActionTap(NGFMainMenuActionKey.DEMO_TASK_MANAGER, $r('app.string.task_manager_route_label'));
-    })
+    this.buildFeatureActionButton(
+      'TASK',
+      $r('app.string.task_manager_title'),
+      $r('app.string.task_manager_desc'),
+      '#4A044E',
+      '#D946EF',
+      '#F0ABFCFF',
+      NGFMainMenuActionKey.DEMO_TASK_MANAGER
+    )
   }
 }
