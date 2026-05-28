@@ -4966,7 +4966,7 @@
     },
     {
       "name": "task_manager_downloading",
-      "value": "正在下载 (%s%%)"
+      "value": "正在下载"
     },
     {
       "name": "task_manager_done",
@@ -4974,11 +4974,11 @@
     },
     {
       "name": "task_manager_submitted",
-      "value": "任务已提交: %s"
+      "value": "任务已提交"
     },
     {
       "name": "task_manager_submit_failed",
-      "value": "任务提交失败: %s"
+      "value": "任务提交失败"
     }
   ]
 }

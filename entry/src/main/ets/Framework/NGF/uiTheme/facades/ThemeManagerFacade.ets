@@ -1,6 +1,8 @@
 import { ConfigurationConstant } from '@kit.AbilityKit';
 import { logger } from '../../utils/Logger';
-import { IThemeManager, NGFThemeMode } from '../contracts/IThemeManager';
+import { IThemeManager, NGFThemeMode, NGFThemePack } from '../contracts/IThemeManager';
+import { ngfColorTokenProviderFacade } from './ColorTokenProviderFacade';
+import { NGFColorToken, NGFColorValue } from '../contracts/IColorTokenProvider';
 
 const TAG: string = 'NGFThemeManagerFacade';
 const STORAGE_KEY_THEME_OVERRIDE: string = 'ngf_current_theme';
@@ -12,6 +14,7 @@ type ThemeChangedCallback = (mode: NGFThemeMode) => void;
 class ThemeManagerFacade implements IThemeManager {
   private static instance: ThemeManagerFacade | null = null;
   private readonly callbacks: Array<ThemeChangedCallback> = [];
+  private loadedThemePack: NGFThemePack | null = null;
 
   static getInstance(): ThemeManagerFacade {
     if (!ThemeManagerFacade.instance) {
@@ -80,6 +83,52 @@ class ThemeManagerFacade implements IThemeManager {
     AppStorage.setOrCreate<boolean>(STORAGE_KEY_IS_DARK, isDark);
     logger.info(TAG, `系统颜色模式变更: colorMode=${colorMode}, 实际深色=${isDark}`);
     this.notifyCallbacks(currentTheme);
+  }
+
+  loadThemePack(pack: NGFThemePack): void {
+    this.loadedThemePack = new NGFThemePack(
+      pack.name,
+      pack.primaryColor,
+      pack.backgroundColor,
+      pack.textColor,
+      pack.accentColor
+    );
+    logger.info(TAG, `已加载主题包: name=${pack.name}`);
+  }
+
+  applyThemePack(): void {
+    if (!this.loadedThemePack) {
+      logger.warn(TAG, '应用主题包已跳过: 未加载主题包');
+      return;
+    }
+
+    const pack = this.loadedThemePack;
+    const isDark = this.isDarkMode();
+
+    ngfColorTokenProviderFacade.registerColor(
+      new NGFColorValue(NGFColorToken.PRIMARY, pack.primaryColor, pack.primaryColor)
+    );
+    ngfColorTokenProviderFacade.registerColor(
+      new NGFColorValue(NGFColorToken.BACKGROUND, pack.backgroundColor, pack.backgroundColor)
+    );
+    ngfColorTokenProviderFacade.registerColor(
+      new NGFColorValue(NGFColorToken.ON_BACKGROUND, pack.textColor, pack.textColor)
+    );
+    ngfColorTokenProviderFacade.registerColor(
+      new NGFColorValue(NGFColorToken.ON_SURFACE, pack.textColor, pack.textColor)
+    );
+    ngfColorTokenProviderFacade.registerColor(
+      new NGFColorValue(NGFColorToken.SECONDARY, pack.accentColor, pack.accentColor)
+    );
+    ngfColorTokenProviderFacade.registerColor(
+      new NGFColorValue(NGFColorToken.TERTIARY, pack.accentColor, pack.accentColor)
+    );
+    ngfColorTokenProviderFacade.registerColor(
+      new NGFColorValue(NGFColorToken.SURFACE, pack.backgroundColor, pack.backgroundColor)
+    );
+
+    logger.info(TAG, `已应用主题包: name=${pack.name}, isDark=${isDark}`);
+    this.notifyCallbacks(this.getCurrentTheme());
   }
 
   initializeDefaults(): void {

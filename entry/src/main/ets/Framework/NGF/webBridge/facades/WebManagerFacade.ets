@@ -3,7 +3,7 @@ import { logger } from '../../utils/Logger';
 
 const TAG: string = 'WebManagerFacade';
 
-class WebManagerFacade implements IWebBridge {
+export class WebManagerFacade implements IWebBridge {
   private methods: Map<string, (params: string) => Promise<string>> = new Map();
 
   registerMethod(methodName: string, callback: (params: string) => Promise<string>): void {

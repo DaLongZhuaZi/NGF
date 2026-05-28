@@ -5,6 +5,28 @@ import { ngfRateLimitPolicyFacade } from './RateLimitPolicyFacade';
 import { ngfRetryPolicyFacade } from './RetryPolicyFacade';
 
 const TAG: string = 'NGFWorkflowEngineFacade';
+const ACTION_TYPE_LOOP: string = 'loop';
+const ACTION_TYPE_PARALLEL: string = 'parallel';
+
+class NGFWorkflowLoopStepDef {
+  actionType: string;
+  actionJson: string;
+
+  constructor(actionType: string, actionJson: string) {
+    this.actionType = actionType;
+    this.actionJson = actionJson;
+  }
+}
+
+class NGFWorkflowParallelStepDef {
+  actionType: string;
+  actionJson: string;
+
+  constructor(actionType: string, actionJson: string) {
+    this.actionType = actionType;
+    this.actionJson = actionJson;
+  }
+}
 
 class NGFWorkflowInputEnvelope {
   actionType: string;
@@ -77,6 +99,51 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
     const workflowInput = this.parseWorkflowInput(inputJson);
     logger.debug(TAG, `工作流输入已解析：actionType=${workflowInput.actionType}`);
 
+    if (workflowInput.actionType === ACTION_TYPE_LOOP) {
+      logger.info(TAG, `执行循环工作流：workflow=${normalizedWorkflow}`);
+      const loopResult = await this.executeLoopSteps(workflowInput.actionJson, workflowInput.contextJson);
+      if (loopResult.success) {
+        const successOutput = new NGFWorkflowSuccessEnvelope(
+          normalizedWorkflow,
+          normalizedSource,
+          1,
+          loopResult.outputJson,
+          Date.now()
+        );
+        return new NGFWorkflowResult(true, JSON.stringify(successOutput));
+      }
+      const failedOutput = new NGFWorkflowErrorEnvelope(
+        'LOOP_FAILED',
+        'loop workflow execution failed',
+        0,
+        1
+      );
+      return new NGFWorkflowResult(false, JSON.stringify(failedOutput));
+    }
+
+    if (workflowInput.actionType === ACTION_TYPE_PARALLEL) {
+      logger.info(TAG, `执行并发工作流：workflow=${normalizedWorkflow}`);
+      const parallelResult = await this.executeParallelSteps(workflowInput.actionJson, workflowInput.contextJson);
+      if (parallelResult.success) {
+        const successOutput = new NGFWorkflowSuccessEnvelope(
+          normalizedWorkflow,
+          normalizedSource,
+          1,
+          parallelResult.outputJson,
+          Date.now()
+        );
+        return new NGFWorkflowResult(true, JSON.stringify(successOutput));
+      }
+      const failedOutput = new NGFWorkflowErrorEnvelope(
+        'PARALLEL_FAILED',
+        'parallel workflow execution failed',
+        0,
+        1
+      );
+      return new NGFWorkflowResult(false, JSON.stringify(failedOutput));
+    }
+
+
     let attempt = 1;
     let lastRetryDelay = 0;
     while (true) {
@@ -135,6 +202,147 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
       logger.warn(TAG, 'parseWorkflowInput 失败：无效的 JSON 负载');
       return new NGFWorkflowInputEnvelope('extract', '{}', '{}');
     }
+  }
+
+  private async executeLoopSteps(actionJson: string, contextJson: string): Promise<NGFWorkflowResult> {
+    let iterations: number = 1;
+    let steps: Array<NGFWorkflowLoopStepDef> = [];
+
+    try {
+      const parsed = JSON.parse(actionJson) as Record<string, Object | string | number | boolean | Array<Object>>;
+      if (typeof parsed['iterations'] === 'number') {
+        iterations = parsed['iterations'] as number;
+      }
+      if (Array.isArray(parsed['steps'])) {
+        steps = this.parseLoopSteps(parsed['steps'] as Array<Record<string, string>>);
+      }
+    } catch {
+      logger.warn(TAG, 'executeLoopSteps 解析 actionJson 失败');
+      return new NGFWorkflowResult(false, '');
+    }
+
+    if (steps.length <= 0) {
+      logger.warn(TAG, 'executeLoopSteps 已跳过：无内部步骤');
+      return new NGFWorkflowResult(false, '');
+    }
+
+    if (iterations <= 0) {
+      logger.warn(TAG, `executeLoopSteps 已跳过：iterations=${iterations}`);
+      return new NGFWorkflowResult(false, '');
+    }
+
+    let lastOutput: string = '';
+    for (let i: number = 0; i < iterations; i++) {
+      logger.debug(TAG, `循环迭代开始：index=${i}, total=${iterations}`);
+
+      const contextWithIndex = this.injectLoopIndex(contextJson, i);
+      for (let stepIdx: number = 0; stepIdx < steps.length; stepIdx++) {
+        const step = steps[stepIdx];
+        const stepResult = await ngfActionExecutorFacade.executeAction(
+          step.actionType,
+          step.actionJson,
+          contextWithIndex
+        );
+        if (!stepResult.success) {
+          logger.warn(TAG, `循环内部步骤失败：iteration=${i}, stepIndex=${stepIdx}, actionType=${step.actionType}`);
+          return new NGFWorkflowResult(false, lastOutput);
+        }
+        lastOutput = stepResult.outputJson;
+      }
+
+      logger.debug(TAG, `循环迭代完成：index=${i}`);
+    }
+
+    logger.info(TAG, `循环执行完成：iterations=${iterations}, steps=${steps.length}`);
+    return new NGFWorkflowResult(true, lastOutput);
+  }
+
+  private parseLoopSteps(raw: Array<Record<string, string>>): Array<NGFWorkflowLoopStepDef> {
+    const steps: Array<NGFWorkflowLoopStepDef> = [];
+    for (let i: number = 0; i < raw.length; i++) {
+      const entry = raw[i];
+      const actionType = entry['actionType'] !== undefined ? entry['actionType'] : 'extract';
+      const actionJson = entry['actionJson'] !== undefined ? entry['actionJson'] : '{}';
+      steps.push(new NGFWorkflowLoopStepDef(actionType, actionJson));
+    }
+    return steps;
+  }
+
+  private injectLoopIndex(contextJson: string, loopIndex: number): string {
+    try {
+      const context = JSON.parse(contextJson) as Record<string, Object | string | number | boolean>;
+      context['loopIndex'] = loopIndex;
+      const serialized = JSON.stringify(context);
+      return serialized !== undefined ? serialized : '{}';
+    } catch {
+      return `{"loopIndex":${loopIndex}}`;
+    }
+  }
+
+  private async executeParallelSteps(actionJson: string, contextJson: string): Promise<NGFWorkflowResult> {
+    let steps: Array<NGFWorkflowParallelStepDef> = [];
+
+    try {
+      const parsed = JSON.parse(actionJson) as Record<string, Object | string | number | boolean | Array<Object>>;
+      if (Array.isArray(parsed['steps'])) {
+        steps = this.parseParallelSteps(parsed['steps'] as Array<Record<string, string>>);
+      }
+    } catch {
+      logger.warn(TAG, 'executeParallelSteps 解析 actionJson 失败');
+      return new NGFWorkflowResult(false, '');
+    }
+
+    if (steps.length <= 0) {
+      logger.warn(TAG, 'executeParallelSteps 已跳过：无内部步骤');
+      return new NGFWorkflowResult(false, '');
+    }
+
+    logger.debug(TAG, `并发执行开始：steps=${steps.length}`);
+    const promises: Array<Promise<NGFWorkflowResult>> = [];
+    
+    for (let stepIdx: number = 0; stepIdx < steps.length; stepIdx++) {
+      const step = steps[stepIdx];
+      promises.push(ngfActionExecutorFacade.executeAction(
+        step.actionType,
+        step.actionJson,
+        contextJson
+      ));
+    }
+
+    try {
+      const results = await Promise.all(promises);
+      let allSuccess = true;
+      const outputs: Array<string> = [];
+      for (let i = 0; i < results.length; i++) {
+        if (!results[i].success) {
+          logger.warn(TAG, `并发内部步骤失败：stepIndex=${i}, actionType=${steps[i].actionType}`);
+          allSuccess = false;
+          break;
+        }
+        outputs.push(results[i].outputJson);
+      }
+      
+      if (!allSuccess) {
+        return new NGFWorkflowResult(false, '');
+      }
+
+      logger.info(TAG, `并发执行完成：steps=${steps.length}`);
+      return new NGFWorkflowResult(true, JSON.stringify(outputs));
+    } catch (error) {
+      logger.error(TAG, `并发执行发生异常: ${error}`);
+      return new NGFWorkflowResult(false, '');
+    }
+  }
+
+  private parseParallelSteps(raw: Array<Record<string, string>>): Array<NGFWorkflowParallelStepDef> {
+    const steps: Array<NGFWorkflowParallelStepDef> = [];
+    for (let i: number = 0; i < raw.length; i++) {
+      const entry = raw[i];
+      const actionType = entry['actionType'] !== undefined ? entry['actionType'] : 'extract';
+      const actionJson = entry['actionJson'] !== undefined ? entry['actionJson'] : '{}';
+      steps.push(new NGFWorkflowParallelStepDef(actionType, actionJson));
+    }
+    return steps;
   }
 
   private async sleep(durationMs: number): Promise<void> {

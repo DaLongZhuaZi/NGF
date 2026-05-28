@@ -5,11 +5,13 @@ export class NGFPipelineStepResult {
   readonly success: boolean;
   readonly output: string;
   readonly stepName: string;
+  readonly errorMessage: string;
 
-  constructor(success: boolean, output: string, stepName: string) {
+  constructor(success: boolean, output: string, stepName: string, errorMessage: string = '') {
     this.success = success;
     this.output = output;
     this.stepName = stepName;
+    this.errorMessage = errorMessage;
   }
 }
 

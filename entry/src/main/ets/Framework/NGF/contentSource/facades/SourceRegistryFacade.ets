@@ -1,3 +1,5 @@
+import { util } from '@kit.ArkTS';
+import { uiContextManager } from '../../platformOhos/UIContextManager';
 import { logger } from '../../utils/Logger';
 import { ISourceRegistry } from '../contracts/ISourceRegistry';
 
@@ -76,6 +78,40 @@ export class SourceRegistryFacade implements ISourceRegistry {
     const sourceIds = Array.from(this.entries.keys());
     logger.debug(TAG, `列出源ID: 数量=${sourceIds.length}`);
     return sourceIds;
+  }
+
+  async loadFromRawFile(rawFilePath: string): Promise<boolean> {
+    const context = uiContextManager.getFullAbilityContext();
+    if (!context) {
+      logger.warn(TAG, '加载 rawfile 失败: 无上下文');
+      return false;
+    }
+    try {
+      const resourceManager = context.resourceManager;
+      const rawData = await resourceManager.getRawFileContent(rawFilePath);
+      const decoder = new util.TextDecoder('utf-8');
+      const content = decoder.decodeToString(rawData);
+      
+      const configArray = JSON.parse(content) as Array<Record<string, string>>;
+      if (!Array.isArray(configArray)) {
+         logger.warn(TAG, '加载 rawfile 失败: JSON 格式不是数组');
+         return false;
+      }
+      for (let i = 0; i < configArray.length; i++) {
+        const item = configArray[i];
+        const sourceId = item['sourceId'];
+        const pkg = item['pkg'];
+        if (sourceId && pkg) {
+          this.registerSource(sourceId, pkg);
+        }
+      }
+      logger.info(TAG, `从 rawfile 加载源成功: path=${rawFilePath}, count=${configArray.length}`);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(TAG, `加载 rawfile 异常: path=${rawFilePath}, error=${message}`);
+      return false;
+    }
   }
 }
 

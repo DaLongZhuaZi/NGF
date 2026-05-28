@@ -8,10 +8,12 @@ const CLEANUP_INTERVAL_MS: number = 60000;
 class NGFCacheEntry {
   value: string;
   expiresAt: number;
+  lastAccessedAt: number;
 
   constructor(value: string, expiresAt: number) {
     this.value = value;
     this.expiresAt = expiresAt;
+    this.lastAccessedAt = Date.now();
   }
 
   isExpired(now: number): boolean {
@@ -19,6 +21,10 @@ class NGFCacheEntry {
       return false;
     }
     return now >= this.expiresAt;
+  }
+
+  touch(): void {
+    this.lastAccessedAt = Date.now();
   }
 }
 
@@ -50,6 +56,7 @@ export class CacheStoreFacade implements ICacheStore {
       return '';
     }
 
+    entry.touch();
     logger.debug(TAG, `缓存命中: key=${key}`);
     return entry.value;
   }
@@ -90,15 +97,17 @@ export class CacheStoreFacade implements ICacheStore {
 
   private evictIfOverCapacity(): void {
     while (this.cacheEntries.size > MAX_CAPACITY) {
-      let oldestKey: string = '';
-      const keys = this.cacheEntries.keys();
-      for (const key of keys) {
-        oldestKey = key;
-        break;
-      }
-      if (oldestKey.length > 0) {
-        this.cacheEntries.delete(oldestKey);
-        logger.debug(TAG, `缓存LRU淘汰: key=${oldestKey}`);
+      let lruKey: string = '';
+      let lruTime: number = Date.now();
+      this.cacheEntries.forEach((entry: NGFCacheEntry, key: string) => {
+        if (lruKey.length <= 0 || entry.lastAccessedAt < lruTime) {
+          lruKey = key;
+          lruTime = entry.lastAccessedAt;
+        }
+      });
+      if (lruKey.length > 0) {
+        this.cacheEntries.delete(lruKey);
+        logger.debug(TAG, `缓存LRU淘汰: key=${lruKey}`);
       } else {
         break;
       }

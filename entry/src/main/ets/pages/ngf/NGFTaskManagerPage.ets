@@ -203,20 +203,22 @@ export struct NGFTaskManagerPage {
       for (let i = 0; i < 10; i++) {
         await this.delay(500);
         currentProgress += 10;
-        updateCallback(currentProgress, totalSize,
-          resolveResourceString(hostCtx, $r('app.string.task_manager_downloading', currentProgress)));
+        const baseText = resolveResourceString(hostCtx, $r('app.string.task_manager_downloading'));
+        updateCallback(currentProgress, totalSize, `${baseText} (${currentProgress}%)`);
       }
       updateCallback(totalSize, totalSize, resolveResourceString(hostCtx, $r('app.string.task_manager_done')));
     }).then((taskId: string) => {
       if (hostCtx) {
+        const baseText = resolveResourceString(hostCtx, $r('app.string.task_manager_submitted'));
         this.getUIContext().getPromptAction().openToast({
-          message: resolveResourceString(hostCtx, $r('app.string.task_manager_submitted', taskId))
+          message: `${baseText} ${taskId}`
         });
       }
     }).catch((e: Error) => {
       if (hostCtx) {
+        const baseText = resolveResourceString(hostCtx, $r('app.string.task_manager_submit_failed'));
         this.getUIContext().getPromptAction().openToast({
-          message: resolveResourceString(hostCtx, $r('app.string.task_manager_submit_failed', e.message))
+          message: `${baseText} ${e.message}`
         });
       }
     });

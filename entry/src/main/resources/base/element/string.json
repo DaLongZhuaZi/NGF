@@ -4862,7 +4862,7 @@
     },
     {
       "name": "task_manager_downloading",
-      "value": "正在下载 (%s%%)"
+      "value": "正在下载"
     },
     {
       "name": "task_manager_done",
@@ -4870,11 +4870,11 @@
     },
     {
       "name": "task_manager_submitted",
-      "value": "任务已提交: %s"
+      "value": "任务已提交"
     },
     {
       "name": "task_manager_submit_failed",
-      "value": "任务提交失败: %s"
+      "value": "任务提交失败"
     },
     {
       "name": "tab_capabilities",
@@ -4979,6 +4979,130 @@
     {
       "name": "btn_interconnect_share",
       "value": "拉起系统分享面板"
+    },
+    {
+      "name": "about_sheet_title",
+      "value": "关于应用"
+    },
+    {
+      "name": "about_section_basic",
+      "value": "基本信息"
+    },
+    {
+      "name": "about_section_tech",
+      "value": "技术信息"
+    },
+    {
+      "name": "about_section_modules",
+      "value": "框架能力"
+    },
+    {
+      "name": "about_section_developer",
+      "value": "开发者信息"
+    },
+    {
+      "name": "about_app_name",
+      "value": "应用名称"
+    },
+    {
+      "name": "about_bundle_name",
+      "value": "包名"
+    },
+    {
+      "name": "about_version_name",
+      "value": "版本号"
+    },
+    {
+      "name": "about_version_code",
+      "value": "版本代码"
+    },
+    {
+      "name": "about_build_version",
+      "value": "构建版本"
+    },
+    {
+      "name": "about_sdk_api",
+      "value": "SDK API 版本"
+    },
+    {
+      "name": "about_device_model",
+      "value": "设备型号"
+    },
+    {
+      "name": "about_os_version",
+      "value": "系统版本"
+    },
+    {
+      "name": "about_ide_version",
+      "value": "DevEco 版本"
+    },
+    {
+      "name": "about_vendor",
+      "value": "开发者"
+    },
+    {
+      "name": "about_copyright",
+      "value": "版权信息"
+    },
+    {
+      "name": "about_copyright_text",
+      "value": "© 2025 DaLongzhuazi. All rights reserved."
+    },
+    {
+      "name": "about_module_core",
+      "value": "Core 核心"
+    },
+    {
+      "name": "about_module_data",
+      "value": "Data 数据层"
+    },
+    {
+      "name": "about_module_platform",
+      "value": "Platform 平台层"
+    },
+    {
+      "name": "about_module_workflow",
+      "value": "Workflow 工作流"
+    },
+    {
+      "name": "about_module_source",
+      "value": "Source 内容源"
+    },
+    {
+      "name": "about_module_uishell",
+      "value": "UI Shell 界面层"
+    },
+    {
+      "name": "about_module_i18n",
+      "value": "I18n 国际化"
+    },
+    {
+      "name": "about_module_theme",
+      "value": "Theme 主题引擎"
+    },
+    {
+      "name": "about_module_device",
+      "value": "Device 设备感知"
+    },
+    {
+      "name": "about_module_security",
+      "value": "Security 安全"
+    },
+    {
+      "name": "about_status_active",
+      "value": "已激活"
+    },
+    {
+      "name": "about_status_available",
+      "value": "可用"
+    },
+    {
+      "name": "about_tap_to_detail",
+      "value": "点击查看详情"
+    },
+    {
+      "name": "about_section_opensource",
+      "value": "开源信息"
     }
   ]
 }

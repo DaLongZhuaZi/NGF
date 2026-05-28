@@ -66,49 +66,78 @@ class SecurityToolkit {
   }
 
   /**
-   * AES 加密
+   * AES-GCM 加密
    * @param plainText 明文
-   * @param keyBase64 Base64 编码的 AES 密钥 (16/24/32 字节)
-   * @param ivBase64 Base64 编码的 IV（ECB 模式不使用，兼容接口）
-   * @returns Base64 编码的密文
+   * @param keyBase64 Base64 编码的 AES 密钥 (16 字节)
+   * @param ivBase64 Base64 编码的 12 字节 IV；为空时自动生成
+   * @returns Base64 编码的 (IV + 密文 + authTag)
    */
   async aesEncrypt(plainText: string, keyBase64: string, ivBase64: string): Promise<NGFEncryptResult> {
     try {
+      const ivBytes: Uint8Array = ivBase64.length > 0
+        ? this.base64ToUint8Array(ivBase64)
+        : this.generateRandomBytes(12);
       const keyBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(keyBase64) };
-      const cipher = cryptoFramework.createCipher('AES128|ECB|PKCS7');
+      const ivBlob: cryptoFramework.DataBlob = { data: ivBytes };
+      const emptyAad: cryptoFramework.DataBlob = { data: new Uint8Array(0) };
+      const emptyTag: cryptoFramework.DataBlob = { data: new Uint8Array(0) };
+      const gcmParams: cryptoFramework.GcmParamsSpec = {
+        algName: 'AES128|GCM|PKCS7',
+        iv: ivBlob,
+        aad: emptyAad,
+        authTag: emptyTag
+      };
+      const cipher = cryptoFramework.createCipher('AES128|GCM|PKCS7');
       const keyGenerator = cryptoFramework.createSymKeyGenerator('AES128');
       const key = await keyGenerator.convertKey(keyBlob);
-      await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, key, null);
+      await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, key, gcmParams);
       const plainBlob: cryptoFramework.DataBlob = { data: this.stringToUint8Array(plainText) };
       const encrypted = await cipher.doFinal(plainBlob);
-      return new NGFEncryptResult(true, this.uint8ArrayToBase64(encrypted.data));
+      const output: Uint8Array = this.concatUint8Arrays(ivBytes, encrypted.data);
+      return new NGFEncryptResult(true, this.uint8ArrayToBase64(output));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `AES 加密失败: ${message}`);
+      logger.error(TAG, `AES-GCM 加密失败: ${message}`);
       return new NGFEncryptResult(false, '');
     }
   }
 
   /**
-   * AES 解密
-   * @param cipherBase64 Base64 编码的密文
+   * AES-GCM 解密
+   * @param cipherBase64 Base64 编码的 (IV + 密文 + authTag)
    * @param keyBase64 Base64 编码的 AES 密钥
-   * @param ivBase64 Base64 编码的 IV（ECB 模式不使用，兼容接口）
+   * @param ivBase64 未使用（IV 已包含在 cipherBase64 中），保留参数兼容
    * @returns 解密后的明文
    */
   async aesDecrypt(cipherBase64: string, keyBase64: string, ivBase64: string): Promise<NGFEncryptResult> {
     try {
+      const combined: Uint8Array = this.base64ToUint8Array(cipherBase64);
+      if (combined.length < 28) {
+        return new NGFEncryptResult(false, '');
+      }
+      const ivBytes: Uint8Array = combined.slice(0, 12);
+      const authTag: Uint8Array = combined.slice(combined.length - 16);
+      const cipherBytes: Uint8Array = combined.slice(12, combined.length - 16);
       const keyBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(keyBase64) };
-      const decipher = cryptoFramework.createCipher('AES128|ECB|PKCS7');
+      const ivBlob: cryptoFramework.DataBlob = { data: ivBytes };
+      const emptyAad: cryptoFramework.DataBlob = { data: new Uint8Array(0) };
+      const authTagBlob: cryptoFramework.DataBlob = { data: authTag };
+      const gcmParams: cryptoFramework.GcmParamsSpec = {
+        algName: 'AES128|GCM|PKCS7',
+        iv: ivBlob,
+        aad: emptyAad,
+        authTag: authTagBlob
+      };
+      const decipher = cryptoFramework.createCipher('AES128|GCM|PKCS7');
       const keyGenerator = cryptoFramework.createSymKeyGenerator('AES128');
       const key = await keyGenerator.convertKey(keyBlob);
-      await decipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, key, null);
-      const cipherBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(cipherBase64) };
-      const decrypted = await decipher.doFinal(cipherBlob);
+      await decipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, key, gcmParams);
+      const dataBlob: cryptoFramework.DataBlob = { data: cipherBytes };
+      const decrypted = await decipher.doFinal(dataBlob);
       return new NGFEncryptResult(true, this.uint8ArrayToString(decrypted.data));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `AES 解密失败: ${message}`);
+      logger.error(TAG, `AES-GCM 解密失败: ${message}`);
       return new NGFEncryptResult(false, '');
     }
   }
@@ -125,6 +154,23 @@ class SecurityToolkit {
       logger.error(TAG, `生成随机数失败: ${message}`);
       return '';
     }
+  }
+
+  private generateRandomBytes(length: number): Uint8Array {
+    const rand = cryptoFramework.createRandom();
+    const blob = rand.generateRandomSync(length);
+    return blob.data;
+  }
+
+  private concatUint8Arrays(a: Uint8Array, b: Uint8Array): Uint8Array {
+    const result = new Uint8Array(a.length + b.length);
+    for (let i = 0; i < a.length; i++) {
+      result[i] = a[i];
+    }
+    for (let i = 0; i < b.length; i++) {
+      result[a.length + i] = b[i];
+    }
+    return result;
   }
 
   private mapHashAlgorithm(algorithm: NGFHashAlgorithm): string {

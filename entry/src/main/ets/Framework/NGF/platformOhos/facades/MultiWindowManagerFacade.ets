@@ -1,3 +1,4 @@
+import { window } from '@kit.ArkUI';
 import { logger } from '../../utils/Logger';
 import { IMultiWindowManager, NGFWindowMode } from '../contracts/IMultiWindowManager';
 import { IPlatformWindowSnapshotObserver, NGFWindowRuntimeSnapshot, NGFWindowStatus } from '../contracts/IPlatformWindowManager';
@@ -42,6 +43,34 @@ class MultiWindowManagerFacade implements IMultiWindowManager, IPlatformWindowSn
     const index = this.callbacks.indexOf(callback);
     if (index >= 0) {
       this.callbacks.splice(index, 1);
+    }
+  }
+
+  async setWindowMode(mode: NGFWindowMode): Promise<void> {
+    let windowMode: number = 1;
+    switch (mode) {
+      case NGFWindowMode.FULLSCREEN:
+        windowMode = 1;
+        break;
+      case NGFWindowMode.SPLIT_SCREEN:
+        windowMode = 100;
+        break;
+      case NGFWindowMode.FLOATING:
+        windowMode = 102;
+        break;
+      case NGFWindowMode.UNKNOWN:
+      default:
+        logger.warn(TAG, `不支持的窗口模式设置: mode=${mode}`);
+        return;
+    }
+    
+    logger.info(TAG, `尝试设置窗口模式: from=${this.currentMode} to=${mode}`);
+    try {
+      await ngfPlatformWindowManagerFacade.setWindowMode(windowMode);
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : String(error);
+      logger.error(TAG, `设置窗口模式失败: ${errMsg}`);
+      throw new Error(errMsg);
     }
   }
 

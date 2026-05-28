@@ -1,5 +1,6 @@
 import { logger } from '../../utils/Logger';
 import { accessibility } from '@kit.AccessibilityKit';
+import { IAccessibilityManager } from '../contracts/IAccessibilityManager';
 
 const TAG: string = 'NGFAccessibilityFacade';
 
@@ -16,7 +17,7 @@ export enum NGFAccessibilityState {
  * 无障碍门面 — 提供无障碍状态查询和语义标签工具
  * Phase F1：接口预埋，部分方法依赖设备能力。
  */
-class AccessibilityFacade {
+class AccessibilityFacade implements IAccessibilityManager {
   private static instance: AccessibilityFacade | null = null;
 
   private constructor() {}
@@ -33,7 +34,7 @@ class AccessibilityFacade {
    */
   isAccessibilityEnabled(): NGFAccessibilityState {
     try {
-      const isEnabled: boolean = accessibility.isOpenAccessibility();
+      const isEnabled: boolean = accessibility.isOpenAccessibilitySync();
       logger.info(TAG, `无障碍状态: ${isEnabled}`);
       return isEnabled ? NGFAccessibilityState.ENABLED : NGFAccessibilityState.DISABLED;
     } catch (e) {
@@ -47,7 +48,7 @@ class AccessibilityFacade {
    */
   isScreenReaderEnabled(): boolean {
     try {
-      return accessibility.isOpenTouchGuide();
+      return accessibility.isOpenTouchGuideSync();
     } catch (e) {
       logger.warn(TAG, `屏幕朗读状态查询失败: ${e}`);
       return false;

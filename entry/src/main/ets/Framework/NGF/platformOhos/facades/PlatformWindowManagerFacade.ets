@@ -1,5 +1,7 @@
 import { window } from '@kit.ArkUI';
 import { logger } from '../../utils/Logger';
+import { ngfStarterKernel } from '../../core/starter';
+import { NGFEventPayload } from '../../core/contracts/IEventBus';
 import { NGFDisplayMode } from '../contracts/IPlatformWindowController';
 import {
   IPlatformWindowManager,
@@ -66,6 +68,8 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
       logger.info(TAG, `窗口阶段事件: type=${String(eventType)}`);
       this.bindMainWindowFromStage('window_stage_event');
       this.refreshSnapshot('window_stage_event');
+      const eventName: string = this.toWindowEventName(eventType);
+      this.publishWindowEvent(eventName, { 'eventType': String(eventType) });
     };
 
   bindWindowStage(windowStage: window.WindowStage): void {
@@ -182,6 +186,93 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
 
   isReady(): boolean {
     return this.mainWindow !== null;
+  }
+
+  async setWindowSize(width: number, height: number): Promise<void> {
+    const currentWindow = this.mainWindow;
+    if (!currentWindow) {
+      logger.warn(TAG, `setWindowSize 已跳过: 窗口未就绪, width=${width}, height=${height}`);
+      return;
+    }
+    try {
+      await currentWindow.resize(width, height);
+      logger.info(TAG, `设置窗口大小成功: width=${width}, height=${height}`);
+      this.refreshSnapshot('set_window_size');
+    } catch (error) {
+      logger.error(TAG, `设置窗口大小失败: width=${width}, height=${height}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+    }
+  }
+
+  async setWindowPosition(x: number, y: number): Promise<void> {
+    const currentWindow = this.mainWindow;
+    if (!currentWindow) {
+      logger.warn(TAG, `setWindowPosition 已跳过: 窗口未就绪, x=${x}, y=${y}`);
+      return;
+    }
+    try {
+      await currentWindow.moveWindowTo(x, y);
+      logger.info(TAG, `设置窗口位置成功: x=${x}, y=${y}`);
+      this.refreshSnapshot('set_window_position');
+    } catch (error) {
+      logger.error(TAG, `设置窗口位置失败: x=${x}, y=${y}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+    }
+  }
+
+  async setWindowMaximize(): Promise<void> {
+    const currentWindow = this.mainWindow;
+    if (!currentWindow) {
+      logger.warn(TAG, 'setWindowMaximize 已跳过: 窗口未就绪');
+      return;
+    }
+    try {
+      await currentWindow.maximize();
+      logger.info(TAG, '窗口最大化成功');
+      this.refreshSnapshot('set_window_maximize');
+    } catch (error) {
+      logger.error(TAG, `窗口最大化失败: ${this.errorToString(error as Object | string | number | boolean)}`);
+    }
+  }
+
+  async setWindowMinimize(): Promise<void> {
+    const currentWindow = this.mainWindow;
+    if (!currentWindow) {
+      logger.warn(TAG, 'setWindowMinimize 已跳过: 窗口未就绪');
+      return;
+    }
+    try {
+      await currentWindow.minimize();
+      logger.info(TAG, '窗口最小化成功');
+      this.refreshSnapshot('set_window_minimize');
+    } catch (error) {
+      logger.error(TAG, `窗口最小化失败: ${this.errorToString(error as Object | string | number | boolean)}`);
+    }
+  }
+
+  async setWindowFullScreen(isFullScreen: boolean): Promise<void> {
+    const currentWindow = this.mainWindow;
+    if (!currentWindow) {
+      logger.warn(TAG, `setWindowFullScreen 已跳过: 窗口未就绪, isFullScreen=${isFullScreen}`);
+      return;
+    }
+    try {
+      await currentWindow.setWindowLayoutFullScreen(isFullScreen);
+      logger.info(TAG, `设置窗口全屏成功: isFullScreen=${isFullScreen}`);
+      this.refreshSnapshot('set_window_fullscreen');
+    } catch (error) {
+      logger.error(TAG, `设置窗口全屏失败: isFullScreen=${isFullScreen}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+    }
+  }
+
+  async setWindowMode(mode: number): Promise<void> {
+    const currentWindow = this.mainWindow;
+    if (!currentWindow) {
+      logger.warn(TAG, `setWindowMode 已跳过: 窗口未就绪, mode=${mode}`);
+      return;
+    }
+    // setWindowMode is not supported on standard Window object in API 12+
+    logger.warn(TAG, `setWindowMode API is not directly supported on Window object, simulated mode=${mode}`);
+    this.refreshSnapshot('set_window_mode');
+    return Promise.resolve();
   }
 
   private applyResolvedProfile(pageName: string, reason: string): void {
@@ -661,6 +752,30 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
       logger.warn(TAG, `序列化快照失败: ${this.errorToString(error as Object | string | number | boolean)}`);
       return '{}';
     }
+  }
+
+  private publishWindowEvent(eventName: string, data: Record<string, string>): void {
+    try {
+      const payloadJson: string = JSON.stringify(data);
+      const payload = new NGFEventPayload('ngf_window_event', payloadJson, Date.now());
+      ngfStarterKernel.eventBus.publish(eventName, payload);
+      logger.debug(TAG, `发布窗口事件: eventName=${eventName}`);
+    } catch (error) {
+      logger.warn(TAG, `发布窗口事件失败: eventName=${eventName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+    }
+  }
+
+  private toWindowEventName(eventType: window.WindowStageEventType): string {
+    if (eventType === window.WindowStageEventType.SHOWN) {
+      return 'ngf.window.foreground';
+    }
+    if (eventType === window.WindowStageEventType.HIDDEN) {
+      return 'ngf.window.background';
+    }
+    if (eventType === window.WindowStageEventType.INACTIVE) {
+      return 'ngf.window.destroy';
+    }
+    return 'ngf.window.unknown';
   }
 
   private errorToString(error: Object | string | number | boolean): string {

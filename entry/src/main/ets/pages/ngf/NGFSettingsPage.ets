@@ -1,4 +1,5 @@
 import { ConfigurationConstant } from '@kit.AbilityKit';
+import { ComponentContent } from '@kit.ArkUI';
 import { NGFThemeMode } from '../../Framework/NGF/uiTheme/contracts/IThemeManager';
 import { ngfThemeManagerFacade } from '../../Framework/NGF/uiTheme/facades/ThemeManagerFacade';
 import { ngfI18nManagerFacade } from '../../Framework/NGF/i18n/facades/I18nManagerFacade';
@@ -6,9 +7,30 @@ import { resolveResourceString } from '../../Framework/NGF/i18n/index';
 import { uiContextManager } from '../../Framework/NGF/platformOhos/UIContextManager';
 import { NGFVisualEffectsMaterialMode } from '../../Framework/NGF/deviceAwareness/contracts/IVisualEffectsManager';
 import { ngfVisualEffectsFacade } from '../../Framework/NGF/deviceAwareness/facades/VisualEffectsFacade';
+import { AboutSheetContent } from '../../Framework/NGF/uiShell/components/AboutSheetContent';
 import { logger } from '../../Framework/NGF/utils/Logger';
 
 const TAG: string = 'NGFSettingsPage';
+
+class AboutSheetOptions implements SheetOptions {
+  preferType: SheetType = SheetType.BOTTOM;
+  detents: [SheetSize, SheetSize, SheetSize] = [SheetSize.FIT_CONTENT, SheetSize.MEDIUM, SheetSize.LARGE];
+  dragBar: boolean = true;
+  showClose: boolean = false;
+  blurStyle: BlurStyle;
+  maskColor: ResourceColor = '#66000000';
+  backgroundColor: ResourceColor = Color.Transparent;
+  keyboardAvoidMode: SheetKeyboardAvoidMode = SheetKeyboardAvoidMode.RESIZE_ONLY;
+
+  constructor() {
+    this.blurStyle = BlurStyle.NONE;
+  }
+}
+
+@Builder
+function buildAboutSheetContent(): void {
+  AboutSheetContent()
+}
 
 @Component
 export struct NGFSettingsPage {
@@ -251,6 +273,32 @@ export struct NGFSettingsPage {
     .backgroundColor($r('app.color.panel_background'))
     .borderRadius(16)
     .border({ width: 1, color: $r('app.color.panel_border') })
+    .gesture(
+      TapGesture()
+        .onAction((_event: GestureEvent): void => {
+          this.openAboutSheet();
+        })
+    )
+  }
+
+  private openAboutSheet(): void {
+    const uiContext = uiContextManager.getUIContext();
+    if (!uiContext) {
+      logger.error(TAG, 'openAboutSheet failed: UIContext not found.');
+      return;
+    }
+
+    try {
+      const content = new ComponentContent(uiContext, wrapBuilder(buildAboutSheetContent));
+      const options = new AboutSheetOptions();
+      uiContext.openBindSheet(content, options).catch((_err: Error): void => {
+        logger.error(TAG, 'openBindSheet promise rejected.');
+      });
+      logger.info(TAG, 'openAboutSheet triggered.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(TAG, `openAboutSheet failed: ${message}`);
+    }
   }
 
   @Builder

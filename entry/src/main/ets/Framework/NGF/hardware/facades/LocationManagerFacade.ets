@@ -1,13 +1,14 @@
 import { geoLocationManager } from '@kit.LocationKit';
+import { ILocationManager } from '../contracts/ILocationManager';
 import { logger } from '../../utils/Logger';
 
 const TAG: string = 'LocationManagerFacade';
 
-export class LocationManagerFacade {
+export class LocationManagerFacade implements ILocationManager {
   /**
    * 检查是否开启了位置服务
    */
-  static isLocationEnabled(): boolean {
+  isLocationEnabled(): boolean {
     try {
       return geoLocationManager.isLocationEnabled();
     } catch (e) {
@@ -21,7 +22,7 @@ export class LocationManagerFacade {
    * 需要预先申请 ohos.permission.APPROXIMATELY_LOCATION 或 ohos.permission.LOCATION 权限
    * @ohos.permission ohos.permission.APPROXIMATELY_LOCATION
    */
-  static async getCurrentLocation(): Promise<geoLocationManager.Location | null> {
+  async getCurrentLocation(): Promise<geoLocationManager.Location | null> {
     try {
       const requestInfo: geoLocationManager.CurrentLocationRequest = {
         priority: geoLocationManager.LocationRequestPriority.FIRST_FIX,
@@ -37,3 +38,5 @@ export class LocationManagerFacade {
     }
   }
 }
+
+export const ngfLocationManagerFacade: ILocationManager = new LocationManagerFacade();

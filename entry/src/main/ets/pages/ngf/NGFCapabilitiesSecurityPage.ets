@@ -1,6 +1,5 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
-import { common } from '@kit.AbilityKit';
 import { logger } from '../../Framework/NGF/utils/Logger';
 import {
   NGFImmersiveTopChromePresetFactory,
@@ -9,8 +8,8 @@ import {
 } from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
 import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
-import { UserAuthenticationFacade, KeyStoreManagerFacade } from '../../Framework/NGF/index';
-import { PermissionManagerFacade } from '../../Framework/NGF/security/facades/PermissionManagerFacade';
+import { ngfUserAuthenticationFacade, ngfKeyStoreManagerFacade } from '../../Framework/NGF/index';
+import { ngfPermissionManagerFacade } from '../../Framework/NGF/platformOhos/facades/PermissionManagerFacade';
 
 const TAG: string = 'NGFCapabilitiesSecurityPage';
 
@@ -143,8 +142,7 @@ export struct NGFCapabilitiesSecurityPage {
   private async handleAuthenticate(): Promise<void> {
     try {
       this.statusMessage = "Requesting biometric permission...";
-      const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-      const granted = await PermissionManagerFacade.requestPermissions(context, ['ohos.permission.ACCESS_BIOMETRIC']);
+      const granted = await ngfPermissionManagerFacade.requestPermissions(['ohos.permission.ACCESS_BIOMETRIC']);
       if (!granted) {
         this.statusMessage = "Biometric permission denied or unavailable";
         return;
@@ -152,7 +150,7 @@ export struct NGFCapabilitiesSecurityPage {
 
       this.statusMessage = "Authenticating...";
       const challenge = new Uint8Array([49, 50, 51, 52, 53, 54]);
-      const isSuccess: boolean = await UserAuthenticationFacade.authenticate(challenge, 'Verify your identity to proceed');
+      const isSuccess: boolean = await ngfUserAuthenticationFacade.authenticate(challenge, 'Verify your identity to proceed');
       this.authResult = `Auth Status: ${isSuccess ? 'Success' : 'Failed'}`;
       this.statusMessage = isSuccess ? "Authentication successful" : "Authentication failed";
     } catch (error) {

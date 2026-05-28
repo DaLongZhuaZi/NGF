@@ -41,12 +41,18 @@ export struct NGFListPageTemplate {
   title: ResourceStr = '';
   /** 副标题/描述 */
   subtitle: ResourceStr = '';
-  /** 列表数据源（每项为 ResourceStr 或 string） */
+  /** 列表数据源（每项为 string） */
   items: Array<string> = [];
   /** 列表项点击回调 */
   onItemTap: (item: string, index: number) => void = (_i: string, _idx: number): void => {};
   /** 空列表提示文字 */
   emptyHint: ResourceStr = '暂无数据';
+  /** 顶部自定义头部区域（标题下方、列表上方） */
+  @BuilderParam headerBuilder: () => void = (): void => {};
+  /** 自定义列表内容区域，若提供则替代默认 items 列表 */
+  @BuilderParam contentBuilder: () => void = (): void => {};
+  /** 底部自定义区域（列表下方） */
+  @BuilderParam footerBuilder: () => void = (): void => {};
 
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
@@ -69,6 +75,10 @@ export struct NGFListPageTemplate {
           .width('100%')
           .alignItems(HorizontalAlign.Start)
 
+          // 自定义头部
+          this.headerBuilder()
+
+          // 列表内容：优先使用 contentBuilder，否则使用默认 items
           if (this.items.length === 0) {
             Text(this.emptyHint)
               .fontSize(14)
@@ -100,6 +110,12 @@ export struct NGFListPageTemplate {
             }
             .width('100%')
           }
+
+          // 自定义列表内容（与 items 并存，外部可只传 contentBuilder 不传 items）
+          this.contentBuilder()
+
+          // 底部自定义区域
+          this.footerBuilder()
         }
         .width('100%')
         .padding({ left: 16, right: 16, top: this.spec.metrics.contentTopInset, bottom: 36 })

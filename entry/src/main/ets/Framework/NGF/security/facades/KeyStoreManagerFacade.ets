@@ -1,23 +1,24 @@
 import { asset } from '@kit.AssetStoreKit';
+import { IKeyStoreManager } from '../contracts/IKeyStoreManager';
 import { logger } from '../../utils/Logger';
 
 const TAG: string = 'KeyStoreManagerFacade';
 
-export class KeyStoreManagerFacade {
-  
+export class KeyStoreManagerFacade implements IKeyStoreManager {
+
   /**
    * 存储极度敏感数据 (如支付密码、长期 Token) 到芯片级安全环境
    */
-  static async addSecret(alias: string, secretString: string): Promise<boolean> {
+  async addSecret(alias: string, secretString: string): Promise<boolean> {
     try {
       const secretBuffer = new Uint8Array(secretString.split('').map(c => c.charCodeAt(0)));
-      
+
       const attr: asset.AssetMap = new Map();
       attr.set(asset.Tag.ALIAS, new Uint8Array(alias.split('').map(c => c.charCodeAt(0))));
       attr.set(asset.Tag.SECRET, secretBuffer);
       // 默认需要设备解锁后才能访问
       attr.set(asset.Tag.ACCESSIBILITY, asset.Accessibility.DEVICE_UNLOCKED);
-      
+
       await asset.add(attr);
       logger.info(TAG, `安全数据存入成功: ${alias}`);
       return true;
@@ -30,7 +31,7 @@ export class KeyStoreManagerFacade {
   /**
    * 读取极度敏感数据
    */
-  static async querySecret(alias: string): Promise<string | null> {
+  async querySecret(alias: string): Promise<string | null> {
     try {
       const query: asset.AssetMap = new Map();
       query.set(asset.Tag.ALIAS, new Uint8Array(alias.split('').map(c => c.charCodeAt(0))));
@@ -59,7 +60,7 @@ export class KeyStoreManagerFacade {
   /**
    * 删除敏感数据
    */
-  static async removeSecret(alias: string): Promise<boolean> {
+  async removeSecret(alias: string): Promise<boolean> {
     try {
       const query: asset.AssetMap = new Map();
       query.set(asset.Tag.ALIAS, new Uint8Array(alias.split('').map(c => c.charCodeAt(0))));
@@ -72,3 +73,5 @@ export class KeyStoreManagerFacade {
     }
   }
 }
+
+export const ngfKeyStoreManagerFacade: IKeyStoreManager = new KeyStoreManagerFacade();

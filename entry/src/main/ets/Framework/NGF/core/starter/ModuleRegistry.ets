@@ -113,6 +113,59 @@ export class NGFModuleRegistry {
     return modules;
   }
 
+  async reloadModule(moduleName: string): Promise<boolean> {
+    const normalizedName = moduleName.trim();
+    if (normalizedName.length <= 0) {
+      logger.warn(TAG, '热重载模块已忽略：模块名为空');
+      return false;
+    }
+
+    const registration = this.registrations.get(normalizedName);
+    if (!registration) {
+      logger.warn(TAG, `热重载模块失败，模块不存在：模块=${normalizedName}`);
+      return false;
+    }
+
+    // Phase 1: Shutdown
+    if (registration.runtime.isBootstrapped()) {
+      try {
+        const shutdownOk = registration.runtime.shutdown();
+        if (!shutdownOk) {
+          logger.warn(TAG, `热重载模块关闭返回失败：模块=${normalizedName}`);
+        } else {
+          logger.info(TAG, `热重载模块关闭成功：模块=${normalizedName}`);
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error(TAG, `热重载模块关闭异常：模块=${normalizedName}, 错误=${message}`);
+        return false;
+      }
+    }
+
+    // Phase 2: Unregister and re-register (re-acquires fresh state)
+    this.registrations.delete(normalizedName);
+    const reRegisterOk = this.registerModule(registration.definition, registration.runtime);
+    if (!reRegisterOk) {
+      logger.warn(TAG, `热重载模块重新注册失败：模块=${normalizedName}`);
+      return false;
+    }
+
+    // Phase 3: Re-bootstrap
+    try {
+      const bootstrapOk = registration.runtime.bootstrap();
+      if (bootstrapOk) {
+        logger.info(TAG, `热重载模块引导成功：模块=${normalizedName}`);
+        return true;
+      }
+      logger.warn(TAG, `热重载模块引导返回失败：模块=${normalizedName}`);
+      return false;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(TAG, `热重载模块引导异常：模块=${normalizedName}, 错误=${message}`);
+      return false;
+    }
+  }
+
   clear(): void {
     this.registrations.clear();
     logger.info(TAG, '清除模块注册表');

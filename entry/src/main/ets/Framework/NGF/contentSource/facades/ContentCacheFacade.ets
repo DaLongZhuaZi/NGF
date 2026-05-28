@@ -9,10 +9,16 @@ const TAG: string = 'NGFContentCacheFacade';
 class NGFContentCacheEntry {
   readonly value: string;
   readonly expiresAt: number;
+  lastAccessedAt: number;
 
   constructor(value: string, expiresAt: number) {
     this.value = value;
     this.expiresAt = expiresAt;
+    this.lastAccessedAt = Date.now();
+  }
+
+  touch(): void {
+    this.lastAccessedAt = Date.now();
   }
 }
 
@@ -105,6 +111,7 @@ export class ContentCacheFacade implements IContentCache {
       this.memoryCache.delete(key);
       return null;
     }
+    entry.touch();
     return entry.value;
   }
 
@@ -121,10 +128,16 @@ export class ContentCacheFacade implements IContentCache {
   }
 
   private evictOldestMemory(): void {
-    const keys = this.memoryCache.keys();
-    for (const key of keys) {
-      this.memoryCache.delete(key);
-      return;
+    let lruKey: string = '';
+    let lruTime: number = Date.now();
+    this.memoryCache.forEach((entry: NGFContentCacheEntry, key: string) => {
+      if (lruKey.length <= 0 || entry.lastAccessedAt < lruTime) {
+        lruKey = key;
+        lruTime = entry.lastAccessedAt;
+      }
+    });
+    if (lruKey.length > 0) {
+      this.memoryCache.delete(lruKey);
     }
   }
 

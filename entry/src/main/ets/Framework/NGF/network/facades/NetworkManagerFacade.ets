@@ -6,7 +6,7 @@ const TAG: string = 'NetworkManagerFacade';
 
 class NetworkManagerFacade implements INetworkClient {
   private session: rcp.Session;
-  private globalHeaders: Record<string, string> = {};
+  private globalHeaders: Map<string, string> = new Map<string, string>();
 
   constructor() {
     // 默认创建一个通用的 session 并在内部维护连接池
@@ -18,20 +18,30 @@ class NetworkManagerFacade implements INetworkClient {
   }
 
   setGlobalHeader(key: string, value: string): void {
-    this.globalHeaders[key] = value;
+    this.globalHeaders.set(key, value);
     logger.debug(TAG, `设置全局 Header: ${key}`);
   }
 
   removeGlobalHeader(key: string): void {
-    // delete not supported in ArkTS for Record
-    logger.debug(TAG, `移除全局 Header: ${key}`);
+    const deleted = this.globalHeaders.delete(key);
+    if (deleted) {
+      logger.debug(TAG, `已移除全局 Header: ${key}`);
+    } else {
+      logger.debug(TAG, `移除全局 Header 跳过（不存在）: ${key}`);
+    }
   }
 
   async request(req: NGFNetworkRequest): Promise<NGFNetworkResponse> {
     const url = req.url;
     const methodStr = req.method || 'GET';
     const reqHeaders: Record<string, string> = {};
-    Object.keys(this.globalHeaders).forEach(k => { reqHeaders[k] = this.globalHeaders[k]; });
+    const headerKeys = this.globalHeaders.keys();
+    for (const k of headerKeys) {
+      const val = this.globalHeaders.get(k);
+      if (val !== undefined) {
+        reqHeaders[k] = val;
+      }
+    }
     if (req.headers) {
       Object.keys(req.headers).forEach(k => { reqHeaders[k] = (req.headers as Record<string, string>)[k]; });
     }

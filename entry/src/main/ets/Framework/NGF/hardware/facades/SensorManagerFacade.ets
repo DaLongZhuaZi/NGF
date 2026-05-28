@@ -1,15 +1,16 @@
 import sensor from '@ohos.sensor';
+import { ISensorManager } from '../contracts/ISensorManager';
 import { logger } from '../../utils/Logger';
 
 const TAG: string = 'SensorManagerFacade';
 
-export class SensorManagerFacade {
-  
+export class SensorManagerFacade implements ISensorManager {
+
   /**
    * 监听加速度传感器（例如用于摇一摇功能）
    * @ohos.permission ohos.permission.ACCELEROMETER
    */
-  static startAccelerometerListener(onShake: (x: number, y: number, z: number) => void): boolean {
+  startAccelerometerListener(onShake: (x: number, y: number, z: number) => void): boolean {
     try {
       sensor.on(sensor.SensorId.ACCELEROMETER, (data) => {
         // x, y, z 分别代表三轴加速度
@@ -26,7 +27,7 @@ export class SensorManagerFacade {
   /**
    * @ohos.permission ohos.permission.ACCELEROMETER
    */
-  static stopAccelerometerListener(): void {
+  stopAccelerometerListener(): void {
     try {
       sensor.off(sensor.SensorId.ACCELEROMETER);
       logger.info(TAG, '已停止加速度传感器监听');
@@ -35,3 +36,5 @@ export class SensorManagerFacade {
     }
   }
 }
+
+export const ngfSensorManagerFacade: ISensorManager = new SensorManagerFacade();

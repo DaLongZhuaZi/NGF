@@ -4966,7 +4966,7 @@
     },
     {
       "name": "task_manager_downloading",
-      "value": "Downloading (%s%%)"
+      "value": "Downloading"
     },
     {
       "name": "task_manager_done",
@@ -4974,11 +4974,135 @@
     },
     {
       "name": "task_manager_submitted",
-      "value": "Task submitted: %s"
+      "value": "Task submitted"
     },
     {
       "name": "task_manager_submit_failed",
-      "value": "Task submission failed: %s"
+      "value": "Task submission failed"
+    },
+    {
+      "name": "about_sheet_title",
+      "value": "About App"
+    },
+    {
+      "name": "about_section_basic",
+      "value": "Basic Info"
+    },
+    {
+      "name": "about_section_tech",
+      "value": "Technical Info"
+    },
+    {
+      "name": "about_section_modules",
+      "value": "Framework Modules"
+    },
+    {
+      "name": "about_section_developer",
+      "value": "Developer Info"
+    },
+    {
+      "name": "about_app_name",
+      "value": "App Name"
+    },
+    {
+      "name": "about_bundle_name",
+      "value": "Bundle Name"
+    },
+    {
+      "name": "about_version_name",
+      "value": "Version"
+    },
+    {
+      "name": "about_version_code",
+      "value": "Version Code"
+    },
+    {
+      "name": "about_build_version",
+      "value": "Build Version"
+    },
+    {
+      "name": "about_sdk_api",
+      "value": "SDK API Version"
+    },
+    {
+      "name": "about_device_model",
+      "value": "Device Model"
+    },
+    {
+      "name": "about_os_version",
+      "value": "OS Version"
+    },
+    {
+      "name": "about_ide_version",
+      "value": "DevEco Version"
+    },
+    {
+      "name": "about_vendor",
+      "value": "Developer"
+    },
+    {
+      "name": "about_copyright",
+      "value": "Copyright"
+    },
+    {
+      "name": "about_copyright_text",
+      "value": "© 2025 DaLongzhuazi. All rights reserved."
+    },
+    {
+      "name": "about_module_core",
+      "value": "Core"
+    },
+    {
+      "name": "about_module_data",
+      "value": "Data"
+    },
+    {
+      "name": "about_module_platform",
+      "value": "Platform"
+    },
+    {
+      "name": "about_module_workflow",
+      "value": "Workflow"
+    },
+    {
+      "name": "about_module_source",
+      "value": "Source"
+    },
+    {
+      "name": "about_module_uishell",
+      "value": "UI Shell"
+    },
+    {
+      "name": "about_module_i18n",
+      "value": "I18n"
+    },
+    {
+      "name": "about_module_theme",
+      "value": "Theme"
+    },
+    {
+      "name": "about_module_device",
+      "value": "Device"
+    },
+    {
+      "name": "about_module_security",
+      "value": "Security"
+    },
+    {
+      "name": "about_status_active",
+      "value": "Active"
+    },
+    {
+      "name": "about_status_available",
+      "value": "Available"
+    },
+    {
+      "name": "about_tap_to_detail",
+      "value": "Tap for details"
+    },
+    {
+      "name": "about_section_opensource",
+      "value": "Open Source"
     }
   ]
 }

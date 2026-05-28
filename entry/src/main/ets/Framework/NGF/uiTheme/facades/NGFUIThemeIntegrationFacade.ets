@@ -3,6 +3,7 @@ import { NGFServiceRegistration } from '../../core/contracts/NGFServiceRegistrat
 import { ngfThemeManagerFacade } from './ThemeManagerFacade';
 import { ngfColorTokenProviderFacade } from './ColorTokenProviderFacade';
 import { ngfFontScaleManagerFacade } from './FontScaleManagerFacade';
+import { ngfComponentThemeOverride } from './ComponentThemeOverrideFacade';
 
 export class NGFUIThemeIntegrationFacade extends NGFIntegrationFacadeBase {
   protected readonly tag: string = 'NGFUIThemeIntegrationFacade';
@@ -24,6 +25,11 @@ export class NGFUIThemeIntegrationFacade extends NGFIntegrationFacadeBase {
       'ngf.theme.font_scale_manager',
       'FontScaleManagerFacade',
       ngfFontScaleManagerFacade as object
+    ));
+    registrations.push(new NGFServiceRegistration(
+      'ngf.theme.component_override',
+      'ComponentThemeOverrideFacade',
+      ngfComponentThemeOverride as object
     ));
     return registrations;
   }

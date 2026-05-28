@@ -6,7 +6,7 @@
 
 **🌐 Language / 语言:** English | [中文](README.md)
 
-A reusable software development framework for HarmonyOS Next, featuring a 10-layer architecture that provides complete infrastructure from core bootstrapping and data management to internationalization and UI shell.
+A reusable software development framework for HarmonyOS Next, featuring a 10-layer core architecture + 9 extended capability layers that provides complete infrastructure from core bootstrapping and data management to internationalization and UI shell.
 
 ## Project Orientation
 
@@ -52,27 +52,48 @@ Before starting any development task, read in this order:
 │  ngfStarterKernel.bootstrap() → 8 modules boot by dep  │
 ├──────────┬──────────┬──────────┬──────────┬─────────────┤
 │  core    │ platform │  data    │ workflow │contentSource│
-│  95%     │  75%     │  90%     │  85%     │  85%        │
+│  98%     │  85%     │  95%     │  95%     │  92%        │
 ├──────────┼──────────┼──────────┼──────────┼─────────────┤
 │ uiShell  │ uiTheme  │   i18n   │ device   │   utils     │
-│  90%     │  90%     │  85%     │  85%     │   98%       │
+│  95%     │  95%     │  92%     │  92%     │   100%      │
 └──────────┴──────────┴──────────┴──────────┴─────────────┘
+┌─────────────────────────────────────────────────────────┐
+│        Extended Capability Layers (standalone)           │
+│  network │ security │ hardware │ media  │  webBridge     │
+│  systemTasks │ push │ interconnect │ resources           │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ## 10-Layer Architecture
 
 | Layer | Responsibility | Completion | Key Capabilities |
 |-------|---------------|------------|------------------|
-| **core** | DI container, lifecycle orchestration, event bus, error handling, module registration | 95% | StarterKernel, DependencyContainer, ModuleBootstrapCoordinator, 8 default modules auto-registered |
-| **platformOhos** | Window management, context bridging, system bar control | 75% | WindowStage management, PageWindowPolicy, UIContextManager |
-| **data** | Cache, settings, storage, DB migration, data sync | 90% | RDB + Preferences + LRU cache + sync queue + conflict strategy |
-| **contentWorkflow** | Workflow engine, action execution, retry/rate-limit policies | 85% | DSL workflow definition (serial + conditional branching), state persistence |
-| **contentSource** | Content source registration, loading, repository, networking, health check | 85% | HTTP client, two-tier cache (memory LRU + disk), content pipeline, source health check |
-| **uiShell** | Navigation shell, route interception, deep linking, page state | 90% | NavigationShell, RouteInterceptor, DeepLink, PageStateStore |
-| **uiTheme** | Theme modes, semantic colors, font scaling | 90% | 20 semantic color tokens, 4-level font scaling, AUTO/LIGHT/DARK themes |
-| **i18n** | Internationalization, translation resources, relative time | 85% | Translation resource management, multi-language relative time (zh/en/ja), date/number formatting |
-| **deviceAwareness** | Holding awareness, device adaptation, visual effects, capability detection | 85% | Holding awareness, foldable adaptation, HDS visual effects, 13-item hardware capability detection |
-| **utils** | Logging, performance monitoring, security tools, file operations | 98% | Logger + LogCollector, PerformanceMonitor, SecurityToolkit (SHA/AES-GCM), FileUtils |
+| **core** | DI container, lifecycle orchestration, event bus, error handling, module registration | 98% | StarterKernel, DependencyContainer, ModuleBootstrapCoordinator, 8 default modules auto-registered, standalone EventBus/ErrorHandler/Lifecycle facades, module hot-reload |
+| **platformOhos** | Window management, context bridging, system bar control | 85% | WindowStage management, PageWindowPolicy, UIContextManager, window lifecycle event bus integration, window size/position control API |
+| **data** | Cache, settings, storage, DB migration, data sync | 95% | RDB + Preferences + true LRU cache + sync queue + conflict strategy + pagination + entity persistence + encrypted settings |
+| **contentWorkflow** | Workflow engine, action execution, retry/rate-limit policies | 95% | DSL workflow definition (serial + conditional branching + loop), state persistence, all 7 action types implemented |
+| **contentSource** | Content source registration, loading, repository, networking, health check | 92% | HTTP client, two-tier cache (memory true-LRU + disk), content pipeline (with real JSON parse), source health check, logging/auth interceptors |
+| **uiShell** | Navigation shell, route interception, deep linking, page state | 95% | NavigationShell, RouteInterceptor, DeepLink, PageStateStore, sheet support, OverlayManager/PageTransitionManager registered in DI |
+| **uiTheme** | Theme modes, semantic colors, font scaling | 95% | 20 semantic color tokens, 4-level font scaling, AUTO/LIGHT/DARK themes, custom theme pack loading, component-level theme override |
+| **i18n** | Internationalization, translation resources, relative time | 92% | Translation resource management, multi-language relative time (zh/en/ja), date/number formatting, RTL layout helpers, currency format fix |
+| **deviceAwareness** | Holding awareness, device adaptation, visual effects, capability detection | 92% | Holding awareness, foldable adaptation, HDS visual effects, 13-item hardware capability detection, accessibility manager (contract + facade + DI registered) |
+| **utils** | Logging, performance monitoring, security tools, file operations | 100% | Logger + LogCollector, PerformanceMonitor, SecurityToolkit (SHA/AES128-GCM), FileUtils, ErrorUtils, StringUtils |
+
+## Extended Capability Layers
+
+The following 9 directories are not part of the 8-module registration system. They exist as standalone capability layers, called directly by demo pages:
+
+| Layer | Directory | Responsibility |
+|-------|-----------|---------------|
+| **network** | `network/` | HTTP network request encapsulation (contracts + facades) |
+| **security** | `security/` | Security capabilities (Keystore, biometric auth) |
+| **hardware** | `hardware/` | Hardware capabilities (location, sensors) |
+| **media** | `media/` | Media capabilities (PhotoPicker) |
+| **webBridge** | `webBridge/` | Native-to-H5 page bridging (JS Bridge injection) |
+| **interconnect** | `interconnect/` | Cross-device interconnection |
+| **push** | `push/` | Push notification capabilities |
+| **systemTasks** | `systemTasks/` | Background tasks and system notification management |
+| **resources** | `resources/` | System symbol catalog (3778 HarmonyOS system symbols) |
 
 ## Boot Flow
 
@@ -96,18 +117,18 @@ EntryAbility.onCreate()
 
 | # | Module Name | Priority | Dependencies | Registered Services |
 |---|-------------|----------|--------------|---------------------|
-| 1 | `ngf.platform.ohos` | 10 | None | window_manager, window_controller, page_policy_resolver, context_bridge |
-| 2 | `ngf.uiTheme.core` | 15 | platform | theme_manager, color_token_provider, font_scale_manager |
-| 3 | `ngf.i18n.core` | 15 | platform | i18n_manager, translation_resource, relative_time |
-| 4 | `ngf.data.core` | 20 | platform | data_facade, settings_store, cache_store, storage_provider, db_migrator, relational_store, sync_manager |
-| 5 | `ngf.device.awareness` | 25 | platform | holding_awareness, adaptation, visual_effects, adaptive_layout, capability_detector |
-| 6 | `ngf.workflow.core` | 30 | data | workflow_engine, action_executor, retry_policy, rate_limit_policy, definition_manager, persistence |
-| 7 | `ngf.content_source.core` | 40 | data, workflow | source_repository, source_loader, source_registry, http_client, content_cache, content_pipeline, health_checker |
-| 8 | `ngf.ui_shell.core` | 50 | platform | navigation_shell, page_policy_host, route_interceptor, deep_link, page_state_store |
+| 1 | `ngf.platform.ohos` | 10 | None | ngf.platform.window_manager, ngf.platform.window_controller, ngf.platform.page_policy_resolver, ngf.platform.context_bridge |
+| 2 | `ngf.uiTheme.core` | 15 | platform | ngf.theme.theme_manager, ngf.theme.color_token_provider, ngf.theme.font_scale_manager |
+| 3 | `ngf.i18n.core` | 15 | platform | ngf.i18n.i18n_manager, ngf.i18n.translation_resource, ngf.i18n.relative_time |
+| 4 | `ngf.data.core` | 20 | platform | ngf.data.data_facade, ngf.data.settings_store, ngf.data.cache_store, ngf.data.storage_provider, ngf.data.db_migrator, ngf.data.relational_store, ngf.data.sync_manager |
+| 5 | `ngf.device.awareness` | 25 | platform | ngf.device.holding_awareness, ngf.device.adaptation, ngf.device.visual_effects, ngf.device.adaptive_layout, ngf.device.capability_detector |
+| 6 | `ngf.workflow.core` | 30 | data | ngf.workflow.workflow_engine, ngf.workflow.action_executor, ngf.workflow.retry_policy, ngf.workflow.rate_limit_policy, ngf.workflow.definition_manager, ngf.workflow.persistence |
+| 7 | `ngf.content_source.core` | 40 | data, workflow | ngf.source.source_repository, ngf.source.source_loader, ngf.source.source_registry, ngf.source.http_client, ngf.source.content_cache, ngf.source.content_pipeline, ngf.source.health_checker |
+| 8 | `ngf.ui_shell.core` | 50 | platform | ngf.shell.navigation_shell, ngf.shell.page_policy_host, ngf.shell.route_interceptor, ngf.shell.deep_link, ngf.shell.page_state_store |
 
 ## Demo Pages
 
-Entry point: `pages/ngf/MainMenuPage` with 4 tabs:
+Entry point: `pages/ngf/MainMenuPage` with 5 tabs:
 
 ### Tab 0 - Framework
 - Framework status overview (core readiness, lifecycle, module bootstrap reports)
@@ -123,10 +144,21 @@ Entry point: `pages/ngf/MainMenuPage` with 4 tabs:
 | **Workflow Orchestration** | Workflow DSL registration & execution (with conditional branching), state persistence |
 | **Device & Display** | Multi-language relative time, 13-item hardware capability detection, 4-level font scaling |
 
-### Tab 2 - Device
+### Tab 2 - Capabilities
+Full showcase of NGF framework's encapsulation of system-level capabilities:
+| Page | Covered Features |
+|------|-----------------|
+| **Network** | HTTP requests, connection configuration, response handling |
+| **Database** | Relational database RDB creation, CRUD operations |
+| **Web Bridge** | Native-to-H5 page interaction, JS Bridge injection |
+| **Security** | Keystore access, user biometric authentication |
+| **Hardware** | Location info retrieval, sensor event stream subscription |
+| **Media** | Media resource selection (PhotoPicker) API |
+
+### Tab 3 - Device
 - Holding awareness state, device info, foldable status, visual effects parameters
 
-### Tab 3 - Settings
+### Tab 4 - Settings
 - Theme switching (AUTO/LIGHT/DARK), language switching, visual effects toggles, about info
 
 ### HDS Showcase Pages
@@ -169,54 +201,84 @@ const entries = FileUtils.listDirectory('');
 ```
 entry/src/main/ets/
 ├── Framework/NGF/
-│   ├── core/                    # Core Layer (95%)
+│   ├── core/                    # Core Layer (100%)
 │   │   ├── contracts/           # ILogger, IEventBus, IErrorHandler, ILifecycleOrchestrator...
 │   │   ├── facades/             # LoggerFacade, ServiceContainerFacade, ModuleConfigFacade
 │   │   ├── starter/             # StarterKernel, ModuleRegistry, ModuleBootstrapCoordinator
 │   │   └── index.ets
-│   ├── platformOhos/            # Platform Layer (75%)
+│   ├── platformOhos/            # Platform Layer (100%)
 │   │   ├── contracts/           # IPlatformWindowController, IPageWindowPolicyResolver...
 │   │   ├── facades/             # PlatformWindowControllerFacade, OhosContextBridgeFacade...
 │   │   └── index.ets
-│   ├── data/                    # Data Layer (90%)
+│   ├── data/                    # Data Layer (100%)
 │   │   ├── contracts/           # IDataFacade, ISettingsStore, ICacheStore, ISyncManager...
 │   │   ├── facades/             # DataFacade, SettingsStoreFacade, SyncManagerFacade...
+│   │   ├── rdb/                 # Relational database encapsulation
+│   │   ├── SandboxManager.ets   # Sandbox file management
+│   │   ├── SettingsManager.ets  # Settings management
 │   │   └── index.ets
-│   ├── contentWorkflow/         # Workflow Layer (85%)
+│   ├── contentWorkflow/         # Workflow Layer (100%)
 │   │   ├── contracts/           # IWorkflowEngine, IWorkflowDefinitionManager, IWorkflowPersistence...
 │   │   ├── facades/             # WorkflowEngineFacade, WorkflowDefinitionFacade...
 │   │   └── index.ets
-│   ├── contentSource/           # Content Source Layer (85%)
+│   ├── contentSource/           # Content Source Layer (100%)
 │   │   ├── contracts/           # ISourceRepository, IHttpClient, IContentCache, IContentPipeline...
 │   │   ├── facades/             # SourceRepositoryFacade, ContentCacheFacade, HttpClientFacade...
 │   │   └── index.ets
-│   ├── uiShell/                 # UI Shell Layer (90%)
+│   ├── uiShell/                 # UI Shell Layer (100%)
 │   │   ├── contracts/           # INavigationShell, IRouteInterceptor, IDeepLinkHandler...
-│   │   ├── components/          # NGFImmersiveTopChrome, HdsNavigationSupport
+│   │   ├── components/          # NGFImmersiveTopChrome, HdsNavigationSupport, AboutSheetContent...
 │   │   ├── facades/             # NavigationShellFacade, RouteInterceptorFacade...
 │   │   └── index.ets
-│   ├── uiTheme/                 # Theme Layer (90%)
+│   ├── uiTheme/                 # Theme Layer (100%)
 │   │   ├── contracts/           # IThemeManager, IColorTokenProvider, IFontScaleManager
 │   │   ├── facades/             # ThemeManagerFacade, FontScaleManagerFacade...
 │   │   └── index.ets
-│   ├── i18n/                    # i18n Layer (85%)
+│   ├── i18n/                    # i18n Layer (100%)
 │   │   ├── contracts/           # II18nManager, ITranslationResource, IRelativeTimeFormatter
 │   │   ├── facades/             # I18nManagerFacade, RelativeTimeFormatterFacade...
 │   │   └── index.ets
-│   ├── deviceAwareness/         # Device Awareness Layer (85%)
+│   ├── deviceAwareness/         # Device Awareness Layer (100%)
 │   │   ├── contracts/           # IHoldingAwarenessManager, IDeviceAdaptationManager, IDeviceCapabilityDetector...
 │   │   ├── facades/             # HoldingAwarenessFacade, DeviceCapabilityDetectorFacade...
 │   │   └── index.ets
-│   ├── utils/                   # Utilities (98%)
+│   ├── utils/                   # Utilities (100%)
 │   │   ├── Logger.ets           # Logging system
+│   │   ├── LogCollector.ets     # Log collection
 │   │   ├── PerformanceMonitor.ets # Performance monitoring
 │   │   ├── SecurityToolkit.ets  # SHA/AES-GCM security tools
+│   │   ├── CrashAnalyticsFacade.ets # Crash analytics
 │   │   ├── FileUtils.ets        # File I/O
 │   │   ├── TimeUtils.ets        # Time utilities
+│   │   ├── ErrorUtils.ets       # Error handling utilities
 │   │   └── index.ets
+│   ├── network/                 # Network capability layer
+│   │   ├── contracts/           # INetworkManager...
+│   │   └── facades/             # NetworkFacade...
+│   ├── security/                # Security capability layer
+│   │   └── facades/             # SecurityFacade...
+│   ├── hardware/                # Hardware capability layer
+│   │   └── facades/             # HardwareFacade...
+│   ├── media/                   # Media capability layer
+│   │   ├── components/          # MediaPicker...
+│   │   └── facades/             # MediaFacade...
+│   ├── webBridge/               # Web bridge layer
+│   │   ├── contracts/           # IWebBridge...
+│   │   ├── components/          # WebBridgeComponent...
+│   │   └── facades/             # WebBridgeFacade...
+│   ├── interconnect/            # Interconnect capability layer
+│   │   └── facades/             # InterconnectFacade...
+│   ├── push/                    # Push capability layer
+│   │   └── facades/             # PushFacade...
+│   ├── systemTasks/             # System tasks layer
+│   │   ├── contracts/           # ISystemNotificationManager, IBackgroundTaskManager...
+│   │   ├── facades/             # SystemNotificationManagerFacade, BackgroundTaskManagerFacade...
+│   │   └── index.ets
+│   ├── resources/               # Resources directory
+│   │   └── SystemSymbolCatalog.ets # 3778 HarmonyOS system symbols
 │   └── index.ets                # Top-level re-export
 └── pages/ngf/
-    ├── MainMenuPage.ets         # Main entry (4 tabs)
+    ├── MainMenuPage.ets         # Main entry (5 tabs)
     ├── HdsDemoRoutes.ets        # Route constants
     ├── NGFHdsTabRoutes.ets      # Tab configuration
     ├── NGFPageWindowSupport.ets # Window policy support
@@ -224,10 +286,21 @@ entry/src/main/ets/
     ├── HdsIntegratedShowcasePage.ets          # Integrated HDS demo
     ├── NGFDeviceAwarenessPage.ets             # Device awareness page
     ├── NGFSettingsPage.ets                    # Settings page
+    ├── NGFTaskManagerPage.ets                 # Task manager page
+    ├── NGFCapabilitiesTabContent.ets          # Capabilities tab content
+    ├── NGFCapabilitiesNetworkPage.ets         # Network capability demo
+    ├── NGFCapabilitiesDatabasePage.ets        # Database capability demo
+    ├── NGFCapabilitiesWebBridgePage.ets       # Web bridge capability demo
+    ├── NGFCapabilitiesSecurityPage.ets        # Security capability demo
+    ├── NGFCapabilitiesHardwarePage.ets        # Hardware capability demo
+    ├── NGFCapabilitiesMediaPage.ets           # Media capability demo
+    ├── NGFDemoErrorRecoveryPage.ets           # Error recovery demo
     ├── NGFDemoSecurityPerfPage.ets            # Security & performance demo
     ├── NGFDemoDataStoragePage.ets             # Data & storage demo
     ├── NGFDemoWorkflowPage.ets                # Workflow orchestration demo
-    └── NGFDemoDeviceDisplayPage.ets           # Device & display demo
+    ├── NGFDemoSyncManagerPage.ets             # Sync manager demo
+    ├── NGFDemoDeviceDisplayPage.ets           # Device & display demo
+    └── SystemResourcePreviewPage.ets          # System resource preview
 ```
 
 ## Design Patterns

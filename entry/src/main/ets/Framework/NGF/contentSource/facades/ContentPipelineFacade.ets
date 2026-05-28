@@ -97,7 +97,16 @@ export class ContentPipelineFacade implements IContentPipeline {
     if (input.length <= 0) {
       return new NGFPipelineStepResult(false, '', step.stepName);
     }
-    return new NGFPipelineStepResult(true, input, step.stepName);
+    try {
+      const parsed: Object = JSON.parse(input);
+      const serialized: string = JSON.stringify(parsed);
+      logger.debug(TAG, `parse 成功: step=${step.stepName}, outputLength=${serialized.length}`);
+      return new NGFPipelineStepResult(true, serialized, step.stepName);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn(TAG, `parse 失败: step=${step.stepName}, error=${message}`);
+      return new NGFPipelineStepResult(false, input, step.stepName, message);
+    }
   }
 
   private executeTransform(step: NGFPipelineStepDefinition, input: string): NGFPipelineStepResult {

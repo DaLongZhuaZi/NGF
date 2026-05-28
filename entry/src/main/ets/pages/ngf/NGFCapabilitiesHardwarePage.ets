@@ -1,6 +1,5 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
-import { common } from '@kit.AbilityKit';
 import { logger } from '../../Framework/NGF/utils/Logger';
 import {
   NGFImmersiveTopChromePresetFactory,
@@ -9,8 +8,8 @@ import {
 } from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
 import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
-import { LocationManagerFacade, SensorManagerFacade } from '../../Framework/NGF/index';
-import { PermissionManagerFacade } from '../../Framework/NGF/security/facades/PermissionManagerFacade';
+import { ngfLocationManagerFacade, ngfSensorManagerFacade } from '../../Framework/NGF/index';
+import { ngfPermissionManagerFacade } from '../../Framework/NGF/platformOhos/facades/PermissionManagerFacade';
 
 const TAG: string = 'NGFCapabilitiesHardwarePage';
 
@@ -75,7 +74,7 @@ export struct NGFCapabilitiesHardwarePage {
 
   aboutToDisappear(): void {
     NGFPageWindowSupport.restoreMainMenu();
-    SensorManagerFacade.stopAccelerometerListener();
+    ngfSensorManagerFacade.stopAccelerometerListener();
   }
 
   @Builder
@@ -156,15 +155,14 @@ export struct NGFCapabilitiesHardwarePage {
   private async handleGetLocation(): Promise<void> {
     try {
       this.statusMessage = "Requesting location permission...";
-      const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-      const granted = await PermissionManagerFacade.requestPermissions(context, ['ohos.permission.APPROXIMATELY_LOCATION']);
+      const granted = await ngfPermissionManagerFacade.requestPermissions(['ohos.permission.APPROXIMATELY_LOCATION']);
       if (!granted) {
         this.statusMessage = "Location permission denied by user";
         return;
       }
 
       this.statusMessage = "Requesting location...";
-      const location: Record<string, number> | null = await LocationManagerFacade.getCurrentLocation() as Object as Record<string, number> | null;
+      const location: Record<string, number> | null = await ngfLocationManagerFacade.getCurrentLocation() as Object as Record<string, number> | null;
       if (location) {
         this.hardwareData = `Latitude: ${location.latitude}\nLongitude: ${location.longitude}`;
         this.statusMessage = "Location retrieved";
@@ -182,15 +180,14 @@ export struct NGFCapabilitiesHardwarePage {
    */
   private async handleStartShake(): Promise<void> {
     this.statusMessage = "Requesting sensor permission...";
-    const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    const granted = await PermissionManagerFacade.requestPermissions(context, ['ohos.permission.ACCELEROMETER']);
+    const granted = await ngfPermissionManagerFacade.requestPermissions(['ohos.permission.ACCELEROMETER']);
     if (!granted) {
       this.statusMessage = "Sensor permission denied by user";
       return;
     }
 
     this.statusMessage = "Shake listener started. Shake device!";
-    SensorManagerFacade.startAccelerometerListener(() => {
+    ngfSensorManagerFacade.startAccelerometerListener(() => {
       this.hardwareData = `Shake detected at ${new Date().toLocaleTimeString()}!`;
     });
   }

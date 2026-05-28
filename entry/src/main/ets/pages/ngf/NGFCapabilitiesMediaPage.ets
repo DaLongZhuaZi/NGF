@@ -8,7 +8,7 @@ import {
 } from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
 import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
-import { MediaPickerFacade } from '../../Framework/NGF/index';
+import { ngfMediaPickerFacade } from '../../Framework/NGF/index';
 
 const TAG: string = 'NGFCapabilitiesMediaPage';
 
@@ -140,7 +140,7 @@ export struct NGFCapabilitiesMediaPage {
   private async handlePickMedia(): Promise<void> {
     try {
       this.statusMessage = "Launching PhotoPicker...";
-      const uris: Array<string> = await MediaPickerFacade.pickImages(3) as Array<string>;
+      const uris: Array<string> = await ngfMediaPickerFacade.pickImages(3) as Array<string>;
       this.selectedUris = uris;
       this.statusMessage = `Selected ${uris.length} media files`;
     } catch (error) {

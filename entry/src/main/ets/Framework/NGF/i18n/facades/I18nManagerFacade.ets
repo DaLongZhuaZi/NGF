@@ -1,5 +1,6 @@
 import { i18n } from '@kit.LocalizationKit';
 import { common } from '@kit.AbilityKit';
+import { intl } from '@kit.LocalizationKit';
 import { logger } from '../../utils/Logger';
 import { uiContextManager } from '../../platformOhos/UIContextManager';
 import { II18nManager, NGFDateStyle, NGFNumberStyle } from '../contracts/II18nManager';
@@ -103,8 +104,13 @@ class I18nManagerFacade implements II18nManager {
   formatNumber(value: number, style: NGFNumberStyle): string {
     try {
       const locale = this.getCurrentLocale();
-      const options = { style: style } as Intl.NumberFormatOptions;
-      const numberFormatter = new Intl.NumberFormat(locale, options);
+      const options: intl.NumberOptions = { style: style };
+      if (style === NGFNumberStyle.CURRENCY) {
+        const inferredCurrency: string = this.inferCurrencyFromLocale(locale);
+        options.currency = inferredCurrency;
+        options.currencyDisplay = 'symbol';
+      }
+      const numberFormatter = new intl.NumberFormat(locale, options);
       return numberFormatter.format(value);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -203,6 +209,55 @@ class I18nManagerFacade implements II18nManager {
       }
     }
     return false;
+  }
+
+  /**
+   * 获取当前布局方向字符串
+   * @returns 'RTL' 或 'LTR'
+   */
+  getLayoutDirection(): string {
+    return this.isRtl() ? 'RTL' : 'LTR';
+  }
+
+  /**
+   * 获取与当前布局方向匹配的 TextAlign
+   * RTL 返回 TextAlign.End，LTR 返回 TextAlign.Start
+   */
+  getTextAlign(): TextAlign {
+    return this.isRtl() ? TextAlign.End : TextAlign.Start;
+  }
+
+  /**
+   * 获取与当前布局方向匹配的 FlexDirection
+   * RTL 返回 FlexDirection.RowReverse，LTR 返回 FlexDirection.Row
+   */
+  getFlexDirection(): FlexDirection {
+    return this.isRtl() ? FlexDirection.RowReverse : FlexDirection.Row;
+  }
+
+  private inferCurrencyFromLocale(locale: string): string {
+    const langCode = locale.split('-')[0].toLowerCase();
+    const regionParts: Array<string> = locale.split('-');
+    const region: string = regionParts.length > 1 ? regionParts[1].toUpperCase() : '';
+    if (region === 'CN' || langCode === 'zh') {
+      return 'CNY';
+    }
+    if (region === 'US' || langCode === 'en') {
+      return 'USD';
+    }
+    if (region === 'JP' || langCode === 'ja') {
+      return 'JPY';
+    }
+    if (region === 'KR' || langCode === 'ko') {
+      return 'KRW';
+    }
+    if (region === 'GB') {
+      return 'GBP';
+    }
+    if (region === 'EU' || langCode === 'de' || langCode === 'fr' || langCode === 'it' || langCode === 'es') {
+      return 'EUR';
+    }
+    return 'CNY';
   }
 
   private getSystemLocale(): string {

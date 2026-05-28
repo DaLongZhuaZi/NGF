@@ -22,4 +22,10 @@ export interface IMultiWindowManager {
    * @param callback 触发回调
    */
   offWindowModeChanged(callback: (mode: NGFWindowMode) => void): void;
+
+  /**
+   * 设置当前窗口模式
+   * @param mode 期望的窗口模式
+   */
+  setWindowMode(mode: NGFWindowMode): Promise<void>;
 }

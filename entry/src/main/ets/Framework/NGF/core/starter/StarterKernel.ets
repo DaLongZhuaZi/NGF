@@ -10,6 +10,9 @@ import {
 import { IServiceContainer } from '../contracts/IServiceContainer';
 import { ContainerLifecycle, DependencyContainer } from '../DependencyContainer';
 import { ngfLoggerFacade } from '../facades/LoggerFacade';
+import { ngfEventBusFacade } from '../facades/EventBusFacade';
+import { ngfErrorHandlerFacade } from '../facades/ErrorHandlerFacade';
+import { ngfLifecycleOrchestratorFacade } from '../facades/LifecycleOrchestratorFacade';
 import { NGFModuleBootstrapCoordinator, ngfModuleBootstrapCoordinator } from './ModuleBootstrapCoordinator';
 import { NGFModuleRegistry, ngfModuleRegistry } from './ModuleRegistry';
 
@@ -76,6 +79,9 @@ class NGFStarterErrorRecord {
   }
 }
 
+/**
+ * @deprecated 使用 ngfEventBusFacade (EventBusFacade) 替代。此类仅为向后兼容保留。
+ */
 class NGFStarterEventBus implements IEventBus {
   private readonly logger: ILogger;
   private readonly listenersByEvent: Map<string, Map<string, NGFEventListener>> = new Map<string, Map<string, NGFEventListener>>();
@@ -173,6 +179,9 @@ class NGFStarterEventBus implements IEventBus {
   }
 }
 
+/**
+ * @deprecated 使用 ngfLifecycleOrchestratorFacade (LifecycleOrchestratorFacade) 替代。此类仅为向后兼容保留。
+ */
 class NGFStarterLifecycleOrchestrator implements ILifecycleOrchestrator {
   private readonly logger: ILogger;
   private currentPhase: string = 'not_started';
@@ -322,6 +331,9 @@ class NGFStarterServiceContainer implements IServiceContainer {
   }
 }
 
+/**
+ * @deprecated 使用 ngfErrorHandlerFacade (ErrorHandlerFacade) 替代。此类仅为向后兼容保留。
+ */
 class NGFStarterErrorHandler implements IErrorHandler {
   private readonly logger: ILogger;
   private readonly eventBus: IEventBus;
@@ -462,9 +474,10 @@ export class NGFStarterKernel {
 
   private constructor() {
     this.logger = ngfLoggerFacade;
-    this.eventBus = new NGFStarterEventBus(this.logger);
-    this.errorHandler = new NGFStarterErrorHandler(this.logger, this.eventBus);
-    this.lifecycle = new NGFStarterLifecycleOrchestrator(this.logger);
+    // 使用独立的门面单例，避免 StarterKernel 内部类创建重复实例（双实例问题）
+    this.eventBus = ngfEventBusFacade;
+    this.errorHandler = ngfErrorHandlerFacade;
+    this.lifecycle = ngfLifecycleOrchestratorFacade;
     this.serviceContainer = new NGFStarterServiceContainer(this.logger);
     this.moduleRegistry = ngfModuleRegistry;
     this.moduleBootstrapCoordinator = ngfModuleBootstrapCoordinator;

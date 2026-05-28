@@ -5,6 +5,7 @@ import { ngfDeviceAdaptationFacade } from './DeviceAdaptationFacade';
 import { ngfVisualEffectsFacade } from './VisualEffectsFacade';
 import { ngfAdaptiveLayoutFacade } from './AdaptiveLayoutFacade';
 import { ngfDeviceCapabilityDetectorFacade } from './DeviceCapabilityDetectorFacade';
+import { ngfAccessibilityFacade } from './AccessibilityFacade';
 
 export class NGFDeviceAwarenessIntegrationFacade extends NGFIntegrationFacadeBase {
   protected readonly tag: string = 'NGFDeviceAwarenessIntegrationFacade';
@@ -41,6 +42,12 @@ export class NGFDeviceAwarenessIntegrationFacade extends NGFIntegrationFacadeBas
       'ngf.device.capability_detector',
       'DeviceCapabilityDetectorFacade',
       ngfDeviceCapabilityDetectorFacade as object
+    ));
+
+    registrations.push(new NGFServiceRegistration(
+      'ngf.device.accessibility',
+      'AccessibilityFacade',
+      ngfAccessibilityFacade as object
     ));
 
     return registrations;

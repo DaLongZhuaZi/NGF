@@ -13,9 +13,32 @@ class EncryptedSettingsStoreFacade {
   private readonly masterKeyBase64: string;
   private readonly cache: Map<string, string> = new Map<string, string>();
 
+  // master key 在 AppStorage 中的持久化键名
+  private static readonly MASTER_KEY_STORAGE: string = 'ngf_encrypted_master_key';
+  // 生产环境应使用 HarmonyOS Keystore (HUKS) 托管密钥，此处为框架级降级方案
+  private static readonly FALLBACK_STATIC_KEY: string = 'TkdGRW5jcnlwdGVkIQ=='; // "NGFEncrypted!"
+
   private constructor() {
-    // 使用固定的演示密钥 (16 字节 Base64)，生产建议从 Keystore 读取
-    this.masterKeyBase64 = 'TkdGRW5jcnlwdGVkIQ=='; // "NGFEncrypted!"
+    // 优先从持久化存储加载已有密钥，确保重启后能解密历史数据
+    const stored = AppStorage.get<string>(EncryptedSettingsStoreFacade.MASTER_KEY_STORAGE);
+    if (stored !== undefined && stored !== null && stored.length > 0) {
+      this.masterKeyBase64 = stored;
+    } else {
+      // 尝试使用安全随机数生成新密钥
+      const generated = securityToolkit.generateRandomBase64(16);
+      if (generated.length > 0) {
+        this.masterKeyBase64 = generated;
+        // 持久化生成的密钥，避免重启后无法解密
+        AppStorage.setOrCreate<string>(EncryptedSettingsStoreFacade.MASTER_KEY_STORAGE, generated);
+        logger.info(TAG, '已生成新的加密主密钥并持久化');
+      } else {
+        // 随机数生成失败时使用静态降级密钥（仅用于开发/测试）
+        this.masterKeyBase64 = EncryptedSettingsStoreFacade.FALLBACK_STATIC_KEY;
+        logger.warn(TAG, '随机密钥生成失败，使用静态降级密钥（仅限开发环境）');
+      }
+    }
+    // TODO: 生产环境应接入 HarmonyOS Keystore (HUKS) 进行密钥托管，
+    //       避免密钥明文存储在 AppStorage 中。
   }
 
   static getInstance(): EncryptedSettingsStoreFacade {

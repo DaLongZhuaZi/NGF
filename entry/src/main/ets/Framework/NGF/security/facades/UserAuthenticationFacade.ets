@@ -1,16 +1,17 @@
 import { userAuth } from '@kit.UserAuthenticationKit';
+import { IUserAuthentication } from '../contracts/IUserAuthentication';
 import { logger } from '../../utils/Logger';
 
 const TAG: string = 'UserAuthenticationFacade';
 
-export class UserAuthenticationFacade {
+export class UserAuthenticationFacade implements IUserAuthentication {
   /**
    * 拉起系统指纹或人脸认证弹窗
    * @param challenge 认证挑战值，用于防重放攻击
    * @param title 自定义弹窗标题
    * @ohos.permission ohos.permission.ACCESS_BIOMETRIC
    */
-  static async authenticate(challenge: Uint8Array, title: string = '安全验证'): Promise<boolean> {
+  async authenticate(challenge: Uint8Array, title: string = '安全验证'): Promise<boolean> {
     logger.info(TAG, '发起用户身份验证');
 
     const authParam: userAuth.AuthParam = {
@@ -25,7 +26,7 @@ export class UserAuthenticationFacade {
 
     try {
       const userAuthInstance = userAuth.getUserAuthInstance(authParam, widgetParam);
-      
+
       return new Promise((resolve) => {
         userAuthInstance.on('result', {
           onResult(result) {
@@ -59,7 +60,7 @@ export class UserAuthenticationFacade {
    * 检查设备是否支持指定的生物识别
    * @ohos.permission ohos.permission.ACCESS_BIOMETRIC
    */
-  static checkSupport(authType: userAuth.UserAuthType): boolean {
+  checkSupport(authType: userAuth.UserAuthType): boolean {
     try {
       userAuth.getAvailableStatus(authType, userAuth.AuthTrustLevel.ATL1);
       return true;
@@ -69,3 +70,5 @@ export class UserAuthenticationFacade {
     }
   }
 }
+
+export const ngfUserAuthenticationFacade: IUserAuthentication = new UserAuthenticationFacade();

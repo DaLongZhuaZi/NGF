@@ -4,7 +4,14 @@
       "WebSearch",
       "Bash(hvigorw assembleHap *)",
       "Bash(./hvigorw assembleHap *)",
-      "Bash(cmd *)"
+      "Bash(cmd *)",
+      "Bash(mkdir -p \"F:/DevEcoStudioProject/NGF/.claude/skills\")",
+      "Bash(mkdir -p \"F:/DevEcoStudioProject/NGF/.claude/task-queue\")",
+      "Bash(mkdir -p \"F:/cangjieProjects/NGF_cangjie/NGF/.claude/skills\")",
+      "Bash(mkdir -p \"F:/cangjieProjects/NGF_cangjie/NGF/.claude/task-queue\")",
+      "Bash(mkdir -p \"F:/cangjieProjects/NGF_cangjie/NGF/.rules\")",
+      "Bash(mkdir -p \"F:/cangjieProjects/NGF_cangjie/NGF/src/core/contracts\")",
+      "Bash(mkdir -p \"F:/cangjieProjects/NGF_cangjie/NGF/src/core/facades\")"
     ]
   }
 }

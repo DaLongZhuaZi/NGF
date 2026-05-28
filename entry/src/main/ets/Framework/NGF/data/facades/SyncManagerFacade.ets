@@ -15,6 +15,45 @@ export class SyncManagerFacade implements ISyncManager {
   private conflictStrategy: NGFConflictStrategy = NGFConflictStrategy.CLIENT_WINS;
   private syncHandler: ISyncDataHandler | null = null;
 
+  private async tryResolveConflict(
+    handler: ISyncDataHandler,
+    item: NGFSyncQueueItem,
+    conflicts: Array<NGFSyncQueueItem>,
+    syncedCountRef: Array<number>
+  ): Promise<void> {
+    if (this.conflictStrategy === NGFConflictStrategy.MANUAL) {
+      conflicts.push(item);
+      logger.info(TAG, `冲突(手动解决): entity=${item.entityName}, id=${item.entityId}`);
+      return;
+    }
+
+    try {
+      const remoteData = await handler.pull(item.entityName, item.createdAt);
+      const resolved = await handler.resolveConflict(item, remoteData, this.conflictStrategy);
+      const resolvedItem = new NGFSyncQueueItem(
+        `resolved_${item.id}`,
+        item.entityName,
+        item.entityId,
+        item.operation,
+        resolved,
+        item.createdAt,
+        0
+      );
+      const rePushOk = await handler.push(resolvedItem);
+      if (rePushOk) {
+        syncedCountRef[0]++;
+        logger.info(TAG, `冲突已解决(${this.conflictStrategy}): entity=${item.entityName}, id=${item.entityId}`);
+      } else {
+        conflicts.push(item);
+        logger.warn(TAG, `冲突解决后推送仍失败: entity=${item.entityName}, id=${item.entityId}`);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(TAG, `冲突解决异常: entity=${item.entityName}, id=${item.entityId}, error=${message}`);
+      conflicts.push(item);
+    }
+  }
+
   enqueue(item: NGFSyncQueueItem): void {
     this.queue.push(item);
     logger.debug(TAG, `入队: entity=${item.entityName}, op=${item.operation}, queueSize=${this.queue.length}`);
@@ -31,6 +70,7 @@ export class SyncManagerFacade implements ISyncManager {
     let failedCount: number = 0;
     const conflicts: Array<NGFSyncQueueItem> = [];
     const processed: Array<string> = [];
+    const syncedCountRef: Array<number> = [syncedCount];
 
     for (let index = 0; index < this.queue.length; index++) {
       const item = this.queue[index];
@@ -38,12 +78,12 @@ export class SyncManagerFacade implements ISyncManager {
         const success = await handler.push(item);
         if (success) {
           processed.push(item.id);
-          syncedCount++;
+          syncedCountRef[0]++;
         } else {
           item.retryCount++;
           if (item.retryCount >= MAX_RETRY_COUNT) {
             processed.push(item.id);
-            conflicts.push(item);
+            await this.tryResolveConflict(handler, item, conflicts, syncedCountRef);
           }
           failedCount++;
         }
@@ -53,11 +93,13 @@ export class SyncManagerFacade implements ISyncManager {
         item.retryCount++;
         if (item.retryCount >= MAX_RETRY_COUNT) {
           processed.push(item.id);
-          conflicts.push(item);
+          await this.tryResolveConflict(handler, item, conflicts, syncedCountRef);
         }
         failedCount++;
       }
     }
+
+    syncedCount = syncedCountRef[0];
 
     for (let index = this.queue.length - 1; index >= 0; index--) {
       const itemId = this.queue[index].id;

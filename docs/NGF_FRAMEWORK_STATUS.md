@@ -1,6 +1,6 @@
 # NGF 框架现状与功能缺口分析
 
-> 最后更新: 2026-05-08
+> 最后更新: 2026-05-28
 
 ## 一、框架概述
 
@@ -28,7 +28,7 @@ entry/src/main/ets/Framework/NGF/
 
 ## 三、各层完成度评估
 
-### 3.1 core (核心层) - 完成度: 95%
+### 3.1 core (核心层) - 完成度: 98%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -52,9 +52,9 @@ entry/src/main/ets/Framework/NGF/
 - ✅ 模块启用/禁用配置 (IModuleConfig JSON 配置驱动的模块开关)
 
 **缺口**:
-- 缺少模块热重载/卸载能力
+- [x] ~~缺少模块热重载/卸载能力~~ - NGFModuleRegistry.reloadModule() 已实现
 
-### 3.2 platformOhos (平台层) - 完成度: 75%
+### 3.2 platformOhos (平台层) - 完成度: 85%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -66,11 +66,11 @@ entry/src/main/ets/Framework/NGF/
 | IntegrationFacade | 已完成 | 含 4 个子 facade 的统一引导 |
 
 **缺口**:
-- 缺少窗口生命周期事件的事件总线集成
+- [x] ~~缺少窗口生命周期事件的事件总线集成~~ - 已完成：WindowStageEvent 通过 EventBus 发布
 - 缺少多窗口/分屏场景的策略支持
-- 缺少窗口尺寸/位置的编程式控制接口
+- [x] ~~缺少窗口尺寸/位置的编程式控制接口~~ - 已完成：setWindowSize/setWindowPosition/setWindowMaximize/setWindowMinimize/setWindowFullScreen
 
-### 3.3 data (数据层) - 完成度: 90%
+### 3.3 data (数据层) - 完成度: 95%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -93,7 +93,7 @@ entry/src/main/ets/Framework/NGF/
 - 缺少数据加密/脱敏能力
 - 缺少大数据量的分页/流式读取
 
-### 3.4 contentWorkflow (工作流层) - 完成度: 85%
+### 3.4 contentWorkflow (工作流层) - 完成度: 95%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -110,10 +110,10 @@ entry/src/main/ets/Framework/NGF/
 
 **缺口**:
 - 缺少并行步骤编排
-- 缺少循环、超时等控制流
+- [x] ~~缺少循环、超时等控制流~~ - 已完成：loop 步骤类型支持 iterations + inner steps + loopIndex 变量
 - 缺少工作流可视化调试工具
 
-### 3.5 contentSource (内容源层) - 完成度: 85%
+### 3.5 contentSource (内容源层) - 完成度: 92%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -132,7 +132,7 @@ entry/src/main/ets/Framework/NGF/
 **缺口**:
 - 缺少内容源的配置化管理 (JSON/YAML 配置驱动)
 
-### 3.6 uiShell (UI 壳层) - 完成度: 90%
+### 3.6 uiShell (UI 壳层) - 完成度: 95%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -153,7 +153,7 @@ entry/src/main/ets/Framework/NGF/
 - 缺少页面转场动画的统一管理
 - 缺少通用的列表页、表单页、详情页模板组件
 
-### 3.7 uiTheme (主题层) - 完成度: 90%
+### 3.7 uiTheme (主题层) - 完成度: 95%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -167,10 +167,10 @@ entry/src/main/ets/Framework/NGF/
 - ✅ 动态字体大小调节 (IFontScaleManager 4 级预设 + 自定义缩放 0.5x-2.0x)
 
 **缺口**:
-- 缺少自定义主题包/主题切换能力
+- [x] ~~缺少自定义主题包/主题切换能力~~ - 已完成：NGFThemePack + loadThemePack/applyThemePack
 - 缺少组件级主题覆盖机制
 
-### 3.8 i18n (国际化层) - 完成度: 85%
+### 3.8 i18n (国际化层) - 完成度: 92%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -188,7 +188,7 @@ entry/src/main/ets/Framework/NGF/
 - 缺少 RTL (从右到左) 布局支持
 - 缺少翻译键值的类型安全检查
 
-### 3.9 deviceAwareness (设备感知层) - 完成度: 85%
+### 3.9 deviceAwareness (设备感知层) - 完成度: 92%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -205,7 +205,7 @@ entry/src/main/ets/Framework/NGF/
 **缺口**:
 - 缺少无障碍 (Accessibility) 能力封装
 
-### 3.10 utils (工具层) - 完成度: 98%
+### 3.10 utils (工具层) - 完成度: 100%
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
@@ -221,7 +221,7 @@ entry/src/main/ets/Framework/NGF/
 - ✅ 文件操作工具 (FileUtils 文本/二进制读写、目录遍历、复制/移动/删除)
 
 **缺口**:
-- 缺少正则/字符串处理工具集
+- 无
 
 ## 四、演示与验证页
 
@@ -238,13 +238,14 @@ entry/src/main/ets/Framework/NGF/
 | NGFDemoDataStoragePage | pages/ngf/NGFDemoDataStoragePage.ets | FileUtils 文件读写、目录操作、ContentCache LRU 缓存 |
 | NGFDemoWorkflowPage | pages/ngf/NGFDemoWorkflowPage.ets | 工作流 DSL 执行、条件分支、状态持久化 |
 | NGFDemoDeviceDisplayPage | pages/ngf/NGFDemoDeviceDisplayPage.ets | 多语言相对时间、设备能力检测、字体缩放控制 |
+| NGFCapabilitiesNetworkPage | pages/ngf/NGFCapabilitiesNetworkPage.ets | 网络请求 HttpClient 演示 |
+| NGFDemoErrorRecoveryPage | pages/ngf/NGFDemoErrorRecoveryPage.ets | 错误恢复策略演示 |
+| NGFDemoSyncManagerPage | pages/ngf/NGFDemoSyncManagerPage.ets | 数据同步机制演示 |
 
-MainMenuPage 采用 4 Tab 布局: 框架 / 功能 / 设备 / 设置，"功能" Tab 包含 4 个演示入口卡片。
+MainMenuPage 采用 4 Tab 布局: 框架 / 功能 / 设备 / 设置，"功能" Tab 包含多个演示入口卡片。
 
 **剩余缺口**:
-- 缺少网络请求演示 (HttpClient)
-- 缺少错误恢复策略演示
-- 缺少数据同步机制演示 (SyncManager)
+- 无
 
 ## 五、作为可复用框架的完整缺口清单
 
@@ -280,7 +281,7 @@ MainMenuPage 采用 4 Tab 布局: 框架 / 功能 / 设备 / 设置，"功能" T
 | 16 | 通用页面模板 | uiShell | 低 | 列表页、表单页、详情页、设置页模板 |
 | 17 | ~~颜色 Token 体系~~ | uiTheme | 中 | ✅ 已完成: IColorTokenProvider 20 个语义化颜色 |
 | 18 | ~~动态字体大小调节~~ | uiTheme | 中 | ✅ 已完成: IFontScaleManager 4 级预设 + 自定义 0.5x-2.0x |
-| 19 | 自定义主题包 | uiTheme | 低 | 运行时切换主题包能力 |
+| 19 | ~~自定义主题包~~ | uiTheme | 低 | ✅ 已完成: NGFThemePack + loadThemePack/applyThemePack |
 
 ### 5.4 质量与工具层缺口 (中低优先级)
 

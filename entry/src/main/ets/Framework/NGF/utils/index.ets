@@ -21,3 +21,4 @@ export {
 } from './SecurityToolkit';
 export { FileUtils, NGFFileEntry } from './FileUtils';
 export { crashAnalytics, CrashAnalyticsFacade } from './CrashAnalyticsFacade';
+export { StringUtils } from './StringUtils';

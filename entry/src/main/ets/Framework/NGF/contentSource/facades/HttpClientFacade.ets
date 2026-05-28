@@ -18,25 +18,43 @@ export class HttpClientFacade implements IHttpClient {
       finalOptions = await this.interceptors[i].onRequest(finalOptions);
     }
 
-    let finalResponse: NGFHttpResponse;
-    const httpRequest = http.createHttp();
-    try {
-      const response = await httpRequest.request(
-        finalOptions.url,
-        this.buildOptions(finalOptions)
-      ) as http.HttpResponse;
-      const headerStr = this.stringifyHeaders(response.header as object);
-      const rawResult = response.result;
-      const resultStr = typeof rawResult === 'string' ? rawResult : '';
-      const cookies = response.cookies !== undefined ? response.cookies : '';
-      logger.debug(TAG, `请求完成: url=${finalOptions.url}, status=${response.responseCode}`);
-      finalResponse = new NGFHttpResponse(response.responseCode, headerStr, resultStr, cookies);
-    } catch (error) {
-      const message = this.errorToString(error as Object | string | number | boolean);
-      logger.error(TAG, `请求失败: url=${finalOptions.url}, error=${message}`);
-      throw new Error(`HTTP request failed: ${message}`);
-    } finally {
-      httpRequest.destroy();
+    let finalResponse: NGFHttpResponse | null = null;
+    let attempts = 0;
+    const maxAttempts = finalOptions.maxRetries + 1;
+    let lastError: Error | null = null;
+
+    while (attempts < maxAttempts) {
+      const httpRequest = http.createHttp();
+      try {
+        const response = await httpRequest.request(
+          finalOptions.url,
+          this.buildOptions(finalOptions)
+        ) as http.HttpResponse;
+        const headerStr = this.stringifyHeaders(response.header as object);
+        const rawResult = response.result;
+        const resultStr = typeof rawResult === 'string' ? rawResult : '';
+        const cookies = response.cookies !== undefined ? response.cookies : '';
+        logger.debug(TAG, `请求完成: url=${finalOptions.url}, status=${response.responseCode}`);
+        finalResponse = new NGFHttpResponse(response.responseCode, headerStr, resultStr, cookies);
+        httpRequest.destroy();
+        break; // 成功则跳出循环
+      } catch (error) {
+        attempts++;
+        const message = this.errorToString(error as Object | string | number | boolean);
+        logger.warn(TAG, `请求尝试失败: url=${finalOptions.url}, attempt=${attempts}, error=${message}`);
+        lastError = new Error(`HTTP request failed: ${message}`);
+        httpRequest.destroy();
+        
+        if (attempts >= maxAttempts) {
+          logger.error(TAG, `请求重试耗尽: url=${finalOptions.url}, maxRetries=${finalOptions.maxRetries}`);
+        } else {
+          await this.sleep(1000 * attempts);
+        }
+      }
+    }
+
+    if (!finalResponse) {
+      throw lastError || new Error('HTTP request failed');
     }
 
     for (let i = this.interceptors.length - 1; i >= 0; i--) {
@@ -44,6 +62,14 @@ export class HttpClientFacade implements IHttpClient {
     }
 
     return finalResponse;
+  }
+
+  private async sleep(durationMs: number): Promise<void> {
+    await new Promise<void>((resolve: () => void) => {
+      setTimeout((): void => {
+        resolve();
+      }, durationMs);
+    });
   }
 
   private buildOptions(options: NGFHttpRequestOptions): http.HttpRequestOptions {

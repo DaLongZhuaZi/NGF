@@ -42,6 +42,40 @@ export class OverlayManagerFacade implements IOverlayManager {
     }
   }
 
+  showSheet(content: ComponentContent<object>, options?: SheetOptions): void {
+    const uiContext = uiContextManager.getUIContext();
+    if (!uiContext) {
+      logger.error(TAG, 'showSheet failed: UIContext not found.');
+      return;
+    }
+
+    try {
+      if (options !== undefined) {
+        uiContext.openBindSheet(content, options);
+      } else {
+        uiContext.openBindSheet(content);
+      }
+      logger.info(TAG, 'showSheet triggered.');
+    } catch (e) {
+      logger.error(TAG, `showSheet failed: ${e}`);
+    }
+  }
+
+  hideSheet(content: ComponentContent<object>): void {
+    const uiContext = uiContextManager.getUIContext();
+    if (!uiContext) {
+      logger.error(TAG, 'hideSheet failed: UIContext not found.');
+      return;
+    }
+
+    try {
+      uiContext.closeBindSheet(content);
+      logger.info(TAG, 'hideSheet triggered.');
+    } catch (e) {
+      logger.error(TAG, `hideSheet failed: ${e}`);
+    }
+  }
+
   showToast(message: string): void {
     const uiContext = uiContextManager.getUIContext();
     if (uiContext) {

@@ -29,24 +29,20 @@ export * from './data/rdb/contracts/IRelationalStore';
 export * from './data/rdb/facades/RdbManagerFacade';
 
 // WebBridge
-export * from './webBridge/contracts/IWebBridge';
-export * from './webBridge/facades/WebManagerFacade';
-export * from './webBridge/components/NGFWebView';
+export * from './webBridge/index';
 
 // Security
-export * from './security/facades/UserAuthenticationFacade';
-export * from './security/facades/KeyStoreManagerFacade';
+export * from './security/index';
 
 // Hardware
-export * from './hardware/facades/LocationManagerFacade';
-export * from './hardware/facades/SensorManagerFacade';
+export * from './hardware/index';
 
 // Media
-export * from './media/facades/MediaPickerFacade';
+export * from './media/index';
 export * from './media/components/NGFAVPlayer';
 
 // Push
-export * from './push/facades/PushManagerFacade';
+export * from './push/index';
 
 // Interconnect
-export * from './interconnect/facades/AppLinkingFacade';
+export * from './interconnect/index';

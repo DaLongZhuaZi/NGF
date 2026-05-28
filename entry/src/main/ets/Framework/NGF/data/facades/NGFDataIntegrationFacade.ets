@@ -13,6 +13,7 @@ import { ngfRelationalStoreFacade } from './RelationalStoreFacade';
 import { ngfSettingsStoreFacade } from './SettingsStoreFacade';
 import { ngfStorageProviderFacade } from './StorageProviderFacade';
 import { ngfSyncManagerFacade } from './SyncManagerFacade';
+import { ngfEncryptedSettingsStore } from './EncryptedSettingsStoreFacade';
 
 const TAG: string = 'NGFDataIntegrationFacade';
 const DB_NAME: string = 'ngf_data.db';
@@ -30,6 +31,7 @@ export class NGFDataIntegrationFacade extends NGFIntegrationFacadeBase {
     registrations.push(new NGFServiceRegistration('ngf.data.db_migrator', 'DbMigratorFacade', ngfDbMigratorFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.data.relational_store', 'RelationalStoreFacade', ngfRelationalStoreFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.data.sync_manager', 'SyncManagerFacade', ngfSyncManagerFacade as object));
+    registrations.push(new NGFServiceRegistration('ngf.data.encrypted_settings_store', 'EncryptedSettingsStoreFacade', ngfEncryptedSettingsStore as object));
     return registrations;
   }
 

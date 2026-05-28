@@ -20,6 +20,7 @@ export class NGFHttpRequestOptions {
   readonly extraData: string;
   readonly connectTimeout: number;
   readonly readTimeout: number;
+  readonly maxRetries: number;
 
   constructor(
     method: NGFHttpMethod,
@@ -27,7 +28,8 @@ export class NGFHttpRequestOptions {
     header: string = '',
     extraData: string = '',
     connectTimeout: number = 30000,
-    readTimeout: number = 30000
+    readTimeout: number = 30000,
+    maxRetries: number = 0
   ) {
     this.method = method;
     this.url = url;
@@ -35,6 +37,7 @@ export class NGFHttpRequestOptions {
     this.extraData = extraData;
     this.connectTimeout = connectTimeout;
     this.readTimeout = readTimeout;
+    this.maxRetries = maxRetries;
   }
 }
 
