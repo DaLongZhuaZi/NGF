@@ -13,3 +13,12 @@
 /.antigravitycli
 /.claude
 /.atomcode
+
+# Signing and Certificate files
+*.p12
+*.cer
+*.csr
+*.p7b
+*.pem
+*.keystore
+*.jks
