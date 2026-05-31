@@ -50,11 +50,11 @@ export class NGFHdsDemoRouteName {
 // entry/src/main/ets/pages/ngf/MyNewPage.ets
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
-import {
+import { 
+  NGFHdsTitleBarOptionsFactory,
   NGFImmersiveTopChromeUnderlay,
   NGFImmersiveTopChromePresetFactory
-} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
+} from 'ngf_framework';
 
 const TAG: string = 'MyNewPage';
 // 顶部底板高度（参考 MainMenuPage 的常量）
@@ -203,12 +203,19 @@ secondaryGlowColor: '#32A4F2D8'  // 青色光晕
 
 ---
 
-## 7. 关键文件路径速查
+## 7. 关键框架组件速查（可从 `ngf_framework` 导入）
+
+| 组件/工厂 | 说明 |
+|------|------|
+| `NGFHdsTitleBarOptionsFactory` | HDS 顶栏参数构建器 |
+| `NGFImmersiveTopChromeUnderlay` | 沉浸式顶部底板光效组件 |
+| `NGFImmersiveTopChromePresetFactory` | 底板预设光效构建器 |
+| `NGFPageWindowSupport` | 窗口策略辅助类（支持动态获取状态栏高度） |
+
+## 8. 关键业务文件路径速查
 
 | 文件 | 说明 |
 |------|------|
-| `entry/src/main/ets/Framework/NGF/uiShell/components/HdsNavigationSupport.ets` | `NGFHdsTitleBarOptionsFactory` |
-| `entry/src/main/ets/Framework/NGF/uiShell/components/NGFImmersiveTopChrome.ets` | `NGFImmersiveTopChromeUnderlay`、`NGFImmersiveTopChromePresetFactory` |
 | `entry/src/main/ets/pages/ngf/HdsDemoRoutes.ets` | `NGFHdsDemoRouteName` 路由常量 |
 | `entry/src/main/ets/pages/ngf/MainMenuPage.ets` | `buildNavDestination` Builder，新页面在此注册 |
 | `entry/src/main/ets/pages/ngf/HdsIntegratedShowcasePage.ets` | 综合示例页，可参考布局模式 |

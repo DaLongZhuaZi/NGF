@@ -34,7 +34,13 @@
 ### 2.2 导入
 
 ```typescript
-import { ngfSystem, NGFTaskInfo, NGFTaskState } from '../../Framework/NGF/systemTasks/index';
+import {
+  ngfSystemNotificationManagerFacade,
+  NGFNotificationAction,
+  NGFNotificationType,
+  ngfBackgroundTaskManagerFacade,
+  NGFDataSyncRequest
+} from 'ngf_framework';
 ```
 
 ### 2.3 标准读取模式（响应式）

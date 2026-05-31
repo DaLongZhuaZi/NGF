@@ -80,8 +80,8 @@
 - 当前 `AppScope/app.json5` 的 `bundleName` 为 `com.dlzz.ngf`。
 - 当前 `entry/src/main/module.json5` 的主能力为 `EntryAbility`，页面入口通过 `$profile:main_pages` 声明。
 - 当前 `entry/src/main/resources/base/profile/main_pages.json` 中注册的入口页面为 `pages/ngf/MainMenuPage`。
-- 当前页面目录以 `entry/src/main/ets/pages/` 为主，其中 `entry/src/main/ets/pages/ngf/` 承担 NGF 演示与展示页职责。
-- 当前框架主目录为 `entry/src/main/ets/Framework/NGF/`，已确认存在以下一级目录：
+- 当前页面目录以 `entry/src/main/ets/pages/` 为主，业务页面通常放在该目录下。
+- 当前框架主目录为 `ngf_framework/src/main/ets/`，这是个独立的 HAR 包，已确认存在以下一级目录：
   - `core`：核心契约、生命周期、日志抽象、事件抽象、服务容器、启动内核、DependencyContainer。
   - `platformOhos`：HarmonyOS 平台桥接、上下文桥接(UIContextManager)、窗口策略、平台控制能力。
   - `data`：缓存、设置(SettingsManager)、存储(SandboxManager)、迁移与数据门面。
@@ -89,7 +89,7 @@
   - `contentSource`：通用内容源注册、加载、仓储与接入门面。
   - `uiShell`：导航壳层、页面策略宿主、UI 外壳能力，以及可复用 UI 组件(`components/` 下含 HdsNavigationSupport、NGFImmersiveTopChrome)。
   - `utils`：日志、时间、日志收集等基础工具。
-- 当前日志实现文件为 `entry/src/main/ets/Framework/NGF/utils/Logger.ets`。
+- 当前日志实现文件为 `ngf_framework/src/main/ets/utils/Logger.ets`。
 - 当前 `local.properties` 未记录 SDK 路径，因此 **不能** 把它作为判断 SDK 绑定状态的唯一依据。
 
 ### 3.1 本机 SDK 与 IDE 路径基线
@@ -123,7 +123,7 @@
 ## 4. 框架目录与修改原则
 
 - 修改代码前，先判断目标文件属于哪一层，再沿用该层既有模式，不要强行套用单一架构。
-- 当前 `entry/src/main/ets/Framework/NGF/` 目录的职责可按以下方式理解：
+- 当前 `ngf_framework/src/main/ets/` 目录的职责可按以下方式理解：
   - `core`：核心契约、生命周期、日志抽象、事件抽象、服务容器、启动内核、DependencyContainer。
   - `platformOhos`：HarmonyOS 平台桥接、上下文桥接(UIContextManager)、窗口策略、平台控制能力。
   - `data`：缓存、设置(SettingsManager)、存储(SandboxManager)、迁移与数据门面。
@@ -171,7 +171,7 @@
 - `Get-Content -Encoding utf8 AppScope/app.json5`
 - `Get-Content -Encoding utf8 entry/src/main/module.json5`
 - `Get-Content -Encoding utf8 entry/src/main/resources/base/profile/main_pages.json`
-- `Get-ChildItem -Path entry/src/main/ets/Framework/NGF -Directory`
+- `Get-ChildItem -Path ngf_framework/src/main/ets -Directory`
 - `Test-Path "F:\HarmonyOS\SDK"`
 - `Test-Path "F:\DevEco Studio\sdk\default\openharmony"`
 
@@ -261,7 +261,7 @@
 
 ### 7.1 日志与问题分析
 
-- 日志系统统一优先使用 `entry/src/main/ets/Framework/NGF/utils/Logger.ets`。
+- 日志系统统一优先使用 `ngf_framework/src/main/ets/utils/Logger.ets`，通过 `import { logger } from 'ngf_framework'` 使用。
 - 优先使用以下日志方法：
   - `logger.debug`
   - `logger.info`
@@ -289,10 +289,10 @@
 - 页面跳转时，优先沿用目标文件现有导航方式；不要在同一文件中混用多套导航模式。
 - 如果目标文件已经使用 `this.getUIContext().getRouter()`，则在该文件内保持一致。
 - 涉及沉浸式布局、安全区、系统栏、窗口策略时，应优先复用目标模块现有写法与 `platformOhos` 层能力，不要临时手写一套平行规则。
-- `pages/ngf` 下的框架演示页以及后续新增展示页，默认应沿用 `MainMenuPage` 的沉浸式 HDS 顶栏模式：根层使用 `HdsNavigation` 或 `HdsNavDestination`，标题栏通过 `NGFHdsTitleBarOptionsFactory.build(...)` 配置(位于 `Framework/NGF/uiShell/components/HdsNavigationSupport.ets`)，内容层通过 `NGFImmersiveTopChromeUnderlay`(位于 `Framework/NGF/uiShell/components/NGFImmersiveTopChrome.ets`) 提供顶部沉浸底板，并为主内容显式设置默认顶部避让。
+- `pages/ngf` 下的框架演示页以及后续新增展示页，默认应沿用 `MainMenuPage` 的沉浸式 HDS 顶栏模式：根层使用 `HdsNavigation` 或 `HdsNavDestination`，标题栏通过 `NGFHdsTitleBarOptionsFactory.build(...)` 配置(位于 `ngf_framework/src/main/ets/uiShell/components/HdsNavigationSupport.ets`)，内容层通过 `NGFImmersiveTopChromeUnderlay`(位于 `ngf_framework/src/main/ets/uiShell/components/NGFImmersiveTopChrome.ets`) 提供顶部沉浸底板，并为主内容显式设置默认顶部避让。
 - 对于带 `SubHeader`、`Tabs`、筛选条、操作条等多功能顶部区域的页面，这些控件应归属于标题栏下方的内容层，而不是再额外拼装一套自定义标题栏；如页面存在一个或多个实际滚动容器，必须把对应 `Scroller` 绑定到 HDS 导航容器，并按需配置 `ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])` 以保证顶部玻璃模糊与光感效果可见。
 - 对于 `HdsNavDestination` 类页面，如目标是“标题栏本身正确避让系统状态栏、但页面内容底板继续延伸到状态栏区域”，优先采用“标题栏避让 + 内容层扩展”的分离模式：`titleBar` 显式传入 `avoidLayoutSafeArea = true`、`enableComponentSafeArea = false`，页面内容层或顶部底板通过 `expandSafeArea(...)` / 现有沉浸 helper 延伸到顶部安全区，而不要默认把整个 `HdsNavDestination` 根节点都设置为忽略顶部安全区。
-- 新增或重构窗口管理能力时，统一优先接入 `entry/src/main/ets/Framework/NGF/platformOhos/` 的窗口管理器；`EntryAbility` 负责绑定/释放 `WindowStage`，页面层通过页面策略宿主或统一辅助层激活窗口策略。旧版 `Utils/` 目录已删除，所有窗口管理能力已整合到 `platformOhos` 层。
+- 新增或重构窗口管理能力时，统一优先接入 `ngf_framework/src/main/ets/platformOhos/` 的窗口管理器；`EntryAbility` 负责绑定/释放 `WindowStage`，页面层通过页面策略宿主或统一辅助层激活窗口策略。旧版 `Utils/` 目录已删除，所有窗口管理能力已整合到 `platformOhos` 层。
 - `List` 组件必须显式设置 `width` 和 `height`，避免布局告警。
 
 ### 7.4 UI、动画与组件
@@ -335,7 +335,7 @@
 
 - 不使用 `globalThis` 管理全局状态，优先使用单例模式。
 - 单例类应提供私有构造函数、静态 `getInstance()` 方法，以及必要的生命周期管理方法。
-- 跨模块通信优先复用目标模块现有事件机制；如果进入 NGF 分层，应优先依赖显式契约，例如 `entry/src/main/ets/Framework/NGF/core/contracts/IEventBus.ets` 的抽象思路，而不是引入新的隐式全局对象方案。
+- 跨模块通信优先复用目标模块现有事件机制；如果进入 NGF 分层，应优先依赖显式契约，例如 `ngf_framework/src/main/ets/core/contracts/IEventBus.ets` 的抽象思路，而不是引入新的隐式全局对象方案。
 - 页面组件必须在合适的生命周期中订阅和取消订阅事件，避免泄漏和重复触发。
 - 事件载荷必须保持类型安全，不要传递未类型化数据。
 
@@ -353,7 +353,7 @@
 - 是否确认本次修改是在建设 NGF 框架能力，而不是无意中把仓库往某个单一 App 方向收窄。
 - 是否完成了最小必要的环境核查，并确认当前实际 SDK、入口页、模块层级与工作目录。
 - 是否避免了 `any`、`unknown`、未类型化对象字面量、危险空值访问和动态索引访问。
-- 是否使用了 `entry/src/main/ets/Framework/NGF/utils/Logger.ets` 和项目既有日志风格。
+- 是否使用了 `import { logger } from 'ngf_framework'` 和项目既有日志风格。
 - 是否沿用了目标文件已有的导航方式、窗口策略与架构模式。
 - 是否确认了同名文件或近名文件的正确路径。
 - 是否在需要时为高风险修改创建了 `*.bak` 备份。

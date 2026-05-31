@@ -152,4 +152,4 @@ HdsTabs({ barPosition: BarPosition.End, controller: this.tabsController }) {
 |------|------|
 | `entry/src/main/ets/pages/ngf/MainMenuPage.ets` | 根导航主页，已配置标准的 `bottomInsetVp` 避让与 `barBottomMargin` 样式。 |
 | `entry/src/main/ets/pages/ngf/HdsIntegratedShowcasePage.ets` | 综合示例页，内含多处 `HdsTabs` 布局。 |
-| `entry/src/main/ets/Framework/NGF/uiShell/components/NGFHdsTabsFactory.ets` | HdsTabs 通用封装工厂类。 |
+| `ngf_framework/src/main/ets/uiShell/components/NGFHdsTabsFactory.ets` | HdsTabs 通用封装工厂类。 |

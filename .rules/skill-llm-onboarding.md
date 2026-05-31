@@ -20,7 +20,8 @@ HarmonyOS Next 项目依赖特定的 DevEco Studio 与 SDK 路径，不同机器
 ### 2.1 检查项目配置基线
 请主动读取以下关键文件（务必使用 UTF-8 编码读取）：
 - `build-profile.json5`：提取 `targetSdkVersion` 与 `compatibleSdkVersion`。
-- `oh-package.json5`：获取依赖和 `modelVersion`。
+- `ngf_framework/oh-package.json5`：这是框架主模块配置，获取核心依赖和 `modelVersion`。
+- `entry/oh-package.json5`：这是应用层模块配置。
 - `AppScope/app.json5`：获取 `bundleName`。
 
 ### 2.2 扫描本地 SDK 与 IDE 路径

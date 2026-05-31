@@ -10,16 +10,18 @@
 
 ## 规则文件列表
 
-| 文件 | 技能 | 适用场景 |
-|------|------|---------|
-| [skill-hds-page-design.md](skill-hds-page-design.md) | HDS 页面设计技能 | 新建 NavDestination 页面、沉浸式顶栏布局、光效/材质配置 |
-| [skill-hds-tab.md](skill-hds-tab.md) | HDS TabBar 与 HdsTabs 布局技能 | 底部导航栏/标签页的浮动样式、特效材质配置及底部避让安全区处理 |
-| [skill-manager-apis.md](skill-manager-apis.md) | 框架管理器 API 技能 | 使用主题、语言、视效、握持感知等管理能力 |
-| [skill-system-tasks.md](skill-system-tasks.md) | 任务管理与系统通知技能 | 提交后台长时任务、监听任务进度、发送系统通知、事件意图派发 |
-| [skill-arkts-types.md](skill-arkts-types.md) | ArkTS 类型安全技能 | 涉及 Map、Array、ForEach 及回调函数的强类型声明 |
-| [skill-llm-onboarding.md](skill-llm-onboarding.md) | LLM 项目初始化技能 | Agent 新会话开启、定位环境 SDK 路径、构造编译命令 |
-| [skill-ui-symbols.md](skill-ui-symbols.md) | UI 图标与 Symbol 规范技能 | 涉及 UI 图标选用，避免使用 Emoji，规范化使用 sys.symbol |
-| [skill-rules-update.md](skill-rules-update.md) | 规则滚动更新技能 | 开发者手动触发，将项目最新实践沉淀回本规则库 |
+| 规则大类 | 具体技能文件 | 说明 / 触发时机 |
+|---------|-------------|---------------|
+| **快速开发** | [skill-scaffold-page.md](skill-scaffold-page.md) | **新建页面必读**：如何一句指令瞬间生成符合标准、带路由的 HDS 页面。 |
+| **快速开发** | [skill-component-reuse.md](skill-component-reuse.md) | **添加功能前必读**：如何直接复用 `ngf_framework` 的 UI 积木和核心门面，拒绝重复造轮子。 |
+| **页面设计** | [skill-hds-page-design.md](skill-hds-page-design.md) | HDS 页面设计技能：新建 NavDestination 页面、沉浸式顶栏布局、光效/材质配置 |
+| **页面设计** | [skill-hds-tab.md](skill-hds-tab.md) | HDS TabBar 与 HdsTabs 布局技能：底部导航栏/标签页的浮动样式、特效材质配置及底部避让安全区处理 |
+| **框架能力** | [skill-manager-apis.md](skill-manager-apis.md) | 框架管理器 API 技能：使用主题、语言、视效、握持感知等管理能力 |
+| **框架能力** | [skill-system-tasks.md](skill-system-tasks.md) | 任务管理与系统通知技能：提交后台长时任务、监听任务进度、发送系统通知、事件意图派发 |
+| **编程基础** | [skill-arkts-types.md](skill-arkts-types.md) | ArkTS 类型安全技能：涉及 Map、Array、ForEach 及回调函数的强类型声明 |
+| **编程基础** | [skill-llm-onboarding.md](skill-llm-onboarding.md) | LLM 项目初始化技能：Agent 新会话开启、定位环境 SDK 路径、构造编译命令 |
+| **UI 规范** | [skill-ui-symbols.md](skill-ui-symbols.md) | UI 图标与 Symbol 规范技能：涉及 UI 图标选用，避免使用 Emoji，规范化使用 sys.symbol |
+| **规则维护** | [skill-rules-update.md](skill-rules-update.md) | 规则滚动更新技能：开发者手动触发，将项目最新实践沉淀回本规则库 |
 
 ---
 

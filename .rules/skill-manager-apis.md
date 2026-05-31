@@ -38,8 +38,7 @@
 ### 2.2 导入
 
 ```typescript
-import { NGFThemeMode } from '../../Framework/NGF/uiTheme/contracts/IThemeManager';
-import { ngfThemeManagerFacade } from '../../Framework/NGF/uiTheme/facades/ThemeManagerFacade';
+import { NGFThemeMode, ngfThemeManagerFacade } from 'ngf_framework';
 ```
 
 ### 2.3 标准读取模式（响应式）
@@ -120,8 +119,7 @@ aboutToDisappear(): void {
 ### 3.2 导入
 
 ```typescript
-import { ngfI18nManagerFacade } from '../../Framework/NGF/i18n/facades/I18nManagerFacade';
-import { resolveResourceString } from '../../Framework/NGF/i18n/index';
+import { ngfI18nManagerFacade, resolveResourceString } from 'ngf_framework';
 ```
 
 ### 3.3 标准读取模式
@@ -183,8 +181,7 @@ const str = resolveResourceString(this.getUIContext().getHostContext(), $r('app.
 ### 4.2 导入
 
 ```typescript
-import { NGFVisualEffectsMaterialMode } from '../../Framework/NGF/deviceAwareness/contracts/IVisualEffectsManager';
-import { ngfVisualEffectsFacade } from '../../Framework/NGF/deviceAwareness/facades/VisualEffectsFacade';
+import { NGFVisualEffectsMaterialMode, ngfVisualEffectsFacade } from 'ngf_framework';
 import { hdsMaterial } from '@kit.UIDesignKit';
 ```
 
@@ -266,13 +263,15 @@ aboutToDisappear(): void {
 ### 5.2 导入
 
 ```typescript
-import {
-  NGFHoldingUiAnchor,
-  NGFHoldingAwarenessSide,
-  NGFHoldingAwarenessSnapshot,
-  NGFHoldingAwarenessListener
-} from '../../Framework/NGF/deviceAwareness/contracts/IHoldingAwarenessManager';
-import { ngfHoldingAwarenessFacade } from '../../Framework/NGF/deviceAwareness/facades/HoldingAwarenessFacade';
+import { 
+  NGFHoldingUiAnchor, 
+  NGFHoldingAwarenessSide, 
+  NGFHoldingAwarenessSnapshot, 
+  NGFHoldingAwarenessListener, 
+  NGFHoldingHandStatus, 
+  NGFOperatingHandStatus 
+} from 'ngf_framework';
+import { ngfHoldingAwarenessFacade } from 'ngf_framework';
 ```
 
 ### 5.3 标准读取模式（响应式）
