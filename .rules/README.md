@@ -14,6 +14,7 @@
 |---------|-------------|---------------|
 | **快速开发** | [skill-scaffold-page.md](skill-scaffold-page.md) | **新建页面必读**：如何一句指令瞬间生成符合标准、带路由的 HDS 页面。 |
 | **快速开发** | [skill-component-reuse.md](skill-component-reuse.md) | **添加功能前必读**：如何直接复用 `ngf_framework` 的 UI 积木和核心门面，拒绝重复造轮子。 |
+| **应用发布** | [skill-app-release.md](skill-app-release.md) | **业务定制与发布必读**：如何修改包名/图标，以及基于 AGC 的真实证书申请与上架打包流程。 |
 | **页面设计** | [skill-hds-page-design.md](skill-hds-page-design.md) | HDS 页面设计技能：新建 NavDestination 页面、沉浸式顶栏布局、光效/材质配置 |
 | **页面设计** | [skill-hds-tab.md](skill-hds-tab.md) | HDS TabBar 与 HdsTabs 布局技能：底部导航栏/标签页的浮动样式、特效材质配置及底部避让安全区处理 |
 | **框架能力** | [skill-manager-apis.md](skill-manager-apis.md) | 框架管理器 API 技能：使用主题、语言、视效、握持感知等管理能力 |

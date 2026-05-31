@@ -1,13 +1,6 @@
 # AGENTS
 
-本文件是本仓库统一的代理工作规范，已整合以下规则来源：
-
-- `.trae/rules/project_rules.md`
-- `.windsurf/rules/projectrules.md`
-- `.kiro/steering/projectrules.md`
-- `.cursor/rules/projectrules.mdc`
-
-目标是让 Codex、OpenCode、Claude Code 等支持 `AGENTS.md` 的代理都能读取同一份规则，并且始终从 **NGF 框架工程** 的视角理解仓库，而不是把它误判成某个单一业务 App。
+本文件是本仓库统一的代理工作规范，目标是让 Codex、OpenCode、Claude Code 、Trae 等支持 `AGENTS.md` 的代理都能读取同一份规则，并且始终从 **NGF 框架工程** 的视角理解仓库，而不是把它误判成某个单一业务 App。
 
 ## 1. 适用范围与优先级
 
@@ -38,6 +31,7 @@
 | [`.rules/skill-system-tasks.md`](.rules/skill-system-tasks.md) | 涉及后台下载、文件上传、数据同步、常驻通知、进度条通知、任务派发或系统事件订阅监听时 |
 | [`.rules/skill-arkts-types.md`](.rules/skill-arkts-types.md) | 涉及 ArkUI 组件中 Map 或 Array 的遍历（如 ForEach）、异常捕获（catch）、需要显式类型推断以解决 any/unknown 编译报错时 |
 | [`.rules/skill-llm-onboarding.md`](.rules/skill-llm-onboarding.md) | LLM 新会话初始化、首次接触本项目、遇到环境/SDK 路径异常、或遇到构建命令不生效问题时 |
+| [`.rules/skill-app-release.md`](.rules/skill-app-release.md) | 涉及修改应用包名、应用图标、打包发布、申请证书、生成 p12/csr 文件或上架 AGC 时 |
 | [`.rules/skill-ui-symbols.md`](.rules/skill-ui-symbols.md) | 涉及在 UI 中添加图标、状态提示、字符串带图或 LLM 意图主动生成 Emoji 作为标识时 |
 | [`.rules/skill-rules-update.md`](.rules/skill-rules-update.md) | 开发者明确要求将本次经验沉淀到规则库时（仅由开发者手动提起，不自动触发） |
 
