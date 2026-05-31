@@ -51,6 +51,18 @@
           ]
         }
       ]
+    },
+    {
+      "name": "ngf_framework",
+      "srcPath": "./ngf_framework",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
     }
   ]
 }

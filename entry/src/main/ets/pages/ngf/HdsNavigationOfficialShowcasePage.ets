@@ -6,21 +6,21 @@ import {
   HdsSceneType,
   HdsVisualComponent
 } from '@kit.UIDesignKit';
-import { logger } from '../../Framework/NGF/utils/Logger';
+import { logger } from 'ngf_framework';
 import { NGFHdsDemoRouteName } from './HdsDemoRoutes';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
+import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
-} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
+} from 'ngf_framework';
 import {
   NGFHdsEffectPresetFactory,
   NGFHdsInteractiveEffectPreset,
   NGFHdsInteractiveEffectPresetKind,
   NGFHdsMaterialSurfacePreset,
   NGFHdsSceneFlowPreset
-} from '../../Framework/NGF/uiShell/components/NGFHdsEffectPresets';
+} from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFHdsNavigationOfficialShowcasePage';

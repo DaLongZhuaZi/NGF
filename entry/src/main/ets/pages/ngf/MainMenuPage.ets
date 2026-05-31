@@ -1,19 +1,19 @@
 import { hdsEffect, hdsMaterial, HdsNavigation, HdsNavigationTitleMode, HdsTabs, HdsTabsController } from '@kit.UIDesignKit';
 import window from '@ohos.window';
-import { uiContextManager } from '../../Framework/NGF/platformOhos/UIContextManager';
-import { resolveResourceString } from '../../Framework/NGF/i18n/index';
-import { NGFErrorContext, NGFErrorSeverity } from '../../Framework/NGF/core/contracts/IErrorHandler';
-import { NGFEventPayload } from '../../Framework/NGF/core/contracts/IEventBus';
-import { NGFLogLevel } from '../../Framework/NGF/core/contracts/ILogger';
-import { NGFPhaseState } from '../../Framework/NGF/core/contracts/ILifecycleOrchestrator';
+import { uiContextManager } from 'ngf_framework';
+import { resolveResourceString } from 'ngf_framework';
+import { NGFErrorContext, NGFErrorSeverity } from 'ngf_framework';
+import { NGFEventPayload } from 'ngf_framework';
+import { NGFLogLevel } from 'ngf_framework';
+import { NGFPhaseState } from 'ngf_framework';
 import {
   NGFFrameworkRuntimeSnapshot,
   NGFModuleBootstrapReport,
   NGFModuleRuntimeSnapshot
-} from '../../Framework/NGF/core/contracts/IModuleBootstrap';
-import { ngfDeviceAdaptationFacade } from '../../Framework/NGF/deviceAwareness/facades/DeviceAdaptationFacade';
-import { NGFRuntimeStatus, NGFAppThreadInfo } from '../../Framework/NGF/deviceAwareness/contracts/IDeviceAdaptationManager';
-import { NGFStarterEventName, ngfStarterKernel } from '../../Framework/NGF/core/starter/index';
+} from 'ngf_framework';
+import { ngfDeviceAdaptationFacade } from 'ngf_framework';
+import { NGFRuntimeStatus, NGFAppThreadInfo } from 'ngf_framework';
+import { NGFStarterEventName, ngfStarterKernel } from 'ngf_framework';
 import { HdsIntegratedShowcasePage } from './HdsIntegratedShowcasePage';
 import {
   HdsNavigationOfficialEffectPage,
@@ -22,7 +22,7 @@ import {
   HdsNavigationOfficialShowcasePage
 } from './HdsNavigationOfficialShowcasePage';
 import { NGFHdsDemoRouteName } from './HdsDemoRoutes';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
+import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 import { NGFDeviceAwarenessPage } from './NGFDeviceAwarenessPage';
 import { NGFSettingsPage } from './NGFSettingsPage';

@@ -5,14 +5,14 @@ import {
   SYSTEM_SYMBOL_GROUPS,
   SYSTEM_SYMBOL_TOTAL_COUNT,
   SystemSymbolResourceGroup
-} from '../../Framework/NGF/resources/SystemSymbolCatalog';
-import { logger } from '../../Framework/NGF/utils/Logger';
+} from 'ngf_framework';
+import { logger } from 'ngf_framework';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
-} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
+} from 'ngf_framework';
+import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFSystemResourcePreviewPage';

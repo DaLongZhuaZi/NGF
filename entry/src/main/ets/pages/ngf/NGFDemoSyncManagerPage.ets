@@ -1,20 +1,20 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
-import { logger } from '../../Framework/NGF/utils/Logger';
+import { logger } from 'ngf_framework';
 import {
   NGFConflictStrategy,
   NGFSyncOperation,
   NGFSyncQueueItem,
   NGFSyncResult
-} from '../../Framework/NGF/data/contracts/ISyncManager';
-import { ISyncDataHandler } from '../../Framework/NGF/data/contracts/ISyncManager';
-import { ngfSyncManagerFacade } from '../../Framework/NGF/data/index';
+} from 'ngf_framework';
+import { ISyncDataHandler } from 'ngf_framework';
+import { ngfSyncManagerFacade } from 'ngf_framework';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
-} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
+} from 'ngf_framework';
+import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFDemoSyncManagerPage';

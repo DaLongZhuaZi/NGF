@@ -18,9 +18,9 @@ import {
   ngfDeviceAdaptationFacade,
   ngfHoldingAwarenessFacade,
   ngfVisualEffectsFacade
-} from '../../Framework/NGF/deviceAwareness/index';
-import { logger } from '../../Framework/NGF/utils/Logger';
-import { resolveResourceString } from '../../Framework/NGF/i18n/index';
+} from 'ngf_framework';
+import { logger } from 'ngf_framework';
+import { resolveResourceString } from 'ngf_framework';
 
 const TAG: string = 'NGFDeviceAwarenessPage';
 

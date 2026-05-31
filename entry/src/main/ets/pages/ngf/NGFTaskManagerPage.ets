@@ -1,14 +1,14 @@
 import { HdsNavDestination, hdsMaterial } from '@kit.UIDesignKit';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
+import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import {
   NGFImmersiveTopChromeUnderlay,
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec
-} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
-import { ngfSystem, NGFTaskInfo, NGFTaskState } from '../../Framework/NGF/systemTasks/index';
-import { NGFNotificationRequest, NGFNotificationType } from '../../Framework/NGF/systemTasks/contracts/ISystemNotificationManager';
+} from 'ngf_framework';
+import { ngfSystem, NGFTaskInfo, NGFTaskState } from 'ngf_framework';
+import { NGFNotificationRequest, NGFNotificationType } from 'ngf_framework';
 import { NGFPageWindowSupport } from './NGFPageWindowSupport';
-import { resolveResourceString } from '../../Framework/NGF/i18n/index';
+import { resolveResourceString } from 'ngf_framework';
 
 const DEMO_TOP_CHROME_BLUE: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFactory.build(
   '#07101E', '#0C2341', '#0A1626', '#3B82F6D8', '#22D3EED8', 160, 88

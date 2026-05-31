@@ -1,14 +1,14 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
-import { logger } from '../../Framework/NGF/utils/Logger';
+import { logger } from 'ngf_framework';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
-} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
+} from 'ngf_framework';
+import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
-import { ngfNetworkClient } from '../../Framework/NGF/index';
+import { ngfNetworkClient } from 'ngf_framework';
 
 const TAG: string = 'NGFCapabilitiesNetworkPage';
 

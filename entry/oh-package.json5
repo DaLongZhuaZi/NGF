@@ -5,7 +5,9 @@
   "main": "",
   "author": "",
   "license": "",
-  "dependencies": {}
+  "dependencies": {
+    "ngf_framework": "file:../ngf_framework"
+  }
 }
 
 

@@ -67,7 +67,7 @@ entry/src/main/ets/Framework/NGF/
 
 **缺口**:
 - [x] ~~缺少窗口生命周期事件的事件总线集成~~ - 已完成：WindowStageEvent 通过 EventBus 发布
-- 缺少多窗口/分屏场景的策略支持
+- [x] ~~缺少多窗口/分屏场景的策略支持~~ - 已完成：PlatformWindowManagerFacade 支持启发式分屏状态探测与广播
 - [x] ~~缺少窗口尺寸/位置的编程式控制接口~~ - 已完成：setWindowSize/setWindowPosition/setWindowMaximize/setWindowMinimize/setWindowFullScreen
 
 ### 3.3 data (数据层) - 完成度: 95%
@@ -90,8 +90,8 @@ entry/src/main/ets/Framework/NGF/
 - ✅ 数据同步机制 (ISyncManager + SyncManagerFacade 离线队列 + 冲突策略)
 
 **缺口**:
-- 缺少数据加密/脱敏能力
-- 缺少大数据量的分页/流式读取
+- [x] ~~缺少数据加密/脱敏能力~~ - 已完成：提供 IDataTransformer 强类型阻断拦截
+- [x] ~~缺少大数据量的分页/流式读取~~ - 已完成：queryRdbPaginated 直接对接 RDB 物理分页
 
 ### 3.4 contentWorkflow (工作流层) - 完成度: 95%
 
@@ -109,9 +109,9 @@ entry/src/main/ets/Framework/NGF/
 - ✅ 工作流持久化 (IWorkflowPersistence + WorkflowPersistenceFacade 基于 SettingsManager 的状态保存/恢复)
 
 **缺口**:
-- 缺少并行步骤编排
+- [x] ~~缺少并行步骤编排~~ - 已完成：引入 PARALLEL 步骤节点与并发调度机制
 - [x] ~~缺少循环、超时等控制流~~ - 已完成：loop 步骤类型支持 iterations + inner steps + loopIndex 变量
-- 缺少工作流可视化调试工具
+- [x] ~~缺少工作流可视化调试工具~~ - 已完成：新增 NGFWorkflowVisualizer 状态追踪组件
 
 ### 3.5 contentSource (内容源层) - 完成度: 92%
 
@@ -130,7 +130,7 @@ entry/src/main/ets/Framework/NGF/
 - ✅ 内容源健康检查 (ISourceHealthChecker + SourceHealthCheckerFacade 含延迟阈值降级检测)
 
 **缺口**:
-- 缺少内容源的配置化管理 (JSON/YAML 配置驱动)
+- [x] ~~缺少内容源的配置化管理 (JSON/YAML 配置驱动)~~ - 已完成：SourceRegistryFacade 支持 JSON 解析注册
 
 ### 3.6 uiShell (UI 壳层) - 完成度: 95%
 
@@ -150,8 +150,8 @@ entry/src/main/ets/Framework/NGF/
 - ✅ 页面状态保存/恢复 (IPageStateStore + PageStateStoreFacade 基于 SettingsManager 的状态持久化)
 
 **缺口**:
-- 缺少页面转场动画的统一管理
-- 缺少通用的列表页、表单页、详情页模板组件
+- [x] ~~缺少页面转场动画的统一管理~~ - 已完成：PageTransitionManagerFacade 提供统一管理
+- [x] ~~缺少通用的列表页、表单页、详情页模板组件~~ - 已完成：NGFPageTemplates.ets 提供多场景骨架
 
 ### 3.7 uiTheme (主题层) - 完成度: 95%
 
@@ -168,7 +168,7 @@ entry/src/main/ets/Framework/NGF/
 
 **缺口**:
 - [x] ~~缺少自定义主题包/主题切换能力~~ - 已完成：NGFThemePack + loadThemePack/applyThemePack
-- 缺少组件级主题覆盖机制
+- [x] ~~缺少组件级主题覆盖机制~~ - 已完成：ComponentThemeOverrideFacade 提供局部主题覆盖
 
 ### 3.8 i18n (国际化层) - 完成度: 92%
 
@@ -185,8 +185,8 @@ entry/src/main/ets/Framework/NGF/
 - ✅ 相对时间格式化 (IRelativeTimeFormatter 支持 zh/en/ja，含复数形式)
 
 **缺口**:
-- 缺少 RTL (从右到左) 布局支持
-- 缺少翻译键值的类型安全检查
+- [x] ~~缺少 RTL (从右到左) 布局支持~~ - 已完成：I18nManagerFacade 自动支持 RTL 判断
+- [x] ~~缺少翻译键值的类型安全检查~~ - 已完成：TypeSafeI18nManager 提供系统原生 Resource 类型和静态映射保护
 
 ### 3.9 deviceAwareness (设备感知层) - 完成度: 92%
 
@@ -203,7 +203,7 @@ entry/src/main/ets/Framework/NGF/
 - ✅ 设备能力检测 (IDeviceCapabilityDetector 13 项硬件能力检测)
 
 **缺口**:
-- 缺少无障碍 (Accessibility) 能力封装
+- [x] ~~缺少无障碍 (Accessibility) 能力封装~~ - 已完成：AccessibilityFacade 提供无障碍感知集成
 
 ### 3.10 utils (工具层) - 完成度: 100%
 
@@ -278,7 +278,7 @@ MainMenuPage 采用 4 Tab 布局: 框架 / 功能 / 设备 / 设置，"功能" T
 | 13 | ~~深链接支持~~ | uiShell | 中 | ✅ 已完成: IDeepLinkHandler URL → 路由映射 |
 | 14 | ~~页面状态保存/恢复~~ | uiShell | 中 | ✅ 已完成: IPageStateStore + PageStateStoreFacade |
 | 15 | ~~自适应布局组件~~ | deviceAwareness | 中 | ✅ 已完成: IAdaptiveLayout 断点响应式配置 |
-| 16 | 通用页面模板 | uiShell | 低 | 列表页、表单页、详情页、设置页模板 |
+| 16 | ~~通用页面模板~~ | uiShell | 低 | ✅ 已完成: NGFListPageTemplate 等骨架 |
 | 17 | ~~颜色 Token 体系~~ | uiTheme | 中 | ✅ 已完成: IColorTokenProvider 20 个语义化颜色 |
 | 18 | ~~动态字体大小调节~~ | uiTheme | 中 | ✅ 已完成: IFontScaleManager 4 级预设 + 自定义 0.5x-2.0x |
 | 19 | ~~自定义主题包~~ | uiTheme | 低 | ✅ 已完成: NGFThemePack + loadThemePack/applyThemePack |
@@ -294,7 +294,7 @@ MainMenuPage 采用 4 Tab 布局: 框架 / 功能 / 设备 / 设置，"功能" T
 | 24 | ~~相对时间格式化~~ | i18n | 中 | ✅ 已完成: IRelativeTimeFormatter zh/en/ja + 复数 |
 | 25 | ~~设备能力检测~~ | deviceAwareness | 中 | ✅ 已完成: IDeviceCapabilityDetector 13 项硬件能力 |
 | 26 | ~~文件操作工具~~ | utils | 中 | ✅ 已完成: FileUtils 文本/二进制读写 + 目录操作 |
-| 27 | 无障碍封装 | deviceAwareness | 低 | 语义化组件、读屏适配 |
+| 27 | ~~无障碍封装~~ | deviceAwareness | 低 | ✅ 已完成: AccessibilityFacade 集成 |
 
 ### 5.5 工程化缺口 (低优先级)
 

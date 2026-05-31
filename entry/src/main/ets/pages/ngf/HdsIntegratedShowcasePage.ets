@@ -7,17 +7,17 @@ import {
   SubHeader
 } from '@kit.ArkUI';
 import { hdsEffect, hdsMaterial, HdsNavDestination, HdsNavDestinationTitleMode, HdsTabs, HdsTabsController } from '@kit.UIDesignKit';
-import { logger } from '../../Framework/NGF/utils/Logger';
-import { resolveResourceString } from '../../Framework/NGF/i18n/index';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
+import { logger } from 'ngf_framework';
+import { resolveResourceString } from 'ngf_framework';
+import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
-} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
+} from 'ngf_framework';
 import {
   NGFHdsEffectPresetFactory
-} from '../../Framework/NGF/uiShell/components/NGFHdsEffectPresets';
+} from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFHdsIntegratedShowcasePage';

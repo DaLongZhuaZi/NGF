@@ -1,15 +1,15 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
-import { logger } from '../../Framework/NGF/utils/Logger';
-import { resolveResourceString } from '../../Framework/NGF/i18n/index';
-import { FileUtils, NGFFileEntry } from '../../Framework/NGF/utils/FileUtils';
-import { ngfContentCacheFacade } from '../../Framework/NGF/contentSource/index';
+import { logger } from 'ngf_framework';
+import { resolveResourceString } from 'ngf_framework';
+import { FileUtils, NGFFileEntry } from 'ngf_framework';
+import { ngfContentCacheFacade } from 'ngf_framework';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
-} from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
+} from 'ngf_framework';
+import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFDemoDataStoragePage';

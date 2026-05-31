@@ -1,13 +1,13 @@
-import { logger } from '../../Framework/NGF/utils/Logger';
-import { ngfPagePolicyHostFacade } from '../../Framework/NGF/uiShell/facades/PagePolicyHostFacade';
-import { NGFDisplayMode } from '../../Framework/NGF/platformOhos/contracts/IPlatformWindowController';
+import { logger } from 'ngf_framework';
+import { ngfPagePolicyHostFacade } from 'ngf_framework';
+import { NGFDisplayMode } from 'ngf_framework';
 import {
   NGFPageWindowProfile,
   NGFWindowOrientationPreference,
   NGFWindowSystemBarPolicy,
   NGFWindowSystemBarStyle
-} from '../../Framework/NGF/platformOhos/contracts/IPlatformWindowManager';
-import { ngfPlatformWindowManagerFacade } from '../../Framework/NGF/platformOhos/facades/PlatformWindowManagerFacade';
+} from 'ngf_framework';
+import { ngfPlatformWindowManagerFacade } from 'ngf_framework';
 import { NGFHdsDemoRouteName } from './HdsDemoRoutes';
 
 import window from '@ohos.window';

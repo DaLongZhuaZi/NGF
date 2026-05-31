@@ -1,0 +1,11 @@
+{
+  "module": {
+    "name": "ngf_framework",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet",
+      "2in1"
+    ]
+  }
+}

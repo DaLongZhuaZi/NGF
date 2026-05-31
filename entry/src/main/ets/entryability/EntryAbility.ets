@@ -1,18 +1,18 @@
-import { AbilityConstant, Configuration, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
+import { AbilityConstant, Configuration, ConfigurationConstant, UIAbility, Want, common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { window } from '@kit.ArkUI';
 import { clearContext, NGFAbilityContextLike, setContext } from '../GlobalContext';
-import { uiContextManager } from '../Framework/NGF/platformOhos/UIContextManager';
-import { ngfStarterKernel } from '../Framework/NGF/core/starter/index';
+import { uiContextManager } from 'ngf_framework';
+import { ngfStarterKernel } from 'ngf_framework';
 
-import { ngfPlatformWindowManagerFacade } from '../Framework/NGF/platformOhos';
-import { ngfThemeManagerFacade } from '../Framework/NGF/uiTheme/facades/ThemeManagerFacade';
-import { ngfI18nManagerFacade } from '../Framework/NGF/i18n/facades/I18nManagerFacade';
-import { ngfHoldingAwarenessFacade } from '../Framework/NGF/deviceAwareness/facades/HoldingAwarenessFacade';
-import { ngfDeviceAdaptationFacade } from '../Framework/NGF/deviceAwareness/facades/DeviceAdaptationFacade';
-import { ngfVisualEffectsFacade } from '../Framework/NGF/deviceAwareness/facades/VisualEffectsFacade';
-import { logger } from '../Framework/NGF/utils/Logger';
-import { crashAnalytics } from '../Framework/NGF/utils/CrashAnalyticsFacade';
+import { ngfPlatformWindowManagerFacade } from 'ngf_framework';
+import { ngfThemeManagerFacade } from 'ngf_framework';
+import { ngfI18nManagerFacade } from 'ngf_framework';
+import { ngfHoldingAwarenessFacade } from 'ngf_framework';
+import { ngfDeviceAdaptationFacade } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
+import { logger } from 'ngf_framework';
+import { crashAnalytics } from 'ngf_framework';
 
 const TAG: string = 'EntryAbility';
 
@@ -20,7 +20,7 @@ export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     const abilityContext = this.context as NGFAbilityContextLike;
     setContext(abilityContext);
-    uiContextManager.bindAbilityContext(abilityContext);
+    uiContextManager.bindAbilityContext(this.context as common.UIAbilityContext);
     const bootstrapResult = ngfStarterKernel.bootstrap();
     crashAnalytics.initialize();
     logger.startup(TAG, 'NGF 引导启动完成', `成功=${bootstrapResult}`);

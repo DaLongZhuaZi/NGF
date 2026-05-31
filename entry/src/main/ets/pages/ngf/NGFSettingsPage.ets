@@ -1,14 +1,14 @@
 import { ConfigurationConstant } from '@kit.AbilityKit';
 import { ComponentContent } from '@kit.ArkUI';
-import { NGFThemeMode } from '../../Framework/NGF/uiTheme/contracts/IThemeManager';
-import { ngfThemeManagerFacade } from '../../Framework/NGF/uiTheme/facades/ThemeManagerFacade';
-import { ngfI18nManagerFacade } from '../../Framework/NGF/i18n/facades/I18nManagerFacade';
-import { resolveResourceString } from '../../Framework/NGF/i18n/index';
-import { uiContextManager } from '../../Framework/NGF/platformOhos/UIContextManager';
-import { NGFVisualEffectsMaterialMode } from '../../Framework/NGF/deviceAwareness/contracts/IVisualEffectsManager';
-import { ngfVisualEffectsFacade } from '../../Framework/NGF/deviceAwareness/facades/VisualEffectsFacade';
-import { AboutSheetContent } from '../../Framework/NGF/uiShell/components/AboutSheetContent';
-import { logger } from '../../Framework/NGF/utils/Logger';
+import { NGFThemeMode } from 'ngf_framework';
+import { ngfThemeManagerFacade } from 'ngf_framework';
+import { ngfI18nManagerFacade } from 'ngf_framework';
+import { resolveResourceString } from 'ngf_framework';
+import { uiContextManager } from 'ngf_framework';
+import { NGFVisualEffectsMaterialMode } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
+import { AboutSheetContent } from 'ngf_framework';
+import { logger } from 'ngf_framework';
 
 const TAG: string = 'NGFSettingsPage';
 
