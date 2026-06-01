@@ -628,7 +628,11 @@ struct NGFStarterMainMenuPage {
     }
     if (actionKey === NGFMainMenuActionKey.DEMO_CONTINUATION) {
       this.appendLog('当前页面状态已保存到 ContinuationFacade，请在另一台鸿蒙设备通过多设备控制中心触发流转。');
-      this.getUIContext().getPromptAction().showToast({ message: '流转数据准备就绪' });
+      try {
+        this.getUIContext().getPromptAction().showToast({ message: '流转数据准备就绪' });
+      } catch (err) {
+        this.appendLog(`显示Toast失败: ${err}`);
+      }
       return;
     }
     if (actionKey === NGFMainMenuActionKey.DEMO_SHARE_KIT) {

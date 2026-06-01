@@ -5279,6 +5279,30 @@
     {
       "name": "multiton_window_title",
       "value": "多实例"
+    },
+    {
+      "name": "shortcut_multiton_a",
+      "value": "多实例卡片 A"
+    },
+    {
+      "name": "shortcut_multiton_b",
+      "value": "多实例卡片 B"
+    },
+    {
+      "name": "widget_title",
+      "value": "NGF 框架状态"
+    },
+    {
+      "name": "widget_desc",
+      "value": "展示 NGF 框架核心运行状态的桌面卡片"
+    },
+    {
+      "name": "EntryFormAbility_label",
+      "value": "NGF 框架组件"
+    },
+    {
+      "name": "EntryFormAbility_desc",
+      "value": "提供桌面卡片能力"
     }
   ]
 }

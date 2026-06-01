@@ -9,7 +9,7 @@
 
 ## 2. 核心架构认知
 NGF 框架通过巧妙的方法绕过了 `SYSTEM_FLOAT_WINDOW` 悬浮窗系统权限的要求，允许在纯应用级上下文中提供多窗口和浮窗体验：
-- **多实例 (Multiton)**：这是一种由系统托管的宏观多任务方式。每次启动都是一个独立的 ArkUI 虚拟机实例，并能在系统“最近任务列表”形成单独的快照卡片。
+- **多实例 (Multiton)**：这是一种由系统托管的宏观多任务方式。每次启动都是一个独立的 ArkUI 虚拟机实例，并能在系统“最近任务列表”形成单独的快照卡片。多实例不仅可以在应用内唤起，还支持从**桌面快捷方式 (Shortcuts)** 和 **桌面元服务卡片 (Widgets)** 直接独立唤起。
 - **子窗口 (SubWindow)**：这是一种基于当前 Ability 窗口舞台的微观多窗口方式。子窗口附着在主窗口之上，生命周期随主窗口终结。适合用作应用内的全局媒体控制器、快捷工具条、悬浮设置面板等。
 
 ## 3. 多实例 (Multiton) 开发规范
@@ -32,7 +32,12 @@ context.startAbility({
 });
 ```
 
-### 3.2 Multiton 页面的限制
+### 3.2 桌面系统集成与独立启动 (Standalone Launch)
+NGF 框架完美支持将 Multiton 与鸿蒙桌面的快捷方式及卡片功能集成。
+- **参数传递**：在 `shortcuts_config.json` 或卡片的 `postCardAction` 中拉起 `MultitonEntryAbility` 时，必须传递 `targetRouteName` 和 `instanceId`。否则会导致路由无法匹配而出现白屏。
+- **智能初始化接管**：当通过桌面卡片或快捷方式触发多实例时，可能会遇到主应用 (`EntryAbility`) 完全未启动（杀后台）的冷启动情况。此时，`MultitonEntryAbility` 的 `onCreate` 生命周期会通过 `isInitialized()` 智能识别全局状态，并**自动接管全套的框架初始化流程**（包括 `ngfStarterKernel`、`ThemeManager`、`I18nManager` 等），同时也会正确绑定 `WindowStage`，确保无论如何启动，框架的沉浸式安全区和全局配置等核心能力绝不缺失。
+
+### 3.3 Multiton 页面的限制
 - Multiton 页面由于处于完全隔离的 Ability 实例中，它**不能**通过 `AppStorage`、`LocalStorage`、单例对象等直接与主界面的内存进行同步通信。如果需要通信，必须依赖持久化沙箱 (SettingsManager/Preferences) 或者跨 Ability 事件 (EventHub / Emitter)。
 
 ## 4. 应用内子窗口 (SubWindow) 开发规范

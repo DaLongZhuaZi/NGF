@@ -1,8 +1,8 @@
 import { AbilityConstant, Configuration, UIAbility, Want, common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { window } from '@kit.ArkUI';
-import { logger } from 'ngf_framework';
-import { uiContextManager } from 'ngf_framework';
+import { isInitialized, setContext, NGFAbilityContextLike, clearContext } from '../GlobalContext';
+import { uiContextManager, ngfStarterKernel, ngfPlatformWindowManagerFacade, ngfThemeManagerFacade, ngfI18nManagerFacade, ngfHoldingAwarenessFacade, ngfDeviceAdaptationFacade, ngfVisualEffectsFacade, logger, crashAnalytics, ngfContinuationManagerFacade } from 'ngf_framework';
 
 const TAG: string = 'MultitonEntryAbility';
 
@@ -19,9 +19,29 @@ export default class MultitonEntryAbility extends UIAbility {
       logger.info(TAG, `从 Want 中解析到 targetRouteName: ${this.targetPage}`);
     }
 
-    // 作为一个新的实例启动，我们可以在此处进行一些特定的初始化
-    uiContextManager.bindAbilityContext(this.context as common.UIAbilityContext);
+    if (!isInitialized()) {
+      logger.info(TAG, '检测到全局环境未初始化，执行框架初始化');
+      const abilityContext = this.context as NGFAbilityContextLike;
+      setContext(abilityContext);
+      uiContextManager.bindAbilityContext(this.context as common.UIAbilityContext);
+      const bootstrapResult = ngfStarterKernel.bootstrap();
+      crashAnalytics.initialize();
+      logger.startup(TAG, 'NGF 引导启动完成', `成功=${bootstrapResult}`);
+
+      ngfThemeManagerFacade.initializeDefaults();
+      ngfI18nManagerFacade.initializeDefaults();
+      void ngfHoldingAwarenessFacade.initialize();
+      void ngfVisualEffectsFacade.initialize();
+    } else {
+      logger.info(TAG, '全局环境已初始化，仅绑定当前 AbilityContext');
+      uiContextManager.bindAbilityContext(this.context as common.UIAbilityContext);
+    }
     
+    // 解析流转数据
+    if (want.parameters) {
+      ngfContinuationManagerFacade.receiveContinuationData(want.parameters as Record<string, Object>);
+    }
+
     if (want.parameters && typeof want.parameters['targetTitle'] === 'string') {
       const title = want.parameters['targetTitle'] as string;
       this.context.setMissionLabel(title).then(() => {
@@ -38,6 +58,9 @@ export default class MultitonEntryAbility extends UIAbility {
       this.targetPage = want.parameters['targetRouteName'] as string;
       logger.info(TAG, `从 Want 中解析到新 targetRouteName: ${this.targetPage}`);
     }
+    if (want.parameters) {
+      ngfContinuationManagerFacade.receiveContinuationData(want.parameters as Record<string, Object>);
+    }
     if (want.parameters && typeof want.parameters['targetTitle'] === 'string') {
       const title = want.parameters['targetTitle'] as string;
       this.context.setMissionLabel(title).catch(() => {});
@@ -46,14 +69,16 @@ export default class MultitonEntryAbility extends UIAbility {
 
   onDestroy(): void {
     uiContextManager.clearAbilityContext();
+    // 只有当没有其他实例在使用时才清理，但作为演示直接清理可能影响其他实例
     logger.lifecycle(TAG, '生命周期: onDestroy (Multiton)');
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
     logger.lifecycle(TAG, '生命周期: onWindowStageCreate (Multiton)');
     
-    // 我们不绑定全局的 ngfPlatformWindowManagerFacade，因为全局的 WindowManager 可能主要用于单例主窗口
-    // 在实际复杂项目中，如果是 Multiton，可能需要实例化的 WindowManager。但作为演示，我们加载指定页面
+    ngfPlatformWindowManagerFacade.bindWindowStage(windowStage);
+    ngfDeviceAdaptationFacade.bindWindowStage(windowStage);
+
     AppStorage.setOrCreate('CurrentMultitonRoute', this.targetPage);
     
     windowStage.loadContent('pages/ngf/NGFDemoMultitonPage', (err: BusinessError): void => {
@@ -62,29 +87,19 @@ export default class MultitonEntryAbility extends UIAbility {
         return;
       }
       logger.info(TAG, '页面内容加载成功');
-      
-      try {
-        let mainWindow = windowStage.getMainWindowSync();
-        mainWindow.setWindowLayoutFullScreen(true);
-        let sysBarProps: window.SystemBarProperties = {
-          statusBarColor: '#00000000',
-          navigationBarColor: '#00000000',
-          isStatusBarLightIcon: true,
-          isNavigationBarLightIcon: true
-        };
-        mainWindow.setWindowSystemBarProperties(sysBarProps);
-      } catch (e) {
-        logger.error(TAG, `配置窗口失败: ${e}`);
-      }
     });
   }
 
   onWindowStageDestroy(): void {
+    ngfDeviceAdaptationFacade.clearWindowStage();
+    ngfPlatformWindowManagerFacade.clearWindowStage();
     logger.lifecycle(TAG, '生命周期: onWindowStageDestroy (Multiton)');
   }
 
   onForeground(): void {
     logger.lifecycle(TAG, '生命周期: onForeground (Multiton)');
+    ngfDeviceAdaptationFacade.refresh('ability_foreground');
+    void ngfHoldingAwarenessFacade.resume();
   }
 
   onBackground(): void {
@@ -93,5 +108,16 @@ export default class MultitonEntryAbility extends UIAbility {
 
   onConfigurationUpdate(config: Configuration): void {
     logger.info(TAG, `配置更新: colorMode=${config.colorMode}, language=${config.language}`);
+    ngfDeviceAdaptationFacade.refresh('configuration_update');
+
+    const colorMode = config.colorMode;
+    if (colorMode !== undefined) {
+      ngfThemeManagerFacade.handleSystemColorModeChanged(colorMode);
+    }
+
+    const language = config.language;
+    if (language !== undefined) {
+      ngfI18nManagerFacade.handleSystemLocaleChanged(language);
+    }
   }
 }

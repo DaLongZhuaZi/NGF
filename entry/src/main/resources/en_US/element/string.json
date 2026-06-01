@@ -5271,6 +5271,30 @@
     {
       "name": "multiton_window_title",
       "value": "Multiton"
+    },
+    {
+      "name": "shortcut_multiton_a",
+      "value": "Multiton Entry A"
+    },
+    {
+      "name": "shortcut_multiton_b",
+      "value": "Multiton Entry B"
+    },
+    {
+      "name": "widget_title",
+      "value": "NGF Framework Status"
+    },
+    {
+      "name": "widget_desc",
+      "value": "Desktop widget displaying the core status of NGF framework"
+    },
+    {
+      "name": "EntryFormAbility_label",
+      "value": "NGF Widget"
+    },
+    {
+      "name": "EntryFormAbility_desc",
+      "value": "Provides desktop widget capability"
     }
   ]
 }
