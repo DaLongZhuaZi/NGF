@@ -14,6 +14,8 @@ import {
 import { ngfDeviceAdaptationFacade } from 'ngf_framework';
 import { NGFRuntimeStatus, NGFAppThreadInfo } from 'ngf_framework';
 import { NGFStarterEventName, ngfStarterKernel } from 'ngf_framework';
+import { common } from '@kit.AbilityKit';
+import { ngfPlatformWindowManagerFacade } from 'ngf_framework';
 import { HdsIntegratedShowcasePage } from './HdsIntegratedShowcasePage';
 import {
   HdsNavigationOfficialEffectPage,
@@ -63,6 +65,12 @@ class NGFMainMenuActionKey {
   static readonly DEMO_TASK_MANAGER: string = NGFHdsDemoRouteName.TASK_MANAGER;
   static readonly DEMO_ERROR_RECOVERY: string = NGFHdsDemoRouteName.DEMO_ERROR_RECOVERY;
   static readonly DEMO_SYNC_MANAGER: string = NGFHdsDemoRouteName.DEMO_SYNC_MANAGER;
+  static readonly DEMO_MULTITON_SYMBOL: string = 'action.demo_multiton_symbol';
+  static readonly DEMO_MULTITON_DATA: string = 'action.demo_multiton_data';
+  static readonly DEMO_SUB_WINDOW_SETTINGS: string = 'action.demo_sub_window_settings';
+  static readonly DEMO_SUB_WINDOW_TASK: string = 'action.demo_sub_window_task';
+  static readonly DEMO_CONTINUATION: string = 'action.demo_continuation';
+  static readonly DEMO_SHARE_KIT: string = 'action.demo_share_kit';
 }
 
 class NGFStarterLogEntry {
@@ -556,6 +564,85 @@ struct NGFStarterMainMenuPage {
       this.handleSimulateErrorTap();
       return;
     }
+    if (actionKey === NGFMainMenuActionKey.DEMO_MULTITON_SYMBOL) {
+      try {
+        const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+        context.startAbility({
+          bundleName: 'com.dlzz.ngf',
+          abilityName: 'MultitonEntryAbility',
+          parameters: {
+            'targetRouteName': 'SystemResourcePreview',
+            'targetTitle': 'Symbol 预览'
+          }
+        });
+        this.appendLog('启动多实例任务: Symbol 预览器');
+      } catch (err) {
+        this.appendLog(`启动多实例任务失败: ${err}`);
+      }
+      return;
+    }
+    if (actionKey === NGFMainMenuActionKey.DEMO_MULTITON_DATA) {
+      try {
+        const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+        context.startAbility({
+          bundleName: 'com.dlzz.ngf',
+          abilityName: 'MultitonEntryAbility',
+          parameters: {
+            'targetRouteName': 'NGFDemoDataStorage',
+            'targetTitle': '数据沙箱'
+          }
+        });
+        this.appendLog('启动多实例任务: 数据沙箱');
+      } catch (err) {
+        this.appendLog(`启动多实例任务失败: ${err}`);
+      }
+      return;
+    }
+    if (actionKey === NGFMainMenuActionKey.DEMO_SUB_WINDOW_SETTINGS) {
+      try {
+        ngfPlatformWindowManagerFacade.createSubWindow('sub_window_settings').then((subWindow: window.Window) => {
+          AppStorage.setOrCreate('CurrentSubWindowRoute', 'NGFSettings');
+          subWindow.setUIContent('pages/ngf/NGFDemoSubWindowPage', () => {
+            subWindow.showWindow();
+            this.appendLog('打开应用内子窗口: 设置面板');
+          });
+        });
+      } catch (err) {
+        this.appendLog(`打开应用内子窗口失败: ${err}`);
+      }
+      return;
+    }
+    if (actionKey === NGFMainMenuActionKey.DEMO_SUB_WINDOW_TASK) {
+      try {
+        ngfPlatformWindowManagerFacade.createSubWindow('sub_window_task').then((subWindow: window.Window) => {
+          AppStorage.setOrCreate('CurrentSubWindowRoute', 'NGFTaskManager');
+          subWindow.setUIContent('pages/ngf/NGFDemoSubWindowPage', () => {
+            subWindow.showWindow();
+            this.appendLog('打开应用内子窗口: 任务管理');
+          });
+        });
+      } catch (err) {
+        this.appendLog(`打开应用内子窗口失败: ${err}`);
+      }
+      return;
+    }
+    if (actionKey === NGFMainMenuActionKey.DEMO_CONTINUATION) {
+      this.appendLog('当前页面状态已保存到 ContinuationFacade，请在另一台鸿蒙设备通过多设备控制中心触发流转。');
+      this.getUIContext().getPromptAction().showToast({ message: '流转数据准备就绪' });
+      return;
+    }
+    if (actionKey === NGFMainMenuActionKey.DEMO_SHARE_KIT) {
+      try {
+        const text = `发现宝藏鸿蒙框架 NGF！当前核心服务就绪: ${this.isCoreReady}，最后事件: ${this.lastEventType}`;
+        import('ngf_framework').then(module => {
+          module.ngfSystemShareFacade.shareText(text);
+          this.appendLog('已拉起原生系统 ShareKit 分享面板');
+        });
+      } catch (err) {
+        this.appendLog(`分享拉起失败: ${err}`);
+      }
+      return;
+    }
 
     this.appendLog($r('app.string.ui_str_2018', actionKey));
   }
@@ -777,6 +864,12 @@ struct NGFStarterMainMenuPage {
                 this.buildSystemResourcePreviewCard()
                 this.buildDemoErrorRecoveryCard()
                 this.buildDemoSyncManagerCard()
+                this.buildDemoMultitonSymbolCard()
+                this.buildDemoMultitonDataCard()
+                this.buildDemoSubWindowSettingsCard()
+                this.buildDemoSubWindowTaskCard()
+                this.buildDemoContinuationCard()
+                this.buildDemoShareKitCard()
               }
               .width('100%')
               .padding({
@@ -1498,6 +1591,58 @@ struct NGFStarterMainMenuPage {
   }
 
   @Builder
+  private buildDemoMultitonSymbolCard(): void {
+    this.buildFeatureActionButton(
+      'MULTI',
+      $r('app.string.feat_multiton_symbol_title'),
+      $r('app.string.feat_multiton_symbol_desc'),
+      '#1E3A8A',
+      '#3B82F6',
+      '#93C5FDFF',
+      NGFMainMenuActionKey.DEMO_MULTITON_SYMBOL
+    )
+  }
+
+  @Builder
+  private buildDemoMultitonDataCard(): void {
+    this.buildFeatureActionButton(
+      'MULTI',
+      $r('app.string.feat_multiton_data_title'),
+      $r('app.string.feat_multiton_data_desc'),
+      '#1E3A8A',
+      '#3B82F6',
+      '#93C5FDFF',
+      NGFMainMenuActionKey.DEMO_MULTITON_DATA
+    )
+  }
+
+  @Builder
+  private buildDemoSubWindowSettingsCard(): void {
+    this.buildFeatureActionButton(
+      'SUBWIN',
+      $r('app.string.feat_subwin_settings_title'),
+      $r('app.string.feat_subwin_settings_desc'),
+      '#1E3A8A',
+      '#3B82F6',
+      '#93C5FDFF',
+      NGFMainMenuActionKey.DEMO_SUB_WINDOW_SETTINGS
+    )
+  }
+
+  @Builder
+  private buildDemoSubWindowTaskCard(): void {
+    this.buildFeatureActionButton(
+      'SUBWIN',
+      $r('app.string.feat_subwin_task_title'),
+      $r('app.string.feat_subwin_task_desc'),
+      '#1E3A8A',
+      '#3B82F6',
+      '#93C5FDFF',
+      NGFMainMenuActionKey.DEMO_SUB_WINDOW_TASK
+    )
+  }
+
+  @Builder
   private buildStatusCard(): void {
     Column({ space: 8 }) {
       Text($r('app.string.ui_str_2057'))
@@ -1640,7 +1785,7 @@ struct NGFStarterMainMenuPage {
   private buildPerformanceSheetContent(): void {
     Column({ space: 0 }) {
       Row() {
-        Text('系统监控与性能')
+        Text($r('app.string.monitor_panel_title'))
           .fontSize(18)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_primary'))
@@ -1699,7 +1844,7 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildPerfProcessCard(): void {
     Column({ space: 10 }) {
-      Text('进程与运行时间')
+      Text($r('app.string.monitor_process_uptime'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_glass_label'))
@@ -1721,7 +1866,7 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildPerfMemoryCard(): void {
     Column({ space: 10 }) {
-      Text('内存信息')
+      Text($r('app.string.monitor_memory_info'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_glass_label'))
@@ -1730,7 +1875,7 @@ struct NGFStarterMainMenuPage {
       this.buildPerfInfoRow('App 内存限制', `${this.runtimeStatus?.appMemoryLimit || 0} MB`)
       this.buildPerfDivider()
       
-      Text('Native 分配内存')
+      Text($r('app.string.monitor_native_memory'))
         .fontSize(13)
         .fontColor($r('app.color.text_secondary'))
         .width('100%')
@@ -1756,7 +1901,7 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildPerfCpuCard(): void {
     Column({ space: 10 }) {
-      Text('CPU 使用率')
+      Text($r('app.string.monitor_cpu_usage'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_glass_label'))
@@ -1800,14 +1945,14 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildPerfBatteryCard(): void {
     Column({ space: 10 }) {
-      Text('电池与温度')
+      Text($r('app.string.monitor_battery_temp'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_glass_label'))
         .width('100%')
 
       Row({ space: 8 }) {
-        Text('电量')
+        Text($r('app.string.monitor_battery_level'))
           .fontSize(13)
           .fontColor($r('app.color.text_secondary'))
         Progress({ value: this.runtimeStatus?.batterySOC || 0, total: 100, type: ProgressType.Capsule })
@@ -1836,7 +1981,7 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildPerfThreadsCard(): void {
     Column({ space: 10 }) {
-      Text('线程信息 (TOP 10)')
+      Text($r('app.string.monitor_thread_info'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_glass_label'))
@@ -1864,7 +2009,7 @@ struct NGFStarterMainMenuPage {
           }
         }, (thread: NGFAppThreadInfo) => String(thread.threadId))
       } else {
-        Text('暂无线程数据')
+        Text($r('app.string.monitor_no_thread_data'))
           .fontSize(13)
           .fontColor($r('app.color.text_secondary'))
       }
@@ -2007,5 +2152,81 @@ struct NGFStarterMainMenuPage {
       '#F0ABFCFF',
       NGFMainMenuActionKey.DEMO_TASK_MANAGER
     )
+  }
+
+  @Builder
+  private buildDemoContinuationCard(): void {
+    Column({ space: 12 }) {
+      Row() {
+        Text($r('app.string.feat_continuation_title'))
+          .fontSize(16)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_body'))
+          .margin({ left: 10 })
+      }
+      .width('100%')
+
+      Text($r('app.string.feat_continuation_desc'))
+        .fontSize(13)
+        .lineHeight(18)
+        .fontColor($r('app.color.text_secondary'))
+        .width('100%')
+
+      Row({ space: 10 }) {
+        Button($r('app.string.feat_continuation_btn'))
+          .layoutWeight(1)
+          .height(36)
+          .fontSize(13)
+          .borderRadius(18)
+          .backgroundColor($r('app.color.button_primary'))
+          .onClick((): void => {
+            this.handleFeatureActionTap(NGFMainMenuActionKey.DEMO_CONTINUATION, '流转准备');
+          })
+      }
+      .width('100%')
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.panel_background'))
+    .borderRadius(16)
+    .border({ width: 1, color: $r('app.color.card_border') })
+  }
+
+  @Builder
+  private buildDemoShareKitCard(): void {
+    Column({ space: 12 }) {
+      Row() {
+        Text($r('app.string.feat_sharekit_title'))
+          .fontSize(16)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_body'))
+          .margin({ left: 10 })
+      }
+      .width('100%')
+
+      Text($r('app.string.feat_sharekit_desc'))
+        .fontSize(13)
+        .lineHeight(18)
+        .fontColor($r('app.color.text_secondary'))
+        .width('100%')
+
+      Row({ space: 10 }) {
+        Button($r('app.string.feat_sharekit_btn'))
+          .layoutWeight(1)
+          .height(36)
+          .fontSize(13)
+          .borderRadius(18)
+          .backgroundColor($r('app.color.tag_blue'))
+          .onClick((): void => {
+            this.handleFeatureActionTap(NGFMainMenuActionKey.DEMO_SHARE_KIT, '分享');
+          })
+      }
+      .width('100%')
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.panel_background'))
+    .borderRadius(16)
+    .border({ width: 1, color: $r('app.color.card_border') })
   }
 }

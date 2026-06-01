@@ -1,18 +1,16 @@
 import { HdsNavDestination, HdsNavDestinationTitleMode } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { pasteboard } from '@kit.BasicServicesKit';
+import unifiedDataChannel from '@ohos.data.unifiedDataChannel';
 import {
   SYSTEM_SYMBOL_GROUPS,
   SYSTEM_SYMBOL_TOTAL_COUNT,
   SystemSymbolResourceGroup
 } from 'ngf_framework';
 import { logger } from 'ngf_framework';
-import {
-  NGFImmersiveTopChromePresetFactory,
-  NGFImmersiveTopChromeSpec,
-  NGFImmersiveTopChromeUnderlay
-} from 'ngf_framework';
+import { NGFImmersiveTopChromePresetFactory, NGFImmersiveTopChromeSpec, NGFImmersiveTopChromeUnderlay } from 'ngf_framework';
 import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
+import { ngfDragDropManagerFacade } from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
 
 const TAG: string = 'NGFSystemResourcePreviewPage';
@@ -46,6 +44,7 @@ export struct NGFSystemResourcePreviewPage {
   @State private visibleSearchResultCount: number = SYMBOL_SEARCH_BATCH_SIZE;
   @State private selectedSymbolName: string = 'ohos_arrow_up';
   @State private statusText: ResourceStr = $r('app.string.ui_str_2435');
+  @State private droppedSymbol: string = '';
   private readonly scroller: Scroller = new Scroller();
 
   aboutToAppear(): void {
@@ -70,6 +69,7 @@ export struct NGFSystemResourcePreviewPage {
         Scroll(this.scroller) {
           Column({ space: 12 }) {
             this.buildSummaryPanel()
+            this.buildDropZonePanel()
             this.buildSearchPanel()
             if (this.isSearching) {
               this.buildSearchResultsPanel()
@@ -200,6 +200,36 @@ export struct NGFSystemResourcePreviewPage {
   }
 
   @Builder
+  private buildDropZonePanel(): void {
+    Column({ space: 10 }) {
+      Text(this.droppedSymbol ? `已接收拖放 Symbol: ${this.droppedSymbol}` : '长按拖拽下方 Symbol 到此处，测试 UDMF')
+        .fontSize(14)
+        .fontColor($r('app.color.text_secondary'))
+    }
+    .width('100%')
+    .height(60)
+    .justifyContent(FlexAlign.Center)
+    .backgroundColor($r('app.color.background_surface'))
+    .borderRadius(12)
+    .border({ width: 1, color: $r('app.color.panel_border'), style: BorderStyle.Dashed })
+    .onDrop((event: DragEvent, extraParams: string) => {
+      try {
+        const data = event.getData();
+        if (data) {
+          const text = ngfDragDropManagerFacade.extractPlainText(data as unifiedDataChannel.UnifiedData);
+          if (text) {
+            this.droppedSymbol = text;
+            this.statusText = `拖放成功: ${text}`;
+            this.getUIContext().getPromptAction().showToast({ message: `拖放成功: ${text}` });
+          }
+        }
+      } catch (err) {
+        logger.error(TAG, `onDrop 处理失败: ${err}`);
+      }
+    })
+  }
+
+  @Builder
   private buildMetricPill(label: ResourceStr, value: ResourceStr): void {
     Column({ space: 2 }) {
       Text(label)
@@ -251,7 +281,7 @@ export struct NGFSystemResourcePreviewPage {
           })
 
         if (this.isSearching) {
-          Text(`搜索结果 ${this.searchResults.length} 个，已显示 ${this.getVisibleSearchResultCount()} 个`)
+          Text($r('app.string.search_results_status', this.searchResults.length, this.getVisibleSearchResultCount()))
             .fontSize(12)
             .fontColor($r('app.color.text_secondary'))
             .layoutWeight(1)
@@ -413,6 +443,19 @@ export struct NGFSystemResourcePreviewPage {
   }
 
   @Builder
+  private buildDragPreview(itemName: string): void {
+    Column({ space: 7 }) {
+      this.buildPreviewGlyph(itemName, 32, $r('app.color.text_white'))
+    }
+    .width(60)
+    .height(60)
+    .justifyContent(FlexAlign.Center)
+    .backgroundColor($r('app.color.button_primary'))
+    .borderRadius(12)
+    .shadow({ radius: 10, color: '#44000000', offsetX: 0, offsetY: 4 })
+  }
+
+  @Builder
   private buildSymbolCell(itemName: string): void {
     Column({ space: 7 }) {
       this.buildPreviewGlyph(itemName, 27, this.getSymbolIconColor(itemName))
@@ -438,6 +481,17 @@ export struct NGFSystemResourcePreviewPage {
     .onClick((): void => {
       this.selectSymbol(itemName);
       void this.copySymbolName(itemName);
+    })
+    .onDragStart((event: DragEvent, extraParams: string): CustomBuilder | void => {
+      try {
+        const data = ngfDragDropManagerFacade.createPlainTextDragData(itemName);
+        if (data) {
+          event.setData(data as unifiedDataChannel.UnifiedData);
+        }
+      } catch (err) {
+        logger.error(TAG, `onDragStart 处理失败: ${err}`);
+      }
+      return this.buildDragPreview(itemName);
     })
   }
 

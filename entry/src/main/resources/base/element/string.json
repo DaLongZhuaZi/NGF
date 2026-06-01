@@ -13,6 +13,14 @@
       "value": "NGF Framework"
     },
     {
+      "name": "MultitonEntryAbility_label",
+      "value": "多实例 (Multiton)"
+    },
+    {
+      "name": "MultitonEntryAbility_desc",
+      "value": "多实例演示"
+    },
+    {
       "name": "detect_gesture_reason",
       "value": "框架需要检测用户握持手势，用于实现自适应界面布局和握持感知导航。"
     },
@@ -5103,6 +5111,174 @@
     {
       "name": "about_section_opensource",
       "value": "开源信息"
+    },
+    {
+      "name": "monitor_panel_title",
+      "value": "系统监控与性能"
+    },
+    {
+      "name": "monitor_process_uptime",
+      "value": "进程与运行时间"
+    },
+    {
+      "name": "monitor_memory_info",
+      "value": "内存信息"
+    },
+    {
+      "name": "monitor_native_memory",
+      "value": "Native 分配内存"
+    },
+    {
+      "name": "monitor_cpu_usage",
+      "value": "CPU 使用率"
+    },
+    {
+      "name": "monitor_battery_temp",
+      "value": "电池与温度"
+    },
+    {
+      "name": "monitor_battery_level",
+      "value": "电量"
+    },
+    {
+      "name": "monitor_thread_info",
+      "value": "线程信息 (TOP 10)"
+    },
+    {
+      "name": "monitor_no_thread_data",
+      "value": "暂无线程数据"
+    },
+    {
+      "name": "feat_continuation_title",
+      "value": "跨端流转 (Continuation)"
+    },
+    {
+      "name": "feat_continuation_desc",
+      "value": "通过 EntryAbility 的 onContinue 生命周期函数，将页面状态快速无缝推送到另一台鸿蒙设备，实现“手机看到一半，平板接着看”。"
+    },
+    {
+      "name": "feat_continuation_btn",
+      "value": "保存页面数据并准备流转"
+    },
+    {
+      "name": "feat_sharekit_title",
+      "value": "全局系统分享 (ShareKit)"
+    },
+    {
+      "name": "feat_sharekit_desc",
+      "value": "调用鸿蒙最新 ShareKit 拉起系统级半模态分享面板，完美支持跨设备发送、超级终端协同，以及三方应用的内容分发。"
+    },
+    {
+      "name": "feat_sharekit_btn",
+      "value": "一键分享此页面内容"
+    },
+    {
+      "name": "db_connected",
+      "value": "已连接"
+    },
+    {
+      "name": "db_disconnected",
+      "value": "未连接"
+    },
+    {
+      "name": "db_input_placeholder",
+      "value": "输入新的记录内容..."
+    },
+    {
+      "name": "db_btn_insert",
+      "value": "插入记录"
+    },
+    {
+      "name": "db_btn_clear_all",
+      "value": "清空全部"
+    },
+    {
+      "name": "db_records_title",
+      "value": "数据库记录 (%d)"
+    },
+    {
+      "name": "db_no_records",
+      "value": "暂无记录"
+    },
+    {
+      "name": "db_record_item",
+      "value": "ID: %d · 创建于 %s"
+    },
+    {
+      "name": "db_btn_delete",
+      "value": "删除"
+    },
+    {
+      "name": "picker_title",
+      "value": "安全组件提取"
+    },
+    {
+      "name": "picker_desc",
+      "value": "无需申请存储权限，直接通过原生安全组件拾取用户文件。"
+    },
+    {
+      "name": "picker_btn_image",
+      "value": "选图"
+    },
+    {
+      "name": "picker_btn_doc",
+      "value": "选文档"
+    },
+    {
+      "name": "subwin_settings_title",
+      "value": "设置子窗口"
+    },
+    {
+      "name": "subwin_btn_close",
+      "value": "关闭"
+    },
+    {
+      "name": "subwin_task_title",
+      "value": "任务管理子窗口"
+    },
+    {
+      "name": "subwin_unknown_content",
+      "value": "未知的子窗口内容"
+    },
+    {
+      "name": "search_results_status",
+      "value": "搜索结果 %d 个，已显示 %d 个"
+    },
+    {
+      "name": "feat_multiton_symbol_title",
+      "value": "独立卡片: Symbol 预览器"
+    },
+    {
+      "name": "feat_multiton_symbol_desc",
+      "value": "在多实例窗口中打开系统资源预览器，支持与主应用并排工作。"
+    },
+    {
+      "name": "feat_multiton_data_title",
+      "value": "独立卡片: 数据沙箱"
+    },
+    {
+      "name": "feat_multiton_data_desc",
+      "value": "在多实例窗口中打开数据存储管理器，实现多窗口数据对照。"
+    },
+    {
+      "name": "feat_subwin_settings_title",
+      "value": "悬浮窗: 框架设置"
+    },
+    {
+      "name": "feat_subwin_settings_desc",
+      "value": "在主应用上方悬浮打开设置面板，随时调整参数而无需切换页面。"
+    },
+    {
+      "name": "feat_subwin_task_title",
+      "value": "悬浮窗: 任务管理"
+    },
+    {
+      "name": "feat_subwin_task_desc",
+      "value": "在主应用上方悬浮打开后台任务管理器，方便随时监控系统状态。"
+    },
+    {
+      "name": "multiton_window_title",
+      "value": "多实例"
     }
   ]
 }

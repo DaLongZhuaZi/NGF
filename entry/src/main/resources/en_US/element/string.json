@@ -5103,6 +5103,174 @@
     {
       "name": "about_section_opensource",
       "value": "Open Source"
+    },
+    {
+      "name": "monitor_panel_title",
+      "value": "System Monitor & Performance"
+    },
+    {
+      "name": "monitor_process_uptime",
+      "value": "Process & Uptime"
+    },
+    {
+      "name": "monitor_memory_info",
+      "value": "Memory Info"
+    },
+    {
+      "name": "monitor_native_memory",
+      "value": "Native Allocated Memory"
+    },
+    {
+      "name": "monitor_cpu_usage",
+      "value": "CPU Usage"
+    },
+    {
+      "name": "monitor_battery_temp",
+      "value": "Battery & Temperature"
+    },
+    {
+      "name": "monitor_battery_level",
+      "value": "Battery Level"
+    },
+    {
+      "name": "monitor_thread_info",
+      "value": "Thread Info (TOP 10)"
+    },
+    {
+      "name": "monitor_no_thread_data",
+      "value": "No thread data"
+    },
+    {
+      "name": "feat_continuation_title",
+      "value": "Cross-Device Continuation"
+    },
+    {
+      "name": "feat_continuation_desc",
+      "value": "Push page state seamlessly to another HarmonyOS device using EntryAbility's onContinue lifecycle, enabling 'start on phone, finish on tablet'."
+    },
+    {
+      "name": "feat_continuation_btn",
+      "value": "Save State & Prepare Continuation"
+    },
+    {
+      "name": "feat_sharekit_title",
+      "value": "Global System Share (ShareKit)"
+    },
+    {
+      "name": "feat_sharekit_desc",
+      "value": "Invoke HarmonyOS ShareKit to launch a system-level half-modal share panel, supporting cross-device sharing, Super Device synergy, and third-party app distribution."
+    },
+    {
+      "name": "feat_sharekit_btn",
+      "value": "Share This Page Content"
+    },
+    {
+      "name": "db_connected",
+      "value": "Connected"
+    },
+    {
+      "name": "db_disconnected",
+      "value": "Disconnected"
+    },
+    {
+      "name": "db_input_placeholder",
+      "value": "Enter new record content..."
+    },
+    {
+      "name": "db_btn_insert",
+      "value": "Insert Record"
+    },
+    {
+      "name": "db_btn_clear_all",
+      "value": "Clear All"
+    },
+    {
+      "name": "db_records_title",
+      "value": "Database Records (%d)"
+    },
+    {
+      "name": "db_no_records",
+      "value": "No Records"
+    },
+    {
+      "name": "db_record_item",
+      "value": "ID: %d · Created at %s"
+    },
+    {
+      "name": "db_btn_delete",
+      "value": "Delete"
+    },
+    {
+      "name": "picker_title",
+      "value": "Secure Picker Extraction"
+    },
+    {
+      "name": "picker_desc",
+      "value": "Pick user files directly using native secure components without requesting storage permissions."
+    },
+    {
+      "name": "picker_btn_image",
+      "value": "Pick Image"
+    },
+    {
+      "name": "picker_btn_doc",
+      "value": "Pick Document"
+    },
+    {
+      "name": "subwin_settings_title",
+      "value": "Settings Sub-window"
+    },
+    {
+      "name": "subwin_btn_close",
+      "value": "Close"
+    },
+    {
+      "name": "subwin_task_title",
+      "value": "Task Manager Sub-window"
+    },
+    {
+      "name": "subwin_unknown_content",
+      "value": "Unknown Sub-window Content"
+    },
+    {
+      "name": "search_results_status",
+      "value": "Found %d results, showing %d"
+    },
+    {
+      "name": "feat_multiton_symbol_title",
+      "value": "Multiton: Symbol Previewer"
+    },
+    {
+      "name": "feat_multiton_symbol_desc",
+      "value": "Open the system resource previewer in a multiton window, supporting side-by-side work with the main app."
+    },
+    {
+      "name": "feat_multiton_data_title",
+      "value": "Multiton: Data Sandbox"
+    },
+    {
+      "name": "feat_multiton_data_desc",
+      "value": "Open the data storage manager in a multiton window to compare data across multiple windows."
+    },
+    {
+      "name": "feat_subwin_settings_title",
+      "value": "SubWin: Framework Settings"
+    },
+    {
+      "name": "feat_subwin_settings_desc",
+      "value": "Open the settings panel in a floating window above the main app to adjust parameters anytime without switching pages."
+    },
+    {
+      "name": "feat_subwin_task_title",
+      "value": "SubWin: Task Manager"
+    },
+    {
+      "name": "feat_subwin_task_desc",
+      "value": "Open the background task manager in a floating window above the main app to conveniently monitor system status anytime."
+    },
+    {
+      "name": "multiton_window_title",
+      "value": "Multiton"
     }
   ]
 }

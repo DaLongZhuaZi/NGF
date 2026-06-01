@@ -1,5 +1,7 @@
 {
   "src": [
-    "pages/ngf/MainMenuPage"
+    "pages/ngf/MainMenuPage",
+    "pages/ngf/NGFDemoMultitonPage",
+    "pages/ngf/NGFDemoSubWindowPage"
   ]
 }

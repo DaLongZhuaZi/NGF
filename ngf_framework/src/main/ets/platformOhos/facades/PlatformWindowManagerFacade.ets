@@ -50,6 +50,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
   private activePageName: string = '';
   private activeMode: NGFDisplayMode = NGFDisplayMode.DEFAULT;
   private pageProfiles: Map<string, NGFPageWindowProfile> = new Map<string, NGFPageWindowProfile>();
+  private subWindows: Map<string, window.Window> = new Map<string, window.Window>();
   private observers: Map<string, IPlatformWindowSnapshotObserver> = new Map<string, IPlatformWindowSnapshotObserver>();
   private snapshot: NGFWindowRuntimeSnapshot = new NGFWindowRuntimeSnapshot();
   private readonly windowSizeChangeCallback: Callback<window.Size> = (_size: window.Size): void => {
@@ -97,6 +98,18 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     this.unregisterWindowListeners();
     this.windowStage = null;
     this.mainWindow = null;
+
+    // 清理所有子窗口
+    this.subWindows.forEach((subWindow, name) => {
+      try {
+        subWindow.destroyWindow();
+        logger.info(TAG, `清空窗口阶段时自动销毁子窗口: name=${name}`);
+      } catch (error) {
+        logger.warn(TAG, `自动销毁子窗口失败: name=${name}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      }
+    });
+    this.subWindows.clear();
+
     this.snapshot = new NGFWindowRuntimeSnapshot();
     this.snapshot.reason = 'clear_window_stage';
     this.snapshot.updatedAt = Date.now();
@@ -273,6 +286,46 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     logger.warn(TAG, `setWindowMode API is not directly supported on Window object, simulated mode=${mode}`);
     this.refreshSnapshot('set_window_mode');
     return Promise.resolve();
+  }
+
+  async createSubWindow(name: string): Promise<window.Window> {
+    if (!this.windowStage) {
+      throw new Error('WindowStage is not bound.');
+    }
+    
+    if (this.subWindows.has(name)) {
+      logger.info(TAG, `子窗口已存在，复用现有实例: name=${name}`);
+      return this.subWindows.get(name) as window.Window;
+    }
+
+    try {
+      const subWindow = await this.windowStage.createSubWindow(name);
+      this.subWindows.set(name, subWindow);
+      logger.info(TAG, `创建子窗口成功: name=${name}`);
+      return subWindow;
+    } catch (error) {
+      logger.error(TAG, `创建子窗口失败: name=${name}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      throw error as Error;
+    }
+  }
+
+  async destroySubWindow(name: string): Promise<void> {
+    if (!this.subWindows.has(name)) {
+      logger.warn(TAG, `尝试销毁不存在的子窗口: name=${name}`);
+      return;
+    }
+    
+    const subWindow = this.subWindows.get(name);
+    try {
+      if (subWindow) {
+        await subWindow.destroyWindow();
+      }
+      this.subWindows.delete(name);
+      logger.info(TAG, `销毁子窗口成功: name=${name}`);
+    } catch (error) {
+      logger.error(TAG, `销毁子窗口失败: name=${name}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      throw error as Error;
+    }
   }
 
   private applyResolvedProfile(pageName: string, reason: string): void {

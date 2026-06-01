@@ -83,9 +83,9 @@ class I18nManagerFacade implements II18nManager {
         }
       } else {
         if (args.length > 0) {
-          result = abilityContext.resourceManager.getStringSync(key, ...args);
+          result = abilityContext.resourceManager.getStringSync(key.id, ...args);
         } else {
-          result = abilityContext.resourceManager.getStringSync(key);
+          result = abilityContext.resourceManager.getStringSync(key.id);
         }
       }
       return result;

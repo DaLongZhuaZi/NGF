@@ -29,10 +29,12 @@
 | [`.rules/skill-hds-tab.md`](.rules/skill-hds-tab.md) | 涉及 `HdsTabs`/`Tabs` 组件修改；涉及底部标签栏遮挡、贴边显示或安全区避让时；涉及 `barFloatingStyle` 浮动样式配置时 |
 | [`.rules/skill-manager-apis.md`](.rules/skill-manager-apis.md) | 涉及主题切换/深色模式/`ngf_is_dark_mode`；涉及语言切换/`ngfI18nManagerFacade`；涉及视效档位/`ngfVisualEffectsFacade`/`hdsMaterial.MaterialLevel`；涉及握持感知/`ngfHoldingAwarenessFacade`；需要在 `aboutToAppear`/`aboutToDisappear` 中订阅或取消管理器回调 |
 | [`.rules/skill-system-tasks.md`](.rules/skill-system-tasks.md) | 涉及后台下载、文件上传、数据同步、常驻通知、进度条通知、任务派发或系统事件订阅监听时 |
+| [`.rules/skill-window-management.md`](.rules/skill-window-management.md) | 涉及多窗口、多实例任务卡片、应用内悬浮窗、子窗口、`windowStage.createSubWindow` 或使用 `MultitonEntryAbility` 动态拉起独立页面时 |
 | [`.rules/skill-arkts-types.md`](.rules/skill-arkts-types.md) | 涉及 ArkUI 组件中 Map 或 Array 的遍历（如 ForEach）、异常捕获（catch）、需要显式类型推断以解决 any/unknown 编译报错时 |
 | [`.rules/skill-llm-onboarding.md`](.rules/skill-llm-onboarding.md) | LLM 新会话初始化、首次接触本项目、遇到环境/SDK 路径异常、或遇到构建命令不生效问题时 |
 | [`.rules/skill-app-release.md`](.rules/skill-app-release.md) | 涉及修改应用包名、应用图标、打包发布、申请证书、生成 p12/csr 文件或上架 AGC 时 |
 | [`.rules/skill-ui-symbols.md`](.rules/skill-ui-symbols.md) | 涉及在 UI 中添加图标、状态提示、字符串带图或 LLM 意图主动生成 Emoji 作为标识时 |
+| [`.rules/skill-i18n.md`](.rules/skill-i18n.md) | 涉及新建 UI 界面、修改页面文案、输出面向用户的 Toast/Dialog、配置 HdsNavigation 标题时 |
 | [`.rules/skill-rules-update.md`](.rules/skill-rules-update.md) | 开发者明确要求将本次经验沉淀到规则库时（仅由开发者手动提起，不自动触发） |
 
 > **规则库使用原则**：规则文件各自在开头明确列出了触发条件，LLM 每次分析任务时应主动对照检查，无需等开发者提示。规则库内容以 `.rules/README.md` 为索引入口。

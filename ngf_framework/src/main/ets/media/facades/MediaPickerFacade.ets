@@ -1,4 +1,5 @@
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
+import { picker } from '@kit.CoreFileKit';
 import { IMediaPicker } from '../contracts/IMediaPicker';
 import { logger } from '../../utils/Logger';
 import { uiContextManager } from '../../platformOhos/UIContextManager';
@@ -56,6 +57,31 @@ export class MediaPickerFacade implements IMediaPicker {
       return photoSelectResult.photoUris;
     } catch (e) {
       logger.error(TAG, `视频拾取失败: ${e}`);
+      return [];
+    }
+  }
+  /**
+   * 调起系统安全的文件选择器
+   */
+  async pickDocuments(): Promise<Array<string>> {
+    const context = uiContextManager.getFullAbilityContext();
+    if (!context) {
+      logger.error(TAG, '缺少 UIAbilityContext');
+      return [];
+    }
+
+    try {
+      // 鸿蒙 4.0 以后推荐使用 @ohos.file.picker
+      const documentSelectOptions = new picker.DocumentSelectOptions();
+      documentSelectOptions.maxSelectNumber = 1;
+
+      const documentViewPicker = new picker.DocumentViewPicker();
+      const documentSelectResult = await documentViewPicker.select(documentSelectOptions);
+
+      logger.info(TAG, `成功拾取 ${documentSelectResult.length} 个文件`);
+      return documentSelectResult;
+    } catch (e) {
+      logger.error(TAG, `文件拾取失败: ${e}`);
       return [];
     }
   }

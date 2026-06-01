@@ -186,14 +186,14 @@ export struct NGFCapabilitiesDatabasePage {
           .fontColor($r('app.color.panel_background'))
         Blank()
         if (this.isDbInitialized) {
-          Text('已连接')
+          Text($r('app.string.db_connected'))
             .fontSize(12)
             .fontColor('#FFFFFF')
             .backgroundColor('#34D399')
             .padding({ left: 8, right: 8, top: 4, bottom: 4 })
             .borderRadius(8)
         } else {
-          Text('未连接')
+          Text($r('app.string.db_disconnected'))
             .fontSize(12)
             .fontColor('#FFFFFF')
             .backgroundColor('#EF4444')
@@ -223,7 +223,7 @@ export struct NGFCapabilitiesDatabasePage {
   @Builder
   private buildInputCard(): void {
     Column({ space: 12 }) {
-      TextInput({ placeholder: '输入新的记录内容...', text: this.inputText })
+      TextInput({ placeholder: $r('app.string.db_input_placeholder'), text: this.inputText })
         .onChange((value: string) => {
           this.inputText = value;
         })
@@ -235,7 +235,7 @@ export struct NGFCapabilitiesDatabasePage {
         })
 
       Row({ space: 12 }) {
-        Button('插入记录')
+        Button($r('app.string.db_btn_insert'))
           .layoutWeight(1)
           .height(44)
           .fontSize(14)
@@ -246,7 +246,7 @@ export struct NGFCapabilitiesDatabasePage {
             void this.handleAddTask();
           })
           
-        Button('清空全部')
+        Button($r('app.string.db_btn_clear_all'))
           .layoutWeight(1)
           .height(44)
           .fontSize(14)
@@ -271,7 +271,7 @@ export struct NGFCapabilitiesDatabasePage {
   private buildDataList(): void {
     Column({ space: 8 }) {
       Row() {
-        Text(`数据库记录 (${this.tasks.length})`)
+        Text($r('app.string.db_records_title', this.tasks.length))
           .fontSize(14)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_secondary'))
@@ -285,7 +285,7 @@ export struct NGFCapabilitiesDatabasePage {
 
       if (this.tasks.length === 0) {
         Column() {
-          Text('暂无记录')
+          Text($r('app.string.db_no_records'))
             .fontSize(14)
             .fontColor($r('app.color.text_tertiary'))
         }
@@ -319,14 +319,14 @@ export struct NGFCapabilitiesDatabasePage {
           .fontColor($r('app.color.text_primary'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-        Text(`ID: ${task.id} · 创建于 ${this.formatTime(task.timestamp)}`)
+        Text($r('app.string.db_record_item', task.id, this.formatTime(task.timestamp)))
           .fontSize(12)
           .fontColor($r('app.color.text_tertiary'))
       }
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)
 
-      Button('删除')
+      Button($r('app.string.db_btn_delete'))
         .width(60)
         .height(32)
         .fontSize(12)

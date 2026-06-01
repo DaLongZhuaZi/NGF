@@ -7,7 +7,8 @@ import { ngfContentCacheFacade } from 'ngf_framework';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
-  NGFImmersiveTopChromeUnderlay
+  NGFImmersiveTopChromeUnderlay,
+  ngfMediaPickerFacade
 } from 'ngf_framework';
 import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
@@ -59,6 +60,11 @@ export struct NGFDemoDataStoragePage {
     NGFPageWindowSupport.apply(NGFPageWindowName.DEMO_DATA_STORAGE);
   }
 
+  appendLog(msg: string): void {
+    this.statusMessage = msg;
+    logger.info(TAG, msg);
+  }
+
   build() {
     HdsNavDestination() {
       Stack({ alignContent: Alignment.TopStart }) {
@@ -67,6 +73,7 @@ export struct NGFDemoDataStoragePage {
         Scroll() {
           Column({ space: 12 }) {
             this.buildTitleCard()
+            this.buildSecurityPickerSection()
             this.buildFileReadWriteSection()
             this.buildDirectorySection()
             this.buildCacheSection()
@@ -127,6 +134,57 @@ export struct NGFDemoDataStoragePage {
     })
     .borderRadius(20)
     .shadow({ radius: 14, color: '#1A78350F', offsetX: 0, offsetY: 8 })
+  }
+
+  @Builder
+  private buildSecurityPickerSection(): void {
+    Column({ space: 10 }) {
+      Text($r('app.string.picker_title'))
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor($r('app.color.text_body'))
+
+      Text($r('app.string.picker_desc'))
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
+        .width('100%')
+
+      Row({ space: 10 }) {
+        Button($r('app.string.picker_btn_image'))
+          .layoutWeight(1)
+          .height(40)
+          .fontSize(14)
+          .borderRadius(12)
+          .backgroundColor($r('app.color.button_primary'))
+          .onClick(async (): Promise<void> => {
+            const uris = await ngfMediaPickerFacade.pickImages(1);
+            if (uris.length > 0) {
+              this.getUIContext().getPromptAction().showToast({ message: `成功选取图片: ${uris[0]}` });
+              this.appendLog(`安全选择图片: ${uris[0]}`);
+            }
+          })
+        Button($r('app.string.picker_btn_doc'))
+          .layoutWeight(1)
+          .height(40)
+          .fontSize(14)
+          .borderRadius(14)
+          .backgroundColor($r('app.color.button_secondary'))
+          .fontColor($r('app.color.text_primary'))
+          .onClick(async (): Promise<void> => {
+            const uris = await ngfMediaPickerFacade.pickDocuments();
+            if (uris.length > 0) {
+              this.appendLog(`安全选择文档: ${uris[0]}`);
+            }
+          })
+      }
+      .width('100%')
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.panel_background'))
+    .borderRadius(16)
+    .border({ width: 1, color: $r('app.color.card_border') })
+    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -296,7 +354,7 @@ export struct NGFDemoDataStoragePage {
           .layoutWeight(1)
           .height(36)
           .fontSize(13)
-          .borderRadius(10)
+          .borderRadius(14)
           .backgroundColor($r('app.color.button_primary'))
           .onClick((): void => {
             const value = ngfContentCacheFacade.get(this.cacheKey);
@@ -381,7 +439,7 @@ export struct NGFDemoDataStoragePage {
       const inputStr: string = typeof this.fileWriteInput === 'string' ? this.fileWriteInput : '';
       const success: boolean = FileUtils.writeText('ngf_demo.txt', inputStr);
       this.statusMessage = success ? $r('app.string.ui_str_2253') : $r('app.string.ui_str_2254');
-      logger.info(TAG, `文件写入: success=${success}`);
+      logger.info(TAG, `鏂囦欢鍐欏叆: success=${success}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.statusMessage = $r('app.string.ui_str_2255', message);
@@ -393,7 +451,7 @@ export struct NGFDemoDataStoragePage {
       const content: string = FileUtils.readText('ngf_demo.txt');
       const contentStr: string = typeof content === 'string' ? content : '';
       this.fileReadResult = contentStr.length > 0 ? contentStr : resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2256'));
-      logger.info(TAG, `文件读取: length=${content.length}`);
+      logger.info(TAG, `鏂囦欢璇诲彇: length=${content.length}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.fileReadResult = resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2257', message));
@@ -411,7 +469,7 @@ export struct NGFDemoDataStoragePage {
         result.push(new NGFDemoFileEntryDisplay(i + 1, entry.name, sizeText, typeText));
       }
       this.fileEntries = result;
-      logger.info(TAG, `目录列表: count=${result.length}`);
+      logger.info(TAG, `鐩綍鍒楄〃: count=${result.length}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.statusMessage = $r('app.string.ui_str_2258', message);

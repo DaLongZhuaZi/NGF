@@ -42,3 +42,4 @@ export {
 } from './components/NGFHdsEffectPresets';
 export { AboutSheetContent } from './components/AboutSheetContent';
 export { NGFHdsImmersiveTabs, NGFHdsTabItem } from './components/NGFHdsTabsFactory';
+export { DragDropManagerFacade, ngfDragDropManagerFacade } from './utils/DragDropManager';

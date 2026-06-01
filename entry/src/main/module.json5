@@ -95,6 +95,17 @@
             ]
           }
         ]
+      },
+      {
+        "name": "MultitonEntryAbility",
+        "srcEntry": "./ets/entryability/MultitonEntryAbility.ets",
+        "launchType": "multiton",
+        "description": "$string:MultitonEntryAbility_desc",
+        "icon": "$media:layered_image",
+        "label": "$string:MultitonEntryAbility_label",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": false
       }
     ]
   }

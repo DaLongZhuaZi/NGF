@@ -13,6 +13,7 @@ import { ngfDeviceAdaptationFacade } from 'ngf_framework';
 import { ngfVisualEffectsFacade } from 'ngf_framework';
 import { logger } from 'ngf_framework';
 import { crashAnalytics } from 'ngf_framework';
+import { ngfContinuationManagerFacade } from 'ngf_framework';
 
 const TAG: string = 'EntryAbility';
 
@@ -24,6 +25,11 @@ export default class EntryAbility extends UIAbility {
     const bootstrapResult = ngfStarterKernel.bootstrap();
     crashAnalytics.initialize();
     logger.startup(TAG, 'NGF 引导启动完成', `成功=${bootstrapResult}`);
+
+    // 解析流转数据
+    if (want.parameters) {
+      ngfContinuationManagerFacade.receiveContinuationData(want.parameters as Record<string, Object>);
+    }
 
     /**
      * API 23 适配说明：
@@ -39,6 +45,24 @@ export default class EntryAbility extends UIAbility {
     void ngfVisualEffectsFacade.initialize();
 
     logger.lifecycle(TAG, '生命周期: onCreate');
+  }
+
+  onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    logger.lifecycle(TAG, '生命周期: onNewWant');
+    if (want.parameters) {
+      ngfContinuationManagerFacade.receiveContinuationData(want.parameters as Record<string, Object>);
+    }
+  }
+
+  onContinue(wantParam: Record<string, Object>): AbilityConstant.OnContinueResult {
+    logger.lifecycle(TAG, '生命周期: onContinue，开始跨端流转');
+    try {
+      ngfContinuationManagerFacade.collectAllContinuationData(wantParam);
+      return AbilityConstant.OnContinueResult.AGREE;
+    } catch (e) {
+      logger.error(TAG, `流转失败: ${e}`);
+      return AbilityConstant.OnContinueResult.REJECT;
+    }
   }
 
   onDestroy(): void {

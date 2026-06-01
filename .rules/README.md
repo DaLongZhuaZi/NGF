@@ -19,6 +19,7 @@
 | **页面设计** | [skill-hds-tab.md](skill-hds-tab.md) | HDS TabBar 与 HdsTabs 布局技能：底部导航栏/标签页的浮动样式、特效材质配置及底部避让安全区处理 |
 | **框架能力** | [skill-manager-apis.md](skill-manager-apis.md) | 框架管理器 API 技能：使用主题、语言、视效、握持感知等管理能力 |
 | **框架能力** | [skill-system-tasks.md](skill-system-tasks.md) | 任务管理与系统通知技能：提交后台长时任务、监听任务进度、发送系统通知、事件意图派发 |
+| **框架能力** | [skill-window-management.md](skill-window-management.md) | 多实例与子窗口管理技能：使用 Multiton 动态挂载多窗口页面、创建应用内悬浮窗 (SubWindow) |
 | **编程基础** | [skill-arkts-types.md](skill-arkts-types.md) | ArkTS 类型安全技能：涉及 Map、Array、ForEach 及回调函数的强类型声明 |
 | **编程基础** | [skill-llm-onboarding.md](skill-llm-onboarding.md) | LLM 项目初始化技能：Agent 新会话开启、定位环境 SDK 路径、构造编译命令 |
 | **UI 规范** | [skill-ui-symbols.md](skill-ui-symbols.md) | UI 图标与 Symbol 规范技能：涉及 UI 图标选用，避免使用 Emoji，规范化使用 sys.symbol |
@@ -34,3 +35,5 @@
 4. **发现新规律后**：由开发者手动提起，阅读 `skill-rules-update.md` 执行规则沉淀。
 
 > 主规范文件为根目录 `AGENTS.md`，本规则库是对 `AGENTS.md` 的具体技能补充，两者互为参考，`AGENTS.md` 优先级更高。
+
+- [skill-i18n.md](skill-i18n.md): 自动化多语言适配，避免硬编码中文，调用自动化脚本生成字符串资源。

@@ -277,4 +277,6 @@ export interface IPlatformWindowManager {
   setWindowMinimize(): Promise<void>;
   setWindowFullScreen(isFullScreen: boolean): Promise<void>;
   setWindowMode(mode: number): Promise<void>;
+  createSubWindow(name: string): Promise<window.Window>;
+  destroySubWindow(name: string): Promise<void>;
 }
