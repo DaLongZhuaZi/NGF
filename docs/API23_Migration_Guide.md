@@ -289,7 +289,7 @@ new NGFServiceRegistration(
 ## 参考文档
 
 - [HarmonyOS API 23 发布说明](https://developer.harmonyos.com/)
-- [NGF 框架设计文档](./Framework_Design.md)
+- [NGF 框架设计文档](../ngf_framework/src/main/ets/README.md)
 - [CHANGELOG](./CHANGELOG.md)
 
 ---

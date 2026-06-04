@@ -78,7 +78,7 @@ NGF/
 
 | 文档 | 说明 |
 |------|------|
-| [框架内部架构详解](entry/src/main/ets/Framework/NGF/README.md) | 给想深入了解 NGF 底层实现的硬核开发者阅读 |
+| [框架内部架构详解](ngf_framework/src/main/ets/README.md) | 给想深入了解 NGF 底层实现的硬核开发者阅读 |
 | [框架业务化指南](.rules/skill-app-release.md) | 如何修改包名、申请证书并上架到华为应用市场 |
 
 ---

@@ -334,7 +334,7 @@ hvigorw clean                  # Clean
 |----------|-------------|
 | [AGENTS.md](AGENTS.md) | **Agent working guidelines (highest priority — all AI agents must read)** |
 | [.rules/ Library](.rules/README.md) | AI skill rules: HDS page design, manager APIs, rules rolling update |
-| [Framework README](entry/src/main/ets/Framework/NGF/README.md) | Internal framework architecture |
+| [Framework README](ngf_framework/src/main/ets/README.md) | Internal framework architecture |
 | [Framework Status Analysis](docs/NGF_FRAMEWORK_STATUS.md) | Layer completion & feature gaps |
 | [Implementation Plan](docs/development/NGF_IMPLEMENTATION_PLAN.md) | Development roadmap |
 | [API 23 Migration Guide](docs/API23_Migration_Guide.md) | API 23 adaptation notes |
