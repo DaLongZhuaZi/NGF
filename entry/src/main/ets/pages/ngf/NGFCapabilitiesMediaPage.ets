@@ -142,10 +142,10 @@ export struct NGFCapabilitiesMediaPage {
       this.statusMessage = "Launching PhotoPicker...";
       const uris: Array<string> = await ngfMediaPickerFacade.pickImages(3) as Array<string>;
       this.selectedUris = uris;
-      this.statusMessage = `Selected ${uris.length} media files`;
+      this.statusMessage = 'Selected ' + String(uris.length) + ' media files';
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.statusMessage = `Error: ${message}`;
+      this.statusMessage = 'Error: ' + message;
     }
   }
 }

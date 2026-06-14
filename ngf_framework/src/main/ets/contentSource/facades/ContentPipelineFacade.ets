@@ -22,7 +22,7 @@ export class ContentPipelineFacade implements IContentPipeline {
       return;
     }
     this.pipelines.set(name, definition);
-    logger.info(TAG, `注册管道: name=${name}, steps=${definition.steps.length}`);
+    logger.info(TAG, '注册管道: name=' + name + ', steps=' + definition.steps.length);
   }
 
   hasPipeline(pipelineName: string): boolean {
@@ -33,7 +33,7 @@ export class ContentPipelineFacade implements IContentPipeline {
     const name = pipelineName.trim();
     const definition = this.pipelines.get(name);
     if (definition === undefined) {
-      logger.warn(TAG, `管道未注册: name=${name}`);
+      logger.warn(TAG, '管道未注册: name=' + name);
       return new NGFPipelineResult(false, '', []);
     }
 
@@ -42,17 +42,17 @@ export class ContentPipelineFacade implements IContentPipeline {
 
     for (let index = 0; index < definition.steps.length; index++) {
       const step = definition.steps[index];
-      logger.debug(TAG, `执行步骤: pipeline=${name}, step=${step.stepName}, type=${step.stepType}`);
+      logger.debug(TAG, '执行步骤: pipeline=' + name + ', step=' + step.stepName + ', type=' + step.stepType);
       const stepResult = await this.executeStep(step, sourceId, currentInput);
       stepResults.push(stepResult);
       if (!stepResult.success) {
-        logger.warn(TAG, `步骤失败: step=${step.stepName}, pipeline=${name}`);
+        logger.warn(TAG, '步骤失败: step=' + step.stepName + ', pipeline=' + name);
         return new NGFPipelineResult(false, currentInput, stepResults);
       }
       currentInput = stepResult.output;
     }
 
-    logger.info(TAG, `管道执行完成: pipeline=${name}, steps=${stepResults.length}`);
+    logger.info(TAG, '管道执行完成: pipeline=' + name + ', steps=' + String(stepResults.length));
     return new NGFPipelineResult(true, currentInput, stepResults);
   }
 
@@ -70,11 +70,11 @@ export class ContentPipelineFacade implements IContentPipeline {
       if (step.stepType === 'cache') {
         return this.executeCache(step, sourceId, input);
       }
-      logger.warn(TAG, `未知步骤类型: ${step.stepType}`);
+      logger.warn(TAG, '未知步骤类型: ' + step.stepType);
       return new NGFPipelineStepResult(false, input, step.stepName);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `步骤异常: step=${step.stepName}, error=${message}`);
+      logger.error(TAG, '步骤异常: step=' + step.stepName + ', error=' + message);
       return new NGFPipelineStepResult(false, input, step.stepName);
     }
   }
@@ -87,7 +87,7 @@ export class ContentPipelineFacade implements IContentPipeline {
     const options = new NGFHttpRequestOptions(NGFHttpMethod.GET, url);
     const response: NGFHttpResponse = await ngfHttpClientFacade.request(options);
     if (!response.isOk()) {
-      logger.warn(TAG, `fetch 失败: url=${url}, status=${response.statusCode}`);
+      logger.warn(TAG, 'fetch 失败: url=' + url + ', status=' + response.statusCode);
       return new NGFPipelineStepResult(false, '', step.stepName);
     }
     return new NGFPipelineStepResult(true, response.result, step.stepName);
@@ -100,11 +100,11 @@ export class ContentPipelineFacade implements IContentPipeline {
     try {
       const parsed: Object = JSON.parse(input);
       const serialized: string = JSON.stringify(parsed);
-      logger.debug(TAG, `parse 成功: step=${step.stepName}, outputLength=${serialized.length}`);
+      logger.debug(TAG, 'parse 成功: step=' + step.stepName + ', outputLength=' + String(serialized.length));
       return new NGFPipelineStepResult(true, serialized, step.stepName);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `parse 失败: step=${step.stepName}, error=${message}`);
+      logger.warn(TAG, 'parse 失败: step=' + step.stepName + ', error=' + message);
       return new NGFPipelineStepResult(false, input, step.stepName, message);
     }
   }
@@ -126,7 +126,7 @@ export class ContentPipelineFacade implements IContentPipeline {
       let output: string = input;
       for (let index = 0; index < entries.length; index++) {
         const entry = entries[index];
-        const placeholder = `{{${entry[0]}}}`;
+        const placeholder = '{{' + entry[0] + '}}';
         output = output.replace(placeholder, entry[1]);
       }
       return new NGFPipelineStepResult(true, output, step.stepName);
@@ -140,9 +140,9 @@ export class ContentPipelineFacade implements IContentPipeline {
       return new NGFPipelineStepResult(false, '', step.stepName);
     }
     const ttlMs = this.parseTtlMs(step.config);
-    const cacheKey = `pipeline:${sourceId}:${step.stepName}`;
+    const cacheKey = 'pipeline:' + sourceId + ':' + step.stepName;
     ngfContentCacheFacade.put(cacheKey, input, ttlMs);
-    logger.debug(TAG, `缓存步骤结果: key=${cacheKey}, ttlMs=${ttlMs}`);
+    logger.debug(TAG, '缓存步骤结果: key=' + cacheKey + ', ttlMs=' + ttlMs);
     return new NGFPipelineStepResult(true, input, step.stepName);
   }
 

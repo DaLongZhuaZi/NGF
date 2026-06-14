@@ -37,7 +37,7 @@ export class FontScaleManagerFacade implements IFontScaleManager {
     this.isCustom = false;
     this.currentScale = this.getScaleForLevel(level);
     this.saveToStorage();
-    logger.info(TAG, `设置字体缩放级别: level=${level}, scale=${this.currentScale}`);
+    logger.info(TAG, '设置字体缩放级别: level=' + level + ', scale=' + this.currentScale);
     this.notifyCallbacks(this.currentScale);
   }
 
@@ -47,7 +47,7 @@ export class FontScaleManagerFacade implements IFontScaleManager {
     this.isCustom = true;
     this.currentLevel = this.resolveLevelFromScale(clamped);
     this.saveToStorage();
-    logger.info(TAG, `设置自定义字体缩放: scale=${clamped}`);
+    logger.info(TAG, '设置自定义字体缩放: scale=' + clamped);
     this.notifyCallbacks(this.currentScale);
   }
 
@@ -96,18 +96,18 @@ export class FontScaleManagerFacade implements IFontScaleManager {
         this.currentScale = this.clampScale(storedCustom);
         this.isCustom = true;
         this.currentLevel = this.resolveLevelFromScale(this.currentScale);
-        logger.info(TAG, `从存储恢复自定义字体缩放: scale=${this.currentScale}`);
+        logger.info(TAG, '从存储恢复自定义字体缩放: scale=' + this.currentScale);
       } else if (storedLevel !== undefined && storedLevel !== null && storedLevel.length > 0) {
         this.currentLevel = storedLevel as NGFFontScaleLevel;
         this.currentScale = this.getScaleForLevel(this.currentLevel);
-        logger.info(TAG, `从存储恢复字体缩放级别: level=${this.currentLevel}`);
+        logger.info(TAG, '从存储恢复字体缩放级别: level=' + this.currentLevel);
       } else {
         this.currentScale = 1.0;
         this.currentLevel = NGFFontScaleLevel.NORMAL;
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `初始化字体缩放失败: ${message}`);
+      logger.warn(TAG, '初始化字体缩放失败: ' + message);
       this.currentScale = 1.0;
       this.currentLevel = NGFFontScaleLevel.NORMAL;
     }
@@ -153,7 +153,7 @@ export class FontScaleManagerFacade implements IFontScaleManager {
         this.callbacks[i](scale);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        logger.error(TAG, `字体缩放回调错误: ${message}`);
+        logger.error(TAG, '字体缩放回调错误: ' + message);
       }
     }
   }

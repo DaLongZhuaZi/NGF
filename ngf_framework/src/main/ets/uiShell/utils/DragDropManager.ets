@@ -16,10 +16,10 @@ export class DragDropManagerFacade {
       plainText.textContent = text;
       
       let unifiedData = new unifiedDataChannel.UnifiedData(plainText);
-      logger.info(TAG, `生成文本拖拽数据，内容长度: ${text.length}`);
+      logger.info(TAG, '生成文本拖拽数据，内容长度: ' + String(text.length));
       return unifiedData;
     } catch (e) {
-      logger.error(TAG, `生成文本拖拽数据失败: ${e}`);
+      logger.error(TAG, '生成文本拖拽数据失败: ' + e);
       return null;
     }
   }
@@ -38,10 +38,10 @@ export class DragDropManagerFacade {
       }
       
       let unifiedData = new unifiedDataChannel.UnifiedData(hyperlink);
-      logger.info(TAG, `生成链接拖拽数据: ${url}`);
+      logger.info(TAG, '生成链接拖拽数据: ' + url);
       return unifiedData;
     } catch (e) {
-      logger.error(TAG, `生成链接拖拽数据失败: ${e}`);
+      logger.error(TAG, '生成链接拖拽数据失败: ' + e);
       return null;
     }
   }
@@ -61,7 +61,7 @@ export class DragDropManagerFacade {
       }
       return null;
     } catch (e) {
-      logger.error(TAG, `解析拖放文本失败: ${e}`);
+      logger.error(TAG, '解析拖放文本失败: ' + e);
       return null;
     }
   }

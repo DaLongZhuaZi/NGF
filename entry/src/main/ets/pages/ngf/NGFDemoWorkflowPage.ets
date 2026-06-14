@@ -227,7 +227,7 @@ export struct NGFDemoWorkflowPage {
             .padding({ top: 8, bottom: 8, left: 12, right: 12 })
             .backgroundColor($r('app.color.background_surface'))
             .borderRadius(10)
-          }, (entry: NGFDemoStepResultEntry): string => `step_${entry.id}`)
+          }, (entry: NGFDemoStepResultEntry): string => 'step_' + entry.id)
         }
         .width('100%')
       }
@@ -338,7 +338,7 @@ export struct NGFDemoWorkflowPage {
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
             .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
-          }, (entry: NGFDemoSavedStateEntry): string => `saved_${entry.id}`)
+          }, (entry: NGFDemoSavedStateEntry): string => 'saved_' + entry.id)
         }
         .width('100%')
       }
@@ -372,7 +372,7 @@ export struct NGFDemoWorkflowPage {
     ngfWorkflowDefinitionFacade.registerWorkflow(definition);
     this.registeredName = definition.workflowName;
     this.statusMessage = $r('app.string.ui_str_2338', definition.workflowName, steps.length);
-    logger.info(TAG, `注册工作流: name=${definition.workflowName}, steps=${steps.length}`);
+    logger.info(TAG, '注册工作流: name=' + definition.workflowName + ', steps=' + String(steps.length));
   }
 
   private async handleExecuteWorkflow(): Promise<void> {
@@ -395,7 +395,7 @@ export struct NGFDemoWorkflowPage {
         stepEntries.push(new NGFDemoStepResultEntry(i + 1, step.stepName, step.actionType, statusText, statusColor, statusBg));
       }
       this.stepResults = stepEntries;
-      logger.info(TAG, `工作流执行完成: success=${result.success}, steps=${stepEntries.length}`);
+      logger.info(TAG, '工作流执行完成: success=' + result.success + ', steps=' + String(stepEntries.length));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.statusMessage = $r('app.string.ui_str_2341', message);
@@ -416,7 +416,7 @@ export struct NGFDemoWorkflowPage {
     );
     ngfWorkflowPersistenceFacade.saveState(state);
     this.statusMessage = $r('app.string.ui_str_2343', this.registeredName);
-    logger.info(TAG, `保存工作流状态: name=${this.registeredName}`);
+    logger.info(TAG, '保存工作流状态: name=' + this.registeredName);
   }
 
   private handleLoadState(): void {
@@ -427,7 +427,7 @@ export struct NGFDemoWorkflowPage {
     const state = ngfWorkflowPersistenceFacade.loadState(this.registeredName);
     if (state !== null) {
       const date = new Date(state.savedAt);
-      const timeText = `${this.pad2(date.getHours())}:${this.pad2(date.getMinutes())}:${this.pad2(date.getSeconds())}`;
+      const timeText = String(this.pad2(date.getHours())) + ':' + String(this.pad2(date.getMinutes())) + ':' + String(this.pad2(date.getSeconds()));
       this.statusMessage = $r('app.string.ui_str_2344', state.currentStepIndex, timeText);
     } else {
       this.statusMessage = $r('app.string.ui_str_2345');
@@ -441,7 +441,7 @@ export struct NGFDemoWorkflowPage {
       const state = ngfWorkflowPersistenceFacade.loadState(names[i]);
       if (state !== null) {
         const date = new Date(state.savedAt);
-        const timeText = `${this.pad2(date.getHours())}:${this.pad2(date.getMinutes())}:${this.pad2(date.getSeconds())}`;
+        const timeText = String(this.pad2(date.getHours())) + ':' + String(this.pad2(date.getMinutes())) + ':' + String(this.pad2(date.getSeconds()));
         entries.push(new NGFDemoSavedStateEntry(i + 1, names[i], state.currentStepIndex, timeText));
       }
     }
@@ -451,8 +451,8 @@ export struct NGFDemoWorkflowPage {
 
   private pad2(value: number): string {
     if (value >= 10) {
-      return `${value}`;
+      return String(value);
     }
-    return `0${value}`;
+    return '0' + value;
   }
 }

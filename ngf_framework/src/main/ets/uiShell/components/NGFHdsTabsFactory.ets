@@ -24,7 +24,7 @@ export struct NGFHdsImmersiveTabs {
           this.contentBuilder(index);
         }
         .tabBar(this.buildTabBarItem(item, this.selectedIndex === index))
-      }, (item: NGFHdsTabItem, index: number): string => `${index}_${item.title}`)
+      }, (item: NGFHdsTabItem, index: number): string => index + '_' + item.title)
     }
     .barPosition(BarPosition.End)
     .barMode(BarMode.Fixed)

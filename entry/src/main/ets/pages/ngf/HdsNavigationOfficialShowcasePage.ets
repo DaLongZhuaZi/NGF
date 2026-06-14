@@ -243,11 +243,11 @@ export struct HdsNavigationOfficialShowcasePage {
       this.pathStack.pushPathByName(card.routeName, null);
       this.lastActionText = $r('app.string.ui_str_2178', card.title);
       this.openedCount = this.openedCount + 1;
-      logger.info(TAG, `打开官方HDS路由: ${card.routeName}`);
+      logger.info(TAG, '打开官方HDS路由: ' + card.routeName);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.lastActionText = $r('app.string.ui_str_2179', card.title);
-      logger.warn(TAG, `打开官方HDS路由失败: route=${card.routeName}, error=${message}`);
+      logger.warn(TAG, '打开官方HDS路由失败: route=' + card.routeName + ', error=' + message);
     }
   }
 
@@ -718,13 +718,13 @@ export struct HdsNavigationOfficialMaterialPage {
 
   private updatePressedMaterialItem(itemId: string): void {
     this.pressedMaterialItemId = itemId;
-    logger.info(TAG, `材质预设按下: ${itemId}`);
+    logger.info(TAG, '材质预设按下: ' + itemId);
   }
 
   private clearPressedMaterialItem(itemId: string): void {
     if (this.pressedMaterialItemId === itemId) {
       this.pressedMaterialItemId = '';
-      logger.info(TAG, `材质预设释放: ${itemId}`);
+      logger.info(TAG, '材质预设释放: ' + itemId);
     }
   }
 
@@ -857,8 +857,8 @@ export struct HdsNavigationOfficialMaterialPage {
       .linearGradient({
         angle: 90,
         colors: [
-          [`${item.gradientStart}${preset.titleAlpha}`, 0],
-          [`${item.gradientEnd}${preset.titleAlpha}`, 1]
+          [item.gradientStart + preset.titleAlpha, 0],
+          [item.gradientEnd + preset.titleAlpha, 1]
         ]
       })
       .borderRadius(14)
@@ -900,7 +900,7 @@ export struct HdsNavigationOfficialMaterialPage {
       angle: 135,
       colors: [
         [item.gradientStart, 0],
-        [`${item.gradientEnd}A0`, 1]
+        [item.gradientEnd + 'A0', 1]
       ]
     })
     .borderRadius(24)
@@ -1102,7 +1102,7 @@ export struct HdsNavigationOfficialEffectPage {
     this.animateEffectState(120, Curve.FastOutSlowIn, (): void => {
       this.pressedEffectEntryId = entryId;
     });
-    logger.info(TAG, `特效条目按下: ${entryId}`);
+    logger.info(TAG, '特效条目按下: ' + entryId);
   }
 
   private clearPressedEffectEntry(entryId: string): void {
@@ -1110,7 +1110,7 @@ export struct HdsNavigationOfficialEffectPage {
       this.animateEffectState(160, Curve.EaseOut, (): void => {
         this.pressedEffectEntryId = '';
       });
-      logger.info(TAG, `特效条目释放: ${entryId}`);
+      logger.info(TAG, '特效条目释放: ' + entryId);
     }
   }
 
@@ -1136,7 +1136,7 @@ export struct HdsNavigationOfficialEffectPage {
       const scenePreset: NGFHdsSceneFlowPreset = NGFHdsEffectPresetFactory.buildFlowLightScenePreset(true);
       this.startFlowLightScene();
       this.lastEffectText = $r('app.string.ui_str_2221', entry.title, scenePreset.apiSummary);
-      logger.info(TAG, `特效场景启动: ${entry.id}`);
+      logger.info(TAG, '特效场景启动: ' + entry.id);
       return;
     }
     const activePreset: NGFHdsInteractiveEffectPreset =
@@ -1146,7 +1146,7 @@ export struct HdsNavigationOfficialEffectPage {
     } else {
       this.lastEffectText = $r('app.string.ui_str_2223', entry.title, activePreset.apiSummary);
     }
-    logger.info(TAG, `特效卡片激活: ${entry.id}`);
+    logger.info(TAG, '特效卡片激活: ' + entry.id);
   }
 
   private toggleEffectEntry(entry: NGFHdsOfficialEffectEntry): void {
@@ -1159,7 +1159,7 @@ export struct HdsNavigationOfficialEffectPage {
         this.stopFlowLightScene();
       }
       this.lastEffectText = $r('app.string.ui_str_2224', entry.title);
-      logger.info(TAG, `特效卡片关闭: ${entry.id}`);
+      logger.info(TAG, '特效卡片关闭: ' + entry.id);
       return;
     }
     this.activateEffectEntry(entry);
@@ -1287,7 +1287,7 @@ export struct HdsNavigationOfficialEffectPage {
       .opacity(active ? 1 : 0.45)
       .shadow({
         radius: active ? 18 : 0,
-        color: active ? `${entry.borderAccent}88` : '#00000000',
+        color: active ? entry.borderAccent + '88' : '#00000000',
         offsetX: 0,
         offsetY: active ? 0 : 0
       })
@@ -1304,7 +1304,7 @@ export struct HdsNavigationOfficialEffectPage {
           radius: '72%',
           colors: [
             ['#FFFFFFFF', 0],
-            [`${entry.borderAccent}CC`, 0.36],
+            [entry.borderAccent + 'CC', 0.36],
             ['#00000000', 1]
           ]
         })
@@ -1344,7 +1344,7 @@ export struct HdsNavigationOfficialEffectPage {
         radius: '78%',
         colors: [
           ['#E6FFFFFF', 0],
-          [`${entry.borderAccent}AA`, 0.38],
+          [entry.borderAccent + 'AA', 0.38],
           ['#00000000', 1]
         ]
       })
@@ -1362,7 +1362,7 @@ export struct HdsNavigationOfficialEffectPage {
         radius: '92%',
         colors: [
           ['#FFFFFFFF', 0],
-          [`${entry.borderAccent}CC`, 0.36],
+          [entry.borderAccent + 'CC', 0.36],
           ['#00000000', 1]
         ]
       })
@@ -1395,10 +1395,10 @@ export struct HdsNavigationOfficialEffectPage {
               .width(6)
               .height(level * 6 + 4)
               .backgroundColor(this.isEffectEntryEffectActive(entry.id)
-                ? `${entry.borderAccent}66`
+                ? entry.borderAccent + '66'
                 : '#33FFFFFF')
               .borderRadius(3)
-          }, (level: number): string => `shadow-bar-${level}`)
+          }, (level: number): string => 'shadow-bar-' + level)
 
           Text(entry.effectLabel)
             .fontSize(12)
@@ -1512,7 +1512,7 @@ export struct HdsNavigationOfficialEffectPage {
             .fontSize(11)
             .fontColor('#B3FFFFFF')
 
-          Text(this.isEffectEntryEffectActive(entry.id) ? `● ${entry.badgeLabel}` : $r('app.string.ui_str_2230'))
+          Text(this.isEffectEntryEffectActive(entry.id) ? '● ' + entry.badgeLabel : $r('app.string.ui_str_2230'))
             .fontSize(11)
             .fontColor(this.isEffectEntryEffectActive(entry.id) ? '#FCD34D' : '#99FFFFFF')
             .layoutWeight(1)
@@ -1557,7 +1557,7 @@ export struct HdsNavigationOfficialEffectPage {
       .borderRadius(18)
       .border({
         width: 1,
-        color: this.isEffectEntryEffectActive(entry.id) ? `${entry.borderAccent}88` : '#16FFFFFF'
+        color: this.isEffectEntryEffectActive(entry.id) ? entry.borderAccent + '88' : '#16FFFFFF'
       })
       .opacity(preset.contentOpacity)
     }
@@ -1668,7 +1668,7 @@ export struct HdsNavigationOfficialEffectPage {
               .backgroundColor(this.isEffectEntryEffectActive(entry.id) ? '#BFF7FF' : '#44FFFFFF')
               .borderRadius(3)
               .opacity(this.isEffectEntryEffectActive(entry.id) ? 1 : 0.38)
-          }, (level: number): string => `flow-bar-${level}`)
+          }, (level: number): string => 'flow-bar-' + level)
 
           Text(entry.effectLabel)
             .fontSize(13)

@@ -41,7 +41,7 @@ class ThemeManagerFacade implements IThemeManager {
     AppStorage.setOrCreate<string>(STORAGE_KEY_THEME_OVERRIDE, mode);
     const isDark = this.resolveIsDark(mode);
     AppStorage.setOrCreate<boolean>(STORAGE_KEY_IS_DARK, isDark);
-    logger.info(TAG, `主题覆盖已设置: mode=${mode}, isDark=${isDark}`);
+    logger.info(TAG, '主题覆盖已设置: mode=' + mode + ', isDark=' + isDark);
     this.notifyCallbacks(mode);
   }
 
@@ -81,7 +81,7 @@ class ThemeManagerFacade implements IThemeManager {
     const currentTheme = this.getCurrentTheme();
     const isDark = this.resolveIsDark(currentTheme);
     AppStorage.setOrCreate<boolean>(STORAGE_KEY_IS_DARK, isDark);
-    logger.info(TAG, `系统颜色模式变更: colorMode=${colorMode}, 实际深色=${isDark}`);
+    logger.info(TAG, '系统颜色模式变更: colorMode=' + colorMode + ', 实际深色=' + isDark);
     this.notifyCallbacks(currentTheme);
   }
 
@@ -93,7 +93,7 @@ class ThemeManagerFacade implements IThemeManager {
       pack.textColor,
       pack.accentColor
     );
-    logger.info(TAG, `已加载主题包: name=${pack.name}`);
+    logger.info(TAG, '已加载主题包: name=' + pack.name);
   }
 
   applyThemePack(): void {
@@ -127,7 +127,7 @@ class ThemeManagerFacade implements IThemeManager {
       new NGFColorValue(NGFColorToken.SURFACE, pack.backgroundColor, pack.backgroundColor)
     );
 
-    logger.info(TAG, `已应用主题包: name=${pack.name}, isDark=${isDark}`);
+    logger.info(TAG, '已应用主题包: name=' + pack.name + ', isDark=' + isDark);
     this.notifyCallbacks(this.getCurrentTheme());
   }
 
@@ -168,7 +168,7 @@ class ThemeManagerFacade implements IThemeManager {
         this.callbacks[i](mode);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        logger.error(TAG, `主题回调错误: ${message}`);
+        logger.error(TAG, '主题回调错误: ' + message);
       }
     }
   }

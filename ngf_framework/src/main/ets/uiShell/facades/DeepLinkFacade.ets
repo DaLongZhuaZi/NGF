@@ -23,7 +23,7 @@ export class DeepLinkFacade implements IDeepLinkHandler {
 
   registerRoute(route: NGFDeepLinkRoute): void {
     this.routes.push(route);
-    logger.info(TAG, `注册深链接路由: ${route.scheme}://${route.host}${route.pathPattern} -> ${route.pageName}`);
+    logger.info(TAG, '注册深链接路由: ' + route.scheme + '://' + route.host + route.pathPattern + ' -> ' + route.pageName);
   }
 
   unregisterRoute(scheme: string, host: string, pathPattern: string): boolean {
@@ -31,11 +31,11 @@ export class DeepLinkFacade implements IDeepLinkHandler {
       const route = this.routes[index];
       if (route.scheme === scheme && route.host === host && route.pathPattern === pathPattern) {
         this.routes.splice(index, 1);
-        logger.info(TAG, `注销深链接路由: ${scheme}://${host}${pathPattern}`);
+        logger.info(TAG, '注销深链接路由: ' + scheme + '://' + host + pathPattern);
         return true;
       }
     }
-    logger.warn(TAG, `注销深链接路由未找到: ${scheme}://${host}${pathPattern}`);
+    logger.warn(TAG, '注销深链接路由未找到: ' + scheme + '://' + host + pathPattern);
     return false;
   }
 
@@ -47,7 +47,7 @@ export class DeepLinkFacade implements IDeepLinkHandler {
 
     const parsed = this.parseUrl(trimmedUrl);
     if (parsed === null) {
-      logger.debug(TAG, `URL 解析失败: ${trimmedUrl}`);
+      logger.debug(TAG, 'URL 解析失败: ' + trimmedUrl);
       return new NGFDeepLinkResult(false, '', '', trimmedUrl);
     }
 
@@ -61,19 +61,19 @@ export class DeepLinkFacade implements IDeepLinkHandler {
       }
       if (this.matchPath(route.pathPattern, parsed.path)) {
         const paramsJson = this.buildParamsJson(parsed);
-        logger.info(TAG, `深链接匹配: ${trimmedUrl} -> ${route.pageName}`);
+        logger.info(TAG, '深链接匹配: ' + trimmedUrl + ' -> ' + route.pageName);
         return new NGFDeepLinkResult(true, route.pageName, paramsJson, trimmedUrl);
       }
     }
 
-    logger.debug(TAG, `深链接未匹配: ${trimmedUrl}`);
+    logger.debug(TAG, '深链接未匹配: ' + trimmedUrl);
     return new NGFDeepLinkResult(false, '', '', trimmedUrl);
   }
 
   navigate(url: string): boolean {
     const result = this.resolve(url);
     if (!result.matched) {
-      logger.warn(TAG, `深链接导航失败: 未匹配, url=${url}`);
+      logger.warn(TAG, '深链接导航失败: 未匹配, url=' + url);
       return false;
     }
     return ngfNavigationShellFacade.push(result.pageName, result.paramsJson);
@@ -150,7 +150,7 @@ export class DeepLinkFacade implements IDeepLinkHandler {
 
     const pathParts = this.splitPath(parsed.path);
     for (let index = 0; index < pathParts.length; index++) {
-      params.set(`path_${index}`, pathParts[index]);
+      params.set('path_' + index, pathParts[index]);
     }
 
     if (parsed.queryParams.length > 0) {
@@ -166,14 +166,14 @@ export class DeepLinkFacade implements IDeepLinkHandler {
       }
     }
 
-    const entries = params.keys();
+    const keys: Array<string> = Array.from(params.keys());
     let json = '{';
     let first = true;
-    for (const key of entries) {
+    for (let i: number = 0; i < keys.length; i++) {
       if (!first) {
         json += ',';
       }
-      json += `"${key}":"${params.get(key)}"`;
+      json += '"' + keys[i] + '":"' + String(params.get(keys[i])) + '"';
       first = false;
     }
     json += '}';

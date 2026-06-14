@@ -69,7 +69,7 @@ class DemoSyncHandler implements ISyncDataHandler {
     await new Promise<void>((resolve: () => void) => {
       setTimeout(resolve, 20);
     });
-    logger.debug(TAG, `远程推送: entity=${item.entityName}, op=${item.operation}`);
+    logger.debug(TAG, '远程推送: entity=' + item.entityName + ', op=' + item.operation);
     return true;
   }
 
@@ -127,18 +127,18 @@ export struct NGFDemoSyncManagerPage {
     this.statusMessage = this.isOnline
       ? $r('app.string.sync_network_on')
       : $r('app.string.sync_network_off');
-    logger.info(TAG, `模拟网络状态: online=${this.isOnline}`);
+    logger.info(TAG, '模拟网络状态: online=' + this.isOnline);
   }
 
   private handleEnqueue(op: NGFSyncOperation): void {
-    const id = `item_${this.nextItemId}`;
+    const id = 'item_' + this.nextItemId;
     this.nextItemId++;
     const item = new NGFSyncQueueItem(
       id,
       'UserProfile',
-      `user_${this.nextItemId}`,
+      'user_' + this.nextItemId,
       op,
-      `{"name":"User${this.nextItemId}","ts":${Date.now()}}`,
+      '{"name":"User' + this.nextItemId + '","ts":' + String(Date.now()) + '}',
       Date.now()
     );
     ngfSyncManagerFacade.enqueue(item);
@@ -157,7 +157,7 @@ export struct NGFDemoSyncManagerPage {
     }
     this.queueItems = next;
     this.statusMessage = $r('app.string.sync_enqueued', id);
-    logger.info(TAG, `入队: id=${id}, op=${op}`);
+    logger.info(TAG, '入队: id=' + id + ', op=' + op);
   }
 
   private async handleFlush(): Promise<void> {
@@ -173,7 +173,7 @@ export struct NGFDemoSyncManagerPage {
     this.statusMessage = result.success
       ? $r('app.string.sync_flush_success', result.syncedCount)
       : $r('app.string.sync_flush_partial', result.syncedCount, result.failedCount);
-    logger.info(TAG, `同步完成: synced=${result.syncedCount}, failed=${result.failedCount}`);
+    logger.info(TAG, '同步完成: synced=' + result.syncedCount + ', failed=' + result.failedCount);
   }
 
   private handleClearQueue(): void {
@@ -313,7 +313,7 @@ export struct NGFDemoSyncManagerPage {
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_body'))
           .layoutWeight(1)
-        Text(`${this.queueSize}`)
+        Text(String(this.queueSize))
           .fontSize(18)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.button_primary'))
@@ -433,7 +433,7 @@ export struct NGFDemoSyncManagerPage {
             .padding({ top: 5, bottom: 5, left: 10, right: 10 })
             .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
-          }, (item: NGFSyncQueueDisplay): string => `q_${item.id}`)
+          }, (item: NGFSyncQueueDisplay): string => 'q_' + item.id)
         }
         .width('100%')
       }
@@ -497,9 +497,9 @@ export struct NGFDemoSyncManagerPage {
           .fontColor($r('app.color.text_body'))
 
         Row({ space: 12 }) {
-          this.buildResultStat($r('app.string.sync_stat_synced'), `${(this.lastResult as NGFSyncResultDisplay).syncedCount}`, '#16A34A')
-          this.buildResultStat($r('app.string.sync_stat_failed'), `${(this.lastResult as NGFSyncResultDisplay).failedCount}`, '#E11D48')
-          this.buildResultStat($r('app.string.sync_stat_conflict'), `${(this.lastResult as NGFSyncResultDisplay).conflictCount}`, '#D97706')
+          this.buildResultStat($r('app.string.sync_stat_synced'), String((this.lastResult as NGFSyncResultDisplay).syncedCount), '#16A34A')
+          this.buildResultStat($r('app.string.sync_stat_failed'), String((this.lastResult as NGFSyncResultDisplay).failedCount), '#E11D48')
+          this.buildResultStat($r('app.string.sync_stat_conflict'), String((this.lastResult as NGFSyncResultDisplay).conflictCount), '#D97706')
         }
         .width('100%')
 

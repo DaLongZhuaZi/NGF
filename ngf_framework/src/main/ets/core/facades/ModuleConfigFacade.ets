@@ -23,10 +23,10 @@ export class ModuleConfigFacade implements IModuleConfig {
           this.configMap.set(moduleName, entry[1]);
         }
       }
-      logger.info(TAG, `加载模块配置: ${entries.length} 项`);
+      logger.info(TAG, '加载模块配置: ' + String(entries.length) + ' 项');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `加载模块配置失败: ${message}`);
+      logger.error(TAG, '加载模块配置失败: ' + message);
     }
   }
 
@@ -49,7 +49,7 @@ export class ModuleConfigFacade implements IModuleConfig {
     }
     this.configMap.set(name, enabled);
     this.reasonMap.delete(name);
-    logger.info(TAG, `设置模块状态: ${name}=${enabled}`);
+    logger.info(TAG, '设置模块状态: ' + name + '=' + enabled);
   }
 
   setDisabled(moduleName: string, reason: string): void {
@@ -59,16 +59,16 @@ export class ModuleConfigFacade implements IModuleConfig {
     }
     this.configMap.set(name, false);
     this.reasonMap.set(name, reason);
-    logger.info(TAG, `禁用模块: ${name}, 原因=${reason}`);
+    logger.info(TAG, '禁用模块: ' + name + ', 原因=' + reason);
   }
 
   listConfig(): Array<NGFModuleConfigEntry> {
     const result: Array<NGFModuleConfigEntry> = [];
-    const keys = this.configMap.keys();
-    for (const key of keys) {
-      const enabled = this.configMap.get(key) as boolean;
-      const reason = this.reasonMap.get(key);
-      result.push(new NGFModuleConfigEntry(key, enabled, reason !== undefined ? reason : ''));
+    const keys: Array<string> = Array.from(this.configMap.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      const enabled = this.configMap.get(keys[i]) as boolean;
+      const reason = this.reasonMap.get(keys[i]);
+      result.push(new NGFModuleConfigEntry(keys[i], enabled, reason !== undefined ? reason : ''));
     }
     return result;
   }

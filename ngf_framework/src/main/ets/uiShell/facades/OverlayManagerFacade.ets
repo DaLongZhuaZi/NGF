@@ -16,11 +16,11 @@ export class OverlayManagerFacade implements IOverlayManager {
     try {
       const promptAction = uiContext.getPromptAction();
       promptAction.openCustomDialog(content).catch((e: Error) => {
-        logger.error(TAG, `openCustomDialog failed with promise rejection: ${e}`);
+        logger.error(TAG, 'openCustomDialog failed with promise rejection: ' + e);
       });
       logger.info(TAG, 'showCustomDialog triggered.');
     } catch (e) {
-      logger.error(TAG, `showCustomDialog failed: ${e}`);
+      logger.error(TAG, 'showCustomDialog failed: ' + e);
     }
   }
 
@@ -34,11 +34,11 @@ export class OverlayManagerFacade implements IOverlayManager {
     try {
       const promptAction = uiContext.getPromptAction();
       promptAction.closeCustomDialog(content).catch((e: Error) => {
-        logger.error(TAG, `closeCustomDialog failed with promise rejection: ${e}`);
+        logger.error(TAG, 'closeCustomDialog failed with promise rejection: ' + e);
       });
       logger.info(TAG, 'hideCustomDialog triggered.');
     } catch (e) {
-      logger.error(TAG, `hideCustomDialog failed: ${e}`);
+      logger.error(TAG, 'hideCustomDialog failed: ' + e);
     }
   }
 
@@ -57,7 +57,7 @@ export class OverlayManagerFacade implements IOverlayManager {
       }
       logger.info(TAG, 'showSheet triggered.');
     } catch (e) {
-      logger.error(TAG, `showSheet failed: ${e}`);
+      logger.error(TAG, 'showSheet failed: ' + e);
     }
   }
 
@@ -72,7 +72,7 @@ export class OverlayManagerFacade implements IOverlayManager {
       uiContext.closeBindSheet(content);
       logger.info(TAG, 'hideSheet triggered.');
     } catch (e) {
-      logger.error(TAG, `hideSheet failed: ${e}`);
+      logger.error(TAG, 'hideSheet failed: ' + e);
     }
   }
 
@@ -86,7 +86,7 @@ export class OverlayManagerFacade implements IOverlayManager {
         });
         return;
       } catch (e) {
-        logger.warn(TAG, `UIContext openToast failed, falling back to global: ${e}`);
+        logger.warn(TAG, 'UIContext openToast failed, falling back to global: ' + e);
       }
     }
     
@@ -97,7 +97,7 @@ export class OverlayManagerFacade implements IOverlayManager {
         duration: 2000
       });
     } catch (e) {
-      logger.error(TAG, `Global promptAction.openToast failed: ${e}`);
+      logger.error(TAG, 'Global promptAction.openToast failed: ' + e);
     }
   }
 }

@@ -56,6 +56,6 @@ export function formatErrorMessage(
   context: string = ''
 ): string {
   const errorMessage = errorToString(error);
-  const contextPrefix = context ? `[${context}] ` : '';
-  return `${contextPrefix}[${category}] ${errorMessage}`;
+  const contextPrefix = context ? '[' + context + '] ' : '';
+  return contextPrefix + '[' + category + '] ' + errorMessage;
 }

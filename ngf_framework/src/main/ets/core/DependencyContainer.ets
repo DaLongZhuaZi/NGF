@@ -64,7 +64,7 @@ export class DependencyContainer {
     }
     const registration = new DependencyRegistration(normalizedToken, factory, lifecycle);
     this.registrations.set(normalizedToken, registration);
-    logger.info(TAG, `注册依赖：token=${normalizedToken}, lifecycle=${lifecycle}`);
+    logger.info(TAG, '注册依赖：token=' + normalizedToken + ', lifecycle=' + lifecycle);
 
     if (lifecycle === ContainerLifecycle.SINGLETON) {
       const instance = registration.resolve();
@@ -81,22 +81,22 @@ export class DependencyContainer {
     const normalizedToken = token.trim();
     const registration = this.registrations.get(normalizedToken);
     if (!registration) {
-      logger.warn(TAG, `解析未命中：token=${normalizedToken}`);
+      logger.warn(TAG, '解析未命中：token=' + normalizedToken);
       return null;
     }
     const instance = registration.resolve();
-    logger.debug(TAG, `解析依赖：token=${normalizedToken}`);
+    logger.debug(TAG, '解析依赖：token=' + normalizedToken);
     return instance;
   }
 
   clear(): void {
-    const keys = this.registrations.keys();
-    for (const key of keys) {
-      const registration = this.registrations.get(key);
+    const keys: Array<string> = Array.from(this.registrations.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      const registration = this.registrations.get(keys[i]);
       if (registration !== undefined) {
         const cached = registration.getCachedInstance();
         if (cached !== null) {
-          this.tryDestroy(cached, key);
+          this.tryDestroy(cached, keys[i]);
         }
       }
     }
@@ -109,10 +109,10 @@ export class DependencyContainer {
     if (aware.initialize !== undefined) {
       try {
         aware.initialize();
-        logger.debug(TAG, `生命周期钩子已调用：token=${token}, method=initialize`);
+        logger.debug(TAG, '生命周期钩子已调用：token=' + token + ', method=initialize');
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        logger.warn(TAG, `生命周期钩子异常：token=${token}, method=initialize, error=${message}`);
+        logger.warn(TAG, '生命周期钩子异常：token=' + token + ', method=initialize, error=' + message);
       }
     }
   }
@@ -122,10 +122,10 @@ export class DependencyContainer {
     if (aware.destroy !== undefined) {
       try {
         aware.destroy();
-        logger.debug(TAG, `生命周期钩子已调用：token=${token}, method=destroy`);
+        logger.debug(TAG, '生命周期钩子已调用：token=' + token + ', method=destroy');
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        logger.warn(TAG, `生命周期钩子异常：token=${token}, method=destroy, error=${message}`);
+        logger.warn(TAG, '生命周期钩子异常：token=' + token + ', method=destroy, error=' + message);
       }
     }
   }

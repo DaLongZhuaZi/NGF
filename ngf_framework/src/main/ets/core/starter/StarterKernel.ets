@@ -1,4 +1,4 @@
-﻿import { ILogger } from '../contracts/ILogger';
+import { ILogger } from '../contracts/ILogger';
 import { IEventBus, NGFEventListener, NGFEventPayload } from '../contracts/IEventBus';
 import { IErrorHandler, NGFErrorContext, NGFErrorSeverity, NGFRecoveryHandler } from '../contracts/IErrorHandler';
 import { ILifecycleOrchestrator, NGFPhaseState } from '../contracts/ILifecycleOrchestrator';
@@ -99,16 +99,16 @@ class NGFStarterEventBus implements IEventBus {
 
     const listeners = this.listenersByEvent.get(normalizedEventName);
     if (!listeners) {
-      this.logger.debug(LOG_TAG, `发布已跳过：事件=${normalizedEventName}, 监听器=0`);
+      this.logger.debug(LOG_TAG, '发布已跳过：事件=' + normalizedEventName + ', 监听器=0');
       return;
     }
 
-    this.logger.debug(LOG_TAG, `发布事件：事件=${normalizedEventName}, 监听器=${listeners.size}`);
+    this.logger.debug(LOG_TAG, '发布事件：事件=' + normalizedEventName + ', 监听器=' + String(listeners.size));
     listeners.forEach((listener: NGFEventListener) => {
       try {
         listener(payload);
       } catch (error) {
-        this.logger.warn(LOG_TAG, `事件监听器执行失败：事件=${normalizedEventName}, 错误=${this.errorToString(error as Object | string | number | boolean)}`);
+        this.logger.warn(LOG_TAG, '事件监听器执行失败：事件=' + normalizedEventName + ', 错误=' + this.errorToString(error as Object | string | number | boolean));
       }
     });
   }
@@ -117,18 +117,18 @@ class NGFStarterEventBus implements IEventBus {
     const normalizedEventName = eventName.trim();
     const normalizedListenerId = listenerId.trim();
     if (normalizedEventName.length <= 0 || normalizedListenerId.length <= 0) {
-      this.logger.warn(LOG_TAG, `订阅已忽略：事件=${normalizedEventName}, 监听器ID=${normalizedListenerId}`);
+      this.logger.warn(LOG_TAG, '订阅已忽略：事件=' + normalizedEventName + ', 监听器ID=' + normalizedListenerId);
       return false;
     }
 
     const listeners = this.ensureListeners(normalizedEventName);
     if (listeners.has(normalizedListenerId)) {
-      this.logger.debug(LOG_TAG, `订阅已跳过：事件=${normalizedEventName}, 监听器ID=${normalizedListenerId}`);
+      this.logger.debug(LOG_TAG, '订阅已跳过：事件=' + normalizedEventName + ', 监听器ID=' + normalizedListenerId);
       return false;
     }
 
     listeners.set(normalizedListenerId, listener);
-    this.logger.info(LOG_TAG, `订阅监听器：事件=${normalizedEventName}, 监听器ID=${normalizedListenerId}`);
+    this.logger.info(LOG_TAG, '订阅监听器：事件=' + normalizedEventName + ', 监听器ID=' + normalizedListenerId);
     return true;
   }
 
@@ -137,7 +137,7 @@ class NGFStarterEventBus implements IEventBus {
     const normalizedListenerId = listenerId.trim();
     const listeners = this.listenersByEvent.get(normalizedEventName);
     if (!listeners || !listeners.has(normalizedListenerId)) {
-      this.logger.debug(LOG_TAG, `取消订阅已跳过：事件=${normalizedEventName}, 监听器ID=${normalizedListenerId}`);
+      this.logger.debug(LOG_TAG, '取消订阅已跳过：事件=' + normalizedEventName + ', 监听器ID=' + normalizedListenerId);
       return false;
     }
 
@@ -145,14 +145,14 @@ class NGFStarterEventBus implements IEventBus {
     if (listeners.size === 0) {
       this.listenersByEvent.delete(normalizedEventName);
     }
-    this.logger.info(LOG_TAG, `取消订阅监听器：事件=${normalizedEventName}, 监听器ID=${normalizedListenerId}`);
+    this.logger.info(LOG_TAG, '取消订阅监听器：事件=' + normalizedEventName + ', 监听器ID=' + normalizedListenerId);
     return true;
   }
 
   clear(eventName: string): void {
     const normalizedEventName = eventName.trim();
     const hadListeners = this.listenersByEvent.delete(normalizedEventName);
-    this.logger.info(LOG_TAG, `清除事件监听器：事件=${normalizedEventName}, 已清除=${hadListeners}`);
+    this.logger.info(LOG_TAG, '清除事件监听器：事件=' + normalizedEventName + ', 已清除=' + hadListeners);
   }
 
   private ensureListeners(eventName: string): Map<string, NGFEventListener> {
@@ -206,7 +206,7 @@ class NGFStarterLifecycleOrchestrator implements ILifecycleOrchestrator {
     this.currentPhase = normalized;
     this.progress = this.resolveProgress(normalized, false);
     this.completed = false;
-    this.logger.stateChange(LOG_TAG, previousPhase, this.currentPhase, `进度=${this.progress}`);
+    this.logger.stateChange(LOG_TAG, previousPhase, this.currentPhase, '进度=' + this.progress);
   }
 
   completePhase(phaseName: string): void {
@@ -214,7 +214,7 @@ class NGFStarterLifecycleOrchestrator implements ILifecycleOrchestrator {
     const normalized = this.normalizePhaseName(phaseName);
     this.currentPhase = normalized;
     this.progress = this.resolveProgress(normalized, true);
-    this.logger.stateChange(LOG_TAG, previousPhase, `${this.currentPhase}:completed`, `进度=${this.progress}`);
+    this.logger.stateChange(LOG_TAG, previousPhase, this.currentPhase + ':completed', '进度=' + this.progress);
   }
 
   failPhase(phaseName: string, reason: string): void {
@@ -224,9 +224,9 @@ class NGFStarterLifecycleOrchestrator implements ILifecycleOrchestrator {
     this.completed = false;
     this.progress = Math.max(0, this.resolveProgress(normalized, false));
     if (reason.trim().length > 0) {
-      this.currentPhase = `${normalized}:failed`;
+      this.currentPhase = normalized + ':failed';
     }
-    this.logger.warn(LOG_TAG, `阶段失败：从=${previousPhase}, 到=${this.currentPhase}, 原因=${reason}`);
+    this.logger.warn(LOG_TAG, '阶段失败：从=' + previousPhase + ', 到=' + this.currentPhase + ', 原因=' + reason);
   }
 
   markCompleted(): void {
@@ -284,22 +284,22 @@ class NGFStarterServiceContainer implements IServiceContainer {
 
   registerSingleton(token: string, implementationName: string): void {
     this.registrations.set(token, implementationName);
-    this.logger.info(LOG_TAG, `注册服务：令牌=${token}, 实现=${implementationName}`);
+    this.logger.info(LOG_TAG, '注册服务：令牌=' + token + ', 实现=' + implementationName);
   }
 
   resolve(token: string): string {
     const implementationName = this.registrations.get(token);
     if (implementationName) {
-      this.logger.debug(LOG_TAG, `解析服务命中：令牌=${token}, 实现=${implementationName}`);
+      this.logger.debug(LOG_TAG, '解析服务命中：令牌=' + token + ', 实现=' + implementationName);
       return implementationName;
     }
-    this.logger.warn(LOG_TAG, `解析服务未命中：令牌=${token}`);
+    this.logger.warn(LOG_TAG, '解析服务未命中：令牌=' + token);
     return '';
   }
 
   contains(token: string): boolean {
     const exists = this.registrations.has(token);
-    this.logger.debug(LOG_TAG, `查询服务：令牌=${token}, 存在=${exists}`);
+    this.logger.debug(LOG_TAG, '查询服务：令牌=' + token + ', 存在=' + exists);
     return exists;
   }
 
@@ -315,7 +315,7 @@ class NGFStarterServiceContainer implements IServiceContainer {
         return instance;
       }, ContainerLifecycle.SINGLETON);
     }
-    this.logger.info(LOG_TAG, `注册服务实例：令牌=${normalizedToken}`);
+    this.logger.info(LOG_TAG, '注册服务实例：令牌=' + normalizedToken);
   }
 
   resolveInstance(token: string): object | null {
@@ -323,10 +323,10 @@ class NGFStarterServiceContainer implements IServiceContainer {
     const container = DependencyContainer.getInstance();
     const resolved = container.resolve(normalizedToken);
     if (resolved) {
-      this.logger.debug(LOG_TAG, `解析实例命中：令牌=${normalizedToken}`);
+      this.logger.debug(LOG_TAG, '解析实例命中：令牌=' + normalizedToken);
       return resolved;
     }
-    this.logger.warn(LOG_TAG, `解析实例未命中：令牌=${normalizedToken}`);
+    this.logger.warn(LOG_TAG, '解析实例未命中：令牌=' + normalizedToken);
     return null;
   }
 }
@@ -363,7 +363,7 @@ class NGFStarterErrorHandler implements IErrorHandler {
         now
       );
       this.pushRecord(record);
-      this.logger.error(context.source, `${errorName}: ${message}`);
+      this.logger.error(context.source, errorName + ': ' + message);
 
       const payload = new NGFEventPayload('ngf_core_error', this.toJson(record), now);
       this.eventBus.publish(NGFStarterEventName.CORE_ERROR, payload);
@@ -371,12 +371,12 @@ class NGFStarterErrorHandler implements IErrorHandler {
       if (severity === NGFErrorSeverity.HIGH || severity === NGFErrorSeverity.CRITICAL) {
         const recovered = await this.tryRecover(errorName, message, severity, context);
         if (recovered) {
-          this.logger.info(context.source, `恢复成功：错误=${errorName}`);
+          this.logger.info(context.source, '恢复成功：错误=' + errorName);
         }
       }
       return true;
     } catch (error) {
-      this.logger.error(LOG_TAG, `错误处理失败：${this.errorToString(error as Object | string | number | boolean)}`);
+      this.logger.error(LOG_TAG, '错误处理失败：' + this.errorToString(error as Object | string | number | boolean));
       return false;
     }
   }
@@ -388,17 +388,17 @@ class NGFStarterErrorHandler implements IErrorHandler {
       return false;
     }
     if (this.recoveryStrategies.has(normalized)) {
-      this.logger.debug(LOG_TAG, `注册恢复策略已跳过：策略=${normalized}`);
+      this.logger.debug(LOG_TAG, '注册恢复策略已跳过：策略=' + normalized);
       return false;
     }
     this.recoveryStrategies.set(normalized, handler);
-    this.logger.info(LOG_TAG, `注册恢复策略：策略=${normalized}`);
+    this.logger.info(LOG_TAG, '注册恢复策略：策略=' + normalized);
     return true;
   }
 
   getRecentErrorCount(): number {
     const count = this.recentErrors.length;
-    this.logger.debug(LOG_TAG, `获取最近错误数：数量=${count}`);
+    this.logger.debug(LOG_TAG, '获取最近错误数：数量=' + count);
     return count;
   }
 
@@ -408,18 +408,18 @@ class NGFStarterErrorHandler implements IErrorHandler {
     severity: NGFErrorSeverity,
     context: NGFErrorContext
   ): Promise<boolean> {
-    const strategyNames = this.recoveryStrategies.keys();
-    for (const strategyName of strategyNames) {
-      const handler = this.recoveryStrategies.get(strategyName);
+    const strategyNames: Array<string> = Array.from(this.recoveryStrategies.keys());
+    for (let i: number = 0; i < strategyNames.length; i++) {
+      const handler = this.recoveryStrategies.get(strategyNames[i]);
       if (handler) {
         try {
-          this.logger.info(LOG_TAG, `尝试恢复策略：${strategyName}`);
+          this.logger.info(LOG_TAG, '尝试恢复策略：' + strategyNames[i]);
           const result = await handler(errorName, message, severity, context);
           if (result) {
             return true;
           }
         } catch (recoveryError) {
-          this.logger.warn(LOG_TAG, `恢复策略失败：${strategyName}, 错误=${this.errorToString(recoveryError as Object | string | number | boolean)}`);
+          this.logger.warn(LOG_TAG, '恢复策略失败：' + strategyNames[i] + ', 错误=' + this.errorToString(recoveryError as Object | string | number | boolean));
         }
       }
     }
@@ -514,7 +514,7 @@ export class NGFStarterKernel {
       const moduleReport = this.moduleBootstrapCoordinator.bootstrapPhase('core_services');
       this.publishModuleBootstrapReport(moduleReport);
       if (!moduleReport.success) {
-        throw new Error(`module bootstrap failed: success=${moduleReport.successCount}, failure=${moduleReport.failureCount}`);
+        throw new Error('module bootstrap failed: success=' + moduleReport.successCount + ', failure=' + moduleReport.failureCount);
       }
       this.lifecycle.completePhase('core_services');
       this.publishCurrentState();
@@ -537,7 +537,7 @@ export class NGFStarterKernel {
       return true;
     } catch (error) {
       const message = this.errorToString(error as Object | string | number | boolean);
-      this.logger.error(LOG_TAG, `引导失败：${message}`);
+      this.logger.error(LOG_TAG, '引导失败：' + message);
       this.lifecycle.failPhase(this.lifecycle.getCurrentState().phaseName, message);
       this.publishCurrentState();
       const context = new NGFErrorContext('system', 'NGF_STARTER_BOOTSTRAP_FAILED', LOG_TAG);
@@ -548,7 +548,7 @@ export class NGFStarterKernel {
   }
 
   isBootstrapped(): boolean {
-    this.logger.debug(LOG_TAG, `是否已引导=${this.bootstrapped}`);
+    this.logger.debug(LOG_TAG, '是否已引导=' + this.bootstrapped);
     return this.bootstrapped;
   }
 
@@ -608,7 +608,7 @@ export class NGFStarterKernel {
       this.toStateEnvelopeJson(currentState),
       Date.now()
     );
-    this.logger.debug(LOG_TAG, `发布当前状态：阶段=${currentState.phaseName}, 进度=${currentState.progress}, 已完成=${currentState.isCompleted}`);
+    this.logger.debug(LOG_TAG, '发布当前状态：阶段=' + currentState.phaseName + ', 进度=' + currentState.progress + ', 已完成=' + currentState.isCompleted);
     this.eventBus.publish(NGFStarterEventName.CORE_STATE_CHANGED, payload);
   }
 
@@ -619,7 +619,7 @@ export class NGFStarterKernel {
       this.toModuleBootstrapReportJson(report),
       Date.now()
     );
-    this.logger.info(LOG_TAG, `发布模块引导报告：总数=${report.totalCount}, 成功=${report.successCount}, 失败=${report.failureCount}`);
+    this.logger.info(LOG_TAG, '发布模块引导报告：总数=' + report.totalCount + ', 成功=' + report.successCount + ', 失败=' + report.failureCount);
     this.eventBus.publish(NGFStarterEventName.CORE_MODULES_BOOTSTRAPPED, payload);
   }
 

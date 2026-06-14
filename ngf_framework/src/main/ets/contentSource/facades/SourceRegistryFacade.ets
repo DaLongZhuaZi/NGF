@@ -24,20 +24,20 @@ export class SourceRegistryFacade implements ISourceRegistry {
     const normalizedSourceId = sourceId.trim();
     const normalizedPkg = pkg.trim();
     if (normalizedSourceId.length <= 0 || normalizedPkg.length <= 0) {
-      logger.warn(TAG, `注册源忽略: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
+      logger.warn(TAG, '注册源忽略: sourceId=' + normalizedSourceId + ', pkg=' + normalizedPkg);
       return false;
     }
 
     const existing = this.entries.get(normalizedSourceId);
     if (existing && existing.pkg === normalizedPkg) {
-      logger.debug(TAG, `源已注册: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
+      logger.debug(TAG, '源已注册: sourceId=' + normalizedSourceId + ', pkg=' + normalizedPkg);
       return true;
     }
 
     if (existing) {
-      logger.info(TAG, `更新源包绑定: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
+      logger.info(TAG, '更新源包绑定: sourceId=' + normalizedSourceId + ', pkg=' + normalizedPkg);
     } else {
-      logger.info(TAG, `注册源: sourceId=${normalizedSourceId}, pkg=${normalizedPkg}`);
+      logger.info(TAG, '注册源: sourceId=' + normalizedSourceId + ', pkg=' + normalizedPkg);
     }
 
     this.entries.set(
@@ -54,11 +54,11 @@ export class SourceRegistryFacade implements ISourceRegistry {
       return false;
     }
     if (!this.entries.has(normalizedSourceId)) {
-      logger.debug(TAG, `注销源跳过: sourceId=${normalizedSourceId} 未找到`);
+      logger.debug(TAG, '注销源跳过: sourceId=' + normalizedSourceId + ' 未找到');
       return false;
     }
     this.entries.delete(normalizedSourceId);
-    logger.info(TAG, `注销源: sourceId=${normalizedSourceId}`);
+    logger.info(TAG, '注销源: sourceId=' + normalizedSourceId);
     return true;
   }
 
@@ -70,13 +70,13 @@ export class SourceRegistryFacade implements ISourceRegistry {
     }
 
     const exists = this.entries.has(normalizedSourceId);
-    logger.debug(TAG, `检查源存在: sourceId=${normalizedSourceId}, 存在=${exists}`);
+    logger.debug(TAG, '检查源存在: sourceId=' + normalizedSourceId + ', 存在=' + exists);
     return exists;
   }
 
   listSourceIds(): string[] {
     const sourceIds = Array.from(this.entries.keys());
-    logger.debug(TAG, `列出源ID: 数量=${sourceIds.length}`);
+    logger.debug(TAG, '列出源ID: 数量=' + String(sourceIds.length));
     return sourceIds;
   }
 
@@ -105,11 +105,11 @@ export class SourceRegistryFacade implements ISourceRegistry {
           this.registerSource(sourceId, pkg);
         }
       }
-      logger.info(TAG, `从 rawfile 加载源成功: path=${rawFilePath}, count=${configArray.length}`);
+      logger.info(TAG, '从 rawfile 加载源成功: path=' + rawFilePath + ', count=' + String(configArray.length));
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `加载 rawfile 异常: path=${rawFilePath}, error=${message}`);
+      logger.error(TAG, '加载 rawfile 异常: path=' + rawFilePath + ', error=' + message);
       return false;
     }
   }

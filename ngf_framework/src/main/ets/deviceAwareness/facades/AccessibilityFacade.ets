@@ -35,10 +35,10 @@ class AccessibilityFacade implements IAccessibilityManager {
   isAccessibilityEnabled(): NGFAccessibilityState {
     try {
       const isEnabled: boolean = accessibility.isOpenAccessibilitySync();
-      logger.info(TAG, `无障碍状态: ${isEnabled}`);
+      logger.info(TAG, '无障碍状态: ' + isEnabled);
       return isEnabled ? NGFAccessibilityState.ENABLED : NGFAccessibilityState.DISABLED;
     } catch (e) {
-      logger.warn(TAG, `无障碍状态查询失败: ${e}`);
+      logger.warn(TAG, '无障碍状态查询失败: ' + e);
       return NGFAccessibilityState.UNKNOWN;
     }
   }
@@ -50,7 +50,7 @@ class AccessibilityFacade implements IAccessibilityManager {
     try {
       return accessibility.isOpenTouchGuideSync();
     } catch (e) {
-      logger.warn(TAG, `屏幕朗读状态查询失败: ${e}`);
+      logger.warn(TAG, '屏幕朗读状态查询失败: ' + e);
       return false;
     }
   }
@@ -61,7 +61,7 @@ class AccessibilityFacade implements IAccessibilityManager {
    * @param label 朗读描述文字
    */
   buildAccessibilityLabel(componentId: string, label: string): string {
-    logger.debug(TAG, `无障碍标签绑定: id=${componentId}, label=${label}`);
+    logger.debug(TAG, '无障碍标签绑定: id=' + componentId + ', label=' + label);
     return label;
   }
 
@@ -69,7 +69,7 @@ class AccessibilityFacade implements IAccessibilityManager {
    * 生成推荐的无障碍提示文本（hint）
    */
   buildAccessibilityHint(action: string): string {
-    return `双击执行: ${action}`;
+    return '双击执行: ' + action;
   }
 }
 

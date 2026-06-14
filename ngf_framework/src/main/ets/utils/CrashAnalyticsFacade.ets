@@ -24,7 +24,7 @@ export class CrashAnalyticsFacade {
       this.isInitialized = true;
       logger.info(TAG, 'CrashAnalytics initialized and monitoring global exceptions.');
     } catch (e) {
-      logger.error(TAG, `Failed to initialize CrashAnalytics: ${e}`);
+      logger.error(TAG, 'Failed to initialize CrashAnalytics: ' + e);
     }
   }
 
@@ -38,35 +38,35 @@ export class CrashAnalyticsFacade {
       this.observerId = -1;
       logger.info(TAG, 'CrashAnalytics terminated.');
     } catch (e) {
-      logger.error(TAG, `Failed to terminate CrashAnalytics: ${e}`);
+      logger.error(TAG, 'Failed to terminate CrashAnalytics: ' + e);
     }
   }
 
   private handleCrash(errorDetails: string): void {
-    logger.error(TAG, `FATAL CRASH DETECTED:\n${errorDetails}`);
+    logger.error(TAG, 'FATAL CRASH DETECTED:\\n' + errorDetails);
     try {
       const timestamp = Date.now();
-      const fileName = `${CRASH_LOG_DIR}/crash_${timestamp}.log`;
+      const fileName = CRASH_LOG_DIR + '/crash_' + timestamp + '.log';
       
-      const logContent = `--- CRASH REPORT ---\n` +
-                         `Time: ${new Date(timestamp).toISOString()}\n` +
-                         `Details:\n${errorDetails}\n` +
-                         `--------------------\n`;
+      const logContent = '--- CRASH REPORT ---\\n' +
+                         'Time: ' + String(new Date(timestamp).toISOString()) + '\\n' +
+                         'Details:\\n' + errorDetails + '\\n' +
+                         '--------------------\\n';
       
       // Ensure the directory exists implicitly or explicitly. FileUtils in NGF handles parent dir creation.
       FileUtils.writeText(fileName, logContent);
-      logger.info(TAG, `Crash log saved to sandbox: ${fileName}`);
+      logger.info(TAG, 'Crash log saved to sandbox: ' + fileName);
     } catch (e) {
-      logger.error(TAG, `Failed to write crash log to sandbox: ${e}`);
+      logger.error(TAG, 'Failed to write crash log to sandbox: ' + e);
     }
   }
 
   public getCrashLogs(): string[] {
     try {
       const entries = FileUtils.listDirectory(CRASH_LOG_DIR);
-      return entries.filter(e => !e.isDirectory).map(e => `${CRASH_LOG_DIR}/${e.name}`);
+      return entries.filter(e => !e.isDirectory).map(e => CRASH_LOG_DIR + '/' + e.name);
     } catch (e) {
-      logger.warn(TAG, `Could not list crash logs: ${e}`);
+      logger.warn(TAG, 'Could not list crash logs: ' + e);
       return [];
     }
   }
@@ -75,7 +75,7 @@ export class CrashAnalyticsFacade {
     try {
       return FileUtils.readText(fileName);
     } catch (e) {
-      logger.error(TAG, `Failed to read crash log: ${fileName}`);
+      logger.error(TAG, 'Failed to read crash log: ' + fileName);
       return '';
     }
   }

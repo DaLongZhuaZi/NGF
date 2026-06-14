@@ -19,15 +19,15 @@ export class NetworkManagerFacade implements INetworkClient {
 
   setGlobalHeader(key: string, value: string): void {
     this.globalHeaders.set(key, value);
-    logger.debug(TAG, `设置全局 Header: ${key}`);
+    logger.debug(TAG, '设置全局 Header: ' + key);
   }
 
   removeGlobalHeader(key: string): void {
     const deleted = this.globalHeaders.delete(key);
     if (deleted) {
-      logger.debug(TAG, `已移除全局 Header: ${key}`);
+      logger.debug(TAG, '已移除全局 Header: ' + key);
     } else {
-      logger.debug(TAG, `移除全局 Header 跳过（不存在）: ${key}`);
+      logger.debug(TAG, '移除全局 Header 跳过（不存在）: ' + key);
     }
   }
 
@@ -35,18 +35,18 @@ export class NetworkManagerFacade implements INetworkClient {
     const url = req.url;
     const methodStr = req.method || 'GET';
     const reqHeaders: Record<string, string> = {};
-    const headerKeys = this.globalHeaders.keys();
-    for (const k of headerKeys) {
-      const val = this.globalHeaders.get(k);
+    const headerKeys: Array<string> = Array.from(this.globalHeaders.keys());
+    for (let i: number = 0; i < headerKeys.length; i++) {
+      const val = this.globalHeaders.get(headerKeys[i]);
       if (val !== undefined) {
-        reqHeaders[k] = val;
+        reqHeaders[headerKeys[i]] = val;
       }
     }
     if (req.headers) {
       Object.keys(req.headers).forEach(k => { reqHeaders[k] = (req.headers as Record<string, string>)[k]; });
     }
     
-    logger.info(TAG, `发起网络请求 [${methodStr}] ${url}`);
+    logger.info(TAG, '发起网络请求 [' + methodStr + '] ' + url);
 
     const rcpReq = new rcp.Request(url, methodStr, reqHeaders, req.body);
     
@@ -69,14 +69,14 @@ export class NetworkManagerFacade implements INetworkClient {
       // 遍历 rcp 返回的 headers（注意类型安全，需要进行判空处理）
       if (rcpRes.headers) {
         const keys = Object.keys(rcpRes.headers);
-        for (const key of keys) {
-          resHeaders[key] = String(rcpRes.headers[key]);
+        for (let i: number = 0; i < keys.length; i++) {
+          resHeaders[keys[i]] = String(rcpRes.headers[keys[i]]);
         }
       }
 
       const bodyStr = rcpRes.toString() || '';
       
-      logger.info(TAG, `网络请求完成 [${methodStr}] ${url} - Status: ${rcpRes.statusCode}`);
+      logger.info(TAG, '网络请求完成 [' + methodStr + '] ' + url + ' - Status: ' + rcpRes.statusCode);
       
       return {
         statusCode: rcpRes.statusCode,
@@ -85,7 +85,7 @@ export class NetworkManagerFacade implements INetworkClient {
       };
     } catch (e) {
       const err = e as Error;
-      logger.error(TAG, `网络请求异常 [${methodStr}] ${url} - ${err.message}`);
+      logger.error(TAG, '网络请求异常 [' + methodStr + '] ' + url + ' - ' + err.message);
       throw err;
     }
   }

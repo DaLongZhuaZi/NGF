@@ -30,7 +30,7 @@ export class SourceLoaderFacade implements ISourceLoader {
    */
   initialize(filesDir: string | undefined): void {
     this.filesDir = filesDir || '';
-    logger.info(TAG, `源码加载器初始化完成: filesDir=${filesDir}`);
+    logger.info(TAG, '源码加载器初始化完成: filesDir=' + filesDir);
   }
 
   exists(pkg: string): boolean {
@@ -43,12 +43,12 @@ export class SourceLoaderFacade implements ISourceLoader {
     const sourceJsonCandidates = this.buildSourceJsonCandidates(normalizedPkg);
     for (let index = 0; index < sourceJsonCandidates.length; index++) {
       if (this.existsPath(sourceJsonCandidates[index])) {
-        logger.debug(TAG, `图源存在: pkg=${normalizedPkg}`);
+        logger.debug(TAG, '图源存在: pkg=' + normalizedPkg);
         return true;
       }
     }
 
-    logger.debug(TAG, `图源不存在: pkg=${normalizedPkg}`);
+    logger.debug(TAG, '图源不存在: pkg=' + normalizedPkg);
     return false;
   }
 
@@ -69,15 +69,15 @@ export class SourceLoaderFacade implements ISourceLoader {
       try {
         const content = this.readText(candidatePath).trim();
         if (content.length > 0) {
-          logger.info(TAG, `读取图源配置成功: pkg=${normalizedPkg}, path=${candidatePath}`);
+          logger.info(TAG, '读取图源配置成功: pkg=' + normalizedPkg + ', path=' + candidatePath);
           return content;
         }
       } catch {
-        logger.warn(TAG, `读取图源配置失败: ${candidatePath}`);
+        logger.warn(TAG, '读取图源配置失败: ' + candidatePath);
       }
     }
 
-    logger.debug(TAG, `未找到图源配置: pkg=${normalizedPkg}`);
+    logger.debug(TAG, '未找到图源配置: pkg=' + normalizedPkg);
     return '';
   }
 
@@ -92,12 +92,12 @@ export class SourceLoaderFacade implements ISourceLoader {
     for (let index = 0; index < iconCandidates.length; index++) {
       const candidate = iconCandidates[index];
       if (this.existsPath(candidate.path)) {
-        logger.info(TAG, `读取图源图标成功: pkg=${normalizedPkg}, path=${candidate.path}`);
+        logger.info(TAG, '读取图源图标成功: pkg=' + normalizedPkg + ', path=' + candidate.path);
         return candidate.path;
       }
     }
 
-    logger.debug(TAG, `未找到图源图标: pkg=${normalizedPkg}`);
+    logger.debug(TAG, '未找到图源图标: pkg=' + normalizedPkg);
     return '';
   }
 
@@ -112,8 +112,8 @@ export class SourceLoaderFacade implements ISourceLoader {
     }
 
     const candidates: string[] = [];
-    candidates.push(`${repositoryDir}/${pkg}/${this.sourceFileName}`);
-    candidates.push(`${repositoryDir}/${pkg}.json`);
+    candidates.push(repositoryDir + '/' + pkg + '/' + this.sourceFileName);
+    candidates.push(repositoryDir + '/' + pkg + '.json');
     return candidates;
   }
 
@@ -128,11 +128,11 @@ export class SourceLoaderFacade implements ISourceLoader {
 
     for (let index = 0; index < iconFormats.length; index++) {
       const ext = iconFormats[index];
-      iconCandidates.push(new NGFSourceLoaderIconCandidate(`${repositoryDir}/icons/${pkg}.${ext}`));
+      iconCandidates.push(new NGFSourceLoaderIconCandidate(repositoryDir + '/icons/' + pkg + '.' + ext));
     }
     for (let index = 0; index < iconFormats.length; index++) {
       const ext = iconFormats[index];
-      iconCandidates.push(new NGFSourceLoaderIconCandidate(`${repositoryDir}/${pkg}/icon.${ext}`));
+      iconCandidates.push(new NGFSourceLoaderIconCandidate(repositoryDir + '/' + pkg + '/icon.' + ext));
     }
 
     return iconCandidates;
@@ -143,7 +143,7 @@ export class SourceLoaderFacade implements ISourceLoader {
     if (filesDir.length <= 0) {
       return '';
     }
-    return `${filesDir}/${this.repositoryDirName}`;
+    return filesDir + '/' + this.repositoryDirName;
   }
 
   private resolveFilesDir(): string {
@@ -171,7 +171,7 @@ export class SourceLoaderFacade implements ISourceLoader {
       const decoder = new util.TextDecoder('utf-8');
       return decoder.decodeToString(new Uint8Array(buffer));
     } catch (error) {
-      logger.warn(TAG, `读取图源文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, '读取图源文本失败: path=' + path + ', error=' + this.errorToString(error as Object | string | number | boolean));
       return '';
     } finally {
       this.closeFileQuietly(file, path);
@@ -186,7 +186,7 @@ export class SourceLoaderFacade implements ISourceLoader {
     try {
       fs.closeSync(file);
     } catch (error) {
-      logger.warn(TAG, `关闭图源文件失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, '关闭图源文件失败: path=' + path + ', error=' + this.errorToString(error as Object | string | number | boolean));
     }
   }
 

@@ -321,7 +321,7 @@ export struct HdsIntegratedShowcasePage {
   private updateFocusedCapability(index: number): void {
     this.selectedCapabilityIndexes = [index];
     this.lastActionText = $r('app.string.ui_str_2133', this.capabilityCards[index].title);
-    logger.info(TAG, `聚焦能力卡片: index=${index}`);
+    logger.info(TAG, '聚焦能力卡片: index=' + index);
   }
 
   private resolveFocusedCapabilityId(): string {
@@ -503,7 +503,7 @@ export struct HdsIntegratedShowcasePage {
     this.motionCurrentIndex = index;
     this.swiperController.changeIndex(index, true);
     this.lastActionText = $r('app.string.ui_str_2136', this.motionSlides[index].title);
-    logger.info(TAG, `选中动效幻灯片: index=${index}`);
+    logger.info(TAG, '选中动效幻灯片: index=' + index);
   }
 
   private shiftMotionSlide(step: number): void {
@@ -770,7 +770,7 @@ export struct HdsIntegratedShowcasePage {
         onItemClicked: (index: number): void => {
           this.componentGroupIndexes = [index];
           this.lastActionText = $r('app.string.ui_str_2151', this.resolveComponentGroupLabel());
-          logger.info(TAG, `组件大类切换: indexes=${JSON.stringify(this.componentGroupIndexes)}`);
+          logger.info(TAG, '组件大类切换: indexes=' + JSON.stringify(this.componentGroupIndexes));
         }
       })
 
@@ -818,7 +818,7 @@ export struct HdsIntegratedShowcasePage {
       }
       .width('100%')
 
-      Text(`${card.tag} · ${card.description}`)
+      Text(card.tag + ' · ' + card.description)
         .width('100%')
         .fontSize(13)
         .lineHeight(20)
@@ -871,7 +871,7 @@ export struct HdsIntegratedShowcasePage {
       .onChange((index: number): void => {
         this.layoutTabIndex = index;
         this.lastActionText = $r('app.string.ui_str_2155', index === 0 ? $r('app.string.ui_str_2107') : index === 1 ? $r('app.string.ui_str_2112') : $r('app.string.ui_str_2117'));
-        logger.info(TAG, `布局标签切换: index=${index}`);
+        logger.info(TAG, '布局标签切换: index=' + index);
       })
     }
     .width('100%')
@@ -953,7 +953,7 @@ export struct HdsIntegratedShowcasePage {
         onItemClicked: (index: number): void => {
           this.motionModeIndexes = [index];
           this.lastActionText = $r('app.string.ui_str_2158', this.resolveMotionModeLabel());
-          logger.info(TAG, `动效模式切换: index=${index}`);
+          logger.info(TAG, '动效模式切换: index=' + index);
         }
       })
 
@@ -985,7 +985,7 @@ export struct HdsIntegratedShowcasePage {
       )
       .onChange((index: number): void => {
         this.motionCurrentIndex = index;
-        logger.info(TAG, `动效轮播切换: index=${index}`);
+        logger.info(TAG, '动效轮播切换: index=' + index);
       })
 
       this.buildMotionSelectorRow()
@@ -1043,7 +1043,7 @@ export struct HdsIntegratedShowcasePage {
   private buildMotionSelectorRow(): void {
     Row({ space: 10 }) {
       ForEach(this.motionSlides, (slide: NGFHdsIntegratedMotionSlide, index: number): void => {
-        Button(`${index + 1}`)
+        Button(String(index + 1))
           .width(36)
           .height(36)
           .buttonStyle(ButtonStyleMode.NORMAL)
@@ -1080,7 +1080,7 @@ export struct HdsIntegratedShowcasePage {
         .onClick((): void => {
           this.motionAutoPlayEnabled = !this.motionAutoPlayEnabled;
           this.lastActionText = this.motionAutoPlayEnabled ? $r('app.string.ui_str_2165') : $r('app.string.ui_str_2166');
-          logger.info(TAG, `切换动效自动播放: enabled=${this.motionAutoPlayEnabled}`);
+          logger.info(TAG, '切换动效自动播放: enabled=' + this.motionAutoPlayEnabled);
         })
 
       Button($r('app.string.ui_str_2167'))

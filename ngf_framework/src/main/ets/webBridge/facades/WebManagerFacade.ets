@@ -8,12 +8,12 @@ export class WebManagerFacade implements IWebBridge {
 
   registerMethod(methodName: string, callback: (params: string) => Promise<string>): void {
     this.methods.set(methodName, callback);
-    logger.debug(TAG, `注册 WebBridge 方法: ${methodName}`);
+    logger.debug(TAG, '注册 WebBridge 方法: ' + methodName);
   }
 
   unregisterMethod(methodName: string): void {
     this.methods.delete(methodName);
-    logger.debug(TAG, `移除 WebBridge 方法: ${methodName}`);
+    logger.debug(TAG, '移除 WebBridge 方法: ' + methodName);
   }
 
   getProxyObject(): Object {
@@ -24,7 +24,7 @@ export class WebManagerFacade implements IWebBridge {
     // 这里做最简单的同步接口暴露（H5 端需配合异步回调封装）
     this.methods.forEach((callback, methodName) => {
       proxy[methodName] = (paramsJson: string) => {
-        logger.info(TAG, `H5 调用原生方法: ${methodName}, 参数: ${paramsJson}`);
+        logger.info(TAG, 'H5 调用原生方法: ' + methodName + ', 参数: ' + paramsJson);
         // 实际开发中通常返回一个 Promise，或者接受一个 callbackId，由原生执行完毕后再调用 WebViewController.runJavaScript 返回结果
         // 这里简化为直接返回 Promise 字符串，需要使用 ArkWeb 的新异步注入机制
         return callback(paramsJson);

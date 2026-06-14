@@ -35,7 +35,7 @@ export class NGFHdsBackgroundEffectOptions implements BackgroundEffectOptions {
   getSummary(): string {
     const saturationText = this.saturation === undefined ? '-' : this.saturation.toFixed(2);
     const brightnessText = this.brightness === undefined ? '-' : this.brightness.toFixed(2);
-    return `radius ${this.radius} / saturation ${saturationText} / brightness ${brightnessText}`;
+    return 'radius ' + this.radius + ' / saturation ' + saturationText + ' / brightness ' + brightnessText;
   }
 }
 
@@ -211,7 +211,7 @@ export class NGFHdsPointLightPresetSpec {
   }
 
   getOptionSummary(): string {
-    return `${this.getSourceTypeLabel()} / ${this.getIlluminatedTypeLabel()} / intensity ${this.intensity.toFixed(2)} / height ${this.height} / bloom ${this.bloom.toFixed(2)}`;
+    return String(this.getSourceTypeLabel()) + ' / ' + String(this.getIlluminatedTypeLabel()) + ' / intensity ' + this.intensity.toFixed(2) + ' / height ' + this.height + ' / bloom ' + this.bloom.toFixed(2);
   }
 }
 
@@ -297,7 +297,7 @@ export class NGFHdsMaterialSurfacePreset {
   }
 
   getApiSummary(): string {
-    return `systemMaterialEffect(IMMERSIVE, ${this.levelLabel}) + backgroundEffect(${this.backgroundEffect.getSummary()})`;
+    return 'systemMaterialEffect(IMMERSIVE, ' + this.levelLabel + ') + backgroundEffect(' + this.backgroundEffect.getSummary() + ')';
   }
 }
 
@@ -551,7 +551,7 @@ export class NGFHdsEffectPresetFactory {
       NGFHdsInteractiveEffectPresetKind.POINT_LIGHT,
       new NGFHdsBackgroundEffectOptions(pressed ? 40 : 12, pressed ? 1.34 : 1.08, pressed ? 1.12 : 1.02, pressed ? '#36FFFFFF' : '#16FFFFFF'),
       new NGFHdsVisualEffectPresetSpec(hdsEffect.PressShadowType.NONE, pointLight),
-      `pointLight(${pointLight.getOptionSummary()})，不使用 pressShadow`,
+      'pointLight(' + String(pointLight.getOptionSummary()) + ')，不使用 pressShadow',
       pressed ? '已激活：点光扩大、边框羽化高亮' : '未激活：柔和边框光',
       pressed ? 5 : 1,
       pressed ? '#FFFFFFFF' : '#30FFFFFF',
@@ -575,7 +575,7 @@ export class NGFHdsEffectPresetFactory {
       NGFHdsInteractiveEffectPresetKind.FLOW_LIGHT_SCENE,
       new NGFHdsBackgroundEffectOptions(pressed ? 36 : 18, pressed ? 1.26 : 1.10, pressed ? 1.10 : 1.02, pressed ? '#2C22D3EE' : '#140F172A'),
       new NGFHdsVisualEffectPresetSpec(hdsEffect.PressShadowType.NONE, pointLight),
-      `HdsVisualComponent.scene(DUAL_EDGE_FLOW_LIGHT_WITH_BACKGROUND_MASK) + pointLight(${pointLight.getOptionSummary()})`,
+      'HdsVisualComponent.scene(DUAL_EDGE_FLOW_LIGHT_WITH_BACKGROUND_MASK) + pointLight(' + String(pointLight.getOptionSummary()) + ')',
       pressed ? '已启动：双边流光场景正在播放' : '待启动：流光组件保持低亮预览',
       pressed ? 4 : 1,
       pressed ? '#BFF7FF' : '#28FFFFFF',
@@ -640,7 +640,7 @@ export class NGFHdsEffectPresetFactory {
       NGFHdsInteractiveEffectPresetKind.COMBINED,
       new NGFHdsBackgroundEffectOptions(pressed ? 38 : 24, pressed ? 1.28 : 1.16, pressed ? 1.08 : 1.04, '#32FFFFFF'),
       new NGFHdsVisualEffectPresetSpec(hdsEffect.PressShadowType.BLEND_WHITE, pointLight),
-      `pressShadow(BLEND_WHITE) + pointLight(${pointLight.getOptionSummary()})`,
+      'pressShadow(BLEND_WHITE) + pointLight(' + String(pointLight.getOptionSummary()) + ')',
       pressed ? '已激活：阴影、点光、内容亮度同步增强' : '未激活：组合效果待触发',
       pressed ? 4 : 1,
       pressed ? '#B7F8D2' : '#2EFFFFFF',

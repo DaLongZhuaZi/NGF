@@ -30,13 +30,13 @@ class PageTransitionManagerFacade implements IPageTransitionManager {
   setGlobalTransition(type: NGFPageTransitionType): void {
     this.config = new NGFPageTransitionConfig(type, this.config.duration, this.config.curve);
     AppStorage.setOrCreate<string>(STORAGE_KEY, type);
-    logger.info(TAG, `全局转场已设置: type=${type}`);
+    logger.info(TAG, '全局转场已设置: type=' + type);
   }
 
   setGlobalTransitionConfig(config: NGFPageTransitionConfig): void {
     this.config = config;
     AppStorage.setOrCreate<string>(STORAGE_KEY, config.type);
-    logger.info(TAG, `全局转场配置已更新: type=${config.type}, duration=${config.duration}`);
+    logger.info(TAG, '全局转场配置已更新: type=' + config.type + ', duration=' + config.duration);
   }
 
   getGlobalTransitionConfig(): NGFPageTransitionConfig {

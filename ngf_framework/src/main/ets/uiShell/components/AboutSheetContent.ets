@@ -141,11 +141,11 @@ export struct AboutSheetContent {
         uri: url
       };
       context.startAbility(want).catch((_err: Error): void => {
-        logger.error(TAG, `startAbility failed for url: ${url}`);
+        logger.error(TAG, 'startAbility failed for url: ' + url);
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `openUrl failed: ${message}`);
+      logger.error(TAG, 'openUrl failed: ' + message);
     }
   }
 
@@ -200,7 +200,7 @@ export struct AboutSheetContent {
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
 
-      Text(`v${this.versionName} (${this.versionCode})`)
+      Text('v' + this.versionName + ' (' + this.versionCode + ')')
         .fontSize(14)
         .fontColor($r('app.color.text_secondary'))
 
@@ -258,7 +258,7 @@ export struct AboutSheetContent {
 
       this.buildInfoRow($r('app.string.about_sdk_api'), this.sdkApiVersion)
       this.buildDivider()
-      this.buildInfoRow($r('app.string.about_device_model'), this.deviceModel.length > 0 ? `${this.brand} ${this.deviceModel}` : '-')
+      this.buildInfoRow($r('app.string.about_device_model'), this.deviceModel.length > 0 ? this.brand + ' ' + this.deviceModel : '-')
       this.buildDivider()
       this.buildInfoRow($r('app.string.about_os_version'), this.osFullName.length > 0 ? this.osFullName : '-')
     }

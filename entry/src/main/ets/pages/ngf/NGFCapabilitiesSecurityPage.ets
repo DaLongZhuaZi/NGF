@@ -151,11 +151,11 @@ export struct NGFCapabilitiesSecurityPage {
       this.statusMessage = "Authenticating...";
       const challenge = new Uint8Array([49, 50, 51, 52, 53, 54]);
       const isSuccess: boolean = await ngfUserAuthenticationFacade.authenticate(challenge, 'Verify your identity to proceed');
-      this.authResult = `Auth Status: ${isSuccess ? 'Success' : 'Failed'}`;
+      this.authResult = 'Auth Status: ' + String(isSuccess ? 'Success' : 'Failed');
       this.statusMessage = isSuccess ? "Authentication successful" : "Authentication failed";
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.statusMessage = `Error: ${message}`;
+      this.statusMessage = 'Error: ' + message;
     }
   }
 }

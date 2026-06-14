@@ -36,10 +36,10 @@ export class SystemShareFacade implements ISystemShare {
       }).then(() => {
         logger.info(TAG, '成功拉起原生系统 ShareKit 分享面板');
       }).catch((e: Error) => {
-        logger.error(TAG, `拉起分享面板异常: ${e}`);
+        logger.error(TAG, '拉起分享面板异常: ' + e);
       });
     } catch (e) {
-      logger.error(TAG, `拉起分享面板失败: ${e}`);
+      logger.error(TAG, '拉起分享面板失败: ' + e);
     }
   }
 }

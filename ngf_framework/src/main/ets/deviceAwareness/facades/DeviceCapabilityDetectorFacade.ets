@@ -41,7 +41,7 @@ export class DeviceCapabilityDetectorFacade implements IDeviceCapabilityDetector
     for (let index = 0; index < types.length; index++) {
       results.push(this.checkCapability(types[index]));
     }
-    logger.info(TAG, `设备能力检测完成: total=${results.length}`);
+    logger.info(TAG, '设备能力检测完成: total=' + String(results.length));
     return results;
   }
 
@@ -95,8 +95,8 @@ export class DeviceCapabilityDetectorFacade implements IDeviceCapabilityDetector
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `检测能力异常: type=${type}, error=${message}`);
-      return new NGFCapabilityResult(type, false, `检测异常: ${message}`);
+      logger.warn(TAG, '检测能力异常: type=' + type + ', error=' + message);
+      return new NGFCapabilityResult(type, false, '检测异常: ' + message);
     }
   }
 
@@ -120,14 +120,14 @@ export class DeviceCapabilityDetectorFacade implements IDeviceCapabilityDetector
     if (deviceType === 'phone' || deviceType === 'foldable') {
       return new NGFCapabilityResult(NGFCapabilityType.NFC, true, '手机/折叠屏设备通常支持 NFC');
     }
-    return new NGFCapabilityResult(NGFCapabilityType.NFC, false, `${deviceType} 设备通常不支持 NFC`);
+    return new NGFCapabilityResult(NGFCapabilityType.NFC, false, deviceType + ' 设备通常不支持 NFC');
   }
 
   private detectVibration(deviceType: string): NGFCapabilityResult {
     if (deviceType === 'phone' || deviceType === 'foldable' || deviceType === 'wearable') {
       return new NGFCapabilityResult(NGFCapabilityType.VIBRATION, true, '该设备类型通常支持振动');
     }
-    return new NGFCapabilityResult(NGFCapabilityType.VIBRATION, false, `${deviceType} 设备通常不支持振动`);
+    return new NGFCapabilityResult(NGFCapabilityType.VIBRATION, false, deviceType + ' 设备通常不支持振动');
   }
 
   private detectSensor(deviceType: string, sensorName: string): NGFCapabilityResult {
@@ -135,16 +135,16 @@ export class DeviceCapabilityDetectorFacade implements IDeviceCapabilityDetector
       return new NGFCapabilityResult(
         sensorName as NGFCapabilityType,
         true,
-        `${deviceType} 设备通常配备 ${sensorName} 传感器`
+        deviceType + ' 设备通常配备 ' + sensorName + ' 传感器'
       );
     }
     if (deviceType === 'tablet' || deviceType === '2in1') {
       if (sensorName === 'accelerometer' || sensorName === 'gyroscope') {
-        return new NGFCapabilityResult(sensorName as NGFCapabilityType, true, `平板通常配备 ${sensorName} 传感器`);
+        return new NGFCapabilityResult(sensorName as NGFCapabilityType, true, '平板通常配备 ' + sensorName + ' 传感器');
       }
-      return new NGFCapabilityResult(sensorName as NGFCapabilityType, false, `平板可能不配备 ${sensorName} 传感器`);
+      return new NGFCapabilityResult(sensorName as NGFCapabilityType, false, '平板可能不配备 ' + sensorName + ' 传感器');
     }
-    return new NGFCapabilityResult(sensorName as NGFCapabilityType, false, `${deviceType} 设备传感器状态未知`);
+    return new NGFCapabilityResult(sensorName as NGFCapabilityType, false, deviceType + ' 设备传感器状态未知');
   }
 }
 

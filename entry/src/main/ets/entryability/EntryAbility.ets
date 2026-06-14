@@ -24,7 +24,7 @@ export default class EntryAbility extends UIAbility {
     uiContextManager.bindAbilityContext(this.context as common.UIAbilityContext);
     const bootstrapResult = ngfStarterKernel.bootstrap();
     crashAnalytics.initialize();
-    logger.startup(TAG, 'NGF 引导启动完成', `成功=${bootstrapResult}`);
+    logger.startup(TAG, 'NGF 引导启动完成', '成功=' + bootstrapResult);
 
     // 解析流转数据
     if (want.parameters) {
@@ -60,7 +60,7 @@ export default class EntryAbility extends UIAbility {
       ngfContinuationManagerFacade.collectAllContinuationData(wantParam);
       return AbilityConstant.OnContinueResult.AGREE;
     } catch (e) {
-      logger.error(TAG, `流转失败: ${e}`);
+      logger.error(TAG, '流转失败: ' + e);
       return AbilityConstant.OnContinueResult.REJECT;
     }
   }
@@ -80,7 +80,7 @@ export default class EntryAbility extends UIAbility {
 
     windowStage.loadContent('pages/ngf/MainMenuPage', (err: BusinessError): void => {
       if (err.code !== 0) {
-        logger.error(TAG, `加载页面内容失败: ${JSON.stringify(err)}`);
+        logger.error(TAG, '加载页面内容失败: ' + JSON.stringify(err));
         return;
       }
       logger.info(TAG, '页面内容加载成功');
@@ -104,7 +104,7 @@ export default class EntryAbility extends UIAbility {
   }
 
   onConfigurationUpdate(config: Configuration): void {
-    logger.info(TAG, `配置更新: colorMode=${config.colorMode}, language=${config.language}`);
+    logger.info(TAG, '配置更新: colorMode=' + config.colorMode + ', language=' + config.language);
     ngfDeviceAdaptationFacade.refresh('configuration_update');
 
     const colorMode = config.colorMode;

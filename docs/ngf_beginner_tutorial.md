@@ -15,15 +15,15 @@
 1. **检查 SDK 路径与版本**
    当前工程要求 `targetSdkVersion` 和 `compatibleSdkVersion` 均为 `6.1.0(23)`。
    - 打开 DevEco Studio，点击顶部菜单 `File -> Settings -> SDK`（macOS 为 `DevEco Studio -> Settings -> SDK`）。
-   - 确认 **API 12 (SDK 23)** 已安装。
+   - 确认 **API 23** 已安装。
    - 默认安装路径一般为 `F:\DevEco Studio\sdk\default\openharmony` 或 `F:\HarmonyOS\SDK\23`。
 2. **正确打开工程**
    在 DevEco Studio 中选择 `File -> Open`，一定要直接选中仓库的**根目录**（`F:\DevEcoStudioProject\NGF`），不要打开里面的子目录（如 entry），否则 hvigor 构建工具将无法正确工作。
 3. **认识项目骨架**
    - `pages/ngf/`：框架的所有演示页、入口页和功能验证页都在这里。
-   - `Framework/NGF/core/`：核心架构，包括生命周期管理、事件总线、服务容器。
-   - `Framework/NGF/uiShell/`：UI 壳层能力，负责全局的导航封装（HdsNavigation）与顶栏组件沉浸式底板配置。
-   - `Framework/NGF/utils/Logger.ets`：全局日志门面，开发过程中所有日志必须从此入口输出。
+   - `ngf_framework/src/main/ets/core/`：核心架构，包括生命周期管理、事件总线、服务容器。
+   - `ngf_framework/src/main/ets/uiShell/`：UI 壳层能力，负责全局的导航封装（HdsNavigation）与顶栏组件沉浸式底板配置。
+   - `ngf_framework/src/main/ets/utils/Logger.ets`：全局日志门面，开发过程中所有日志必须从此入口输出。
 
 ---
 
@@ -39,9 +39,7 @@
 
 ```typescript
 import { HdsNavDestination } from '@kit.UIDesignKit';
-import { NGFHdsTitleBarOptionsFactory } from '../../Framework/NGF/uiShell/components/HdsNavigationSupport';
-import { NGFImmersiveTopChromeUnderlay } from '../../Framework/NGF/uiShell/components/NGFImmersiveTopChrome';
-import { ngfStarterKernel } from '../../Framework/NGF/core/starter/index';
+import { NGFHdsTitleBarOptionsFactory, NGFImmersiveTopChromeUnderlay, ngfStarterKernel } from 'ngf_framework';
 
 const TAG: string = 'NGFDemoHelloPage';
 

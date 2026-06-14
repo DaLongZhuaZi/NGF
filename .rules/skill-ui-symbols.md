@@ -70,7 +70,7 @@ Text() {
 
 ## 4. 常用图标索引建议
 
-如果在编写代码时需要寻找合适的图标，可以通过全局搜索（grep） `entry/src/main/ets/Framework/NGF/resources/SystemSymbolCatalog.ets` 来查找系统原生的全量图标名称，常见的高频基础图标包括：
+如果在编写代码时需要寻找合适的图标，可以通过全局搜索（grep） `ngf_framework/src/main/ets/resources/SystemSymbolCatalog.ets` 来查找系统原生的全量图标名称，常见的高频基础图标包括：
 - `sys.symbol.checkmark` / `sys.symbol.checkmark_circle` (成功/确认)
 - `sys.symbol.xmark` / `sys.symbol.xmark_circle` (失败/关闭)
 - `sys.symbol.info_circle` (信息提示)

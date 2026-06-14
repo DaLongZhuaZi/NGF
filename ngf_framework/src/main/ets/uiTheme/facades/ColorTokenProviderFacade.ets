@@ -18,7 +18,7 @@ class ColorTokenProviderFacade implements IColorTokenProvider {
   resolveColor(token: NGFColorToken): string {
     const value = this.colors.get(token);
     if (value === undefined) {
-      logger.debug(TAG, `颜色 Token 未注册: ${token}`);
+      logger.debug(TAG, '颜色 Token 未注册: ' + token);
       return '#000000';
     }
     const isDark = ngfThemeManagerFacade.isDarkMode();
@@ -35,7 +35,7 @@ class ColorTokenProviderFacade implements IColorTokenProvider {
 
   registerColor(value: NGFColorValue): void {
     this.colors.set(value.token, value);
-    logger.debug(TAG, `注册颜色 Token: ${value.token}`);
+    logger.debug(TAG, '注册颜色 Token: ' + value.token);
   }
 
   registerDefaults(): void {
@@ -59,7 +59,7 @@ class ColorTokenProviderFacade implements IColorTokenProvider {
     this.registerColor(new NGFColorValue(NGFColorToken.ON_ERROR, '#FFFFFF', '#601410'));
     this.registerColor(new NGFColorValue(NGFColorToken.OUTLINE, '#79747E', '#938F99'));
     this.registerColor(new NGFColorValue(NGFColorToken.OUTLINE_VARIANT, '#CAC4D0', '#49454F'));
-    logger.info(TAG, `注册默认颜色 Token: ${this.colors.size} 个`);
+    logger.info(TAG, '注册默认颜色 Token: ' + this.colors.size + ' 个');
   }
 }
 

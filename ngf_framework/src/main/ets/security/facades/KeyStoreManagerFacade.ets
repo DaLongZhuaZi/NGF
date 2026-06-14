@@ -20,10 +20,10 @@ export class KeyStoreManagerFacade implements IKeyStoreManager {
       attr.set(asset.Tag.ACCESSIBILITY, asset.Accessibility.DEVICE_UNLOCKED);
 
       await asset.add(attr);
-      logger.info(TAG, `安全数据存入成功: ${alias}`);
+      logger.info(TAG, '安全数据存入成功: ' + alias);
       return true;
     } catch (e) {
-      logger.error(TAG, `安全数据存入失败 [${alias}]: ${e}`);
+      logger.error(TAG, '安全数据存入失败 [' + alias + ']: ' + e);
       return false;
     }
   }
@@ -46,13 +46,13 @@ export class KeyStoreManagerFacade implements IKeyStoreManager {
           for (let i = 0; i < secretArr.length; i++) {
             str += String.fromCharCode(secretArr[i]);
           }
-          logger.info(TAG, `安全数据读取成功: ${alias}`);
+          logger.info(TAG, '安全数据读取成功: ' + alias);
           return str;
         }
       }
       return null;
     } catch (e) {
-      logger.error(TAG, `安全数据读取失败 [${alias}]: ${e}`);
+      logger.error(TAG, '安全数据读取失败 [' + alias + ']: ' + e);
       return null;
     }
   }
@@ -65,10 +65,10 @@ export class KeyStoreManagerFacade implements IKeyStoreManager {
       const query: asset.AssetMap = new Map();
       query.set(asset.Tag.ALIAS, new Uint8Array(alias.split('').map(c => c.charCodeAt(0))));
       await asset.remove(query);
-      logger.info(TAG, `安全数据删除成功: ${alias}`);
+      logger.info(TAG, '安全数据删除成功: ' + alias);
       return true;
     } catch (e) {
-      logger.error(TAG, `安全数据删除失败 [${alias}]: ${e}`);
+      logger.error(TAG, '安全数据删除失败 [' + alias + ']: ' + e);
       return false;
     }
   }

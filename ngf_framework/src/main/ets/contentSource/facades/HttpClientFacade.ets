@@ -34,19 +34,19 @@ export class HttpClientFacade implements IHttpClient {
         const rawResult = response.result;
         const resultStr = typeof rawResult === 'string' ? rawResult : '';
         const cookies = response.cookies !== undefined ? response.cookies : '';
-        logger.debug(TAG, `请求完成: url=${finalOptions.url}, status=${response.responseCode}`);
+        logger.debug(TAG, '请求完成: url=' + finalOptions.url + ', status=' + response.responseCode);
         finalResponse = new NGFHttpResponse(response.responseCode, headerStr, resultStr, cookies);
         httpRequest.destroy();
         break; // 成功则跳出循环
       } catch (error) {
         attempts++;
         const message = this.errorToString(error as Object | string | number | boolean);
-        logger.warn(TAG, `请求尝试失败: url=${finalOptions.url}, attempt=${attempts}, error=${message}`);
-        lastError = new Error(`HTTP request failed: ${message}`);
+        logger.warn(TAG, '请求尝试失败: url=' + finalOptions.url + ', attempt=' + attempts + ', error=' + message);
+        lastError = new Error('HTTP request failed: ' + message);
         httpRequest.destroy();
         
         if (attempts >= maxAttempts) {
-          logger.error(TAG, `请求重试耗尽: url=${finalOptions.url}, maxRetries=${finalOptions.maxRetries}`);
+          logger.error(TAG, '请求重试耗尽: url=' + finalOptions.url + ', maxRetries=' + finalOptions.maxRetries);
         } else {
           await this.sleep(1000 * attempts);
         }
@@ -118,7 +118,7 @@ export class HttpClientFacade implements IHttpClient {
       const parts: Array<string> = [];
       for (let index = 0; index < entries.length; index++) {
         const entry = entries[index];
-        parts.push(`${entry[0]}: ${entry[1]}`);
+        parts.push(entry[0] + ': ' + entry[1]);
       }
       return parts.join('\r\n');
     } catch {

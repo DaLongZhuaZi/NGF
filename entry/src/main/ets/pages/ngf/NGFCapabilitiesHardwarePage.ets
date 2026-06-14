@@ -164,14 +164,14 @@ export struct NGFCapabilitiesHardwarePage {
       this.statusMessage = "Requesting location...";
       const location: Record<string, number> | null = await ngfLocationManagerFacade.getCurrentLocation() as Object as Record<string, number> | null;
       if (location) {
-        this.hardwareData = `Latitude: ${location.latitude}\nLongitude: ${location.longitude}`;
+        this.hardwareData = 'Latitude: ' + location.latitude + '\\nLongitude: ' + location.longitude;
         this.statusMessage = "Location retrieved";
       } else {
         this.statusMessage = "Location access denied or unavailable";
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.statusMessage = `Error: ${message}`;
+      this.statusMessage = 'Error: ' + message;
     }
   }
 
@@ -188,7 +188,7 @@ export struct NGFCapabilitiesHardwarePage {
 
     this.statusMessage = "Shake listener started. Shake device!";
     ngfSensorManagerFacade.startAccelerometerListener(() => {
-      this.hardwareData = `Shake detected at ${new Date().toLocaleTimeString()}!`;
+      this.hardwareData = 'Shake detected at ' + String(new Date().toLocaleTimeString()) + '!';
     });
   }
 }

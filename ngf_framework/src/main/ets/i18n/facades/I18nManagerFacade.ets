@@ -43,7 +43,7 @@ class I18nManagerFacade implements II18nManager {
     }
     AppStorage.setOrCreate<string>(STORAGE_KEY_LOCALE_OVERRIDE, normalized);
     this.applySystemLocale(normalized);
-    logger.info(TAG, `语言覆盖已设置: ${normalized}`);
+    logger.info(TAG, '语言覆盖已设置: ' + normalized);
     this.notifyCallbacks(normalized);
   }
 
@@ -52,7 +52,7 @@ class I18nManagerFacade implements II18nManager {
     const systemLocale = i18n.System.getSystemLocaleInstance().toString();
     AppStorage.setOrCreate<string>(STORAGE_KEY_SYSTEM_LOCALE, systemLocale);
     this.applySystemLocale(systemLocale);
-    logger.info(TAG, `语言覆盖已清除，系统语言: ${systemLocale}`);
+    logger.info(TAG, '语言覆盖已清除，系统语言: ' + systemLocale);
     this.notifyCallbacks(systemLocale);
   }
 
@@ -64,7 +64,7 @@ class I18nManagerFacade implements II18nManager {
     try {
       const rawContext = uiContextManager.getAbilityContext();
       if (rawContext === null) {
-        logger.warn(TAG, `解析字符串失败: 无能力上下文`);
+        logger.warn(TAG, '解析字符串失败: 无能力上下文');
         return typeof key === 'string' ? key : 'Resource';
       }
 
@@ -91,7 +91,7 @@ class I18nManagerFacade implements II18nManager {
       return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `解析字符串错误: error=${message}`);
+      logger.warn(TAG, '解析字符串错误: error=' + message);
       return typeof key === 'string' ? key : 'Resource';
     }
   }
@@ -104,7 +104,7 @@ class I18nManagerFacade implements II18nManager {
       return dateFormatter.format(date);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `格式化日期错误: ${message}`);
+      logger.warn(TAG, '格式化日期错误: ' + message);
       return date.toISOString();
     }
   }
@@ -122,8 +122,8 @@ class I18nManagerFacade implements II18nManager {
       return numberFormatter.format(value);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `格式化数字错误: ${message}`);
-      return `${value}`;
+      logger.warn(TAG, '格式化数字错误: ' + message);
+      return String(value);
     }
   }
 
@@ -138,7 +138,7 @@ class I18nManagerFacade implements II18nManager {
       this.applySystemLocale(language);
     }
     const currentLocale = this.getCurrentLocale();
-    logger.info(TAG, `系统语言变更: language=${language}, 实际=${currentLocale}`);
+    logger.info(TAG, '系统语言变更: language=' + language + ', 实际=' + currentLocale);
     this.notifyCallbacks(currentLocale);
   }
 
@@ -155,11 +155,11 @@ class I18nManagerFacade implements II18nManager {
     const savedOverride = AppStorage.get<string>(STORAGE_KEY_LOCALE_OVERRIDE);
     if (savedOverride !== undefined && savedOverride !== null && savedOverride.length > 0) {
       this.applySystemLocale(savedOverride);
-      logger.info(TAG, `国际化默认值已初始化, 恢复语言覆盖: ${savedOverride}`);
+      logger.info(TAG, '国际化默认值已初始化, 恢复语言覆盖: ' + savedOverride);
     } else {
       const systemLocale = i18n.System.getSystemLocaleInstance().toString();
       this.applySystemLocale(systemLocale);
-      logger.info(TAG, `国际化默认值已初始化, 系统语言: ${systemLocale}`);
+      logger.info(TAG, '国际化默认值已初始化, 系统语言: ' + systemLocale);
     }
   }
 
@@ -190,13 +190,13 @@ class I18nManagerFacade implements II18nManager {
       const context = uiContextManager.getFullAbilityContext();
       if (context) {
         context.getApplicationContext().setLanguage(locale);
-        logger.info(TAG, `应用语言已设置: ${locale}`);
+        logger.info(TAG, '应用语言已设置: ' + locale);
       } else {
-        logger.warn(TAG, `设置语言失败: 无能力上下文`);
+        logger.warn(TAG, '设置语言失败: 无能力上下文');
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `设置应用语言失败 (可能不支持运行时切换): ${message}`);
+      logger.warn(TAG, '设置应用语言失败 (可能不支持运行时切换): ' + message);
     } finally {
       this.isApplyingLocale = false;
     }
@@ -212,7 +212,7 @@ class I18nManagerFacade implements II18nManager {
     const langCode = locale.split('-')[0].toLowerCase();
     for (let i = 0; i < rtlLanguages.length; i++) {
       if (rtlLanguages[i] === langCode) {
-        logger.debug(TAG, `RTL 语言检测: locale=${locale}, isRtl=true`);
+        logger.debug(TAG, 'RTL 语言检测: locale=' + locale + ', isRtl=true');
         return true;
       }
     }
@@ -282,7 +282,7 @@ class I18nManagerFacade implements II18nManager {
         this.callbacks[i](locale);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        logger.error(TAG, `语言回调错误: ${message}`);
+        logger.error(TAG, '语言回调错误: ' + message);
       }
     }
   }

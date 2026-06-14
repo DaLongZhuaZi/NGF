@@ -40,19 +40,19 @@ export class NGFModuleRegistry {
     }
 
     if (this.registrations.has(moduleName)) {
-      logger.debug(TAG, `注册模块已跳过：模块=${moduleName}`);
+      logger.debug(TAG, '注册模块已跳过：模块=' + moduleName);
       return false;
     }
 
     this.registrations.set(moduleName, new NGFModuleRegistration(definition, runtime));
-    logger.info(TAG, `注册模块：模块=${moduleName}, 阶段=${definition.phaseName}, 顺序=${definition.order}`);
+    logger.info(TAG, '注册模块：模块=' + moduleName + ', 阶段=' + definition.phaseName + ', 顺序=' + definition.order);
     return true;
   }
 
   hasModule(moduleName: string): boolean {
     const normalizedName = moduleName.trim();
     const exists = this.registrations.has(normalizedName);
-    logger.debug(TAG, `查询模块：模块=${normalizedName}, 存在=${exists}`);
+    logger.debug(TAG, '查询模块：模块=' + normalizedName + ', 存在=' + exists);
     return exists;
   }
 
@@ -60,10 +60,10 @@ export class NGFModuleRegistry {
     const normalizedName = moduleName.trim();
     if (this.registrations.has(normalizedName)) {
       this.registrations.delete(normalizedName);
-      logger.info(TAG, `注销模块成功：模块=${normalizedName}`);
+      logger.info(TAG, '注销模块成功：模块=' + normalizedName);
       return true;
     }
-    logger.debug(TAG, `注销模块失败，模块不存在：模块=${normalizedName}`);
+    logger.debug(TAG, '注销模块失败，模块不存在：模块=' + normalizedName);
     return false;
   }
 
@@ -71,7 +71,7 @@ export class NGFModuleRegistry {
     const normalizedName = moduleName.trim();
     const registration = this.registrations.get(normalizedName);
     if (!registration) {
-      logger.debug(TAG, `解析模块未命中：模块=${normalizedName}`);
+      logger.debug(TAG, '解析模块未命中：模块=' + normalizedName);
       return null;
     }
     return registration;
@@ -88,7 +88,7 @@ export class NGFModuleRegistry {
     modules.sort((left: NGFModuleRegistration, right: NGFModuleRegistration): number => {
       return left.definition.order - right.definition.order;
     });
-    logger.debug(TAG, `按阶段列出模块：阶段=${normalizedPhase}, 数量=${modules.length}`);
+    logger.debug(TAG, '按阶段列出模块：阶段=' + normalizedPhase + ', 数量=' + String(modules.length));
     return modules;
   }
 
@@ -109,7 +109,7 @@ export class NGFModuleRegistry {
       }
       return left.definition.order - right.definition.order;
     });
-    logger.debug(TAG, `列出全部模块：数量=${modules.length}`);
+    logger.debug(TAG, '列出全部模块：数量=' + String(modules.length));
     return modules;
   }
 
@@ -122,7 +122,7 @@ export class NGFModuleRegistry {
 
     const registration = this.registrations.get(normalizedName);
     if (!registration) {
-      logger.warn(TAG, `热重载模块失败，模块不存在：模块=${normalizedName}`);
+      logger.warn(TAG, '热重载模块失败，模块不存在：模块=' + normalizedName);
       return false;
     }
 
@@ -131,13 +131,13 @@ export class NGFModuleRegistry {
       try {
         const shutdownOk = registration.runtime.shutdown();
         if (!shutdownOk) {
-          logger.warn(TAG, `热重载模块关闭返回失败：模块=${normalizedName}`);
+          logger.warn(TAG, '热重载模块关闭返回失败：模块=' + normalizedName);
         } else {
-          logger.info(TAG, `热重载模块关闭成功：模块=${normalizedName}`);
+          logger.info(TAG, '热重载模块关闭成功：模块=' + normalizedName);
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        logger.error(TAG, `热重载模块关闭异常：模块=${normalizedName}, 错误=${message}`);
+        logger.error(TAG, '热重载模块关闭异常：模块=' + normalizedName + ', 错误=' + message);
         return false;
       }
     }
@@ -146,7 +146,7 @@ export class NGFModuleRegistry {
     this.registrations.delete(normalizedName);
     const reRegisterOk = this.registerModule(registration.definition, registration.runtime);
     if (!reRegisterOk) {
-      logger.warn(TAG, `热重载模块重新注册失败：模块=${normalizedName}`);
+      logger.warn(TAG, '热重载模块重新注册失败：模块=' + normalizedName);
       return false;
     }
 
@@ -154,14 +154,14 @@ export class NGFModuleRegistry {
     try {
       const bootstrapOk = registration.runtime.bootstrap();
       if (bootstrapOk) {
-        logger.info(TAG, `热重载模块引导成功：模块=${normalizedName}`);
+        logger.info(TAG, '热重载模块引导成功：模块=' + normalizedName);
         return true;
       }
-      logger.warn(TAG, `热重载模块引导返回失败：模块=${normalizedName}`);
+      logger.warn(TAG, '热重载模块引导返回失败：模块=' + normalizedName);
       return false;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `热重载模块引导异常：模块=${normalizedName}, 错误=${message}`);
+      logger.error(TAG, '热重载模块引导异常：模块=' + normalizedName + ', 错误=' + message);
       return false;
     }
   }

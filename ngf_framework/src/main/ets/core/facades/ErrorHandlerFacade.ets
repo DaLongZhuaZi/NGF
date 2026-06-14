@@ -49,19 +49,19 @@ export class ErrorHandlerFacade implements IErrorHandler {
       const record = new NGFErrorRecord(errorName, message, severity, context, now);
 
       this.pushRecord(record);
-      logger.error(context.source, `${errorName}: ${message}`);
+      logger.error(context.source, errorName + ': ' + message);
       this.notifyListeners(record);
 
       if (severity === NGFErrorSeverity.HIGH || severity === NGFErrorSeverity.CRITICAL) {
         const recovered = await this.tryRecover(errorName, message, severity, context);
         if (recovered) {
-          logger.info(context.source, `recovery succeeded: error=${errorName}`);
+          logger.info(context.source, 'recovery succeeded: error=' + errorName);
           return true;
         }
       }
       return true;
     } catch (error) {
-      logger.error(LOG_TAG, `error handling failed: ${errorToString(error as Object | string | number | boolean)}`);
+      logger.error(LOG_TAG, 'error handling failed: ' + errorToString(error as Object | string | number | boolean));
       return false;
     }
   }
@@ -73,11 +73,11 @@ export class ErrorHandlerFacade implements IErrorHandler {
       return false;
     }
     if (this.recoveryStrategies.has(normalized)) {
-      logger.debug(LOG_TAG, `registerRecoverStrategy skipped (already exists): strategy=${normalized}`);
+      logger.debug(LOG_TAG, 'registerRecoverStrategy skipped (already exists): strategy=' + normalized);
       return false;
     }
     this.recoveryStrategies.set(normalized, handler);
-    logger.info(LOG_TAG, `registered recovery strategy: strategy=${normalized}`);
+    logger.info(LOG_TAG, 'registered recovery strategy: strategy=' + normalized);
     return true;
   }
 
@@ -90,7 +90,7 @@ export class ErrorHandlerFacade implements IErrorHandler {
     const now = Date.now();
     const record = new NGFErrorRecord(errorName, message, severity, context, now);
     this.pushRecord(record);
-    logger.error(context.source, `${errorName}: ${message}`);
+    logger.error(context.source, errorName + ': ' + message);
     this.notifyListeners(record);
   }
 
@@ -109,7 +109,7 @@ export class ErrorHandlerFacade implements IErrorHandler {
   clearErrors(): void {
     const count = this.recentErrors.length;
     this.recentErrors.length = 0;
-    logger.info(LOG_TAG, `cleared errors: count=${count}`);
+    logger.info(LOG_TAG, 'cleared errors: count=' + count);
   }
 
   addErrorListener(listener: NGFErrorListener): void {
@@ -120,14 +120,14 @@ export class ErrorHandlerFacade implements IErrorHandler {
       }
     }
     this.errorListeners.push(listener);
-    logger.info(LOG_TAG, `added error listener: total=${this.errorListeners.length}`);
+    logger.info(LOG_TAG, 'added error listener: total=' + this.errorListeners.length);
   }
 
   removeErrorListener(listener: NGFErrorListener): void {
     for (let i = 0; i < this.errorListeners.length; i++) {
       if (this.errorListeners[i] === listener) {
         this.errorListeners.splice(i, 1);
-        logger.info(LOG_TAG, `removed error listener: total=${this.errorListeners.length}`);
+        logger.info(LOG_TAG, 'removed error listener: total=' + this.errorListeners.length);
         return;
       }
     }
@@ -146,7 +146,7 @@ export class ErrorHandlerFacade implements IErrorHandler {
       try {
         this.errorListeners[i](record);
       } catch (error) {
-        logger.warn(LOG_TAG, `error listener execution failed: ${errorToString(error as Object | string | number | boolean)}`);
+        logger.warn(LOG_TAG, 'error listener execution failed: ' + errorToString(error as Object | string | number | boolean));
       }
     }
   }
@@ -157,18 +157,18 @@ export class ErrorHandlerFacade implements IErrorHandler {
     severity: NGFErrorSeverity,
     context: NGFErrorContext
   ): Promise<boolean> {
-    const strategyNames = this.recoveryStrategies.keys();
-    for (const strategyName of strategyNames) {
-      const handler = this.recoveryStrategies.get(strategyName);
+    const strategyNames: Array<string> = Array.from(this.recoveryStrategies.keys());
+    for (let i: number = 0; i < strategyNames.length; i++) {
+      const handler = this.recoveryStrategies.get(strategyNames[i]);
       if (handler) {
         try {
-          logger.info(LOG_TAG, `trying recovery strategy: ${strategyName}`);
+          logger.info(LOG_TAG, 'trying recovery strategy: ' + strategyNames[i]);
           const result = await handler(errorName, message, severity, context);
           if (result) {
             return true;
           }
         } catch (recoveryError) {
-          logger.warn(LOG_TAG, `recovery strategy failed: ${strategyName}, error=${errorToString(recoveryError as Object | string | number | boolean)}`);
+          logger.warn(LOG_TAG, 'recovery strategy failed: ' + strategyNames[i] + ', error=' + errorToString(recoveryError as Object | string | number | boolean));
         }
       }
     }

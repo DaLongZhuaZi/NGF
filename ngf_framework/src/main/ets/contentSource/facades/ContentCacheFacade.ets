@@ -32,7 +32,7 @@ export class ContentCacheFacade implements IContentCache {
     this.filesDir = filesDir || '';
     const cacheDir = this.getCacheDir();
     this.ensureDir(cacheDir);
-    logger.info(TAG, `内容缓存初始化: dir=${cacheDir}`);
+    logger.info(TAG, '内容缓存初始化: dir=' + cacheDir);
   }
 
   put(key: string, value: string, ttlMs: number): void {
@@ -82,7 +82,7 @@ export class ContentCacheFacade implements IContentCache {
     }
     this.memoryCache.delete(normalizedKey);
     this.removeDisk(normalizedKey);
-    logger.debug(TAG, `移除缓存: key=${normalizedKey}`);
+    logger.debug(TAG, '移除缓存: key=' + normalizedKey);
   }
 
   clear(): void {
@@ -146,12 +146,12 @@ export class ContentCacheFacade implements IContentCache {
     const filePath = this.buildDiskPath(key);
     let file: fs.File | null = null;
     try {
-      const content = `${expiresAt}\n${value}`;
+      const content = expiresAt + '\\n' + value;
       file = fs.openSync(filePath, fs.OpenMode.CREATE | fs.OpenMode.WRITE_ONLY | fs.OpenMode.TRUNC);
       fs.writeSync(file.fd, content);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `磁盘写入失败: key=${key}, error=${message}`);
+      logger.warn(TAG, '磁盘写入失败: key=' + key + ', error=' + message);
     } finally {
       if (file !== null) {
         try {
@@ -247,7 +247,7 @@ export class ContentCacheFacade implements IContentCache {
       const decoder = new util.TextDecoder('utf-8');
       return decoder.decodeToString(new Uint8Array(buffer));
     } catch (e) {
-      logger.error(TAG, `Read text sync failed: ${e}`);
+      logger.error(TAG, 'Read text sync failed: ' + e);
       return "";
     } finally {
       if (file !== null) {
@@ -262,7 +262,7 @@ export class ContentCacheFacade implements IContentCache {
 
   private buildDiskPath(key: string): string {
     const safeKey = key.replace(/[^a-zA-Z0-9._-]/g, '_');
-    return `${this.getCacheDir()}/${safeKey}.cache`;
+    return String(this.getCacheDir()) + '/' + safeKey + '.cache';
   }
 
   private getCacheDir(): string {
@@ -274,7 +274,7 @@ export class ContentCacheFacade implements IContentCache {
         return '';
       }
     }
-    return `${this.filesDir}/${ContentCacheFacade.CACHE_DIR_NAME}`;
+    return this.filesDir + '/' + ContentCacheFacade.CACHE_DIR_NAME;
   }
 
   private ensureDir(path: string): void {

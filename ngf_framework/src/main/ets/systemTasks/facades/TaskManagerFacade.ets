@@ -18,7 +18,7 @@ class TaskManagerFacade implements ITaskManager {
   }
 
   async submitTask(name: string, executor: NGFTaskExecutor): Promise<string> {
-    const taskId = `task_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    const taskId = 'task_' + String(Date.now()) + '_' + String(Math.floor(Math.random() * 1000));
     const taskInfo = new NGFTaskInfo(
       taskId,
       name,
@@ -87,11 +87,11 @@ class TaskManagerFacade implements ITaskManager {
 
     } catch (e) {
       taskInfo.state = NGFTaskState.FAILED;
-      taskInfo.message = `任务异常: ${e}`;
+      taskInfo.message = '任务异常: ' + e;
       this.syncStorage();
       this.publishEvent('ngf.task.failed', taskInfo);
       await this.updateNotification(notifId, taskInfo);
-      logger.error(TAG, `任务执行异常: TaskID=${taskId}, Error=${e}`);
+      logger.error(TAG, '任务执行异常: TaskID=' + taskId + ', Error=' + e);
     } finally {
       void this.checkStopBackground();
     }

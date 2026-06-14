@@ -40,7 +40,7 @@ class SettingsManager {
       logger.info(TAG, 'Preferences 初始化完成');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `Preferences 初始化失败: ${message}`);
+      logger.error(TAG, 'Preferences 初始化失败: ' + message);
     }
   }
 
@@ -81,7 +81,7 @@ class SettingsManager {
     this.numberValues.delete(normalizedKey);
     this.booleanValues.delete(normalizedKey);
     await this.persistToPreferences(normalizedKey, value);
-    logger.info(TAG, `设置字符串配置：key=${normalizedKey}`);
+    logger.info(TAG, '设置字符串配置：key=' + normalizedKey);
   }
 
   async setNumber(key: string, value: number): Promise<void> {
@@ -94,7 +94,7 @@ class SettingsManager {
     this.stringValues.delete(normalizedKey);
     this.booleanValues.delete(normalizedKey);
     await this.persistToPreferences(normalizedKey, value);
-    logger.info(TAG, `设置数值配置：key=${normalizedKey}`);
+    logger.info(TAG, '设置数值配置：key=' + normalizedKey);
   }
 
   async setBoolean(key: string, value: boolean): Promise<void> {
@@ -107,7 +107,7 @@ class SettingsManager {
     this.stringValues.delete(normalizedKey);
     this.numberValues.delete(normalizedKey);
     await this.persistToPreferences(normalizedKey, value);
-    logger.info(TAG, `设置布尔配置：key=${normalizedKey}`);
+    logger.info(TAG, '设置布尔配置：key=' + normalizedKey);
   }
 
   async deleteSetting(key: string): Promise<void> {
@@ -120,7 +120,7 @@ class SettingsManager {
     this.numberValues.delete(normalizedKey);
     this.booleanValues.delete(normalizedKey);
     await this.deleteFromPreferences(normalizedKey);
-    logger.info(TAG, `删除配置：key=${normalizedKey}`);
+    logger.info(TAG, '删除配置：key=' + normalizedKey);
   }
 
   isInitialized(): boolean {
@@ -147,17 +147,17 @@ class SettingsManager {
           this.booleanValues.set(key, value);
         }
       }
-      logger.info(TAG, `从 Preferences 加载 ${entries.length} 条配置`);
+      logger.info(TAG, '从 Preferences 加载 ' + String(entries.length) + ' 条配置');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `加载 Preferences 数据失败: ${message}`);
+      logger.warn(TAG, '加载 Preferences 数据失败: ' + message);
     }
   }
 
   private async persistToPreferences(key: string, value: dataPreferences.ValueType): Promise<void> {
     const prefs = this.preferences;
     if (prefs === null) {
-      logger.debug(TAG, `Preferences 未初始化，仅缓存: key=${key}`);
+      logger.debug(TAG, 'Preferences 未初始化，仅缓存: key=' + key);
       return;
     }
     try {
@@ -165,14 +165,14 @@ class SettingsManager {
       await prefs.flush();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `持久化写入失败: key=${key}, error=${message}`);
+      logger.warn(TAG, '持久化写入失败: key=' + key + ', error=' + message);
     }
   }
 
   private async deleteFromPreferences(key: string): Promise<void> {
     const prefs = this.preferences;
     if (prefs === null) {
-      logger.debug(TAG, `Preferences 未初始化，仅清除缓存: key=${key}`);
+      logger.debug(TAG, 'Preferences 未初始化，仅清除缓存: key=' + key);
       return;
     }
     try {
@@ -180,7 +180,7 @@ class SettingsManager {
       await prefs.flush();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `持久化删除失败: key=${key}, error=${message}`);
+      logger.warn(TAG, '持久化删除失败: key=' + key + ', error=' + message);
     }
   }
 }

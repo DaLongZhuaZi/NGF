@@ -30,20 +30,20 @@ export class SandboxManager {
    */
   initialize(filesDir: string | undefined): void {
     this.filesDir = filesDir || '';
-    logger.info(TAG, `沙盒管理器初始化完成: filesDir=${filesDir}`);
+    logger.info(TAG, '沙盒管理器初始化完成: filesDir=' + filesDir);
   }
 
   getDirectory(directoryName: string): string {
     const filesDir = this.resolveFilesDir();
     if (filesDir.length <= 0) {
-      logger.warn(TAG, `获取目录失败：filesDir 不可用，directory=${directoryName}`);
+      logger.warn(TAG, '获取目录失败：filesDir 不可用，directory=' + directoryName);
       return '';
     }
 
     const normalizedName = this.normalizeDirectoryName(directoryName);
-    const targetDirectory = normalizedName === 'files' ? filesDir : `${filesDir}/${normalizedName}`;
+    const targetDirectory = normalizedName === 'files' ? filesDir : filesDir + '/' + normalizedName;
     this.ensureDirectory(targetDirectory);
-    logger.debug(TAG, `获取目录成功：directory=${targetDirectory}`);
+    logger.debug(TAG, '获取目录成功：directory=' + targetDirectory);
     return targetDirectory;
   }
 
@@ -72,7 +72,7 @@ export class SandboxManager {
       try {
         fs.mkdirSync(directoryPath, true);
       } catch {
-        logger.warn(TAG, `确保目录失败：path=${directoryPath}`);
+        logger.warn(TAG, '确保目录失败：path=' + directoryPath);
       }
     }
   }

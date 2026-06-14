@@ -31,6 +31,11 @@
 | [`.rules/skill-system-tasks.md`](.rules/skill-system-tasks.md) | 涉及后台下载、文件上传、数据同步、常驻通知、进度条通知、任务派发或系统事件订阅监听时 |
 | [`.rules/skill-window-management.md`](.rules/skill-window-management.md) | 涉及多窗口、多实例任务卡片、应用内悬浮窗、子窗口、`windowStage.createSubWindow` 或使用 `MultitonEntryAbility` 动态拉起独立页面时 |
 | [`.rules/skill-arkts-types.md`](.rules/skill-arkts-types.md) | 涉及 ArkUI 组件中 Map 或 Array 的遍历（如 ForEach）、异常捕获（catch）、需要显式类型推断以解决 any/unknown 编译报错时 |
+| [`.rules/skill-arkts-standards.md`](.rules/skill-arkts-standards.md) | 编写或修改 `.ets` 文件；涉及 ArkTS 语法规则、限制、TypeScript 到 ArkTS 差异、语法合规审查 |
+| [`.rules/skill-arkui-knowledge.md`](.rules/skill-arkui-knowledge.md) | 涉及 ArkUI 组件、布局、状态装饰器、渲染控制、导航、对话框、交互、组件 API 问题时 |
+| [`.rules/skill-arkts-error-fixes.md`](.rules/skill-arkts-error-fixes.md) | 编译失败、ArkTS 类型错误、构建报错时；涉及 Notification/Window/AppStorage/IDataSource 等常见类型不匹配 |
+| [`.rules/skill-arkts-runtime-fix.md`](.rules/skill-arkts-runtime-fix.md) | 运行时崩溃、闪退、白屏、jscrash 日志、未捕获异常、faultlog/hilog 诊断时 |
+| [`.rules/skill-arkts-debug.md`](.rules/skill-arkts-debug.md) | ArkTS 项目运行时问题调试；涉及日志插桩、假设验证、运行时行为确认时 |
 | [`.rules/skill-llm-onboarding.md`](.rules/skill-llm-onboarding.md) | LLM 新会话初始化、首次接触本项目、遇到环境/SDK 路径异常、或遇到构建命令不生效问题时 |
 | [`.rules/skill-app-release.md`](.rules/skill-app-release.md) | 涉及修改应用包名、应用图标、打包发布、申请证书、生成 p12/csr 文件或上架 AGC 时 |
 | [`.rules/skill-ui-symbols.md`](.rules/skill-ui-symbols.md) | 涉及在 UI 中添加图标、状态提示、字符串带图或 LLM 意图主动生成 Emoji 作为标识时 |

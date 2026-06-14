@@ -13,6 +13,8 @@
 /.antigravitycli
 /.claude
 /.atomcode
+/.workbuddy
+/.deveco
 
 # Signing and Certificate files
 *.p12

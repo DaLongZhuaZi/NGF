@@ -52,7 +52,7 @@ export class DbMigratorFacade implements IDbMigrator {
     this.migrationSteps.sort((a: INGFMigrationStep, b: INGFMigrationStep) => {
       return a.targetVersion - b.targetVersion;
     });
-    logger.info(TAG, `注册迁移步骤: v${step.targetVersion}, desc=${step.description}`);
+    logger.info(TAG, '注册迁移步骤: v' + step.targetVersion + ', desc=' + step.description);
   }
 
   async migrate(): Promise<boolean> {
@@ -63,7 +63,7 @@ export class DbMigratorFacade implements IDbMigrator {
       try {
         this.writeVersionToRdb(target);
         AppStorage.setOrCreate(this.schemaVersionKey, target);
-        logger.info(TAG, `数据 schema 迁移完成: v${current} -> v${target}`);
+        logger.info(TAG, '数据 schema 迁移完成: v' + current + ' -> v' + target);
         return true;
       } catch {
         logger.warn(TAG, '数据 schema 迁移失败');
@@ -77,33 +77,33 @@ export class DbMigratorFacade implements IDbMigrator {
       if (step.targetVersion <= current) {
         continue;
       }
-      logger.info(TAG, `执行迁移步骤: v${step.targetVersion}, desc=${step.description}`);
+      logger.info(TAG, '执行迁移步骤: v' + step.targetVersion + ', desc=' + step.description);
       const success = await step.execute();
       if (!success) {
-        logger.warn(TAG, `迁移步骤失败: v${step.targetVersion}, 已完成=${executedCount}`);
+        logger.warn(TAG, '迁移步骤失败: v' + step.targetVersion + ', 已完成=' + executedCount);
         return false;
       }
       this.writeVersionToRdb(step.targetVersion);
       AppStorage.setOrCreate(this.schemaVersionKey, step.targetVersion);
       executedCount++;
     }
-    logger.info(TAG, `数据 schema 迁移完成: v${current} -> v${target}, 执行步骤=${executedCount}`);
+    logger.info(TAG, '数据 schema 迁移完成: v' + current + ' -> v' + target + ', 执行步骤=' + executedCount);
     return true;
   }
 
   async rollback(toVersion: number): Promise<boolean> {
     if (toVersion <= 0) {
-      logger.warn(TAG, `回滚版本非法: ${toVersion}`);
+      logger.warn(TAG, '回滚版本非法: ' + toVersion);
       return false;
     }
 
     try {
       this.writeVersionToRdb(toVersion);
       AppStorage.setOrCreate(this.schemaVersionKey, toVersion);
-      logger.info(TAG, `数据 schema 已回滚到: v${toVersion}`);
+      logger.info(TAG, '数据 schema 已回滚到: v' + toVersion);
       return true;
     } catch {
-      logger.warn(TAG, `数据 schema 回滚失败: v${toVersion}`);
+      logger.warn(TAG, '数据 schema 回滚失败: v' + toVersion);
       return false;
     }
   }
@@ -114,11 +114,11 @@ export class DbMigratorFacade implements IDbMigrator {
       return;
     }
     try {
-      store.executeSql(`CREATE TABLE IF NOT EXISTS ${VERSION_TABLE} (key TEXT PRIMARY KEY, value INTEGER)`);
+      store.executeSql('CREATE TABLE IF NOT EXISTS ' + VERSION_TABLE + ' (key TEXT PRIMARY KEY, value INTEGER)');
       logger.debug(TAG, '版本表已就绪');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `创建版本表失败: ${message}`);
+      logger.warn(TAG, '创建版本表失败: ' + message);
     }
   }
 
@@ -150,12 +150,12 @@ export class DbMigratorFacade implements IDbMigrator {
     }
     try {
       store.executeSql(
-        `INSERT OR REPLACE INTO ${VERSION_TABLE} (key, value) VALUES (?, ?)`,
+        'INSERT OR REPLACE INTO ' + VERSION_TABLE + ' (key, value) VALUES (?, ?)',
         [VERSION_KEY, version]
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `写入版本号失败: ${message}`);
+      logger.warn(TAG, '写入版本号失败: ' + message);
     }
   }
 }

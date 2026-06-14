@@ -15,7 +15,7 @@ export struct NGFWebView {
       .domStorageAccess(true)
       .mixedMode(MixedMode.All)
       .onControllerAttached(() => {
-        logger.info(TAG, `WebView attached, injecting NGF WebBridge`);
+        logger.info(TAG, 'WebView attached, injecting NGF WebBridge');
         // 注入全局对象 NGFBridge
         this.controller.registerJavaScriptProxy(
           ngfWebBridge.getProxyObject(),
@@ -25,7 +25,7 @@ export struct NGFWebView {
         this.controller.refresh();
       })
       .onConsole((event) => {
-        logger.debug(TAG, `H5 Console [${event?.message.getMessageLevel()}]: ${event?.message.getMessage()}`);
+        logger.debug(TAG, 'H5 Console [' + event?.message.getMessageLevel() + ']: ' + event?.message.getMessage());
         return false;
       })
   }

@@ -510,7 +510,7 @@ struct NGFStarterMainMenuPage {
   private handleOpenHdsDemoTap(routeName: string, label: string): void {
     try {
       this.pathStack.pushPathByName(routeName, new NGFHdsDemoRouteParam(routeName, TAG));
-      this.starter.logger.info(TAG, `打开HDS演示: route=${routeName}, label=${label}`);
+      this.starter.logger.info(TAG, '打开HDS演示: route=' + routeName + ', label=' + label);
       this.appendLog($r('app.string.ui_str_2016', label));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -577,7 +577,7 @@ struct NGFStarterMainMenuPage {
         });
         this.appendLog('启动多实例任务: Symbol 预览器');
       } catch (err) {
-        this.appendLog(`启动多实例任务失败: ${err}`);
+        this.appendLog('启动多实例任务失败: ' + err);
       }
       return;
     }
@@ -594,7 +594,7 @@ struct NGFStarterMainMenuPage {
         });
         this.appendLog('启动多实例任务: 数据沙箱');
       } catch (err) {
-        this.appendLog(`启动多实例任务失败: ${err}`);
+        this.appendLog('启动多实例任务失败: ' + err);
       }
       return;
     }
@@ -608,7 +608,7 @@ struct NGFStarterMainMenuPage {
           });
         });
       } catch (err) {
-        this.appendLog(`打开应用内子窗口失败: ${err}`);
+        this.appendLog('打开应用内子窗口失败: ' + err);
       }
       return;
     }
@@ -622,7 +622,7 @@ struct NGFStarterMainMenuPage {
           });
         });
       } catch (err) {
-        this.appendLog(`打开应用内子窗口失败: ${err}`);
+        this.appendLog('打开应用内子窗口失败: ' + err);
       }
       return;
     }
@@ -631,19 +631,19 @@ struct NGFStarterMainMenuPage {
       try {
         this.getUIContext().getPromptAction().showToast({ message: '流转数据准备就绪' });
       } catch (err) {
-        this.appendLog(`显示Toast失败: ${err}`);
+        this.appendLog('显示Toast失败: ' + err);
       }
       return;
     }
     if (actionKey === NGFMainMenuActionKey.DEMO_SHARE_KIT) {
       try {
-        const text = `发现宝藏鸿蒙框架 NGF！当前核心服务就绪: ${this.isCoreReady}，最后事件: ${this.lastEventType}`;
+        const text = '发现宝藏鸿蒙框架 NGF！当前核心服务就绪: ' + this.isCoreReady + '，最后事件: ' + this.lastEventType;
         import('ngf_framework').then(module => {
           module.ngfSystemShareFacade.shareText(text);
           this.appendLog('已拉起原生系统 ShareKit 分享面板');
         });
       } catch (err) {
-        this.appendLog(`分享拉起失败: ${err}`);
+        this.appendLog('分享拉起失败: ' + err);
       }
       return;
     }
@@ -762,9 +762,9 @@ struct NGFStarterMainMenuPage {
     let result = '';
     for (let index = 0; index < values.length; index++) {
       if (index > 0) {
-        result = `${result}, `;
+        result = result + ', ';
       }
-      result = `${result}${values[index]}`;
+      result = result + values[index];
     }
     return result;
   }
@@ -794,13 +794,13 @@ struct NGFStarterMainMenuPage {
       }
     }
     const now = new Date();
-    const timeText = `${this.pad2(now.getHours())}:${this.pad2(now.getMinutes())}:${this.pad2(now.getSeconds())}`;
+    const timeText = String(this.pad2(now.getHours())) + ':' + String(this.pad2(now.getMinutes())) + ':' + String(this.pad2(now.getSeconds()));
     const nextId = this.logs.length > 0 ? this.logs[this.logs.length - 1].id + 1 : 1;
     const nextLogs: Array<NGFStarterLogEntry> = [];
     for (let i = 0; i < this.logs.length; i++) {
       nextLogs.push(this.logs[i]);
     }
-    nextLogs.push(new NGFStarterLogEntry(nextId, `${timeText}  ${msgStr}`));
+    nextLogs.push(new NGFStarterLogEntry(nextId, timeText + '  ' + msgStr));
     while (nextLogs.length > 12) {
       nextLogs.shift();
     }
@@ -809,9 +809,9 @@ struct NGFStarterMainMenuPage {
 
   private pad2(value: number): string {
     if (value >= 10) {
-      return `${value}`;
+      return String(value);
     }
-    return `0${value}`;
+    return '0' + value;
   }
 
   private toJson(value: NGFStarterDemoPayload | NGFStarterStatePayload): string {
@@ -1220,14 +1220,14 @@ struct NGFStarterMainMenuPage {
 
         Column({ space: 10 }) {
           Row({ space: 10 }) {
-            this.buildHeaderGlassChip($r('app.string.ui_str_2026'), `${this.lifecycleState.phaseName} · ${this.lifecycleState.progress}%`)
-            this.buildHeaderGlassChip($r('app.string.ui_str_2027'), `${this.moduleSuccessCount}/${this.moduleTotalCount}`)
+            this.buildHeaderGlassChip($r('app.string.ui_str_2026'), this.lifecycleState.phaseName + ' · ' + this.lifecycleState.progress + '%')
+            this.buildHeaderGlassChip($r('app.string.ui_str_2027'), this.moduleSuccessCount + '/' + this.moduleTotalCount)
           }
           .width('100%')
 
           Row({ space: 10 }) {
-            this.buildHeaderGlassChip($r('app.string.ui_str_2028'), `${this.windowDisplayMode} · ${this.windowStatus}`)
-            this.buildHeaderGlassChip($r('app.string.ui_str_2029'), `${this.demoEventCount}`)
+            this.buildHeaderGlassChip($r('app.string.ui_str_2028'), this.windowDisplayMode + ' · ' + this.windowStatus)
+            this.buildHeaderGlassChip($r('app.string.ui_str_2029'), String(this.demoEventCount))
           }
           .width('100%')
         }
@@ -1839,9 +1839,9 @@ struct NGFStarterMainMenuPage {
     const minutes = Math.floor((uptime % 3600) / 60);
     const seconds = Math.floor(uptime % 60);
     let result = '';
-    if (hours > 0) result += `${hours}h `;
-    if (minutes > 0 || hours > 0) result += `${minutes}m `;
-    result += `${seconds}s`;
+    if (hours > 0) result += hours + 'h ';
+    if (minutes > 0 || hours > 0) result += minutes + 'm ';
+    result += seconds + 's';
     return result;
   }
 
@@ -1854,7 +1854,7 @@ struct NGFStarterMainMenuPage {
         .fontColor($r('app.color.text_glass_label'))
         .width('100%')
 
-      this.buildPerfInfoRow('PID / UID', `${this.runtimeStatus?.processId} / ${this.runtimeStatus?.uid}`)
+      this.buildPerfInfoRow('PID / UID', String(this.runtimeStatus?.processId) + ' / ' + String(this.runtimeStatus?.uid))
       this.buildPerfDivider()
       this.buildPerfInfoRow('架构', this.runtimeStatus?.is64Bit ? '64-bit' : '32-bit')
       this.buildPerfDivider()
@@ -1876,7 +1876,7 @@ struct NGFStarterMainMenuPage {
         .fontColor($r('app.color.text_glass_label'))
         .width('100%')
 
-      this.buildPerfInfoRow('App 内存限制', `${this.runtimeStatus?.appMemoryLimit || 0} MB`)
+      this.buildPerfInfoRow('App 内存限制', String(this.runtimeStatus?.appMemoryLimit || 0) + ' MB')
       this.buildPerfDivider()
       
       Text($r('app.string.monitor_native_memory'))
@@ -1889,7 +1889,7 @@ struct NGFStarterMainMenuPage {
         .height(16)
         .color($r('app.color.button_primary'))
         
-      Text(`${((this.runtimeStatus?.appNativeMemSize || 0) / 1024).toFixed(1)} MB`)
+      Text(String(((this.runtimeStatus?.appNativeMemSize || 0) / 1024).toFixed(1)) + ' MB')
         .fontSize(12)
         .fontColor($r('app.color.text_primary'))
         .width('100%')
@@ -1918,7 +1918,7 @@ struct NGFStarterMainMenuPage {
             .height(64)
             .color($r('app.color.button_primary'))
             .style({ strokeWidth: 6 })
-          Text(`系统 CPU\n${((this.runtimeStatus?.systemCpuUsage || 0) * 100).toFixed(1)}%`)
+          Text('系统 CPU\\n' + String(((this.runtimeStatus?.systemCpuUsage || 0) * 100).toFixed(1)) + '%')
             .fontSize(12)
             .fontColor($r('app.color.text_primary'))
             .textAlign(TextAlign.Center)
@@ -1930,7 +1930,7 @@ struct NGFStarterMainMenuPage {
             .height(64)
             .color($r('app.color.button_primary'))
             .style({ strokeWidth: 6 })
-          Text(`APP CPU\n${((this.runtimeStatus?.appCpuUsage || 0) * 100).toFixed(1)}%`)
+          Text('APP CPU\\n' + String(((this.runtimeStatus?.appCpuUsage || 0) * 100).toFixed(1)) + '%')
             .fontSize(12)
             .fontColor($r('app.color.text_primary'))
             .textAlign(TextAlign.Center)
@@ -1964,14 +1964,14 @@ struct NGFStarterMainMenuPage {
           .height(14)
           .color(this.runtimeStatus?.batterySOC && this.runtimeStatus.batterySOC < 20 ? Color.Red : 
                 (this.runtimeStatus?.isCharging ? Color.Green : $r('app.color.button_primary')))
-        Text(`${this.runtimeStatus?.batterySOC || 0}%`)
+        Text(String(this.runtimeStatus?.batterySOC || 0) + '%')
           .fontSize(13)
           .fontColor($r('app.color.text_primary'))
           .fontWeight(FontWeight.Medium)
       }.width('100%')
       
       this.buildPerfDivider()
-      this.buildPerfInfoRow('温度', `${((this.runtimeStatus?.batteryTemperature || 0) / 10).toFixed(1)} °C`)
+      this.buildPerfInfoRow('温度', String(((this.runtimeStatus?.batteryTemperature || 0) / 10).toFixed(1)) + ' °C')
       this.buildPerfDivider()
       this.buildPerfInfoRow('充电状态', this.runtimeStatus?.isCharging ? '充电中 / 已满' : '未充电')
     }
@@ -1994,14 +1994,14 @@ struct NGFStarterMainMenuPage {
       if (this.runtimeStatus && this.runtimeStatus.threads && this.runtimeStatus.threads.length > 0) {
         ForEach(this.runtimeStatus.threads.slice(0, 10), (thread: NGFAppThreadInfo, index: number) => {
           Row({ space: 8 }) {
-            Text(`TID: ${thread.threadId}`)
+            Text('TID: ' + thread.threadId)
               .fontSize(12)
               .fontColor($r('app.color.text_secondary'))
               .width(60)
             Progress({ value: thread.cpuUsage * 100, total: 100, type: ProgressType.Linear })
               .layoutWeight(1)
               .color($r('app.color.button_primary'))
-            Text(`${(thread.cpuUsage * 100).toFixed(1)}%`)
+            Text(String((thread.cpuUsage * 100).toFixed(1)) + '%')
               .fontSize(12)
               .fontColor($r('app.color.text_primary'))
               .width(44)
@@ -2054,7 +2054,7 @@ struct NGFStarterMainMenuPage {
       return '-';
     }
     const date = new Date(this.windowSnapshotUpdatedAt);
-    return `${this.pad2(date.getHours())}:${this.pad2(date.getMinutes())}:${this.pad2(date.getSeconds())}`;
+    return String(this.pad2(date.getHours())) + ':' + String(this.pad2(date.getMinutes())) + ':' + String(this.pad2(date.getSeconds()));
   }
 
   @Builder
@@ -2074,7 +2074,7 @@ struct NGFStarterMainMenuPage {
         Column({ space: 8 }) {
           ForEach(this.moduleDetails, (entry: NGFStarterModuleDetailEntry) => {
             Column({ space: 4 }) {
-              Text(`${entry.id}. ${entry.moduleName}`)
+              Text(entry.id + '. ' + entry.moduleName)
                 .width('100%')
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
@@ -2104,7 +2104,7 @@ struct NGFStarterMainMenuPage {
             .padding(10)
             .backgroundColor($r('app.color.background_secondary'))
             .borderRadius(10)
-          }, (entry: NGFStarterModuleDetailEntry): string => `starter_module_${entry.id}`)
+          }, (entry: NGFStarterModuleDetailEntry): string => 'starter_module_' + entry.id)
         }
         .width('100%')
       }
@@ -2131,7 +2131,7 @@ struct NGFStarterMainMenuPage {
             .fontSize(12)
             .fontColor($r('app.color.text_secondary'))
             .textAlign(TextAlign.Start)
-        }, (entry: NGFStarterLogEntry): string => `starter_log_${entry.id}`)
+        }, (entry: NGFStarterLogEntry): string => 'starter_log_' + entry.id)
       }
       .width('100%')
       .padding(10)

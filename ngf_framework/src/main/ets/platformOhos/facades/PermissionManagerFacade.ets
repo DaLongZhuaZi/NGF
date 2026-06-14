@@ -19,7 +19,7 @@ export class PermissionManagerFacade implements IPermissionManager {
       const grantStatus = atManager.checkAccessTokenSync(tokenID, permission);
       return grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED;
     } catch (e) {
-      logger.error(TAG, `checkPermission failed: ${e}`);
+      logger.error(TAG, 'checkPermission failed: ' + e);
       return false;
     }
   }
@@ -41,13 +41,13 @@ export class PermissionManagerFacade implements IPermissionManager {
       const allGranted = result.authResults.every((status: number) => status === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED);
       
       if (!allGranted) {
-        logger.warn(TAG, `Permissions partially denied. Requested: ${permissions.join(',')}, Results: ${result.authResults.join(',')}`);
+        logger.warn(TAG, 'Permissions partially denied. Requested: ' + String(permissions.join(',')) + ', Results: ' + result.authResults.join(','));
       } else {
-        logger.info(TAG, `Permissions granted: ${permissions.join(',')}`);
+        logger.info(TAG, 'Permissions granted: ' + String(permissions.join(',')));
       }
       return allGranted;
     } catch (e) {
-      logger.error(TAG, `requestPermissions failed: ${e}`);
+      logger.error(TAG, 'requestPermissions failed: ' + e);
       return false;
     }
   }

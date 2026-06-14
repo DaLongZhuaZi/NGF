@@ -61,9 +61,9 @@ export struct NGFDemoErrorRecoveryPage {
       severity: NGFErrorSeverity,
       _context: NGFErrorContext
     ): Promise<boolean> => {
-      logger.info(TAG, `恢复策略触发: name=${errorName}, severity=${severity}`);
+      logger.info(TAG, '恢复策略触发: name=' + errorName + ', severity=' + severity);
       if (severity === NGFErrorSeverity.CRITICAL) {
-        logger.warn(TAG, `CRITICAL 错误 — 降级为安全模式: ${message}`);
+        logger.warn(TAG, 'CRITICAL 错误 — 降级为安全模式: ' + message);
         return false;
       }
       return true;
@@ -75,16 +75,16 @@ export struct NGFDemoErrorRecoveryPage {
 
   private now(): string {
     const d = new Date();
-    const h = d.getHours() >= 10 ? `${d.getHours()}` : `0${d.getHours()}`;
-    const m = d.getMinutes() >= 10 ? `${d.getMinutes()}` : `0${d.getMinutes()}`;
-    const s = d.getSeconds() >= 10 ? `${d.getSeconds()}` : `0${d.getSeconds()}`;
-    return `${h}:${m}:${s}`;
+    const h = d.getHours() >= 10 ? String(d.getHours()) : '0' + String(d.getHours());
+    const m = d.getMinutes() >= 10 ? String(d.getMinutes()) : '0' + String(d.getMinutes());
+    const s = d.getSeconds() >= 10 ? String(d.getSeconds()) : '0' + String(d.getSeconds());
+    return h + ':' + m + ':' + s;
   }
 
   private async handleTriggerError(severity: NGFErrorSeverity): Promise<void> {
     const context = new NGFErrorContext('demo', 'DEMO_MANUAL_TRIGGER', TAG);
-    const message = `模拟错误 [${severity}] — ${this.now()}`;
-    const recovered = await ngfStarterKernel.errorHandler.handle(`demo_error_${severity}`, message, severity, context);
+    const message = '模拟错误 [' + severity + '] — ' + String(this.now());
+    const recovered = await ngfStarterKernel.errorHandler.handle('demo_error_' + severity, message, severity, context);
     this.recentErrorCount = ngfStarterKernel.errorHandler.getRecentErrorCount();
     const entry = new NGFErrorLogEntry(
       this.errorLog.length + 1,
@@ -101,7 +101,7 @@ export struct NGFDemoErrorRecoveryPage {
     this.statusMessage = recovered
       ? $r('app.string.err_recovered', severity)
       : $r('app.string.err_not_recovered', severity);
-    logger.info(TAG, `错误处理结果: severity=${severity}, recovered=${recovered}`);
+    logger.info(TAG, '错误处理结果: severity=' + severity + ', recovered=' + recovered);
   }
 
   build() {
@@ -238,7 +238,7 @@ export struct NGFDemoErrorRecoveryPage {
         Text($r('app.string.err_recent_count'))
           .fontSize(13)
           .fontColor($r('app.color.text_tertiary'))
-        Text(`${this.recentErrorCount}`)
+        Text(String(this.recentErrorCount))
           .fontSize(14)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.tag_red'))
@@ -357,7 +357,7 @@ export struct NGFDemoErrorRecoveryPage {
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
             .backgroundColor($r('app.color.background_surface'))
             .borderRadius(10)
-          }, (entry: NGFErrorLogEntry): string => `err_${entry.id}`)
+          }, (entry: NGFErrorLogEntry): string => 'err_' + entry.id)
         }
         .width('100%')
       }

@@ -72,12 +72,12 @@ export struct NGFWorkflowVisualizer {
 
   private runWorkflow(name: string): void {
     this.isExecuting = true;
-    this.executionResult = `[${new Date().toISOString()}] Starting workflow: ${name}...\n`;
+    this.executionResult = '[' + String(new Date().toISOString()) + '] Starting workflow: ' + name + '...\\n';
     
     // 模拟工作流执行过程，真实中通过 ngfWorkflowEngineFacade 调度
     setTimeout(() => {
       this.isExecuting = false;
-      this.executionResult += `[${new Date().toISOString()}] Workflow ${name} COMPLETED successfully.`;
+      this.executionResult += '[' + String(new Date().toISOString()) + '] Workflow ' + name + ' COMPLETED successfully.';
     }, 2000);
   }
 }

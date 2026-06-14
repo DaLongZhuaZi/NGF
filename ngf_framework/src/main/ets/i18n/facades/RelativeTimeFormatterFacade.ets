@@ -53,7 +53,7 @@ export class RelativeTimeFormatterFacade implements IRelativeTimeFormatter {
       const threshold = THRESHOLDS[index];
       const value = Math.floor(absDiff / threshold.ms);
       if (value >= 1) {
-        const key = isPast ? `${threshold.unit}_ago` : `${threshold.unit}_later`;
+        const key = isPast ? threshold.unit + '_ago' : threshold.unit + '_later';
         const text = this.getPluralString(resolvedLocale, key, value);
         return new NGFRelativeTimeResult(value, threshold.unit, text, isPast);
       }
@@ -69,14 +69,14 @@ export class RelativeTimeFormatterFacade implements IRelativeTimeFormatter {
 
   addLocaleStrings(locale: string, strings: Map<string, Array<string>>): void {
     this.localeStrings.set(locale, strings);
-    logger.info(TAG, `添加语言字符串: locale=${locale}, keys=${strings.size}`);
+    logger.info(TAG, '添加语言字符串: locale=' + locale + ', keys=' + String(strings.size));
   }
 
   private getPluralString(locale: string, key: string, count: number): string {
     const strings = this.resolveLocaleStrings(locale);
     const forms = strings.get(key);
     if (forms === undefined) {
-      return `${count} ${key}`;
+      return count + ' ' + key;
     }
     const pluralIndex = this.getPluralIndex(locale, count);
     if (pluralIndex < forms.length) {
@@ -86,7 +86,7 @@ export class RelativeTimeFormatterFacade implements IRelativeTimeFormatter {
     if (forms.length > 0) {
       return this.replaceCount(forms[0], count);
     }
-    return `${count} ${key}`;
+    return count + ' ' + key;
   }
 
   private resolveLocaleStrings(locale: string): Map<string, Array<string>> {

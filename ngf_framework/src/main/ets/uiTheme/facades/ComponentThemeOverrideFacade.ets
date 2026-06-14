@@ -72,7 +72,7 @@ class ComponentThemeOverrideFacade {
    */
   registerOverride(name: string, override: NGFComponentThemeOverride): void {
     this.overrides.set(name, override);
-    logger.debug(TAG, `注册主题覆盖: name=${name}`);
+    logger.debug(TAG, '注册主题覆盖: name=' + name);
   }
 
   /**
@@ -96,7 +96,7 @@ class ComponentThemeOverrideFacade {
    */
   removeOverride(name: string): void {
     this.overrides.delete(name);
-    logger.debug(TAG, `移除主题覆盖: name=${name}`);
+    logger.debug(TAG, '移除主题覆盖: name=' + name);
   }
 
   /**
@@ -104,9 +104,9 @@ class ComponentThemeOverrideFacade {
    */
   listOverrideNames(): Array<string> {
     const names: Array<string> = [];
-    const keys = this.overrides.keys();
-    for (const key of keys) {
-      names.push(key);
+    const keys: Array<string> = Array.from(this.overrides.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      names.push(keys[i]);
     }
     return names;
   }

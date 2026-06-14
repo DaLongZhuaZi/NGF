@@ -60,16 +60,16 @@ class MultiWindowManagerFacade implements IMultiWindowManager, IPlatformWindowSn
         break;
       case NGFWindowMode.UNKNOWN:
       default:
-        logger.warn(TAG, `不支持的窗口模式设置: mode=${mode}`);
+        logger.warn(TAG, '不支持的窗口模式设置: mode=' + mode);
         return;
     }
     
-    logger.info(TAG, `尝试设置窗口模式: from=${this.currentMode} to=${mode}`);
+    logger.info(TAG, '尝试设置窗口模式: from=' + this.currentMode + ' to=' + mode);
     try {
       await ngfPlatformWindowManagerFacade.setWindowMode(windowMode);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `设置窗口模式失败: ${errMsg}`);
+      logger.error(TAG, '设置窗口模式失败: ' + errMsg);
       throw new Error(errMsg);
     }
   }
@@ -93,7 +93,7 @@ class MultiWindowManagerFacade implements IMultiWindowManager, IPlatformWindowSn
 
     if (this.currentMode !== newMode && newMode !== NGFWindowMode.UNKNOWN) {
       this.currentMode = newMode;
-      logger.info(TAG, `窗口模式变更 -> ${newMode}`);
+      logger.info(TAG, '窗口模式变更 -> ' + newMode);
       this.notifyCallbacks(newMode);
     }
   }

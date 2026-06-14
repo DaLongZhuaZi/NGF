@@ -13,18 +13,18 @@ export default class EntryFormAbility extends FormExtensionAbility {
   }
 
   onCastToNormalForm(formId: string): void {
-    logger.lifecycle('EntryFormAbility', `onCastToNormalForm formId: ${formId}`);
+    logger.lifecycle('EntryFormAbility', 'onCastToNormalForm formId: ' + formId);
   }
 
   onUpdateForm(formId: string): void {
-    logger.lifecycle('EntryFormAbility', `onUpdateForm formId: ${formId}`);
+    logger.lifecycle('EntryFormAbility', 'onUpdateForm formId: ' + formId);
     const formData: Record<string, string> = {
       'frameworkStatus': '刷新完成 (Updated)',
       'lastUpdate': new Date().toLocaleTimeString()
     };
     const formBinding = formBindingData.createFormBindingData(formData);
     formProvider.updateForm(formId, formBinding).catch((error: Error) => {
-      logger.error('EntryFormAbility', `updateForm error: ${error.message}`);
+      logger.error('EntryFormAbility', 'updateForm error: ' + error.message);
     });
   }
 
@@ -33,7 +33,7 @@ export default class EntryFormAbility extends FormExtensionAbility {
   }
 
   onFormEvent(formId: string, message: string): void {
-    logger.lifecycle('EntryFormAbility', `onFormEvent formId: ${formId}, message: ${message}`);
+    logger.lifecycle('EntryFormAbility', 'onFormEvent formId: ' + formId + ', message: ' + message);
     // Respond to widget message event (e.g., refresh button)
     if (message === 'refresh') {
       this.onUpdateForm(formId);
@@ -41,7 +41,7 @@ export default class EntryFormAbility extends FormExtensionAbility {
   }
 
   onRemoveForm(formId: string): void {
-    logger.lifecycle('EntryFormAbility', `onRemoveForm formId: ${formId}`);
+    logger.lifecycle('EntryFormAbility', 'onRemoveForm formId: ' + formId);
   }
 
   onAcquireFormState(want: Want): formInfo.FormState {

@@ -39,56 +39,56 @@ export class CacheStoreFacade implements ICacheStore {
     this.cacheEntries.set(key, entry);
     this.ensureCleanupTimer();
     this.evictIfOverCapacity();
-    logger.info(TAG, `缓存写入: key=${key}, ttlMs=${ttlMs}`);
+    logger.info(TAG, '缓存写入: key=' + key + ', ttlMs=' + ttlMs);
   }
 
   get(key: string): string {
     const entry = this.cacheEntries.get(key);
     if (!entry) {
-      logger.debug(TAG, `缓存未命中: key=${key}`);
+      logger.debug(TAG, '缓存未命中: key=' + key);
       return '';
     }
 
     const now = Date.now();
     if (entry.isExpired(now)) {
       this.cacheEntries.delete(key);
-      logger.debug(TAG, `缓存已过期: key=${key}`);
+      logger.debug(TAG, '缓存已过期: key=' + key);
       return '';
     }
 
     entry.touch();
-    logger.debug(TAG, `缓存命中: key=${key}`);
+    logger.debug(TAG, '缓存命中: key=' + key);
     return entry.value;
   }
 
   has(key: string): boolean {
     const entry = this.cacheEntries.get(key);
     if (!entry) {
-      logger.debug(TAG, `缓存存在=false: key=${key}`);
+      logger.debug(TAG, '缓存存在=false: key=' + key);
       return false;
     }
 
     const now = Date.now();
     if (entry.isExpired(now)) {
       this.cacheEntries.delete(key);
-      logger.debug(TAG, `缓存存在=false: key=${key}, 原因=已过期`);
+      logger.debug(TAG, '缓存存在=false: key=' + key + ', 原因=已过期');
       return false;
     }
 
-    logger.debug(TAG, `缓存存在=true: key=${key}`);
+    logger.debug(TAG, '缓存存在=true: key=' + key);
     return true;
   }
 
   remove(key: string): void {
     const existed = this.cacheEntries.delete(key);
-    logger.info(TAG, `缓存删除: key=${key}, 存在=${existed}`);
+    logger.info(TAG, '缓存删除: key=' + key + ', 存在=' + existed);
   }
 
   clear(): void {
     const count = this.cacheEntries.size;
     this.cacheEntries.clear();
     this.stopCleanupTimer();
-    logger.info(TAG, `缓存清空: 数量=${count}`);
+    logger.info(TAG, '缓存清空: 数量=' + count);
   }
 
   size(): number {
@@ -107,7 +107,7 @@ export class CacheStoreFacade implements ICacheStore {
       });
       if (lruKey.length > 0) {
         this.cacheEntries.delete(lruKey);
-        logger.debug(TAG, `缓存LRU淘汰: key=${lruKey}`);
+        logger.debug(TAG, '缓存LRU淘汰: key=' + lruKey);
       } else {
         break;
       }
@@ -128,7 +128,7 @@ export class CacheStoreFacade implements ICacheStore {
       purgedCount++;
     }
     if (purgedCount > 0) {
-      logger.info(TAG, `缓存清理过期: 数量=${purgedCount}`);
+      logger.info(TAG, '缓存清理过期: 数量=' + purgedCount);
     }
   }
 

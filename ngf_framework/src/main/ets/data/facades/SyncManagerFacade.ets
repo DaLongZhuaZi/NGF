@@ -23,7 +23,7 @@ export class SyncManagerFacade implements ISyncManager {
   ): Promise<void> {
     if (this.conflictStrategy === NGFConflictStrategy.MANUAL) {
       conflicts.push(item);
-      logger.info(TAG, `冲突(手动解决): entity=${item.entityName}, id=${item.entityId}`);
+      logger.info(TAG, '冲突(手动解决): entity=' + item.entityName + ', id=' + item.entityId);
       return;
     }
 
@@ -31,7 +31,7 @@ export class SyncManagerFacade implements ISyncManager {
       const remoteData = await handler.pull(item.entityName, item.createdAt);
       const resolved = await handler.resolveConflict(item, remoteData, this.conflictStrategy);
       const resolvedItem = new NGFSyncQueueItem(
-        `resolved_${item.id}`,
+        'resolved_' + item.id,
         item.entityName,
         item.entityId,
         item.operation,
@@ -42,21 +42,21 @@ export class SyncManagerFacade implements ISyncManager {
       const rePushOk = await handler.push(resolvedItem);
       if (rePushOk) {
         syncedCountRef[0]++;
-        logger.info(TAG, `冲突已解决(${this.conflictStrategy}): entity=${item.entityName}, id=${item.entityId}`);
+        logger.info(TAG, '冲突已解决(' + this.conflictStrategy + '): entity=' + item.entityName + ', id=' + item.entityId);
       } else {
         conflicts.push(item);
-        logger.warn(TAG, `冲突解决后推送仍失败: entity=${item.entityName}, id=${item.entityId}`);
+        logger.warn(TAG, '冲突解决后推送仍失败: entity=' + item.entityName + ', id=' + item.entityId);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `冲突解决异常: entity=${item.entityName}, id=${item.entityId}, error=${message}`);
+      logger.error(TAG, '冲突解决异常: entity=' + item.entityName + ', id=' + item.entityId + ', error=' + message);
       conflicts.push(item);
     }
   }
 
   enqueue(item: NGFSyncQueueItem): void {
     this.queue.push(item);
-    logger.debug(TAG, `入队: entity=${item.entityName}, op=${item.operation}, queueSize=${this.queue.length}`);
+    logger.debug(TAG, '入队: entity=' + item.entityName + ', op=' + item.operation + ', queueSize=' + this.queue.length);
   }
 
   async flush(): Promise<NGFSyncResult> {
@@ -89,7 +89,7 @@ export class SyncManagerFacade implements ISyncManager {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        logger.error(TAG, `同步项失败: id=${item.id}, error=${message}`);
+        logger.error(TAG, '同步项失败: id=' + item.id + ', error=' + message);
         item.retryCount++;
         if (item.retryCount >= MAX_RETRY_COUNT) {
           processed.push(item.id);
@@ -116,7 +116,7 @@ export class SyncManagerFacade implements ISyncManager {
     }
 
     const allSuccess = failedCount === 0;
-    logger.info(TAG, `同步完成: synced=${syncedCount}, failed=${failedCount}, conflicts=${conflicts.length}, remaining=${this.queue.length}`);
+    logger.info(TAG, '同步完成: synced=' + syncedCount + ', failed=' + failedCount + ', conflicts=' + String(conflicts.length) + ', remaining=' + this.queue.length);
     return new NGFSyncResult(allSuccess, syncedCount, failedCount, conflicts);
   }
 
@@ -131,7 +131,7 @@ export class SyncManagerFacade implements ISyncManager {
 
   setConflictStrategy(strategy: NGFConflictStrategy): void {
     this.conflictStrategy = strategy;
-    logger.info(TAG, `设置冲突策略: ${strategy}`);
+    logger.info(TAG, '设置冲突策略: ' + strategy);
   }
 
   getConflictStrategy(): NGFConflictStrategy {

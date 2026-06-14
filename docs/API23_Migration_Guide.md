@@ -1,6 +1,6 @@
 # NGF 框架 API 23 适配迁移指南
 
-> **版本**: API 23 (HarmonyOS 6.0.1)  
+> **版本**: API 23 (HarmonyOS 6.1.0)  
 > **日期**: 2026-05-07  
 > **状态**: 第一阶段完成
 
@@ -56,10 +56,10 @@ const cacheDir = SandboxManager.getInstance().getDirectory('cache');
 
 **变更后**:
 ```typescript
-// 需要先初始化，传入 filesDir
+// 需要先通过存储门面初始化，传入 filesDir
 const filesDir = abilityContext.filesDir;
-SandboxManager.getInstance().initialize(filesDir);
-const cacheDir = SandboxManager.getInstance().getDirectory('cache');
+ngfStorageProviderFacade.initialize(filesDir);
+const cacheDir = ngfStorageProviderFacade.getCacheDir();
 ```
 
 ### 3. ContentSource 层初始化方式变更
@@ -87,10 +87,11 @@ ngfSourceRepositoryFacade.readIndexJson();
 在 `EntryAbility.onCreate()` 中添加初始化代码：
 
 ```typescript
-import { SandboxManager } from '../Framework/NGF/data/SandboxManager';
-import { ngfStorageProviderFacade } from '../Framework/NGF/data/facades/StorageProviderFacade';
-import { ngfSourceRepositoryFacade } from '../Framework/NGF/contentSource/facades/SourceRepositoryFacade';
-import { ngfSourceLoaderFacade } from '../Framework/NGF/contentSource/facades/SourceLoaderFacade';
+import {
+  ngfStorageProviderFacade,
+  ngfSourceRepositoryFacade,
+  ngfSourceLoaderFacade
+} from 'ngf_framework';
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
@@ -98,7 +99,6 @@ export default class EntryAbility extends UIAbility {
     
     // API 23 适配：初始化 Data 层和 ContentSource 层
     const filesDir = this.context.filesDir;
-    SandboxManager.getInstance().initialize(filesDir);
     ngfStorageProviderFacade.initialize(filesDir);
     ngfSourceRepositoryFacade.initialize(filesDir);
     ngfSourceLoaderFacade.initialize(filesDir);
@@ -123,7 +123,6 @@ sed -i "s/getContext()/getNGFContext()/g" entry/src/main/ets/**/*.ets
 
 | 类名 | 变更 |
 |------|------|
-| `SandboxManager` | 添加 `initialize(filesDir)` 调用 |
 | `StorageProviderFacade` | 添加 `initialize(filesDir)` 调用 |
 | `SourceRepositoryFacade` | 添加 `initialize(filesDir)` 调用 |
 | `SourceLoaderFacade` | 添加 `initialize(filesDir)` 调用 |
@@ -137,7 +136,7 @@ sed -i "s/getContext()/getNGFContext()/g" entry/src/main/ets/**/*.ets
 #### ErrorUtils 模块
 
 ```typescript
-import { errorToString, NGFErrorCategory, formatErrorMessage } from '../Framework/NGF/utils/ErrorUtils';
+import { errorToString, NGFErrorCategory, formatErrorMessage } from 'ngf_framework';
 
 // 统一错误转换
 const errorMessage = errorToString(error);
@@ -149,7 +148,7 @@ const formattedError = formatErrorMessage(error, NGFErrorCategory.STORAGE, 'Cach
 #### INGFService 接口
 
 ```typescript
-import { INGFService, NGFServiceLifecycleState } from '../Framework/NGF/core';
+import { INGFService, NGFServiceLifecycleState } from 'ngf_framework';
 
 // 实现服务接口
 class MyService implements INGFService {

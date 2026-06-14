@@ -60,7 +60,7 @@ export class NGFDataIntegrationFacade extends NGFIntegrationFacadeBase {
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `RDB 初始化异常: ${message}`);
+      logger.error(TAG, 'RDB 初始化异常: ' + message);
     }
   }
 }

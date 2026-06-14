@@ -91,7 +91,7 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     this.initialized = true;
     logger.info(
       TAG,
-      `初始化视觉效果管理器完成：模式=${this.currentState.settings.materialMode}，生效等级=${this.currentState.effectiveMaterialLevel}，能力来源=${hasPersistedCapability ? '持久化存储' : '系统检测'}`
+      '初始化视觉效果管理器完成：模式=' + this.currentState.settings.materialMode + '，生效等级=' + this.currentState.effectiveMaterialLevel + '，能力来源=' + String(hasPersistedCapability ? '持久化存储' : '系统检测')
     );
   }
 
@@ -128,7 +128,7 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     await this.persistSettings();
     this.syncStateToAppStorage();
     this.notifyListeners();
-    logger.info(TAG, `已更新材质模式：${normalizedMode}`);
+    logger.info(TAG, '已更新材质模式：' + normalizedMode);
   }
 
   public async setManualMaterialLevel(level: hdsMaterial.MaterialLevel): Promise<void> {
@@ -142,7 +142,7 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     await this.persistSettings();
     this.syncStateToAppStorage();
     this.notifyListeners();
-    logger.info(TAG, `已更新手动材质等级：${normalizedLevel}`);
+    logger.info(TAG, '已更新手动材质等级：' + normalizedLevel);
   }
 
   public async resetToRecommended(): Promise<void> {
@@ -172,7 +172,7 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       case hdsMaterial.MaterialType.IMMERSIVE:
         return 'IMMERSIVE（沉浸式）';
       default:
-        return `未知类型(${type})`;
+        return '未知类型(' + type + ')';
     }
   }
 
@@ -187,7 +187,7 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       case hdsMaterial.MaterialLevel.ADAPTIVE:
         return 'ADAPTIVE（系统自适应）';
       default:
-        return `未知等级(${level})`;
+        return '未知等级(' + level + ')';
     }
   }
 
@@ -263,13 +263,13 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       this.currentState.capability = capability;
       logger.info(
         TAG,
-        `系统材质能力检测完成：支持沉浸式=${capability.supportsImmersiveMaterial}，支持自适应=${capability.supportsAdaptiveMaterial}，类型=${JSON.stringify(normalizedTypes)}`
+        '系统材质能力检测完成：支持沉浸式=' + capability.supportsImmersiveMaterial + '，支持自适应=' + capability.supportsAdaptiveMaterial + '，类型=' + JSON.stringify(normalizedTypes)
       );
     } catch (error) {
       const businessError: BusinessError = error as BusinessError;
       const code: number = typeof businessError.code === 'number' ? businessError.code : -1;
       const message: string = typeof businessError.message === 'string' ? businessError.message : String(error);
-      const detectError: string = `code=${code}, message=${message}`;
+      const detectError: string = 'code=' + code + ', message=' + message;
       const hasPreviousCapability: boolean = this.currentState.capability.lastCheckedAt > 0;
       const fallbackTypes: Array<hdsMaterial.MaterialType> = hasPreviousCapability
         ? this.currentState.capability.supportedMaterialTypes.slice()
@@ -278,7 +278,7 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       this.currentState.capability = this.createCapability(fallbackTypes, checkedAt, detectError);
       logger.warn(
         TAG,
-        `材质能力检测失败，${hasPreviousCapability ? '保留上次能力快照' : '回退至保守默认值'}：${detectError}`
+        '材质能力检测失败，' + String(hasPreviousCapability ? '保留上次能力快照' : '回退至保守默认值') + '：' + detectError
       );
     }
   }
@@ -344,7 +344,7 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     this.currentState.capability = this.createCapability(normalizedTypes, checkedAt, detectError);
     logger.info(
       TAG,
-      `已从持久化存储加载材质能力快照：检测时间=${checkedAt}，有错误=${detectError.length > 0}，类型=${JSON.stringify(normalizedTypes)}`
+      '已从持久化存储加载材质能力快照：检测时间=' + checkedAt + '，有错误=' + String(detectError.length > 0) + '，类型=' + JSON.stringify(normalizedTypes)
     );
     return true;
   }

@@ -86,13 +86,13 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
 
   private readonly holdingHandChangedCallback = (status: motion.HoldingHandStatus): void => {
     this.latestHoldingStatus = status;
-    logger.info(TAG, `收到智感握姿变化：${this.describeHoldingHandStatus(status)}`);
+    logger.info(TAG, '收到智感握姿变化：' + String(this.describeHoldingHandStatus(status)));
     this.publishSnapshot(this.buildSnapshot(), 'holding_hand_changed');
   };
 
   private readonly operatingHandChangedCallback = (status: motion.OperatingHandStatus): void => {
     this.latestOperatingStatus = status;
-    logger.info(TAG, `收到操作手变化：${this.describeOperatingHandStatus(status)}`);
+    logger.info(TAG, '收到操作手变化：' + String(this.describeOperatingHandStatus(status)));
     this.publishSnapshot(this.buildSnapshot(), 'operating_hand_changed');
   };
 
@@ -108,7 +108,7 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
   public async initialize(): Promise<void> {
     this.ensureStorageDefaults();
     if (this.isInitialized || this.isInitializing) {
-      logger.debug(TAG, `跳过初始化：isInitialized=${this.isInitialized}, isInitializing=${this.isInitializing}`);
+      logger.debug(TAG, '跳过初始化：isInitialized=' + this.isInitialized + ', isInitializing=' + this.isInitializing);
       return;
     }
 
@@ -120,7 +120,7 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
       this.isInitialized = true;
       logger.info(TAG, '智感握持管理器初始化完成');
     } catch (error) {
-      logger.warn(TAG, `初始化智感握持管理器失败：${this.extractErrorMessage(error)}`);
+      logger.warn(TAG, '初始化智感握持管理器失败：' + String(this.extractErrorMessage(error)));
     } finally {
       this.isInitializing = false;
       this.publishSnapshot(this.buildSnapshot(), 'initialize_finalize');
@@ -162,12 +162,12 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
       this.activityMotionGranted = granted || await this.checkPermission('ohos.permission.ACTIVITY_MOTION');
       logger.info(
         TAG,
-        `ACTIVITY_MOTION 权限申请完成：弹窗结果=${this.describeBoolean(granted)}，最终授权=${this.describeBoolean(this.activityMotionGranted)}`
+        'ACTIVITY_MOTION 权限申请完成：弹窗结果=' + String(this.describeBoolean(granted)) + '，最终授权=' + String(this.describeBoolean(this.activityMotionGranted))
       );
       await this.tryEnableSubscriptions('request_activity_motion');
       return this.activityMotionGranted;
     } catch (error) {
-      logger.warn(TAG, `申请 ACTIVITY_MOTION 权限失败：${this.extractErrorMessage(error)}`);
+      logger.warn(TAG, '申请 ACTIVITY_MOTION 权限失败：' + String(this.extractErrorMessage(error)));
       return false;
     }
   }
@@ -239,7 +239,7 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
       const status = atManager.checkAccessTokenSync(tokenId, permission);
       return status === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED;
     } catch (error) {
-      logger.debug(TAG, `检查权限失败：permission=${permission}, error=${this.extractErrorMessage(error)}`);
+      logger.debug(TAG, '检查权限失败：permission=' + permission + ', error=' + String(this.extractErrorMessage(error)));
       return false;
     }
   }
@@ -249,7 +249,7 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
     this.detectGestureGranted = await this.checkPermission('ohos.permission.DETECT_GESTURE');
     logger.info(
       TAG,
-      `握持感知权限状态已刷新：DETECT_GESTURE=${this.describeBoolean(this.detectGestureGranted)}，ACTIVITY_MOTION=${this.describeBoolean(this.activityMotionGranted)}`
+      '握持感知权限状态已刷新：DETECT_GESTURE=' + String(this.describeBoolean(this.detectGestureGranted)) + '，ACTIVITY_MOTION=' + String(this.describeBoolean(this.activityMotionGranted))
     );
   }
 
@@ -257,44 +257,44 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
     await this.trySubscribeHolding(reason);
     await this.trySubscribeOperating(reason);
     this.refreshRecentOperatingStatus(reason);
-    this.publishSnapshot(this.buildSnapshot(), `subscriptions_${reason}`);
+    this.publishSnapshot(this.buildSnapshot(), 'subscriptions_' + reason);
   }
 
   private async trySubscribeHolding(reason: string): Promise<void> {
     if (this.holdingSubscribed) {
-      logger.debug(TAG, `智感握姿监听已存在，跳过重复订阅：原因=${reason}`);
+      logger.debug(TAG, '智感握姿监听已存在，跳过重复订阅：原因=' + reason);
       return;
     }
     try {
       motion.on('holdingHandChanged', this.holdingHandChangedCallback);
       this.holdingSubscribed = true;
-      logger.info(TAG, `已启用智感握姿监听：原因=${reason}`);
+      logger.info(TAG, '已启用智感握姿监听：原因=' + reason);
     } catch (error) {
       logger.warn(
         TAG,
-        `启用智感握姿监听失败：原因=${reason}，错误码=${this.extractErrorCode(error)}，错误=${this.extractErrorMessage(error)}`
+        '启用智感握姿监听失败：原因=' + reason + '，错误码=' + String(this.extractErrorCode(error)) + '，错误=' + String(this.extractErrorMessage(error))
       );
     }
   }
 
   private async trySubscribeOperating(reason: string): Promise<void> {
     if (this.operatingUnsupported) {
-      logger.debug(TAG, `操作手增强能力已确认不可用，跳过重复订阅：原因=${reason}`);
+      logger.debug(TAG, '操作手增强能力已确认不可用，跳过重复订阅：原因=' + reason);
       return;
     }
     if (this.operatingSubscribed) {
-      logger.debug(TAG, `操作手监听已存在，跳过重复订阅：原因=${reason}`);
+      logger.debug(TAG, '操作手监听已存在，跳过重复订阅：原因=' + reason);
       return;
     }
     if (!this.detectGestureGranted && !this.activityMotionGranted) {
-      logger.debug(TAG, `缺少操作手监听权限，跳过订阅：原因=${reason}`);
+      logger.debug(TAG, '缺少操作手监听权限，跳过订阅：原因=' + reason);
       return;
     }
     try {
       motion.on('operatingHandChanged', this.operatingHandChangedCallback);
       this.operatingSubscribed = true;
       this.operatingUnsupported = false;
-      logger.info(TAG, `已启用操作手监听：原因=${reason}`);
+      logger.info(TAG, '已启用操作手监听：原因=' + reason);
     } catch (error) {
       if (this.isCapabilityUnsupported(error)) {
         this.markOperatingUnsupported(reason, error);
@@ -302,25 +302,25 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
       }
       logger.warn(
         TAG,
-        `启用操作手监听失败：原因=${reason}，错误码=${this.extractErrorCode(error)}，错误=${this.extractErrorMessage(error)}`
+        '启用操作手监听失败：原因=' + reason + '，错误码=' + String(this.extractErrorCode(error)) + '，错误=' + String(this.extractErrorMessage(error))
       );
     }
   }
 
   private refreshRecentOperatingStatus(reason: string): void {
     if (this.operatingUnsupported) {
-      logger.debug(TAG, `操作手增强能力不可用，跳过最近一次状态刷新：原因=${reason}`);
+      logger.debug(TAG, '操作手增强能力不可用，跳过最近一次状态刷新：原因=' + reason);
       return;
     }
     if (!this.detectGestureGranted && !this.activityMotionGranted) {
-      logger.debug(TAG, `缺少可用权限，跳过最近一次操作手状态刷新：原因=${reason}`);
+      logger.debug(TAG, '缺少可用权限，跳过最近一次操作手状态刷新：原因=' + reason);
       return;
     }
     try {
       this.latestOperatingStatus = motion.getRecentOperatingHandStatus();
       logger.info(
         TAG,
-        `已刷新最近一次操作手状态：状态=${this.describeOperatingHandStatus(this.latestOperatingStatus)}，原因=${reason}`
+        '已刷新最近一次操作手状态：状态=' + String(this.describeOperatingHandStatus(this.latestOperatingStatus)) + '，原因=' + reason
       );
     } catch (error) {
       if (this.isCapabilityUnsupported(error)) {
@@ -329,7 +329,7 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
       }
       logger.debug(
         TAG,
-        `刷新最近一次操作手状态失败：原因=${reason}，错误码=${this.extractErrorCode(error)}，错误=${this.extractErrorMessage(error)}`
+        '刷新最近一次操作手状态失败：原因=' + reason + '，错误码=' + String(this.extractErrorCode(error)) + '，错误=' + String(this.extractErrorMessage(error))
       );
     }
   }
@@ -422,7 +422,7 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
 
   private publishSnapshot(nextSnapshot: NGFHoldingAwarenessSnapshot, reason: string): void {
     if (this.isSameSnapshot(this.currentSnapshot, nextSnapshot)) {
-      logger.debug(TAG, `握持感知快照未变化，跳过发布：原因=${reason}`);
+      logger.debug(TAG, '握持感知快照未变化，跳过发布：原因=' + reason);
       return;
     }
 
@@ -440,19 +440,19 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
 
     logger.info(
       TAG,
-      `握持感知快照已更新：推荐停靠=${this.describeUiAnchor(nextSnapshot.preferredAnchor)}，` +
-        `握持侧=${this.describeAwarenessSide(nextSnapshot.side)}，来源=${this.describeSource(nextSnapshot.source)}，` +
-        `置信度=${this.describeConfidence(nextSnapshot.confidence)}，可用=${this.describeBoolean(nextSnapshot.available)}，` +
-        `精确支持=${this.describeBoolean(nextSnapshot.preciseSupported)}，操作手增强=${this.describeBoolean(nextSnapshot.operatingHandSupported)}，` +
-        `DETECT_GESTURE=${this.describeBoolean(nextSnapshot.detectGestureGranted)}，` +
-        `ACTIVITY_MOTION=${this.describeBoolean(nextSnapshot.activityMotionGranted)}，原因=${reason}`
+      '握持感知快照已更新：推荐停靠=' + String(this.describeUiAnchor(nextSnapshot.preferredAnchor)) + '，' +
+        '握持侧=' + String(this.describeAwarenessSide(nextSnapshot.side)) + '，来源=' + String(this.describeSource(nextSnapshot.source)) + '，' +
+        '置信度=' + String(this.describeConfidence(nextSnapshot.confidence)) + '，可用=' + String(this.describeBoolean(nextSnapshot.available)) + '，' +
+        '精确支持=' + String(this.describeBoolean(nextSnapshot.preciseSupported)) + '，操作手增强=' + String(this.describeBoolean(nextSnapshot.operatingHandSupported)) + '，' +
+        'DETECT_GESTURE=' + String(this.describeBoolean(nextSnapshot.detectGestureGranted)) + '，' +
+        'ACTIVITY_MOTION=' + String(this.describeBoolean(nextSnapshot.activityMotionGranted)) + '，原因=' + reason
     );
 
     this.listeners.forEach((listener: NGFHoldingAwarenessListener) => {
       try {
         listener(cloneHoldingAwarenessSnapshot(nextSnapshot));
       } catch (error) {
-        logger.warn(TAG, `握持感知监听器回调失败：${this.extractErrorMessage(error)}`);
+        logger.warn(TAG, '握持感知监听器回调失败：' + String(this.extractErrorMessage(error)));
       }
     });
   }
@@ -474,13 +474,13 @@ export class NGFHoldingAwarenessManager implements IHoldingAwarenessManager {
 
   private markOperatingUnsupported(reason: string, error: HoldingAwarenessError): void {
     if (this.operatingUnsupported) {
-      logger.debug(TAG, `操作手增强能力仍不可用：原因=${reason}`);
+      logger.debug(TAG, '操作手增强能力仍不可用：原因=' + reason);
       return;
     }
     this.operatingUnsupported = true;
     logger.info(
       TAG,
-      `操作手增强能力当前设备不支持，已降级为仅使用智感握姿：原因=${reason}，错误码=${this.extractErrorCode(error)}，错误=${this.extractErrorMessage(error)}`
+      '操作手增强能力当前设备不支持，已降级为仅使用智感握姿：原因=' + reason + '，错误码=' + String(this.extractErrorCode(error)) + '，错误=' + String(this.extractErrorMessage(error))
     );
   }
 

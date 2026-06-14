@@ -19,7 +19,7 @@ class SystemIntegrationFacade implements ISystemIntegration {
   }
 
   submitTask(name: string, executor: NGFTaskExecutor): Promise<string> {
-    logger.info(TAG, `提交任务 (统一入口): ${name}`);
+    logger.info(TAG, '提交任务 (统一入口): ' + name);
     return this.taskManager.submitTask(name, executor);
   }
 
@@ -48,17 +48,17 @@ class SystemIntegrationFacade implements ISystemIntegration {
   }
 
   publishSystemEvent(eventName: string, payload: NGFEventPayload): void {
-    logger.info(TAG, `发布基础事件: ${eventName}`);
+    logger.info(TAG, '发布基础事件: ' + eventName);
     ngfStarterKernel.eventBus.publish(eventName, payload);
   }
 
   subscribeSystemEvent(eventName: string, listenerId: string, listener: NGFEventListener): boolean {
-    logger.info(TAG, `订阅基础事件: ${eventName} (ID: ${listenerId})`);
+    logger.info(TAG, '订阅基础事件: ' + eventName + ' (ID: ' + listenerId + ')');
     return ngfStarterKernel.eventBus.subscribe(eventName, listenerId, listener);
   }
 
   unsubscribeSystemEvent(eventName: string, listenerId: string): boolean {
-    logger.info(TAG, `取消订阅基础事件: ${eventName} (ID: ${listenerId})`);
+    logger.info(TAG, '取消订阅基础事件: ' + eventName + ' (ID: ' + listenerId + ')');
     return ngfStarterKernel.eventBus.unsubscribe(eventName, listenerId);
   }
 
@@ -74,7 +74,7 @@ class SystemIntegrationFacade implements ISystemIntegration {
         const taskInfo = JSON.parse(payload.payloadJson) as NGFTaskInfo;
         listener(taskInfo);
       } catch (e) {
-        logger.error(TAG, `解析任务事件 payload 失败: ${e}`);
+        logger.error(TAG, '解析任务事件 payload 失败: ' + e);
       }
     };
     return this.subscribeSystemEvent(eventName, listenerId, rawListener);
@@ -93,14 +93,14 @@ class SystemIntegrationFacade implements ISystemIntegration {
         updateCallback(0, 100, '事件触发任务启动...');
         for (let i = 1; i <= 10; i++) {
           await new Promise<void>(resolve => setTimeout(resolve, 300));
-          updateCallback(i * 10, 100, `事件触发任务运行中 (${i * 10}%)`);
+          updateCallback(i * 10, 100, '事件触发任务运行中 (' + String(i * 10) + '%)');
         }
         updateCallback(100, 100, '事件触发任务完成');
       };
 
       void this.submitTask(name, dummyExecutor);
     } catch (e) {
-      logger.error(TAG, `处理自动派发任务事件失败: ${e}`);
+      logger.error(TAG, '处理自动派发任务事件失败: ' + e);
     }
   }
 }

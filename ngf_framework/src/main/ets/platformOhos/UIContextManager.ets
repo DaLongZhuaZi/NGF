@@ -50,7 +50,7 @@ class UIContextManager {
 
   bindAbilityContext(context: common.UIAbilityContext): void {
     this.abilityContext = context;
-    logger.info(TAG, `绑定 Ability 上下文: filesDir=${context.filesDir}`);
+    logger.info(TAG, '绑定 Ability 上下文: filesDir=' + context.filesDir);
   }
 
   clearAbilityContext(): void {

@@ -23,17 +23,17 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
       return;
     }
     this.workflows.set(name, definition);
-    logger.info(TAG, `注册工作流: name=${name}, steps=${definition.steps.length}`);
+    logger.info(TAG, '注册工作流: name=' + name + ', steps=' + definition.steps.length);
   }
 
   unregisterWorkflow(workflowName: string): boolean {
     const name = workflowName.trim();
     if (this.workflows.has(name)) {
       this.workflows.delete(name);
-      logger.info(TAG, `注销工作流: name=${name}`);
+      logger.info(TAG, '注销工作流: name=' + name);
       return true;
     }
-    logger.warn(TAG, `注销工作流未找到: name=${name}`);
+    logger.warn(TAG, '注销工作流未找到: name=' + name);
     return false;
   }
 
@@ -48,9 +48,9 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
 
   listWorkflowNames(): Array<string> {
     const names: Array<string> = [];
-    const keys = this.workflows.keys();
-    for (const key of keys) {
-      names.push(key);
+    const keys: Array<string> = Array.from(this.workflows.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      names.push(keys[i]);
     }
     return names;
   }
@@ -59,7 +59,7 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
     const name = workflowName.trim();
     const definition = this.workflows.get(name);
     if (definition === undefined) {
-      logger.warn(TAG, `工作流未注册: name=${name}`);
+      logger.warn(TAG, '工作流未注册: name=' + name);
       return new NGFWorkflowExecutionResult(name, false, [], '');
     }
 
@@ -74,7 +74,7 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
         for (let ri = 0; ri < groupResult.length; ri++) {
           stepResults.push(groupResult[ri]);
           if (!groupResult[ri].success) {
-            logger.warn(TAG, `并行组步骤失败: group=${group.groupName}, step=${groupResult[ri].stepName}`);
+            logger.warn(TAG, '并行组步骤失败: group=' + group.groupName + ', step=' + groupResult[ri].stepName);
             return new NGFWorkflowExecutionResult(name, false, stepResults, lastOutput);
           }
         }
@@ -86,12 +86,12 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
       const step = definition.steps[index];
 
       if (step.condition !== null && !this.evaluateCondition(step.condition, lastOutput)) {
-        logger.debug(TAG, `步骤跳过: step=${step.stepName}, 前置条件不满足`);
+        logger.debug(TAG, '步骤跳过: step=' + step.stepName + ', 前置条件不满足');
         stepResults.push(new NGFWorkflowStepResult(step.stepName, step.actionType, true, '', true));
         continue;
       }
 
-      logger.debug(TAG, `执行步骤: step=${step.stepName}, type=${step.actionType}`);
+      logger.debug(TAG, '执行步骤: step=' + step.stepName + ', type=' + step.actionType);
       const actionResult: NGFActionResult = await this.executeStepWithTimeout(step, lastOutput);
 
       stepResults.push(new NGFWorkflowStepResult(
@@ -103,14 +103,14 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
       ));
 
       if (!actionResult.success) {
-        logger.warn(TAG, `步骤失败: step=${step.stepName}, workflow=${name}`);
+        logger.warn(TAG, '步骤失败: step=' + step.stepName + ', workflow=' + name);
         return new NGFWorkflowExecutionResult(name, false, stepResults, lastOutput);
       }
 
       lastOutput = actionResult.outputJson;
     }
 
-    logger.info(TAG, `工作流执行完成: name=${name}, steps=${stepResults.length}`);
+    logger.info(TAG, '工作流执行完成: name=' + name + ', steps=' + String(stepResults.length));
     return new NGFWorkflowExecutionResult(name, true, stepResults, lastOutput);
   }
 
@@ -121,7 +121,7 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
     group: NGFWorkflowParallelGroup,
     contextJson: string
   ): Promise<Array<NGFWorkflowStepResult>> {
-    logger.debug(TAG, `并行组开始: group=${group.groupName}, steps=${group.steps.length}`);
+    logger.debug(TAG, '并行组开始: group=' + group.groupName + ', steps=' + group.steps.length);
     const promises: Array<Promise<NGFWorkflowStepResult>> = [];
     for (let i = 0; i < group.steps.length; i++) {
       const step = group.steps[i];
@@ -137,7 +137,7 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
     if (group.timeoutMs !== null) {
       const timeoutPromise = new Promise<Array<NGFWorkflowStepResult>>(
         (_resolve: (v: Array<NGFWorkflowStepResult>) => void, reject: (e: Error) => void) => {
-          setTimeout(() => reject(new Error(`并行组超时: group=${group.groupName}, timeout=${group.timeoutMs}ms`)), group.timeoutMs as number);
+          setTimeout(() => reject(new Error('并行组超时: group=' + group.groupName + ', timeout=' + group.timeoutMs + 'ms')), group.timeoutMs as number);
         }
       );
       results = await Promise.race<Array<NGFWorkflowStepResult>>([
@@ -148,7 +148,7 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
       results = await Promise.all<NGFWorkflowStepResult>(promises);
     }
 
-    logger.info(TAG, `并行组完成: group=${group.groupName}, results=${results.length}`);
+    logger.info(TAG, '并行组完成: group=' + group.groupName + ', results=' + String(results.length));
     return results;
   }
 
@@ -167,7 +167,7 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
     const timeoutPromise = new Promise<NGFActionResult>(
       (_resolve: (v: NGFActionResult) => void, reject: (e: Error) => void) => {
         setTimeout(
-          () => reject(new Error(`步骤超时: step=${step.stepName}, timeout=${timeoutMs}ms`)),
+          () => reject(new Error('步骤超时: step=' + step.stepName + ', timeout=' + timeoutMs + 'ms')),
           timeoutMs
         );
       }
@@ -176,7 +176,7 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
       return await Promise.race<NGFActionResult>([actionPromise, timeoutPromise]);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      logger.warn(TAG, `步骤超时或异常: step=${step.stepName}, err=${msg}`);
+      logger.warn(TAG, '步骤超时或异常: step=' + step.stepName + ', err=' + msg);
       return new NGFActionResult(false, '');
     }
   }
@@ -209,7 +209,7 @@ export class WorkflowDefinitionFacade implements IWorkflowDefinitionManager {
         return actualValue.length <= 0;
       }
 
-      logger.warn(TAG, `未知条件操作符: ${condition.operator}`);
+      logger.warn(TAG, '未知条件操作符: ' + condition.operator);
       return true;
     } catch {
       logger.warn(TAG, '条件评估失败: contextJson 解析错误');

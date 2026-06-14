@@ -1,34 +1,30 @@
 import { describe, it, expect } from '@ohos/hypium';
-import { serviceContainerFacade } from '../../../../src/main/ets/core/facades/ServiceContainerFacade';
+import { ngfServiceContainerFacade } from '../../../../src/main/ets/core/facades/ServiceContainerFacade';
 
 export default function serviceContainerFacadeTest() {
   describe('ServiceContainerFacadeTest', () => {
-    it('should_register_and_resolve_singleton', 0, () => {
+    it('should_register_and_resolve_singleton_name', 0, () => {
       class MockService {
         id: number = Math.random();
       }
 
-      serviceContainerFacade.register('test.mock.service', () => new MockService(), true);
-      
-      let instance1 = serviceContainerFacade.resolve<MockService>('test.mock.service');
-      let instance2 = serviceContainerFacade.resolve<MockService>('test.mock.service');
+      const service = new MockService();
+      ngfServiceContainerFacade.registerSingleton('test.mock.service', 'MockService');
+      ngfServiceContainerFacade.registerInstance('test.mock.service.instance', service);
 
-      expect(instance1).assertNotNull();
-      expect(instance1 === instance2).assertTrue();
+      const implementationName = ngfServiceContainerFacade.resolve('test.mock.service');
+      const instance = ngfServiceContainerFacade.resolveInstance('test.mock.service.instance') as MockService | null;
+
+      expect(implementationName).assertEqual('MockService');
+      expect(instance !== null).assertTrue();
+      if (instance !== null) {
+        expect(instance.id).assertEqual(service.id);
+      }
     });
 
-    it('should_register_and_resolve_transient', 0, () => {
-      class MockTransient {
-        id: number = Math.random();
-      }
-
-      serviceContainerFacade.register('test.mock.transient', () => new MockTransient(), false);
-      
-      let instance1 = serviceContainerFacade.resolve<MockTransient>('test.mock.transient');
-      let instance2 = serviceContainerFacade.resolve<MockTransient>('test.mock.transient');
-
-      expect(instance1).assertNotNull();
-      expect(instance1 === instance2).assertFalse();
+    it('should_report_missing_token', 0, () => {
+      expect(ngfServiceContainerFacade.contains('test.mock.missing')).assertFalse();
+      expect(ngfServiceContainerFacade.resolve('test.mock.missing')).assertEqual('');
     });
   });
 }

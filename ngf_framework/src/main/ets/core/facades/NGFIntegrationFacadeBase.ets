@@ -25,12 +25,12 @@ export abstract class NGFIntegrationFacadeBase implements IModuleBootstrap {
       this.onBootstrapped();
       this.bootstrapped = true;
       this.syncAppStorage(true);
-      logger.info(this.tag, `${this.tag} 集成完成`);
+      logger.info(this.tag, this.tag + ' 集成完成');
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.syncAppStorage(false);
-      logger.error(this.tag, `${this.tag} 集成失败：${message}`);
+      logger.error(this.tag, this.tag + ' 集成失败：' + message);
       return false;
     }
   }
@@ -48,11 +48,11 @@ export abstract class NGFIntegrationFacadeBase implements IModuleBootstrap {
       this.onShutdown();
       this.bootstrapped = false;
       this.syncAppStorage(false);
-      logger.info(this.tag, `${this.tag} 卸载完成`);
+      logger.info(this.tag, this.tag + ' 卸载完成');
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(this.tag, `${this.tag} 卸载失败：${message}`);
+      logger.error(this.tag, this.tag + ' 卸载失败：' + message);
       return false;
     }
   }
@@ -80,7 +80,7 @@ export abstract class NGFIntegrationFacadeBase implements IModuleBootstrap {
   private syncAppStorage(success: boolean): void {
     AppStorage.setOrCreate(this.appStorageKey, success);
     if (success) {
-      AppStorage.setOrCreate(`${this.appStorageKey}_at`, Date.now());
+      AppStorage.setOrCreate(this.appStorageKey + '_at', Date.now());
     }
   }
 }

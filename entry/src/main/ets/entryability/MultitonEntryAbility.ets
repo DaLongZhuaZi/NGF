@@ -16,7 +16,7 @@ export default class MultitonEntryAbility extends UIAbility {
       this.targetPage = want.parameters['targetRouteName'] as string;
     }
     if (this.targetPage) {
-      logger.info(TAG, `从 Want 中解析到 targetRouteName: ${this.targetPage}`);
+      logger.info(TAG, '从 Want 中解析到 targetRouteName: ' + this.targetPage);
     }
 
     if (!isInitialized()) {
@@ -26,7 +26,7 @@ export default class MultitonEntryAbility extends UIAbility {
       uiContextManager.bindAbilityContext(this.context as common.UIAbilityContext);
       const bootstrapResult = ngfStarterKernel.bootstrap();
       crashAnalytics.initialize();
-      logger.startup(TAG, 'NGF 引导启动完成', `成功=${bootstrapResult}`);
+      logger.startup(TAG, 'NGF 引导启动完成', '成功=' + bootstrapResult);
 
       ngfThemeManagerFacade.initializeDefaults();
       ngfI18nManagerFacade.initializeDefaults();
@@ -45,9 +45,9 @@ export default class MultitonEntryAbility extends UIAbility {
     if (want.parameters && typeof want.parameters['targetTitle'] === 'string') {
       const title = want.parameters['targetTitle'] as string;
       this.context.setMissionLabel(title).then(() => {
-        logger.info(TAG, `任务栏名称已更新为: ${title}`);
+        logger.info(TAG, '任务栏名称已更新为: ' + title);
       }).catch((err: Error) => {
-        logger.warn(TAG, `设置任务栏名称失败: ${err.message}`);
+        logger.warn(TAG, '设置任务栏名称失败: ' + err.message);
       });
     }
   }
@@ -56,7 +56,7 @@ export default class MultitonEntryAbility extends UIAbility {
     logger.lifecycle(TAG, '生命周期: onNewWant (Multiton)');
     if (want.parameters && typeof want.parameters['targetRouteName'] === 'string') {
       this.targetPage = want.parameters['targetRouteName'] as string;
-      logger.info(TAG, `从 Want 中解析到新 targetRouteName: ${this.targetPage}`);
+      logger.info(TAG, '从 Want 中解析到新 targetRouteName: ' + this.targetPage);
     }
     if (want.parameters) {
       ngfContinuationManagerFacade.receiveContinuationData(want.parameters as Record<string, Object>);
@@ -83,7 +83,7 @@ export default class MultitonEntryAbility extends UIAbility {
     
     windowStage.loadContent('pages/ngf/NGFDemoMultitonPage', (err: BusinessError): void => {
       if (err.code !== 0) {
-        logger.error(TAG, `加载页面内容失败: ${JSON.stringify(err)}`);
+        logger.error(TAG, '加载页面内容失败: ' + JSON.stringify(err));
         return;
       }
       logger.info(TAG, '页面内容加载成功');
@@ -107,7 +107,7 @@ export default class MultitonEntryAbility extends UIAbility {
   }
 
   onConfigurationUpdate(config: Configuration): void {
-    logger.info(TAG, `配置更新: colorMode=${config.colorMode}, language=${config.language}`);
+    logger.info(TAG, '配置更新: colorMode=' + config.colorMode + ', language=' + config.language);
     ngfDeviceAdaptationFacade.refresh('configuration_update');
 
     const colorMode = config.colorMode;

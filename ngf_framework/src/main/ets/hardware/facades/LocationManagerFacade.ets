@@ -12,7 +12,7 @@ export class LocationManagerFacade implements ILocationManager {
     try {
       return geoLocationManager.isLocationEnabled();
     } catch (e) {
-      logger.error(TAG, `检查位置服务状态失败: ${e}`);
+      logger.error(TAG, '检查位置服务状态失败: ' + e);
       return false;
     }
   }
@@ -30,10 +30,10 @@ export class LocationManagerFacade implements ILocationManager {
         maxAccuracy: 0
       };
       const location = await geoLocationManager.getCurrentLocation(requestInfo);
-      logger.info(TAG, `获取位置成功: lat=${location.latitude}, lon=${location.longitude}`);
+      logger.info(TAG, '获取位置成功: lat=' + location.latitude + ', lon=' + location.longitude);
       return location;
     } catch (e) {
-      logger.error(TAG, `获取当前位置失败: ${e}`);
+      logger.error(TAG, '获取当前位置失败: ' + e);
       return null;
     }
   }

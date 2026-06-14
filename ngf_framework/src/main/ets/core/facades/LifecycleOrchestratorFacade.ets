@@ -42,7 +42,7 @@ export class LifecycleOrchestratorFacade implements ILifecycleOrchestrator {
     this.progress = this.resolveProgress(normalized, false);
     this.completed = false;
     this.pushHistory(normalized, this.progress, false);
-    logger.stateChange(LOG_TAG, previousPhase, this.currentPhase, `progress=${this.progress}`);
+    logger.stateChange(LOG_TAG, previousPhase, this.currentPhase, 'progress=' + this.progress);
     this.notifyListeners();
   }
 
@@ -52,7 +52,7 @@ export class LifecycleOrchestratorFacade implements ILifecycleOrchestrator {
     this.currentPhase = normalized;
     this.progress = this.resolveProgress(normalized, true);
     this.pushHistory(normalized, this.progress, true);
-    logger.stateChange(LOG_TAG, previousPhase, `${this.currentPhase}:completed`, `progress=${this.progress}`);
+    logger.stateChange(LOG_TAG, previousPhase, this.currentPhase + ':completed', 'progress=' + this.progress);
     this.notifyListeners();
   }
 
@@ -62,10 +62,10 @@ export class LifecycleOrchestratorFacade implements ILifecycleOrchestrator {
     this.currentPhase = normalized;
     this.completed = false;
     this.progress = Math.max(0, this.resolveProgress(normalized, false));
-    const failedPhaseName = reason.trim().length > 0 ? `${normalized}:failed` : normalized;
+    const failedPhaseName = reason.trim().length > 0 ? normalized + ':failed' : normalized;
     this.currentPhase = failedPhaseName;
     this.pushHistory(failedPhaseName, this.progress, false);
-    logger.warn(LOG_TAG, `phase failed: from=${previousPhase}, to=${this.currentPhase}, reason=${reason}`);
+    logger.warn(LOG_TAG, 'phase failed: from=' + previousPhase + ', to=' + this.currentPhase + ', reason=' + reason);
     this.notifyListeners();
   }
 
@@ -127,14 +127,14 @@ export class LifecycleOrchestratorFacade implements ILifecycleOrchestrator {
       }
     }
     this.phaseListeners.push(listener);
-    logger.info(LOG_TAG, `added phase listener: total=${this.phaseListeners.length}`);
+    logger.info(LOG_TAG, 'added phase listener: total=' + this.phaseListeners.length);
   }
 
   removeListener(listener: NGFPhaseListener): void {
     for (let i = 0; i < this.phaseListeners.length; i++) {
       if (this.phaseListeners[i] === listener) {
         this.phaseListeners.splice(i, 1);
-        logger.info(LOG_TAG, `removed phase listener: total=${this.phaseListeners.length}`);
+        logger.info(LOG_TAG, 'removed phase listener: total=' + this.phaseListeners.length);
         return;
       }
     }
@@ -188,7 +188,7 @@ export class LifecycleOrchestratorFacade implements ILifecycleOrchestrator {
       try {
         this.phaseListeners[i](currentState);
       } catch (error) {
-        logger.warn(LOG_TAG, `phase listener execution failed: ${errorToString(error as Object | string | number | boolean)}`);
+        logger.warn(LOG_TAG, 'phase listener execution failed: ' + errorToString(error as Object | string | number | boolean));
       }
     }
   }

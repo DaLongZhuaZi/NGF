@@ -108,7 +108,7 @@ export struct NGFListPageTemplate {
                 .onClick((): void => {
                   this.onItemTap(item, index);
                 })
-              }, (item: string, index: number): string => `list_${index}_${item}`)
+              }, (item: string, index: number): string => 'list_' + index + '_' + item)
             }
             .width('100%')
           }
@@ -191,7 +191,7 @@ export struct NGFDetailPageTemplate {
               .backgroundColor(index % 2 === 0
                 ? $r('app.color.panel_background')
                 : $r('app.color.background_surface'))
-            }, (entry: NGFKeyValueEntry, index: number): string => `kv_${index}`)
+            }, (entry: NGFKeyValueEntry, index: number): string => 'kv_' + index)
           }
           .width('100%')
           .borderRadius(14)

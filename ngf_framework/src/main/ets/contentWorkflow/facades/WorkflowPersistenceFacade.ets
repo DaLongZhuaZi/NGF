@@ -13,7 +13,7 @@ export class WorkflowPersistenceFacade implements IWorkflowPersistence {
     const json = this.serializeState(state);
     this.cache.set(state.workflowName, state);
     void SettingsManager.getInstance().setString(key, json);
-    logger.info(TAG, `保存工作流状态: name=${state.workflowName}, step=${state.currentStepIndex}`);
+    logger.info(TAG, '保存工作流状态: name=' + state.workflowName + ', step=' + state.currentStepIndex);
   }
 
   loadState(workflowName: string): NGFWorkflowPersistedState | null {
@@ -40,24 +40,24 @@ export class WorkflowPersistenceFacade implements IWorkflowPersistence {
     const existed = this.cache.has(workflowName);
     this.cache.delete(workflowName);
     void SettingsManager.getInstance().setString(key, '');
-    logger.info(TAG, `移除工作流状态: name=${workflowName}, existed=${existed}`);
+    logger.info(TAG, '移除工作流状态: name=' + workflowName + ', existed=' + existed);
     return existed;
   }
 
   listSavedNames(): Array<string> {
     const names: Array<string> = [];
-    const keys = this.cache.keys();
-    for (const key of keys) {
-      names.push(key);
+    const keys: Array<string> = Array.from(this.cache.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      names.push(keys[i]);
     }
-    logger.debug(TAG, `列出已保存工作流: count=${names.length}`);
+    logger.debug(TAG, '列出已保存工作流: count=' + String(names.length));
     return names;
   }
 
   clearAll(): void {
-    const keys = this.cache.keys();
-    for (const key of keys) {
-      const settingsKey = KEY_PREFIX + key;
+    const keys: Array<string> = Array.from(this.cache.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      const settingsKey = KEY_PREFIX + keys[i];
       void SettingsManager.getInstance().setString(settingsKey, '');
     }
     this.cache.clear();
@@ -96,7 +96,7 @@ export class WorkflowPersistenceFacade implements IWorkflowPersistence {
       return new NGFWorkflowPersistedState(workflowName, currentStepIndex, contextJson, stepResultsJson, savedAt);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `反序列化工作流状态失败: name=${workflowName}, error=${message}`);
+      logger.error(TAG, '反序列化工作流状态失败: name=' + workflowName + ', error=' + message);
       return null;
     }
   }

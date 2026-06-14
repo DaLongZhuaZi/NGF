@@ -1,5 +1,5 @@
 import { describe, beforeAll, beforeEach, afterEach, afterAll, it, expect } from '@ohos/hypium';
-import { logger } from '../../../main/ets/Framework/NGF/utils/Logger';
+import { logger } from '../../../main/ets/utils/Logger';
 
 const TAG: string = 'AbilityTest';
 

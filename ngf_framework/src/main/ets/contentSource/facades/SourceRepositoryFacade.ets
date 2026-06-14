@@ -42,7 +42,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
    */
   initialize(filesDir: string | undefined): void {
     this.filesDir = filesDir || '';
-    logger.info(TAG, `源码仓库初始化完成: filesDir=${filesDir}`);
+    logger.info(TAG, '源码仓库初始化完成: filesDir=' + filesDir);
   }
 
   readIndexJson(): string {
@@ -54,10 +54,10 @@ export class SourceRepositoryFacade implements ISourceRepository {
 
     try {
       const indexJson = this.readText(indexPath);
-      logger.info(TAG, `读取仓库索引成功: ${indexPath}`);
+      logger.info(TAG, '读取仓库索引成功: ' + indexPath);
       return indexJson;
     } catch {
-      logger.warn(TAG, `读取仓库索引失败: ${indexPath}`);
+      logger.warn(TAG, '读取仓库索引失败: ' + indexPath);
       return this.createDefaultIndexJson();
     }
   }
@@ -79,7 +79,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
       this.parseIndexJson(normalized);
       this.ensureRepositoryDir();
       const result = this.writeText(indexPath, normalized);
-      logger.info(TAG, `更新仓库索引: path=${indexPath}, 成功=${result}`);
+      logger.info(TAG, '更新仓库索引: path=' + indexPath + ', 成功=' + result);
       return result;
     } catch {
       logger.warn(TAG, '更新仓库索引失败: JSON格式不合法');
@@ -98,7 +98,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
           packages.push(pkg);
         }
       }
-      logger.debug(TAG, `列出仓库包成功: 数量=${packages.length}`);
+      logger.debug(TAG, '列出仓库包成功: 数量=' + String(packages.length));
       return packages;
     } catch {
       logger.warn(TAG, '列出仓库包失败');
@@ -137,7 +137,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
     if (repositoryDir.length <= 0) {
       return '';
     }
-    return `${repositoryDir}/${this.indexFileName}`;
+    return repositoryDir + '/' + this.indexFileName;
   }
 
   private getRepositoryDir(): string {
@@ -145,7 +145,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
     if (filesDir.length <= 0) {
       return '';
     }
-    return `${filesDir}/${this.repositoryDirName}`;
+    return filesDir + '/' + this.repositoryDirName;
   }
 
   private resolveFilesDir(): string {
@@ -161,7 +161,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
     try {
       fs.mkdirSync(repositoryDir, true);
     } catch {
-      logger.warn(TAG, `创建仓库目录失败: ${repositoryDir}`);
+      logger.warn(TAG, '创建仓库目录失败: ' + repositoryDir);
     }
   }
 
@@ -186,7 +186,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
       const decoder = new util.TextDecoder('utf-8');
       return decoder.decodeToString(new Uint8Array(buffer));
     } catch (error) {
-      logger.warn(TAG, `读取仓库文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, '读取仓库文本失败: path=' + path + ', error=' + this.errorToString(error as Object | string | number | boolean));
       return '';
     } finally {
       this.closeFileQuietly(file, path);
@@ -200,7 +200,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
       fs.writeSync(file.fd, content);
       return true;
     } catch (error) {
-      logger.warn(TAG, `写入仓库文本失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, '写入仓库文本失败: path=' + path + ', error=' + this.errorToString(error as Object | string | number | boolean));
       return false;
     } finally {
       this.closeFileQuietly(file, path);
@@ -215,7 +215,7 @@ export class SourceRepositoryFacade implements ISourceRepository {
     try {
       fs.closeSync(file);
     } catch (error) {
-      logger.warn(TAG, `关闭仓库文件失败: path=${path}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.warn(TAG, '关闭仓库文件失败: path=' + path + ', error=' + this.errorToString(error as Object | string | number | boolean));
     }
   }
 

@@ -20,10 +20,10 @@ export class RelationalStoreFacade {
     try {
       this.rdbStore = await relationalStore.getRdbStore(context, storeConfig);
       this.initialized = true;
-      logger.info(TAG, `RDB 初始化完成: name=${storeConfig.name}`);
+      logger.info(TAG, 'RDB 初始化完成: name=' + storeConfig.name);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `RDB 初始化失败: ${message}`);
+      logger.error(TAG, 'RDB 初始化失败: ' + message);
     }
   }
 
@@ -38,7 +38,7 @@ export class RelationalStoreFacade {
   executeSql(sql: string, args?: Array<relationalStore.ValueType>): void {
     const store = this.rdbStore;
     if (store === null) {
-      logger.warn(TAG, `executeSql 失败: RDB 未初始化, sql=${sql}`);
+      logger.warn(TAG, 'executeSql 失败: RDB 未初始化, sql=' + sql);
       return;
     }
     try {
@@ -47,11 +47,11 @@ export class RelationalStoreFacade {
       } else {
         store.executeSql(sql);
       }
-      logger.debug(TAG, `executeSql 成功: sql=${sql}`);
+      logger.debug(TAG, 'executeSql 成功: sql=' + sql);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `executeSql 异常: sql=${sql}, error=${message}`);
-      throw new Error(`executeSql failed: ${message}`);
+      logger.error(TAG, 'executeSql 异常: sql=' + sql + ', error=' + message);
+      throw new Error('executeSql failed: ' + message);
     }
   }
 
@@ -63,28 +63,28 @@ export class RelationalStoreFacade {
     }
     try {
       const resultSet = store.querySync(predicates, columns);
-      logger.debug(TAG, `query 成功: columns=${columns.length}`);
+      logger.debug(TAG, 'query 成功: columns=' + String(columns.length));
       return resultSet;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `query 异常: error=${message}`);
-      throw new Error(`query failed: ${message}`);
+      logger.error(TAG, 'query 异常: error=' + message);
+      throw new Error('query failed: ' + message);
     }
   }
 
   insert(table: string, values: relationalStore.ValuesBucket): number {
     const store = this.rdbStore;
     if (store === null) {
-      logger.warn(TAG, `insert 失败: RDB 未初始化, table=${table}`);
+      logger.warn(TAG, 'insert 失败: RDB 未初始化, table=' + table);
       return -1;
     }
     try {
       const rowId = store.insertSync(table, values);
-      logger.debug(TAG, `insert 成功: table=${table}, rowId=${rowId}`);
+      logger.debug(TAG, 'insert 成功: table=' + table + ', rowId=' + rowId);
       return rowId;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `insert 异常: table=${table}, error=${message}`);
+      logger.error(TAG, 'insert 异常: table=' + table + ', error=' + message);
       return -1;
     }
   }
@@ -97,11 +97,11 @@ export class RelationalStoreFacade {
     }
     try {
       const changedRows = store.updateSync(values, predicates);
-      logger.debug(TAG, `update 成功: changedRows=${changedRows}`);
+      logger.debug(TAG, 'update 成功: changedRows=' + changedRows);
       return changedRows;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `update 异常: error=${message}`);
+      logger.error(TAG, 'update 异常: error=' + message);
       return -1;
     }
   }
@@ -114,11 +114,11 @@ export class RelationalStoreFacade {
     }
     try {
       const deletedRows = store.deleteSync(predicates);
-      logger.debug(TAG, `delete 成功: deletedRows=${deletedRows}`);
+      logger.debug(TAG, 'delete 成功: deletedRows=' + deletedRows);
       return deletedRows;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `delete 异常: error=${message}`);
+      logger.error(TAG, 'delete 异常: error=' + message);
       return -1;
     }
   }

@@ -21,7 +21,7 @@
 - **读取实时状态**：优先用 `@StorageProp(key)` 响应式绑定 AppStorage，不要在 `aboutToAppear` 里读一次快照就不再更新。
 - **订阅变更通知**：需要在状态变化时执行逻辑（而不只是刷新 UI）时，用各管理器的 `addListener/onThemeChanged` 系列接口，并在 `aboutToDisappear` 中对称取消。
 - **写操作**：通过 Facade 单例的方法发起，不要直接操作 AppStorage 写入管理器的 key。
-- **导入路径**：所有 Facade 从 `Framework/NGF/` 对应层导入，不要从业务层重新封装一层。
+- **导入路径**：应用层统一从 `ngf_framework` 包导入公开 Facade、契约与工具，不要从业务层重新封装一层，也不要再使用历史 `Framework/NGF/` 路径。
 
 ---
 
@@ -61,7 +61,7 @@ struct MyPage {
 
 ```typescript
 import { ConfigurationConstant } from '@kit.AbilityKit';
-import { uiContextManager } from '../../Framework/NGF/platformOhos/UIContextManager';
+import { uiContextManager } from 'ngf_framework';
 
 // 切换主题（同时更新系统颜色模式）
 private applyTheme(mode: NGFThemeMode): void {
@@ -150,7 +150,7 @@ private applyLanguage(locale: string): void {
 ### 3.5 相对时间格式化（RelativeTimeFormatterFacade）
 
 ```typescript
-import { ngfRelativeTimeFormatterFacade } from '../../Framework/NGF/i18n/facades/RelativeTimeFormatterFacade';
+import { ngfRelativeTimeFormatterFacade } from 'ngf_framework';
 
 // 格式化时间差（毫秒）为可读字符串，自动跟随当前语言
 const label = ngfRelativeTimeFormatterFacade.format(Date.now() - targetTimestamp);
@@ -220,7 +220,7 @@ await ngfVisualEffectsFacade.resetToRecommended();
 ### 4.5 订阅视效状态变化
 
 ```typescript
-import { NGFVisualEffectsState } from '../../Framework/NGF/deviceAwareness/contracts/IVisualEffectsManager';
+import { NGFVisualEffectsState } from 'ngf_framework';
 
 private readonly onVisualEffectsChanged = (state: NGFVisualEffectsState): void => {
   // state.effectiveMaterialLevel、state.capability.supportsImmersiveMaterial 等
@@ -267,9 +267,7 @@ import {
   NGFHoldingUiAnchor, 
   NGFHoldingAwarenessSide, 
   NGFHoldingAwarenessSnapshot, 
-  NGFHoldingAwarenessListener, 
-  NGFHoldingHandStatus, 
-  NGFOperatingHandStatus 
+  NGFHoldingAwarenessListener
 } from 'ngf_framework';
 import { ngfHoldingAwarenessFacade } from 'ngf_framework';
 ```
@@ -380,14 +378,14 @@ struct MyAdaptivePage {
 
 | 文件 | 说明 |
 |------|------|
-| `Framework/NGF/uiTheme/facades/ThemeManagerFacade.ets` | `ngfThemeManagerFacade` |
-| `Framework/NGF/uiTheme/contracts/IThemeManager.ets` | `NGFThemeMode` 枚举 |
-| `Framework/NGF/i18n/facades/I18nManagerFacade.ets` | `ngfI18nManagerFacade` |
-| `Framework/NGF/i18n/facades/RelativeTimeFormatterFacade.ets` | `ngfRelativeTimeFormatterFacade` |
-| `Framework/NGF/i18n/index.ets` | `resolveResourceString` |
-| `Framework/NGF/deviceAwareness/facades/VisualEffectsFacade.ets` | `ngfVisualEffectsFacade` |
-| `Framework/NGF/deviceAwareness/contracts/IVisualEffectsManager.ets` | `NGFVisualEffectsMaterialMode`、`NGFVisualEffectsState` |
-| `Framework/NGF/deviceAwareness/facades/HoldingAwarenessFacade.ets` | `ngfHoldingAwarenessFacade` |
-| `Framework/NGF/deviceAwareness/contracts/IHoldingAwarenessManager.ets` | `NGFHoldingUiAnchor`、`NGFHoldingAwarenessSide`、`NGFHoldingAwarenessSnapshot` |
+| `ngf_framework/src/main/ets/uiTheme/facades/ThemeManagerFacade.ets` | `ngfThemeManagerFacade` |
+| `ngf_framework/src/main/ets/uiTheme/contracts/IThemeManager.ets` | `NGFThemeMode` 枚举 |
+| `ngf_framework/src/main/ets/i18n/facades/I18nManagerFacade.ets` | `ngfI18nManagerFacade` |
+| `ngf_framework/src/main/ets/i18n/facades/RelativeTimeFormatterFacade.ets` | `ngfRelativeTimeFormatterFacade` |
+| `ngf_framework/src/main/ets/i18n/index.ets` | `resolveResourceString` |
+| `ngf_framework/src/main/ets/deviceAwareness/facades/VisualEffectsFacade.ets` | `ngfVisualEffectsFacade` |
+| `ngf_framework/src/main/ets/deviceAwareness/contracts/IVisualEffectsManager.ets` | `NGFVisualEffectsMaterialMode`、`NGFVisualEffectsState` |
+| `ngf_framework/src/main/ets/deviceAwareness/facades/HoldingAwarenessFacade.ets` | `ngfHoldingAwarenessFacade` |
+| `ngf_framework/src/main/ets/deviceAwareness/contracts/IHoldingAwarenessManager.ets` | `NGFHoldingUiAnchor`、`NGFHoldingAwarenessSide`、`NGFHoldingAwarenessSnapshot` |
 | `pages/ngf/NGFSettingsPage.ets` | 综合使用示例参考 |
 | `pages/ngf/NGFDeviceAwarenessPage.ets` | 握持感知详细演示参考 |

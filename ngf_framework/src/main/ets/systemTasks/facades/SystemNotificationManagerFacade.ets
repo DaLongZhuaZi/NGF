@@ -17,7 +17,7 @@ class SystemNotificationManagerFacade implements ISystemNotificationManager {
       logger.info(TAG, '通知权限申请完成');
       return true;
     } catch (e) {
-      logger.error(TAG, `申请通知权限失败: ${e}`);
+      logger.error(TAG, '申请通知权限失败: ' + e);
       return false;
     }
   }
@@ -59,7 +59,7 @@ class SystemNotificationManagerFacade implements ISystemNotificationManager {
           let displayText = request.content;
           if (request.type === NGFNotificationType.BASIC && request.progressMax > 0) {
             const percentage = Math.floor((request.progressValue / request.progressMax) * 100);
-            displayText += ` [${percentage}%]`;
+            displayText += ' [' + percentage + '%]';
           }
           notificationContent = {
             notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
@@ -99,18 +99,18 @@ class SystemNotificationManagerFacade implements ISystemNotificationManager {
       }
 
       await notificationManager.publish(req);
-      logger.debug(TAG, `发送通知成功: ID=${request.id}, 类型=${request.type}`);
+      logger.debug(TAG, '发送通知成功: ID=' + request.id + ', 类型=' + request.type);
     } catch (e) {
-      logger.error(TAG, `发送通知失败: ${e}`);
+      logger.error(TAG, '发送通知失败: ' + e);
     }
   }
 
   async cancel(id: number): Promise<void> {
     try {
       await notificationManager.cancel(id);
-      logger.debug(TAG, `取消通知成功: ID=${id}`);
+      logger.debug(TAG, '取消通知成功: ID=' + id);
     } catch (e) {
-      logger.error(TAG, `取消通知失败: ${e}`);
+      logger.error(TAG, '取消通知失败: ' + e);
     }
   }
 }

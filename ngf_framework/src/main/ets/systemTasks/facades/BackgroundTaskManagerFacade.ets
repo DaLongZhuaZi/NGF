@@ -28,10 +28,10 @@ class BackgroundTaskManagerFacade implements IBackgroundTaskManager {
       const wa: WantAgent = await wantAgent.getWantAgent(wantAgentInfo);
       
       await backgroundTaskManager.startBackgroundRunning(context, backgroundTaskManager.BackgroundMode.DATA_TRANSFER, wa);
-      logger.info(TAG, `后台长时任务已启动: TaskID=${taskId}`);
+      logger.info(TAG, '后台长时任务已启动: TaskID=' + taskId);
       return true;
     } catch (e) {
-      logger.error(TAG, `启动后台长时任务失败: ${e}`);
+      logger.error(TAG, '启动后台长时任务失败: ' + e);
       return false;
     }
   }
@@ -47,7 +47,7 @@ class BackgroundTaskManagerFacade implements IBackgroundTaskManager {
       logger.info(TAG, '后台长时任务已停止');
       return true;
     } catch (e) {
-      logger.error(TAG, `停止后台长时任务失败: ${e}`);
+      logger.error(TAG, '停止后台长时任务失败: ' + e);
       return false;
     }
   }

@@ -140,11 +140,11 @@ export struct NGFCapabilitiesNetworkPage {
     try {
       this.statusMessage = "Loading...";
       const response = await ngfNetworkClient.get('https://httpbin.org/get');
-      this.responseData = `Status: ${response.statusCode}\n\n${String(response.body).substring(0, 300)}...`;
+      this.responseData = 'Status: ' + response.statusCode + '\\n\\n' + String(response.body).substring(0, 300) + '...';
       this.statusMessage = "Success";
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.statusMessage = `Error: ${message}`;
+      this.statusMessage = 'Error: ' + message;
     }
   }
 }

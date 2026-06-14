@@ -76,7 +76,7 @@ class PerformanceMonitor {
     }
     const now = Date.now();
     this.marks.set(normalizedName, new NGFPerformanceMark(normalizedName, now));
-    logger.debug(TAG, `打点: ${normalizedName}, 时间=${now}`);
+    logger.debug(TAG, '打点: ' + normalizedName + ', 时间=' + now);
   }
 
   /**
@@ -86,13 +86,13 @@ class PerformanceMonitor {
     const start = this.marks.get(startMark);
     const end = this.marks.get(endMark);
     if (start === undefined || end === undefined) {
-      logger.warn(TAG, `测量失败: startMark=${startMark}, endMark=${endMark}`);
+      logger.warn(TAG, '测量失败: startMark=' + startMark + ', endMark=' + endMark);
       return null;
     }
     const durationMs = end.timestamp - start.timestamp;
     const measure = new NGFPerformanceMeasure(name, startMark, endMark, durationMs);
     this.measures.push(measure);
-    logger.info(TAG, `测量: ${name}, ${startMark} -> ${endMark}, 耗时=${durationMs}ms`);
+    logger.info(TAG, '测量: ' + name + ', ' + startMark + ' -> ' + endMark + ', 耗时=' + durationMs + 'ms');
     return measure;
   }
 
@@ -129,7 +129,7 @@ class PerformanceMonitor {
     }
     const snapshot = new NGFMemorySnapshot(now, usedPssKb);
     this.memorySnapshots.push(snapshot);
-    logger.debug(TAG, `内存快照: PSS=${usedPssKb}KB`);
+    logger.debug(TAG, '内存快照: PSS=' + usedPssKb + 'KB');
     return snapshot;
   }
 
@@ -160,11 +160,11 @@ class PerformanceMonitor {
   reportToHilog(): void {
     for (let index = 0; index < this.measures.length; index++) {
       const m = this.measures[index];
-      hilog.info(0x0000, TAG, `[Perf] ${m.name}: ${m.durationMs}ms (${m.startMark} -> ${m.endMark})`);
+      hilog.info(0x0000, TAG, '[Perf] ' + m.name + ': ' + m.durationMs + 'ms (' + m.startMark + ' -> ' + m.endMark + ')');
     }
     if (this.memorySnapshots.length > 0) {
       const last = this.memorySnapshots[this.memorySnapshots.length - 1];
-      hilog.info(0x0000, TAG, `[Perf] Memory: ${last.usedPssKb}KB`);
+      hilog.info(0x0000, TAG, '[Perf] Memory: ' + last.usedPssKb + 'KB');
     }
   }
 }

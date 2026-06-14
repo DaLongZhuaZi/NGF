@@ -17,17 +17,17 @@ export class NavigationShellFacade implements INavigationShell {
   push(pageName: string, paramsJson: string): boolean {
     const stack = this.resolveNavStack();
     if (!stack) {
-      logger.warn(TAG, `页面入栈失败: 导航栈不可用, page=${pageName}`);
+      logger.warn(TAG, '页面入栈失败: 导航栈不可用, page=' + pageName);
       return false;
     }
 
     try {
       const navParam = this.buildNavigationParam(paramsJson);
       stack.pushPathByName(pageName, navParam ? navParam : null);
-      logger.info(TAG, `页面入栈: page=${pageName}`);
+      logger.info(TAG, '页面入栈: page=' + pageName);
       return true;
     } catch (error) {
-      logger.error(TAG, `页面入栈失败: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, '页面入栈失败: page=' + pageName + ', error=' + this.errorToString(error as Object | string | number | boolean));
       return false;
     }
   }
@@ -47,10 +47,10 @@ export class NavigationShellFacade implements INavigationShell {
       }
       const pageName = allPathName[allPathName.length - 1];
       stack.pop();
-      logger.info(TAG, `页面出栈: page=${pageName}`);
+      logger.info(TAG, '页面出栈: page=' + pageName);
       return true;
     } catch (error) {
-      logger.error(TAG, `页面出栈失败: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, '页面出栈失败: ' + this.errorToString(error as Object | string | number | boolean));
       return false;
     }
   }
@@ -58,7 +58,7 @@ export class NavigationShellFacade implements INavigationShell {
   replace(pageName: string, paramsJson: string): boolean {
     const stack = this.resolveNavStack();
     if (!stack) {
-      logger.warn(TAG, `页面替换失败: 导航栈不可用, page=${pageName}`);
+      logger.warn(TAG, '页面替换失败: 导航栈不可用, page=' + pageName);
       return false;
     }
 
@@ -69,10 +69,10 @@ export class NavigationShellFacade implements INavigationShell {
       }
       const navParam = this.buildNavigationParam(paramsJson);
       stack.pushPathByName(pageName, navParam ? navParam : null);
-      logger.info(TAG, `页面替换: page=${pageName}`);
+      logger.info(TAG, '页面替换: page=' + pageName);
       return true;
     } catch (error) {
-      logger.error(TAG, `页面替换失败: page=${pageName}, error=${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, '页面替换失败: page=' + pageName + ', error=' + this.errorToString(error as Object | string | number | boolean));
       return false;
     }
   }
@@ -91,10 +91,10 @@ export class NavigationShellFacade implements INavigationShell {
         return '';
       }
       const pageName = allPathName[allPathName.length - 1];
-      logger.debug(TAG, `当前页面名称: page=${pageName}`);
+      logger.debug(TAG, '当前页面名称: page=' + pageName);
       return pageName;
     } catch (error) {
-      logger.error(TAG, `获取当前页面名称失败: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, '获取当前页面名称失败: ' + this.errorToString(error as Object | string | number | boolean));
       return '';
     }
   }
@@ -102,7 +102,7 @@ export class NavigationShellFacade implements INavigationShell {
   async pushWithIntercept(pageName: string, paramsJson: string): Promise<boolean> {
     const result: NGFRouteInterceptResult = await ngfRouteInterceptorFacade.processNavigation(pageName, paramsJson);
     if (!result.proceed) {
-      logger.info(TAG, `导航被拦截: page=${pageName}`);
+      logger.info(TAG, '导航被拦截: page=' + pageName);
       return false;
     }
     const targetPage = result.redirectPage.length > 0 ? result.redirectPage : pageName;
@@ -113,7 +113,7 @@ export class NavigationShellFacade implements INavigationShell {
   async replaceWithIntercept(pageName: string, paramsJson: string): Promise<boolean> {
     const result: NGFRouteInterceptResult = await ngfRouteInterceptorFacade.processNavigation(pageName, paramsJson);
     if (!result.proceed) {
-      logger.info(TAG, `导航被拦截: page=${pageName}`);
+      logger.info(TAG, '导航被拦截: page=' + pageName);
       return false;
     }
     const targetPage = result.redirectPage.length > 0 ? result.redirectPage : pageName;
@@ -130,7 +130,7 @@ export class NavigationShellFacade implements INavigationShell {
       logger.debug(TAG, '解析导航栈未命中: 未找到 GlobalNavStack');
       return null;
     } catch (error) {
-      logger.error(TAG, `解析导航栈失败: ${this.errorToString(error as Object | string | number | boolean)}`);
+      logger.error(TAG, '解析导航栈失败: ' + this.errorToString(error as Object | string | number | boolean));
       return null;
     }
   }

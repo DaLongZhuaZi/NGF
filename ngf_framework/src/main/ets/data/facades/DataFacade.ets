@@ -86,7 +86,7 @@ export class DataFacade implements IDataFacade {
 
   async query(entityName: string, queryJson: string): Promise<NGFDataQueryResult> {
     const normalizedEntity = this.normalizeEntityName(entityName);
-    logger.debug(TAG, `查询数据: entity=${normalizedEntity}`);
+    logger.debug(TAG, '查询数据: entity=' + normalizedEntity);
     if (this.isSettingsEntity(normalizedEntity)) {
       const settingsQuery = this.parseSettingsQueryEnvelope(queryJson);
       if (settingsQuery.key.length <= 0) {
@@ -95,7 +95,7 @@ export class DataFacade implements IDataFacade {
       }
 
       const settingsResponse = this.querySettings(settingsQuery);
-      logger.info(TAG, `查询设置成功: key=${settingsQuery.key}, type=${settingsQuery.valueType}`);
+      logger.info(TAG, '查询设置成功: key=' + settingsQuery.key + ', type=' + settingsQuery.valueType);
       return new NGFDataQueryResult(true, JSON.stringify(settingsResponse));
     }
 
@@ -104,15 +104,15 @@ export class DataFacade implements IDataFacade {
     if (queryEnvelope.id.length > 0) {
       const payloadJson = entityStore.get(queryEnvelope.id);
       if (!payloadJson) {
-        logger.debug(TAG, `查询实体未命中: entity=${normalizedEntity}, id=${queryEnvelope.id}`);
+        logger.debug(TAG, '查询实体未命中: entity=' + normalizedEntity + ', id=' + queryEnvelope.id);
         return new NGFDataQueryResult(false, '');
       }
       const response = new NGFDataEntityEnvelope(queryEnvelope.id, payloadJson);
-      logger.info(TAG, `查询实体成功: entity=${normalizedEntity}, id=${queryEnvelope.id}`);
+      logger.info(TAG, '查询实体成功: entity=' + normalizedEntity + ', id=' + queryEnvelope.id);
       return new NGFDataQueryResult(true, JSON.stringify(response));
     }
 
-    logger.info(TAG, `查询实体集合: entity=${normalizedEntity}, 数量=${entityStore.size}`);
+    logger.info(TAG, '查询实体集合: entity=' + normalizedEntity + ', 数量=' + String(entityStore.size));
     return new NGFDataQueryResult(true, this.serializeEntityCollection(entityStore));
   }
 
@@ -125,7 +125,7 @@ export class DataFacade implements IDataFacade {
         return false;
       }
       this.writeSettings(settingsWrite);
-      logger.info(TAG, `保存设置成功: key=${settingsWrite.key}, type=${settingsWrite.valueType}`);
+      logger.info(TAG, '保存设置成功: key=' + settingsWrite.key + ', type=' + settingsWrite.valueType);
       return true;
     }
 
@@ -135,7 +135,7 @@ export class DataFacade implements IDataFacade {
     const entityStore = this.ensureEntityStore(normalizedEntity);
     entityStore.set(id, payloadJson);
     this.persistToRdb(normalizedEntity, id, payloadJson);
-    logger.info(TAG, `保存实体成功: entity=${normalizedEntity}, id=${id}`);
+    logger.info(TAG, '保存实体成功: entity=' + normalizedEntity + ', id=' + id);
     return true;
   }
 
@@ -143,7 +143,7 @@ export class DataFacade implements IDataFacade {
     const normalizedEntity = this.normalizeEntityName(entityName);
     const encryptResult = await securityToolkit.aesEncrypt(dataJson, secretKeyBase64, ivBase64);
     if (!encryptResult.success) {
-      logger.error(TAG, `加密保存失败: entity=${normalizedEntity}`);
+      logger.error(TAG, '加密保存失败: entity=' + normalizedEntity);
       return false;
     }
     return this.save(normalizedEntity, encryptResult.data);
@@ -160,7 +160,7 @@ export class DataFacade implements IDataFacade {
       const envelope = this.parseEntityEnvelope(queryResult.dataJson);
       const decryptResult = await securityToolkit.aesDecrypt(envelope.payloadJson, secretKeyBase64, ivBase64);
       if (!decryptResult.success) {
-        logger.error(TAG, `解密查询失败: id=${envelope.id}`);
+        logger.error(TAG, '解密查询失败: id=' + envelope.id);
         return new NGFDataQueryResult(false, '');
       }
       const decryptedEnvelope = new NGFDataEntityEnvelope(envelope.id, decryptResult.data);
@@ -176,12 +176,12 @@ export class DataFacade implements IDataFacade {
           if (decryptResult.success) {
             decryptedCollection.items.push(new NGFDataEntityEnvelope(item.id, decryptResult.data));
           } else {
-            logger.warn(TAG, `解密集合项失败: id=${item.id}`);
+            logger.warn(TAG, '解密集合项失败: id=' + item.id);
           }
         }
         return new NGFDataQueryResult(true, JSON.stringify(decryptedCollection));
       } catch (error) {
-        logger.error(TAG, `解析集合数据失败: ${error}`);
+        logger.error(TAG, '解析集合数据失败: ' + error);
         return new NGFDataQueryResult(false, '');
       }
     }
@@ -191,31 +191,31 @@ export class DataFacade implements IDataFacade {
     const normalizedEntity = this.normalizeEntityName(entityName);
     const normalizedId = id.trim();
     if (normalizedId.length <= 0) {
-      logger.warn(TAG, `删除忽略: entity=${normalizedEntity}, id为空`);
+      logger.warn(TAG, '删除忽略: entity=' + normalizedEntity + ', id为空');
       return false;
     }
 
     if (this.isSettingsEntity(normalizedEntity)) {
       try {
         await this.settingsManager.deleteSetting(normalizedId);
-        logger.info(TAG, `删除设置成功: key=${normalizedId}`);
+        logger.info(TAG, '删除设置成功: key=' + normalizedId);
         return true;
       } catch {
-        logger.warn(TAG, `删除设置失败: key=${normalizedId}`);
+        logger.warn(TAG, '删除设置失败: key=' + normalizedId);
         return false;
       }
     }
 
     const entityStore = this.entityStores.get(normalizedEntity);
     if (!entityStore) {
-      logger.debug(TAG, `删除实体跳过: entity=${normalizedEntity} 未找到`);
+      logger.debug(TAG, '删除实体跳过: entity=' + normalizedEntity + ' 未找到');
       return false;
     }
     const removed = entityStore.delete(normalizedId);
     if (removed) {
       this.removeFromRdb(normalizedEntity, normalizedId);
     }
-    logger.info(TAG, `删除实体: entity=${normalizedEntity}, id=${normalizedId}, 成功=${removed}`);
+    logger.info(TAG, '删除实体: entity=' + normalizedEntity + ', id=' + normalizedId + ', 成功=' + removed);
     return removed;
   }
 
@@ -261,14 +261,14 @@ export class DataFacade implements IDataFacade {
     }
     const hasMore = end < total;
 
-    logger.info(TAG, `分页查询: store=${normalizedStore}, total=${total}, offset=${pagination.offset}, limit=${pagination.limit}, returned=${items.length}, hasMore=${hasMore}`);
+    logger.info(TAG, '分页查询: store=' + normalizedStore + ', total=' + total + ', offset=' + pagination.offset + ', limit=' + pagination.limit + ', returned=' + String(items.length) + ', hasMore=' + hasMore);
     return new NGFPaginatedResult<string>(items, total, hasMore);
   }
 
   async queryRdbPaginated(storeName: string, filters: Map<string, string>, pagination: NGFPaginationParams): Promise<NGFPaginatedResult<string>> {
     const normalizedStore = this.normalizeEntityName(storeName);
     if (!this.rdbAvailable || !this.rdbStore) {
-      logger.warn(TAG, `RDB 不可用，退化为内存分页: store=${normalizedStore}`);
+      logger.warn(TAG, 'RDB 不可用，退化为内存分页: store=' + normalizedStore);
       return this.queryPaginated(storeName, filters, pagination);
     }
     try {
@@ -276,7 +276,7 @@ export class DataFacade implements IDataFacade {
       predicates.equalTo('entity_name', normalizedStore);
       if (filters.size > 0) {
         filters.forEach((value: string, key: string) => {
-          predicates.like('payload_json', `%${key}%${value}%`);
+          predicates.like('payload_json', '%' + key + '%' + value + '%');
         });
       }
       
@@ -298,10 +298,10 @@ export class DataFacade implements IDataFacade {
       resultSet.close();
       
       const hasMore = pagination.offset + pagination.limit < total;
-      logger.info(TAG, `RDB物理分页查询: store=${normalizedStore}, total=${total}, offset=${pagination.offset}, limit=${pagination.limit}, returned=${items.length}, hasMore=${hasMore}`);
+      logger.info(TAG, 'RDB物理分页查询: store=' + normalizedStore + ', total=' + total + ', offset=' + pagination.offset + ', limit=' + pagination.limit + ', returned=' + String(items.length) + ', hasMore=' + hasMore);
       return new NGFPaginatedResult<string>(items, total, hasMore);
     } catch (err) {
-      logger.error(TAG, `RDB物理分页查询异常: ${err}`);
+      logger.error(TAG, 'RDB物理分页查询异常: ' + err);
       return new NGFPaginatedResult<string>([], 0, false);
     }
   }
@@ -312,7 +312,7 @@ export class DataFacade implements IDataFacade {
       const dataJson = JSON.stringify(transformedEntity);
       return await this.save(entityName, dataJson);
     } catch (error) {
-      logger.error(TAG, `转换实体并保存失败: ${error}`);
+      logger.error(TAG, '转换实体并保存失败: ' + error);
       return false;
     }
   }
@@ -332,7 +332,7 @@ export class DataFacade implements IDataFacade {
         const transformedEnvelope = new NGFDataEntityEnvelope(envelope.id, JSON.stringify(transformedPayload));
         return new NGFDataQueryResult(true, JSON.stringify(transformedEnvelope));
       } catch (error) {
-        logger.error(TAG, `查询单条实体转换失败: ${error}`);
+        logger.error(TAG, '查询单条实体转换失败: ' + error);
         return new NGFDataQueryResult(false, '');
       }
     } else {
@@ -347,12 +347,12 @@ export class DataFacade implements IDataFacade {
             const transformedPayload = transformer.transform(parsedPayload);
             transformedCollection.items.push(new NGFDataEntityEnvelope(item.id, JSON.stringify(transformedPayload)));
           } catch (itemError) {
-             logger.warn(TAG, `查询集合项转换失败: id=${item.id}`);
+             logger.warn(TAG, '查询集合项转换失败: id=' + item.id);
           }
         }
         return new NGFDataQueryResult(true, JSON.stringify(transformedCollection));
       } catch (error) {
-        logger.error(TAG, `查询集合实体转换失败: ${error}`);
+        logger.error(TAG, '查询集合实体转换失败: ' + error);
         return new NGFDataQueryResult(false, '');
       }
     }
@@ -360,7 +360,7 @@ export class DataFacade implements IDataFacade {
 
   async queryStream(storeName: string, filters: Map<string, string>, batchSize: number, onBatch: (items: Array<string>) => void): Promise<void> {
     const normalizedStore = this.normalizeEntityName(storeName);
-    logger.info(TAG, `流式查询开始: store=${normalizedStore}`);
+    logger.info(TAG, '流式查询开始: store=' + normalizedStore);
     
     let offset = 0;
     while (true) {
@@ -371,7 +371,7 @@ export class DataFacade implements IDataFacade {
         try {
           onBatch(result.items);
         } catch (error) {
-          logger.error(TAG, `流式查询批次回调异常: ${error}`);
+          logger.error(TAG, '流式查询批次回调异常: ' + error);
           break;
         }
       }
@@ -381,14 +381,14 @@ export class DataFacade implements IDataFacade {
       }
       offset += batchSize;
     }
-    logger.info(TAG, `流式查询结束: store=${normalizedStore}`);
+    logger.info(TAG, '流式查询结束: store=' + normalizedStore);
   }
 
   private querySettings(query: NGFSettingsQueryEnvelope): NGFSettingsResponseEnvelope {
     const valueType = query.valueType.toLowerCase();
     if (valueType === 'number') {
       const numberValue = ngfSettingsStoreFacade.getNumber(query.key, query.defaultNumber);
-      return new NGFSettingsResponseEnvelope(query.key, 'number', `${numberValue}`, numberValue, false);
+      return new NGFSettingsResponseEnvelope(query.key, 'number', String(numberValue), numberValue, false);
     }
 
     if (valueType === 'boolean') {
@@ -441,12 +441,12 @@ export class DataFacade implements IDataFacade {
 
     const createdStore = new Map<string, string>();
     this.entityStores.set(entityName, createdStore);
-    logger.debug(TAG, `创建实体存储: entity=${entityName}`);
+    logger.debug(TAG, '创建实体存储: entity=' + entityName);
     return createdStore;
   }
 
   private generateEntityId(entityName: string): string {
-    return `${entityName}_${Date.now()}`;
+    return entityName + '_' + String(Date.now());
   }
 
   private parseQueryEnvelope(queryJson: string): NGFDataQueryEnvelope {
@@ -556,7 +556,7 @@ export class DataFacade implements IDataFacade {
       await this.loadAllEntitiesFromRdb();
     } catch (err) {
       this.rdbAvailable = false;
-      logger.warn(TAG, `RDB 初始化失败，退化为内存模式: ${err}`);
+      logger.warn(TAG, 'RDB 初始化失败，退化为内存模式: ' + err);
     }
   }
 
@@ -583,9 +583,9 @@ export class DataFacade implements IDataFacade {
         this.rdbStore.insertSync('ngf_entities', bucket);
       }
       resultSet.close();
-      logger.debug(TAG, `RDB 持久化: entity=${entityName}, id=${id}`);
+      logger.debug(TAG, 'RDB 持久化: entity=' + entityName + ', id=' + id);
     } catch (err) {
-      logger.warn(TAG, `RDB 持久化失败: entity=${entityName}, id=${id}, err=${err}`);
+      logger.warn(TAG, 'RDB 持久化失败: entity=' + entityName + ', id=' + id + ', err=' + err);
     }
   }
 
@@ -601,9 +601,9 @@ export class DataFacade implements IDataFacade {
       predicates.equalTo('entity_name', entityName);
       predicates.equalTo('entity_id', id);
       this.rdbStore.deleteSync(predicates);
-      logger.debug(TAG, `RDB 删除: entity=${entityName}, id=${id}`);
+      logger.debug(TAG, 'RDB 删除: entity=' + entityName + ', id=' + id);
     } catch (err) {
-      logger.warn(TAG, `RDB 删除失败: entity=${entityName}, id=${id}, err=${err}`);
+      logger.warn(TAG, 'RDB 删除失败: entity=' + entityName + ', id=' + id + ', err=' + err);
     }
   }
 
@@ -629,9 +629,9 @@ export class DataFacade implements IDataFacade {
         loadedCount++;
       }
       resultSet.close();
-      logger.info(TAG, `RDB 加载完成: ${loadedCount} 条实体`);
+      logger.info(TAG, 'RDB 加载完成: ' + loadedCount + ' 条实体');
     } catch (err) {
-      logger.warn(TAG, `RDB 加载失败: ${err}`);
+      logger.warn(TAG, 'RDB 加载失败: ' + err);
     }
   }
 }

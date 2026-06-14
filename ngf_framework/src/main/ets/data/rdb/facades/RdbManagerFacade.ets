@@ -31,18 +31,18 @@ class RdbManagerFacade implements IRelationalStore {
       
       // 执行建表语句
       if (this.store.version === 0) {
-        for (const sql of createTableSqls) {
-          await this.store.executeSql(sql);
-          logger.debug(TAG, `执行建表 SQL 成功: ${sql}`);
+        for (let i: number = 0; i < createTableSqls.length; i++) {
+          await this.store.executeSql(createTableSqls[i]);
+          logger.debug(TAG, '执行建表 SQL 成功: ' + createTableSqls[i]);
         }
         this.store.version = 1;
       }
       
       this.isInitialized = true;
-      logger.info(TAG, `关系型数据库 ${config.name} 初始化完成`);
+      logger.info(TAG, '关系型数据库 ' + config.name + ' 初始化完成');
       return true;
     } catch (e) {
-      logger.error(TAG, `关系型数据库初始化失败: ${e}`);
+      logger.error(TAG, '关系型数据库初始化失败: ' + e);
       return false;
     }
   }
@@ -56,7 +56,7 @@ class RdbManagerFacade implements IRelationalStore {
         await this.store!.executeSql(sql);
       }
     } catch (e) {
-      logger.error(TAG, `执行 SQL 失败: ${sql} | err: ${e}`);
+      logger.error(TAG, '执行 SQL 失败: ' + sql + ' | err: ' + e);
       throw e as Error;
     }
   }
@@ -84,7 +84,7 @@ class RdbManagerFacade implements IRelationalStore {
       resultSet.close();
       return results;
     } catch (e) {
-      logger.error(TAG, `查询 SQL 失败: ${sql} | err: ${e}`);
+      logger.error(TAG, '查询 SQL 失败: ' + sql + ' | err: ' + e);
       throw e as Error;
     }
   }
@@ -94,7 +94,7 @@ class RdbManagerFacade implements IRelationalStore {
     try {
       await this.store!.beginTransaction();
     } catch (e) {
-      logger.error(TAG, `beginTransaction failed: ${e}`);
+      logger.error(TAG, 'beginTransaction failed: ' + e);
       throw e as Error;
     }
   }
@@ -104,7 +104,7 @@ class RdbManagerFacade implements IRelationalStore {
     try {
       await this.store!.commit();
     } catch (e) {
-      logger.error(TAG, `commit failed: ${e}`);
+      logger.error(TAG, 'commit failed: ' + e);
       throw e as Error;
     }
   }
@@ -114,7 +114,7 @@ class RdbManagerFacade implements IRelationalStore {
     try {
       await this.store!.rollBack();
     } catch (e) {
-      logger.error(TAG, `rollback failed: ${e}`);
+      logger.error(TAG, 'rollback failed: ' + e);
       throw e as Error;
     }
   }

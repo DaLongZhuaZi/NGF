@@ -17,7 +17,7 @@ export class LoggingInterceptorFacade implements IHttpInterceptor {
    */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
-    logger.info(TAG, `日志拦截器已${enabled ? '启用' : '禁用'}`);
+    logger.info(TAG, '日志拦截器已' + String(enabled ? '启用' : '禁用'));
   }
 
   /**
@@ -29,9 +29,9 @@ export class LoggingInterceptorFacade implements IHttpInterceptor {
     if (!this.enabled) {
       return options;
     }
-    logger.info(TAG, `[请求] method=${options.method}, url=${options.url}`);
+    logger.info(TAG, '[请求] method=' + options.method + ', url=' + options.url);
     if (options.extraData.length > 0) {
-      logger.debug(TAG, `[请求体] length=${options.extraData.length}`);
+      logger.debug(TAG, '[请求体] length=' + options.extraData.length);
     }
     return options;
   }
@@ -46,9 +46,9 @@ export class LoggingInterceptorFacade implements IHttpInterceptor {
       return response;
     }
     const dataSize: number = response.result.length;
-    logger.info(TAG, `[响应] status=${response.statusCode}, size=${dataSize} bytes`);
+    logger.info(TAG, '[响应] status=' + response.statusCode + ', size=' + dataSize + ' bytes');
     if (!response.isOk()) {
-      logger.warn(TAG, `[响应异常] 非 2xx 状态码: ${response.statusCode}`);
+      logger.warn(TAG, '[响应异常] 非 2xx 状态码: ' + response.statusCode);
     }
     return response;
   }
@@ -71,7 +71,7 @@ export class LoggingInterceptorFacade implements IHttpInterceptor {
     } else {
       message = String(error);
     }
-    logger.error(TAG, `[错误] url=${url}, error=${message}`);
+    logger.error(TAG, '[错误] url=' + url + ', error=' + message);
   }
 }
 

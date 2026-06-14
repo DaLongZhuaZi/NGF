@@ -53,7 +53,7 @@ class EncryptedSettingsStoreFacade {
     if (cached !== undefined) {
       return cached;
     }
-    const raw = AppStorage.get<string>(`enc_${key}`);
+    const raw = AppStorage.get<string>('enc_' + key);
     if (raw === undefined || raw === null || raw.length === 0) {
       return defaultValue;
     }
@@ -63,10 +63,10 @@ class EncryptedSettingsStoreFacade {
         this.cache.set(key, decrypted.data);
         return decrypted.data;
       }
-      logger.warn(TAG, `解密失败，返回默认值: key=${key}`);
+      logger.warn(TAG, '解密失败，返回默认值: key=' + key);
       return defaultValue;
     } catch (e) {
-      logger.warn(TAG, `getString 异常: key=${key}, err=${e}`);
+      logger.warn(TAG, 'getString 异常: key=' + key + ', err=' + e);
       return defaultValue;
     }
   }
@@ -75,14 +75,14 @@ class EncryptedSettingsStoreFacade {
     try {
       const encrypted = await securityToolkit.aesEncrypt(value, this.masterKeyBase64, '');
       if (encrypted.success) {
-        AppStorage.setOrCreate<string>(`enc_${key}`, encrypted.data);
+        AppStorage.setOrCreate<string>('enc_' + key, encrypted.data);
         this.cache.set(key, value);
-        logger.debug(TAG, `加密写入: key=${key}`);
+        logger.debug(TAG, '加密写入: key=' + key);
       } else {
-        logger.error(TAG, `加密失败，跳过写入: key=${key}`);
+        logger.error(TAG, '加密失败，跳过写入: key=' + key);
       }
     } catch (e) {
-      logger.error(TAG, `setString 异常: key=${key}, err=${e}`);
+      logger.error(TAG, 'setString 异常: key=' + key + ', err=' + e);
     }
   }
 
@@ -96,7 +96,7 @@ class EncryptedSettingsStoreFacade {
   }
 
   async setNumber(key: string, value: number): Promise<void> {
-    await this.setString(key, `${value}`);
+    await this.setString(key, String(value));
   }
 
   async getBoolean(key: string, defaultValue: boolean = false): Promise<boolean> {
@@ -112,9 +112,9 @@ class EncryptedSettingsStoreFacade {
   }
 
   async remove(key: string): Promise<void> {
-    AppStorage.setOrCreate<string>(`enc_${key}`, '');
+    AppStorage.setOrCreate<string>('enc_' + key, '');
     this.cache.delete(key);
-    logger.debug(TAG, `删除加密键: key=${key}`);
+    logger.debug(TAG, '删除加密键: key=' + key);
   }
 
   async clear(): Promise<void> {
@@ -123,7 +123,7 @@ class EncryptedSettingsStoreFacade {
   }
 
   async contains(key: string): Promise<boolean> {
-    const raw = AppStorage.get<string>(`enc_${key}`);
+    const raw = AppStorage.get<string>('enc_' + key);
     return raw !== undefined && raw !== null && raw.length > 0;
   }
 }

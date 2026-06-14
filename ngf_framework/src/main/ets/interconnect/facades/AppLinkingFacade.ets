@@ -27,16 +27,16 @@ export class AppLinkingFacade implements IAppLinking {
 
       // 确保域名以 https:// 开头
       if (!normalizedDomain.startsWith('https://') && !normalizedDomain.startsWith('http://')) {
-        normalizedDomain = `https://${normalizedDomain}`;
+        normalizedDomain = 'https://' + normalizedDomain;
       }
 
       // 构造完整的 HTTPS URL，将 deepLink 作为编码后的查询参数
       const encodedDeepLink = encodeURIComponent(deepLink);
-      const fullUrl = `${normalizedDomain}${linkPath}?link=${encodedDeepLink}`;
-      logger.info(TAG, `生成 App Linking URL: ${fullUrl}`);
+      const fullUrl = normalizedDomain + linkPath + '?link=' + encodedDeepLink;
+      logger.info(TAG, '生成 App Linking URL: ' + fullUrl);
       return fullUrl;
     } catch (e) {
-      logger.error(TAG, `生成 App Linking URL 失败: ${e}`);
+      logger.error(TAG, '生成 App Linking URL 失败: ' + e);
       return null;
     }
   }
@@ -62,10 +62,10 @@ export class AppLinkingFacade implements IAppLinking {
       context!.startAbility(want).then(() => {
         logger.info(TAG, '成功拉起分享面板');
       }).catch((e: Error) => {
-        logger.error(TAG, `拉起分享面板异常: ${e}`);
+        logger.error(TAG, '拉起分享面板异常: ' + e);
       });
     } catch (e) {
-      logger.error(TAG, `拉起分享面板失败: ${e}`);
+      logger.error(TAG, '拉起分享面板失败: ' + e);
     }
   }
 }

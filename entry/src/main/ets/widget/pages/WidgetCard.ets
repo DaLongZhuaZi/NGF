@@ -40,7 +40,7 @@ struct WidgetCard {
           .fontWeight(FontWeight.Medium)
           .fontColor('#007DFF')
           .margin({ top: 8, bottom: 4 })
-        Text(`最后更新: ${this.lastUpdate}`)
+        Text('最后更新: ' + this.lastUpdate)
           .fontSize(10)
           .fontColor('#999999')
       }

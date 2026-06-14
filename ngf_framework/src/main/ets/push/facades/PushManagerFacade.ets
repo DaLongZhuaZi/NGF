@@ -15,10 +15,10 @@ export class PushManagerFacade implements IPushManager {
     try {
       logger.info(TAG, '开始向华为推送服务器申请 Push Token...');
       const pushToken = await pushService.getToken();
-      logger.info(TAG, `Push Token 获取成功: ${pushToken.substring(0, 10)}...`);
+      logger.info(TAG, 'Push Token 获取成功: ' + String(pushToken.substring(0, 10)) + '...');
       return pushToken;
     } catch (e) {
-      logger.error(TAG, `Push Token 获取失败: ${e}`);
+      logger.error(TAG, 'Push Token 获取失败: ' + e);
       return null;
     }
   }
@@ -44,7 +44,7 @@ export class PushManagerFacade implements IPushManager {
       try {
         this.messageCallback(message);
       } catch (e) {
-        logger.error(TAG, `推送消息回调执行异常: ${e}`);
+        logger.error(TAG, '推送消息回调执行异常: ' + e);
       }
     } else {
       logger.warn(TAG, '推送消息到达但未注册回调，消息已丢弃');

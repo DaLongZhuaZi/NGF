@@ -49,7 +49,7 @@ export class TimeUtils {
     if (typeof input === 'string') {
       const parsed = Date.parse(input);
       if (isNaN(parsed)) {
-        logger.warn(TAG, `无效的时间字符串: ${input}，使用当前时间`);
+        logger.warn(TAG, '无效的时间字符串: ' + input + '，使用当前时间');
         return Date.now();
       }
       return parsed;
@@ -58,13 +58,13 @@ export class TimeUtils {
     if (input instanceof Date) {
       const timestamp = input.getTime();
       if (isNaN(timestamp)) {
-        logger.warn(TAG, `无效的Date对象，使用当前时间`);
+        logger.warn(TAG, '无效的Date对象，使用当前时间');
         return Date.now();
       }
       return timestamp;
     }
 
-    logger.warn(TAG, `未知的时间格式: ${typeof input}，使用当前时间`);
+    logger.warn(TAG, '未知的时间格式: ' + String(typeof input) + '，使用当前时间');
     return Date.now();
   }
 
@@ -122,7 +122,7 @@ export class TimeUtils {
     const seconds = date.getSeconds().toString().padStart(2, '0');
     const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
     
-    return `[${hours}:${minutes}:${seconds}.${milliseconds}]`;
+    return '[' + hours + ':' + minutes + ':' + seconds + '.' + milliseconds + ']';
   }
 
   /**
@@ -148,15 +148,15 @@ export class TimeUtils {
     if (seconds < 60) {
       return '刚刚';
     } else if (minutes < 60) {
-      return `${minutes}分钟前`;
+      return minutes + '分钟前';
     } else if (hours < 24) {
-      return `${hours}小时前`;
+      return hours + '小时前';
     } else if (days < 30) {
-      return `${days}天前`;
+      return days + '天前';
     } else if (months < 12) {
-      return `${months}个月前`;
+      return months + '个月前';
     } else {
-      return `${years}年前`;
+      return years + '年前';
     }
   }
 
@@ -199,13 +199,13 @@ export class TimeUtils {
     const days = Math.floor(hours / 24);
 
     if (days > 0) {
-      return `${days}天${hours % 24}小时`;
+      return days + '天' + String(hours % 24) + '小时';
     } else if (hours > 0) {
-      return `${hours}小时${minutes % 60}分钟`;
+      return hours + '小时' + String(minutes % 60) + '分钟';
     } else if (minutes > 0) {
-      return `${minutes}分钟${seconds % 60}秒`;
+      return minutes + '分钟' + String(seconds % 60) + '秒';
     } else {
-      return `${seconds}秒`;
+      return seconds + '秒';
     }
   }
 }

@@ -29,7 +29,7 @@ export class AuthInterceptorFacade implements IHttpInterceptor {
    */
   setHeaderName(name: string): void {
     this.headerName = name;
-    logger.info(TAG, `鉴权头名称已设置为: ${name}`);
+    logger.info(TAG, '鉴权头名称已设置为: ' + name);
   }
 
   /**
@@ -38,7 +38,7 @@ export class AuthInterceptorFacade implements IHttpInterceptor {
    */
   setPrefix(prefix: string): void {
     this.prefix = prefix;
-    logger.info(TAG, `Token 前缀已设置为: ${prefix}`);
+    logger.info(TAG, 'Token 前缀已设置为: ' + prefix);
   }
 
   /**
@@ -53,15 +53,15 @@ export class AuthInterceptorFacade implements IHttpInterceptor {
       return options;
     }
 
-    const authHeaderValue: string = `${this.prefix}${token}`;
+    const authHeaderValue: string = this.prefix + token;
     let updatedHeader: string;
     if (options.header.length > 0) {
-      updatedHeader = `${options.header}\r\n${this.headerName}: ${authHeaderValue}`;
+      updatedHeader = options.header + '\\r\\n' + this.headerName + ': ' + authHeaderValue;
     } else {
-      updatedHeader = `${this.headerName}: ${authHeaderValue}`;
+      updatedHeader = this.headerName + ': ' + authHeaderValue;
     }
 
-    logger.debug(TAG, `已注入鉴权头: ${this.headerName}`);
+    logger.debug(TAG, '已注入鉴权头: ' + this.headerName);
     return new NGFHttpRequestOptions(
       options.method,
       options.url,

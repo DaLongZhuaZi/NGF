@@ -14,7 +14,7 @@ function getSandboxBaseDir(): string {
   const ctx = uiContextManager.getAbilityContext();
   if (ctx !== null && ctx.filesDir.length > 0) {
     sandboxBaseDir = ctx.filesDir;
-    logger.info(TAG, `沙箱基础目录延迟初始化: ${sandboxBaseDir}`);
+    logger.info(TAG, '沙箱基础目录延迟初始化: ' + sandboxBaseDir);
   }
   return sandboxBaseDir;
 }
@@ -38,7 +38,7 @@ export class FileUtils {
    */
   static setSandboxBaseDir(baseDir: string): void {
     sandboxBaseDir = baseDir;
-    logger.info(TAG, `沙箱基础目录已设置: ${baseDir}`);
+    logger.info(TAG, '沙箱基础目录已设置: ' + baseDir);
   }
 
   private static resolvePath(filePath: string): string {
@@ -47,13 +47,13 @@ export class FileUtils {
     }
     const baseDir: string = getSandboxBaseDir();
     if (baseDir.length <= 0) {
-      logger.warn(TAG, `沙箱基础目录未设置，使用相对路径可能导致失败: ${filePath}`);
+      logger.warn(TAG, '沙箱基础目录未设置，使用相对路径可能导致失败: ' + filePath);
       return filePath;
     }
     if (filePath.length <= 0) {
       return baseDir;
     }
-    return `${baseDir}/${filePath}`;
+    return baseDir + '/' + filePath;
   }
 
   static readText(filePath: string): string {
@@ -68,7 +68,7 @@ export class FileUtils {
       return decoder.decodeToString(new Uint8Array(buffer, 0, readResult));
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `readText 失败: path=${filePath}, error=${message}`);
+      logger.error(TAG, 'readText 失败: path=' + filePath + ', error=' + message);
       return '';
     }
   }
@@ -82,7 +82,7 @@ export class FileUtils {
       return true;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `writeText 失败: path=${filePath}, error=${message}`);
+      logger.error(TAG, 'writeText 失败: path=' + filePath + ', error=' + message);
       return false;
     } finally {
       if (file !== null) {
@@ -104,7 +104,7 @@ export class FileUtils {
       return true;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `appendText 失败: path=${filePath}, error=${message}`);
+      logger.error(TAG, 'appendText 失败: path=' + filePath + ', error=' + message);
       return false;
     } finally {
       if (file !== null) {
@@ -128,7 +128,7 @@ export class FileUtils {
       return buffer;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `readBytes 失败: path=${filePath}, error=${message}`);
+      logger.error(TAG, 'readBytes 失败: path=' + filePath + ', error=' + message);
       return new ArrayBuffer(0);
     }
   }
@@ -142,7 +142,7 @@ export class FileUtils {
       return true;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `writeBytes 失败: path=${filePath}, error=${message}`);
+      logger.error(TAG, 'writeBytes 失败: path=' + filePath + ', error=' + message);
       return false;
     } finally {
       if (file !== null) {
@@ -192,7 +192,7 @@ export class FileUtils {
       return true;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `createDirectory 失败: path=${dirPath}, error=${message}`);
+      logger.error(TAG, 'createDirectory 失败: path=' + dirPath + ', error=' + message);
       return false;
     }
   }
@@ -215,7 +215,7 @@ export class FileUtils {
       return entries;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `listDirectory 失败: path=${dirPath}, error=${message}`);
+      logger.error(TAG, 'listDirectory 失败: path=' + dirPath + ', error=' + message);
       return [];
     }
   }
@@ -227,7 +227,7 @@ export class FileUtils {
       return true;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `deleteFile 失败: path=${filePath}, error=${message}`);
+      logger.error(TAG, 'deleteFile 失败: path=' + filePath + ', error=' + message);
       return false;
     }
   }
@@ -239,7 +239,7 @@ export class FileUtils {
       return true;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `deleteDirectory 失败: path=${dirPath}, error=${message}`);
+      logger.error(TAG, 'deleteDirectory 失败: path=' + dirPath + ', error=' + message);
       return false;
     }
   }
@@ -252,7 +252,7 @@ export class FileUtils {
       return true;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `copyFile 失败: src=${srcPath}, dest=${destPath}, error=${message}`);
+      logger.error(TAG, 'copyFile 失败: src=' + srcPath + ', dest=' + destPath + ', error=' + message);
       return false;
     }
   }
@@ -265,7 +265,7 @@ export class FileUtils {
       return true;
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `moveFile 失败: src=${srcPath}, dest=${destPath}, error=${message}`);
+      logger.error(TAG, 'moveFile 失败: src=' + srcPath + ', dest=' + destPath + ', error=' + message);
       return false;
     }
   }

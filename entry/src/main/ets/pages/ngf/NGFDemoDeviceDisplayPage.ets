@@ -208,7 +208,7 @@ export struct NGFDemoDeviceDisplayPage {
         Column({ space: 4 }) {
           ForEach(this.relativeTimeResults, (text: string, index: number) => {
             Row() {
-              Text(`${index + 1}.`)
+              Text(String(index + 1) + '.')
                 .fontSize(12)
                 .fontColor($r('app.color.text_muted'))
                 .width(24)
@@ -280,7 +280,7 @@ export struct NGFDemoDeviceDisplayPage {
             .padding({ top: 8, bottom: 8, left: 12, right: 12 })
             .backgroundColor($r('app.color.background_surface'))
             .borderRadius(10)
-          }, (entry: NGFDemoCapabilityEntry): string => `cap_${entry.id}`)
+          }, (entry: NGFDemoCapabilityEntry): string => 'cap_' + entry.id)
         }
         .width('100%')
       }
@@ -380,7 +380,7 @@ export struct NGFDemoDeviceDisplayPage {
           Text($r('app.string.ui_str_2280'))
             .fontSize(11)
             .fontColor($r('app.color.text_tertiary'))
-          Text(`${this.currentFontScale}x`)
+          Text(this.currentFontScale + 'x')
             .fontSize(15)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.tag_green'))
@@ -414,7 +414,7 @@ export struct NGFDemoDeviceDisplayPage {
     const locale = this.locales[localeIndex];
     const timestamp = Date.now() - offsetMs;
     const result = ngfRelativeTimeFormatterFacade.format(timestamp, locale);
-    const text = `${locale}: ${result.text}`;
+    const text = locale + ': ' + result.text;
     const nextResults: Array<string> = [];
     for (let i = 0; i < this.relativeTimeResults.length; i++) {
       nextResults.push(this.relativeTimeResults[i]);
@@ -424,7 +424,7 @@ export struct NGFDemoDeviceDisplayPage {
       nextResults.shift();
     }
     this.relativeTimeResults = nextResults;
-    logger.info(TAG, `相对时间: locale=${locale}, text=${result.text}`);
+    logger.info(TAG, '相对时间: locale=' + locale + ', text=' + result.text);
   }
 
   private handleDetectAll(): void {
@@ -435,7 +435,7 @@ export struct NGFDemoDeviceDisplayPage {
       entries.push(new NGFDemoCapabilityEntry(i + 1, this.resolveCapabilityName(r.capability), r.available, r.detail));
     }
     this.capabilities = entries;
-    logger.info(TAG, `设备能力检测完成: total=${entries.length}`);
+    logger.info(TAG, '设备能力检测完成: total=' + String(entries.length));
   }
 
   private resolveCapabilityName(type: NGFCapabilityType): ResourceStr {
@@ -467,6 +467,6 @@ export struct NGFDemoDeviceDisplayPage {
     this.currentFontScale = ngfFontScaleManagerFacade.getCurrentScale();
     this.currentFontLevel = this.resolveLevelText(ngfFontScaleManagerFacade.getCurrentLevel());
     this.statusMessage = $r('app.string.ui_str_2292', this.currentFontLevel, this.currentFontScale);
-    logger.info(TAG, `字体缩放更新: level=${this.currentFontLevel}, scale=${this.currentFontScale}`);
+    logger.info(TAG, '字体缩放更新: level=' + this.currentFontLevel + ', scale=' + this.currentFontScale);
   }
 }

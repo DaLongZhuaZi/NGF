@@ -96,16 +96,16 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
   private windowSizeListenerRegistered: boolean = false;
   private destroyed: boolean = false;
   private readonly displayChangeCallback: Callback<number> = (displayId: number): void => {
-    logger.info(TAG, `屏幕发生变化: displayId=${displayId}`);
+    logger.info(TAG, '屏幕发生变化: displayId=' + displayId);
     this.updateDeviceInfo('display_change');
   };
   private readonly foldStatusChangeCallback: Callback<display.FoldStatus> = (status: display.FoldStatus): void => {
     this.currentFoldStatus = this.convertFoldStatus(status);
-    logger.info(TAG, `折叠状态变化: ${this.getFoldStatusName(this.currentFoldStatus)}`);
+    logger.info(TAG, '折叠状态变化: ' + String(this.getFoldStatusName(this.currentFoldStatus)));
     this.updateDeviceInfo('fold_status_change');
   };
   private readonly windowSizeChangeCallback: Callback<window.Size> = (size: window.Size): void => {
-    logger.info(TAG, `窗口尺寸变化: width=${size.width}, height=${size.height}`);
+    logger.info(TAG, '窗口尺寸变化: width=' + size.width + ', height=' + size.height);
     this.updateDeviceInfo('window_size_change');
   };
 
@@ -164,7 +164,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       this.isFoldableDevice = display.isFoldable();
       if (this.isFoldableDevice) {
         this.currentFoldStatus = this.convertFoldStatus(display.getFoldStatus());
-        logger.info(TAG, `检测到折叠屏设备，当前状态: ${this.getFoldStatusName(this.currentFoldStatus)}`);
+        logger.info(TAG, '检测到折叠屏设备，当前状态: ' + String(this.getFoldStatusName(this.currentFoldStatus)));
       } else {
         logger.info(TAG, '非折叠屏设备');
       }
@@ -182,7 +182,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
     try {
       const deviceTypeStr: string = deviceInfo.deviceType;
       this.isTablet = deviceTypeStr === 'tablet' || deviceTypeStr === '2in1';
-      logger.info(TAG, `平板类设备检测结果: ${this.isTablet}`);
+      logger.info(TAG, '平板类设备检测结果: ' + this.isTablet);
     } catch (error) {
       logger.warn(TAG, '平板类设备检测失败', String(error));
       this.isTablet = false;
@@ -286,9 +286,9 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
 
       logger.debug(
         TAG,
-        `方向检测: displayOrientation=${displayOrientation}, isDisplayLandscape=${isDisplayLandscape}, ` +
-          `isViewportLandscape=${isViewportLandscape}, 宽=${widthVp.toFixed(2)}, 高=${heightVp.toFixed(2)}, ` +
-          `source=${viewport.source}, reason=${reason}`
+        '方向检测: displayOrientation=' + displayOrientation + ', isDisplayLandscape=' + isDisplayLandscape + ', ' +
+          'isViewportLandscape=' + isViewportLandscape + ', 宽=' + String(widthVp.toFixed(2)) + ', 高=' + String(heightVp.toFixed(2)) + ', ' +
+          'source=' + viewport.source + ', reason=' + reason
       );
 
       // 判断断点（基于宽度）
@@ -335,7 +335,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
         reason
       };
 
-      logger.info(TAG, `设备信息: ${JSON.stringify(logInfo)}`);
+      logger.info(TAG, '设备信息: ' + JSON.stringify(logInfo));
 
       // 如果有变化，通知监听器
       if (hasChanged) {
@@ -361,7 +361,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
           return new NGFViewportMetrics(windowRect.width, windowRect.height, 'window_rect');
         }
       } catch (error) {
-        logger.warn(TAG, `读取窗口尺寸失败，回退到默认屏幕: ${String(error)}`);
+        logger.warn(TAG, '读取窗口尺寸失败，回退到默认屏幕: ' + String(error));
       }
     }
 
@@ -413,7 +413,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
 
       // 如果是折叠屏，优先返回折叠屏类型
       if (this.isFoldableDevice) {
-        logger.debug(TAG, `设备类型: ${systemDeviceType} (折叠屏)`);
+        logger.debug(TAG, '设备类型: ' + systemDeviceType + ' (折叠屏)');
         return NGFDeviceType.FOLDABLE;
       }
 
@@ -427,7 +427,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
           return NGFDeviceType.TWO_IN_ONE;
         default:
           // 如果无法识别，根据屏幕尺寸判断
-          logger.warn(TAG, `未知设备类型: ${systemDeviceType}，使用屏幕尺寸判断`);
+          logger.warn(TAG, '未知设备类型: ' + systemDeviceType + '，使用屏幕尺寸判断');
           return this.fallbackDeviceTypeDetection();
       }
     } catch (error) {
@@ -558,7 +558,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       this.updateDeviceInfo('bind_window_stage');
       logger.info(TAG, '已绑定窗口阶段并启用窗口尺寸监听');
     } catch (error) {
-      logger.warn(TAG, `绑定窗口阶段失败: ${String(error)}`);
+      logger.warn(TAG, '绑定窗口阶段失败: ' + String(error));
     }
   }
 
@@ -577,7 +577,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       this.windowSizeListenerRegistered = true;
       logger.debug(TAG, '窗口尺寸监听器注册成功');
     } catch (error) {
-      logger.warn(TAG, `注册窗口尺寸监听器失败: ${String(error)}`);
+      logger.warn(TAG, '注册窗口尺寸监听器失败: ' + String(error));
     }
   }
 
@@ -590,7 +590,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       currentWindow.off('windowSizeChange', this.windowSizeChangeCallback);
       logger.debug(TAG, '窗口尺寸监听器已注销');
     } catch (error) {
-      logger.warn(TAG, `注销窗口尺寸监听器失败: ${String(error)}`);
+      logger.warn(TAG, '注销窗口尺寸监听器失败: ' + String(error));
     }
     this.windowSizeListenerRegistered = false;
   }
@@ -600,7 +600,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
    */
   public addListener(listener: NGFDeviceChangeListener): void {
     this.listeners.add(listener);
-    logger.debug(TAG, `添加监听器，当前监听器数量: ${this.listeners.size}`);
+    logger.debug(TAG, '添加监听器，当前监听器数量: ' + this.listeners.size);
   }
 
   /**
@@ -608,7 +608,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
    */
   public removeListener(listener: NGFDeviceChangeListener): void {
     this.listeners.delete(listener);
-    logger.debug(TAG, `移除监听器，当前监听器数量: ${this.listeners.size}`);
+    logger.debug(TAG, '移除监听器，当前监听器数量: ' + this.listeners.size);
   }
 
   /**
@@ -675,7 +675,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       status.is64Bit = process.is64Bit();
       status.uptime = process.uptime();
     } catch (e) {
-      logger.warn(TAG, `获取进程信息失败: ${e}`);
+      logger.warn(TAG, '获取进程信息失败: ' + e);
     }
 
     try {
@@ -696,7 +696,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
         });
       }
     } catch (e) {
-      logger.warn(TAG, `获取性能信息失败: ${e}`);
+      logger.warn(TAG, '获取性能信息失败: ' + e);
     }
 
     try {
@@ -705,7 +705,7 @@ export class NGFDeviceAdaptationManager implements IDeviceAdaptationManager {
       status.isCharging = batteryInfo.chargingStatus === batteryInfo.BatteryChargeState.ENABLE ||
                           batteryInfo.chargingStatus === batteryInfo.BatteryChargeState.FULL;
     } catch (e) {
-      logger.warn(TAG, `获取电池信息失败: ${e}`);
+      logger.warn(TAG, '获取电池信息失败: ' + e);
     }
 
     return status;

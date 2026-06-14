@@ -13,7 +13,7 @@ export class PageStateStoreFacade implements IPageStateStore {
     const snapshot = new NGFPageStateSnapshot(pageName, stateJson, Date.now());
     this.cache.set(pageName, snapshot);
     void SettingsManager.getInstance().setString(key, stateJson);
-    logger.debug(TAG, `保存页面状态: page=${pageName}, length=${stateJson.length}`);
+    logger.debug(TAG, '保存页面状态: page=' + pageName + ', length=' + String(stateJson.length));
   }
 
   restorePageState(pageName: string): NGFPageStateSnapshot | null {
@@ -30,7 +30,7 @@ export class PageStateStoreFacade implements IPageStateStore {
 
     const snapshot = new NGFPageStateSnapshot(pageName, stateJson, Date.now());
     this.cache.set(pageName, snapshot);
-    logger.debug(TAG, `恢复页面状态: page=${pageName}, length=${stateJson.length}`);
+    logger.debug(TAG, '恢复页面状态: page=' + pageName + ', length=' + String(stateJson.length));
     return snapshot;
   }
 
@@ -39,24 +39,24 @@ export class PageStateStoreFacade implements IPageStateStore {
     const existed = this.cache.has(pageName);
     this.cache.delete(pageName);
     void SettingsManager.getInstance().setString(key, '');
-    logger.debug(TAG, `移除页面状态: page=${pageName}, existed=${existed}`);
+    logger.debug(TAG, '移除页面状态: page=' + pageName + ', existed=' + existed);
     return existed;
   }
 
   listSavedPages(): Array<string> {
     const names: Array<string> = [];
-    const keys = this.cache.keys();
-    for (const key of keys) {
-      names.push(key);
+    const keys: Array<string> = Array.from(this.cache.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      names.push(keys[i]);
     }
-    logger.debug(TAG, `列出已保存页面: count=${names.length}`);
+    logger.debug(TAG, '列出已保存页面: count=' + String(names.length));
     return names;
   }
 
   clearAll(): void {
-    const keys = this.cache.keys();
-    for (const key of keys) {
-      const settingsKey = KEY_PREFIX + key;
+    const keys: Array<string> = Array.from(this.cache.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      const settingsKey = KEY_PREFIX + keys[i];
       void SettingsManager.getInstance().setString(settingsKey, '');
     }
     this.cache.clear();

@@ -381,7 +381,7 @@ export struct NGFDeviceAwarenessPage {
     const confidenceLabel = this.describeConfidence(this.holdingConfidence);
     const sideStr = resolveResourceString(this.getUIContext().getHostContext(), sideLabel);
     const confidenceStr = resolveResourceString(this.getUIContext().getHostContext(), confidenceLabel);
-    return `实时握持：${sideStr} / ${confidenceStr}`;
+    return '实时握持：' + sideStr + ' / ' + confidenceStr;
   }
 
   private buildDeviceSummary(): string {
@@ -391,7 +391,7 @@ export struct NGFDeviceAwarenessPage {
     const widthStr = resolveResourceString(this.getUIContext().getHostContext(), this.formatVp(this.deviceScreenWidth));
     const heightStr = resolveResourceString(this.getUIContext().getHostContext(), this.formatVp(this.deviceScreenHeight));
     const reasonStr = resolveResourceString(this.getUIContext().getHostContext(), updateReasonLabel);
-    return `实时设备：${orientationStr} · ${widthStr} x ${heightStr} · ${reasonStr}`;
+    return '实时设备：' + orientationStr + ' · ' + widthStr + ' x ' + heightStr + ' · ' + reasonStr;
   }
 
   private describeSide(side: NGFHoldingAwarenessSide): ResourceStr {
@@ -482,7 +482,7 @@ export struct NGFDeviceAwarenessPage {
     if (value <= 0) {
       return $r('app.string.ui_str_2387');
     }
-    return `${value.toFixed(0)}vp`;
+    return String(value.toFixed(0)) + 'vp';
   }
 
   private formatUpdatedAt(value: number): ResourceStr {
@@ -490,12 +490,12 @@ export struct NGFDeviceAwarenessPage {
       return $r('app.string.ui_str_2408');
     }
     const date: Date = new Date(value);
-    return `${this.pad2(date.getHours())}:${this.pad2(date.getMinutes())}:${this.pad2(date.getSeconds())}`;
+    return String(this.pad2(date.getHours())) + ':' + String(this.pad2(date.getMinutes())) + ':' + String(this.pad2(date.getSeconds()));
   }
 
   private pad2(value: number): string {
     if (value < 10) {
-      return `0${value}`;
+      return '0' + value;
     }
     return String(value);
   }
@@ -524,7 +524,7 @@ export struct NGFDeviceAwarenessPage {
       case hdsMaterial.MaterialLevel.ADAPTIVE:
         return $r('app.string.ui_str_2379');
       default:
-        return `未知(${level})`;
+        return '未知(' + level + ')';
     }
   }
 }

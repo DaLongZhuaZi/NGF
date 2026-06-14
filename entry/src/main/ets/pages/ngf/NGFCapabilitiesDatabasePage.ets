@@ -52,7 +52,7 @@ export struct NGFCapabilitiesDatabasePage {
       this.isDbInitialized = true;
       await this.queryTasks();
     } catch (e) {
-      logger.error(TAG, `DB init failed: ${e}`);
+      logger.error(TAG, 'DB init failed: ' + e);
       this.isDbInitialized = false;
     } finally {
       this.isProcessing = false;
@@ -64,10 +64,11 @@ export struct NGFCapabilitiesDatabasePage {
     try {
       this.isProcessing = true;
       const rawResults = await ngfRdbManager.querySql('SELECT * FROM DemoTaskTable ORDER BY timestamp DESC');
-      logger.info(TAG, `成功查询数据库，共查到 ${rawResults.length} 条记录`);
+      logger.info(TAG, '成功查询数据库，共查到 ' + String(rawResults.length) + ' 条记录');
       
       const newTasks: Array<TaskRecord> = [];
-      for (const row of rawResults) {
+      for (let i: number = 0; i < rawResults.length; i++) {
+        const row = rawResults[i];
         newTasks.push({
           id: Number(row['id'] ?? 0),
           content: String(row['content'] ?? ''),
@@ -76,7 +77,7 @@ export struct NGFCapabilitiesDatabasePage {
       }
       this.tasks = newTasks;
     } catch (e) {
-      logger.error(TAG, `Query tasks failed: ${e}`);
+      logger.error(TAG, 'Query tasks failed: ' + e);
     } finally {
       this.isProcessing = false;
     }
@@ -89,11 +90,11 @@ export struct NGFCapabilitiesDatabasePage {
       const content = this.inputText.trim();
       const ts = Date.now();
       await ngfRdbManager.executeSql('INSERT INTO DemoTaskTable (content, timestamp) VALUES (?, ?)', [content, ts]);
-      logger.info(TAG, `成功向数据库插入记录: "${content}"`);
+      logger.info(TAG, '成功向数据库插入记录: "' + content + '"');
       this.inputText = '';
       await this.queryTasks();
     } catch (e) {
-      logger.error(TAG, `Add task failed: ${e}`);
+      logger.error(TAG, 'Add task failed: ' + e);
     } finally {
       this.isProcessing = false;
     }
@@ -104,10 +105,10 @@ export struct NGFCapabilitiesDatabasePage {
     try {
       this.isProcessing = true;
       await ngfRdbManager.executeSql('DELETE FROM DemoTaskTable WHERE id = ?', [id]);
-      logger.info(TAG, `成功删除数据库记录: ID=${id}`);
+      logger.info(TAG, '成功删除数据库记录: ID=' + id);
       await this.queryTasks();
     } catch (e) {
-      logger.error(TAG, `Delete task failed: ${e}`);
+      logger.error(TAG, 'Delete task failed: ' + e);
     } finally {
       this.isProcessing = false;
     }
@@ -121,7 +122,7 @@ export struct NGFCapabilitiesDatabasePage {
       logger.info(TAG, '成功清空数据库所有记录');
       await this.queryTasks();
     } catch (e) {
-      logger.error(TAG, `Clear all failed: ${e}`);
+      logger.error(TAG, 'Clear all failed: ' + e);
     } finally {
       this.isProcessing = false;
     }
@@ -132,7 +133,7 @@ export struct NGFCapabilitiesDatabasePage {
     const h = d.getHours().toString().padStart(2, '0');
     const m = d.getMinutes().toString().padStart(2, '0');
     const s = d.getSeconds().toString().padStart(2, '0');
-    return `${h}:${m}:${s}`;
+    return h + ':' + m + ':' + s;
   }
 
   build() {

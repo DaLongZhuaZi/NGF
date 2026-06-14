@@ -16,21 +16,21 @@ export class SourceHealthCheckerFacade implements ISourceHealthChecker {
 
   registerSource(config: NGFSourceHealthConfig): void {
     this.configs.set(config.sourceName, config);
-    logger.info(TAG, `注册健康检查: source=${config.sourceName}, url=${config.checkUrl}`);
+    logger.info(TAG, '注册健康检查: source=' + config.sourceName + ', url=' + config.checkUrl);
   }
 
   unregisterSource(sourceName: string): boolean {
     const existed = this.configs.has(sourceName);
     this.configs.delete(sourceName);
     this.lastResults.delete(sourceName);
-    logger.info(TAG, `注销健康检查: source=${sourceName}, existed=${existed}`);
+    logger.info(TAG, '注销健康检查: source=' + sourceName + ', existed=' + existed);
     return existed;
   }
 
   async checkHealth(sourceName: string): Promise<NGFSourceHealthResult> {
     const config = this.configs.get(sourceName);
     if (config === undefined) {
-      logger.warn(TAG, `健康检查配置未找到: source=${sourceName}`);
+      logger.warn(TAG, '健康检查配置未找到: source=' + sourceName);
       return new NGFSourceHealthResult(sourceName, NGFSourceHealthStatus.UNKNOWN, 0, 'not registered', Date.now());
     }
 
@@ -45,21 +45,21 @@ export class SourceHealthCheckerFacade implements ISourceHealthChecker {
 
       if (!response.isOk()) {
         status = NGFSourceHealthStatus.UNHEALTHY;
-        message = `HTTP ${response.statusCode}`;
+        message = 'HTTP ' + response.statusCode;
       } else if (latencyMs >= config.unhealthyThresholdMs) {
         status = NGFSourceHealthStatus.UNHEALTHY;
-        message = `latency ${latencyMs}ms >= ${config.unhealthyThresholdMs}ms`;
+        message = 'latency ' + latencyMs + 'ms >= ' + config.unhealthyThresholdMs + 'ms';
       } else if (latencyMs >= config.degradedThresholdMs) {
         status = NGFSourceHealthStatus.DEGRADED;
-        message = `latency ${latencyMs}ms >= ${config.degradedThresholdMs}ms`;
+        message = 'latency ' + latencyMs + 'ms >= ' + config.degradedThresholdMs + 'ms';
       } else {
         status = NGFSourceHealthStatus.HEALTHY;
-        message = `ok, ${latencyMs}ms`;
+        message = 'ok, ' + latencyMs + 'ms';
       }
 
       const result = new NGFSourceHealthResult(sourceName, status, latencyMs, message, Date.now());
       this.lastResults.set(sourceName, result);
-      logger.info(TAG, `健康检查完成: source=${sourceName}, status=${status}, latency=${latencyMs}ms`);
+      logger.info(TAG, '健康检查完成: source=' + sourceName + ', status=' + status + ', latency=' + latencyMs + 'ms');
       return result;
     } catch (error) {
       const latencyMs: number = Date.now() - startTime;
@@ -68,23 +68,23 @@ export class SourceHealthCheckerFacade implements ISourceHealthChecker {
         sourceName,
         NGFSourceHealthStatus.UNHEALTHY,
         latencyMs,
-        `error: ${errorMessage}`,
+        'error: ' + errorMessage,
         Date.now()
       );
       this.lastResults.set(sourceName, result);
-      logger.warn(TAG, `健康检查异常: source=${sourceName}, error=${errorMessage}`);
+      logger.warn(TAG, '健康检查异常: source=' + sourceName + ', error=' + errorMessage);
       return result;
     }
   }
 
   async checkAll(): Promise<Array<NGFSourceHealthResult>> {
     const results: Array<NGFSourceHealthResult> = [];
-    const names = this.configs.keys();
-    for (const name of names) {
-      const result = await this.checkHealth(name);
+    const names: Array<string> = Array.from(this.configs.keys());
+    for (let i: number = 0; i < names.length; i++) {
+      const result = await this.checkHealth(names[i]);
       results.push(result);
     }
-    logger.info(TAG, `批量健康检查完成: count=${results.length}`);
+    logger.info(TAG, '批量健康检查完成: count=' + String(results.length));
     return results;
   }
 

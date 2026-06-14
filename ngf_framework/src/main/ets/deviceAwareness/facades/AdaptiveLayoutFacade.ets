@@ -14,17 +14,17 @@ export class AdaptiveLayoutFacade implements IAdaptiveLayout {
       return;
     }
     this.configs.set(name, config);
-    logger.info(TAG, `注册布局配置: name=${name}`);
+    logger.info(TAG, '注册布局配置: name=' + name);
   }
 
   unregisterConfig(configName: string): boolean {
     const name = configName.trim();
     if (this.configs.has(name)) {
       this.configs.delete(name);
-      logger.info(TAG, `注销布局配置: name=${name}`);
+      logger.info(TAG, '注销布局配置: name=' + name);
       return true;
     }
-    logger.warn(TAG, `注销布局配置未找到: name=${name}`);
+    logger.warn(TAG, '注销布局配置未找到: name=' + name);
     return false;
   }
 
@@ -32,12 +32,12 @@ export class AdaptiveLayoutFacade implements IAdaptiveLayout {
     const name = configName.trim();
     const config = this.configs.get(name);
     if (config === undefined) {
-      logger.debug(TAG, `布局配置未注册: name=${name}`);
+      logger.debug(TAG, '布局配置未注册: name=' + name);
       return '';
     }
     const breakpoint = ngfDeviceAdaptationFacade.getCurrentBreakpoint();
     const value = config.resolve(breakpoint);
-    logger.debug(TAG, `解析布局配置: name=${name}, breakpoint=${breakpoint}, value=${value}`);
+    logger.debug(TAG, '解析布局配置: name=' + name + ', breakpoint=' + breakpoint + ', value=' + value);
     return value;
   }
 

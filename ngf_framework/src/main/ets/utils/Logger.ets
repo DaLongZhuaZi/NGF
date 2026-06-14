@@ -1,4 +1,4 @@
-﻿// 文件路径: src/main/ets/Utils/Logger.ts
+// 文件路径: src/main/ets/Utils/Logger.ts
 /**
  * 日志系统模块
  * 提供应用级别的日志记录功能，支持不同级别的日志输出
@@ -111,7 +111,7 @@ class Logger {
    */
   public setHilogOutputLevel(level: LogLevel): void {
     this.hilogOutputLevel = level;
-    this.info('Logger', `hilog输出级别已设置为: ${LOG_LEVEL_NAMES[LOG_LEVEL_VALUES.indexOf(level)]}`);
+    this.info('Logger', 'hilog输出级别已设置为: ' + LOG_LEVEL_NAMES[LOG_LEVEL_VALUES.indexOf(level)]);
   }
   
   /**
@@ -163,7 +163,7 @@ class Logger {
     const levelSymbol = LOG_LEVEL_SYMBOLS.get(level) || '❓ 未知';
     const chineseTag = TAG_MAPPING[tag] || tag;
     const timestamp = this.enableTimestamp ? this.getTimestamp() + ' ' : '';
-    const formattedMessage = `${globalPrefix}${timestamp}${levelSymbol} [${chineseTag}] ${message}`;
+    const formattedMessage = globalPrefix + timestamp + levelSymbol + ' [' + chineseTag + '] ' + message;
     // 确保所有日志都被收集，即使在早期启动阶段
     if (!logCollector.isCollectorEnabled()) {
       logCollector.setEnabled(true);
@@ -184,7 +184,7 @@ class Logger {
     if (argsText.length <= 0) {
       return this.formatMessage(level, tag, message);
     }
-    return this.formatMessage(level, tag, `${message} ${argsText}`);
+    return this.formatMessage(level, tag, message + ' ' + argsText);
   }
 
   /**
@@ -198,7 +198,7 @@ class Logger {
       const formattedMessage = this.formatMessageWithArgs(LogLevel.DEBUG, tag, message, args);
       // 仅当hilog输出级别允许时才输出到hilog
       if (this.shouldOutputToHilog(LogLevel.DEBUG)) {
-        hilog.debug(LOG_DOMAIN, Flag, `%{public}s`, formattedMessage);
+        hilog.debug(LOG_DOMAIN, Flag, '%{public}s', formattedMessage);
       }
       // 同时发送到日志收集器
       logCollector.addLog(LogLevel.DEBUG, tag, message, args);
@@ -216,7 +216,7 @@ class Logger {
       const formattedMessage = this.formatMessageWithArgs(LogLevel.INFO, tag, message, args);
       // 仅当hilog输出级别允许时才输出到hilog
       if (this.shouldOutputToHilog(LogLevel.INFO)) {
-        hilog.info(LOG_DOMAIN, Flag, `%{public}s`, formattedMessage);
+        hilog.info(LOG_DOMAIN, Flag, '%{public}s', formattedMessage);
       }
       // 同时发送到日志收集器
       logCollector.addLog(LogLevel.INFO, tag, message, args);
@@ -234,7 +234,7 @@ class Logger {
       const formattedMessage = this.formatMessageWithArgs(LogLevel.WARN, tag, message, args);
       // 仅当hilog输出级别允许时才输出到hilog
       if (this.shouldOutputToHilog(LogLevel.WARN)) {
-        hilog.warn(LOG_DOMAIN, Flag, `%{public}s`, formattedMessage);
+        hilog.warn(LOG_DOMAIN, Flag, '%{public}s', formattedMessage);
       }
       // 同时发送到日志收集器
       logCollector.addLog(LogLevel.WARN, tag, message, args);
@@ -252,7 +252,7 @@ class Logger {
       const formattedMessage = this.formatMessageWithArgs(LogLevel.ERROR, tag, message, args);
       // 仅当hilog输出级别允许时才输出到hilog
       if (this.shouldOutputToHilog(LogLevel.ERROR)) {
-        hilog.error(LOG_DOMAIN, Flag, `%{public}s`, formattedMessage);
+        hilog.error(LOG_DOMAIN, Flag, '%{public}s', formattedMessage);
       }
       // 同时发送到日志收集器
       logCollector.addLog(LogLevel.ERROR, tag, message, args);
@@ -270,7 +270,7 @@ class Logger {
       const formattedMessage = this.formatMessageWithArgs(LogLevel.FATAL, tag, message, args);
       // 仅当hilog输出级别允许时才输出到hilog
       if (this.shouldOutputToHilog(LogLevel.FATAL)) {
-        hilog.fatal(LOG_DOMAIN, Flag, `%{public}s`, formattedMessage);
+        hilog.fatal(LOG_DOMAIN, Flag, '%{public}s', formattedMessage);
       }
       // 同时发送到日志收集器
       logCollector.addLog(LogLevel.FATAL, tag, message, args);
@@ -284,8 +284,8 @@ class Logger {
    * @param details - 事件详情
    */
   public lifecycle(tag: string, event: string, details?: string): void {
-    const detailsText = details ? ` - ${details}` : '';
-    this.info(tag, `🔄 生命周期事件: ${event}${detailsText}`);
+    const detailsText = details ? ' - ' + details : '';
+    this.info(tag, '🔄 生命周期事件: ' + event + detailsText);
   }
   
   /**
@@ -295,8 +295,8 @@ class Logger {
    * @param details - 步骤详情
    */
   public startup(tag: string, step: string, details?: string): void {
-    const detailsText = details ? ` - ${details}` : '';
-    this.info(tag, `🚀 启动过程: ${step}${detailsText}`);
+    const detailsText = details ? ' - ' + details : '';
+    this.info(tag, '🚀 启动过程: ' + step + detailsText);
   }
   
   /**
@@ -307,8 +307,8 @@ class Logger {
    * @param details - 变化详情
    */
   public stateChange(tag: string, from: string, to: string, details?: string): void {
-    const detailsText = details ? ` - ${details}` : '';
-    this.info(tag, `🔄 状态变化: ${from} → ${to}${detailsText}`);
+    const detailsText = details ? ' - ' + details : '';
+    this.info(tag, '🔄 状态变化: ' + from + ' → ' + to + detailsText);
   }
   
   /**
@@ -319,7 +319,7 @@ class Logger {
    * @param unit - 单位
    */
   public performance(tag: string, metric: string, value: number, unit: string): void {
-    this.debug(tag, `📊 性能指标: ${metric} = ${value}${unit}`);
+    this.debug(tag, '📊 性能指标: ' + metric + ' = ' + value + unit);
   }
   
   /**
@@ -330,9 +330,9 @@ class Logger {
   public initializeHilogLevelFromIndex(levelIndex: number): void {
     if (levelIndex >= 0 && levelIndex < LOG_LEVEL_VALUES.length) {
       this.hilogOutputLevel = LOG_LEVEL_VALUES[levelIndex];
-      this.info('Logger', `从Settings初始化hilog输出等级: ${LOG_LEVEL_NAMES[levelIndex]}`);
+      this.info('Logger', '从Settings初始化hilog输出等级: ' + LOG_LEVEL_NAMES[levelIndex]);
     } else {
-      this.warn('Logger', `无效的日志等级索引: ${levelIndex}，使用默认值DEBUG`);
+      this.warn('Logger', '无效的日志等级索引: ' + levelIndex + '，使用默认值DEBUG');
     }
   }
   

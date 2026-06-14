@@ -28,10 +28,10 @@ export class MediaPickerFacade implements IMediaPicker {
       const photoSelectResult = await photoViewPicker.select(photoSelectOptions);
 
       const uris = photoSelectResult.photoUris;
-      logger.info(TAG, `成功拾取 ${uris.length} 张图片`);
+      logger.info(TAG, '成功拾取 ' + String(uris.length) + ' 张图片');
       return uris;
     } catch (e) {
-      logger.error(TAG, `图片拾取失败: ${e}`);
+      logger.error(TAG, '图片拾取失败: ' + e);
       return [];
     }
   }
@@ -56,7 +56,7 @@ export class MediaPickerFacade implements IMediaPicker {
 
       return photoSelectResult.photoUris;
     } catch (e) {
-      logger.error(TAG, `视频拾取失败: ${e}`);
+      logger.error(TAG, '视频拾取失败: ' + e);
       return [];
     }
   }
@@ -78,10 +78,10 @@ export class MediaPickerFacade implements IMediaPicker {
       const documentViewPicker = new picker.DocumentViewPicker();
       const documentSelectResult = await documentViewPicker.select(documentSelectOptions);
 
-      logger.info(TAG, `成功拾取 ${documentSelectResult.length} 个文件`);
+      logger.info(TAG, '成功拾取 ' + String(documentSelectResult.length) + ' 个文件');
       return documentSelectResult;
     } catch (e) {
-      logger.error(TAG, `文件拾取失败: ${e}`);
+      logger.error(TAG, '文件拾取失败: ' + e);
       return [];
     }
   }

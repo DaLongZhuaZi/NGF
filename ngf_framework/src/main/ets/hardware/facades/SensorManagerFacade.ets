@@ -19,7 +19,7 @@ export class SensorManagerFacade implements ISensorManager {
       logger.info(TAG, '已启动加速度传感器监听');
       return true;
     } catch (e) {
-      logger.error(TAG, `启动加速度传感器失败: ${e}`);
+      logger.error(TAG, '启动加速度传感器失败: ' + e);
       return false;
     }
   }
@@ -32,7 +32,7 @@ export class SensorManagerFacade implements ISensorManager {
       sensor.off(sensor.SensorId.ACCELEROMETER);
       logger.info(TAG, '已停止加速度传感器监听');
     } catch (e) {
-      logger.error(TAG, `停止加速度传感器失败: ${e}`);
+      logger.error(TAG, '停止加速度传感器失败: ' + e);
     }
   }
 }

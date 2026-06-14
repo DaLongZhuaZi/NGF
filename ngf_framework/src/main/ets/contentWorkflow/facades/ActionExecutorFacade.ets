@@ -71,16 +71,16 @@ export class ActionExecutorFacade implements IActionExecutor {
       return new NGFActionResult(false, '');
     }
 
-    logger.info(TAG, `执行动作：type=${normalizedType}`);
+    logger.info(TAG, '执行动作：type=' + normalizedType);
 
     if (normalizedType === 'wait') {
       const waitAction = this.parseWaitAction(actionJson);
       if (waitAction.waitMs > 0) {
-        logger.debug(TAG, `等待动作休眠：durationMs=${waitAction.waitMs}`);
+        logger.debug(TAG, '等待动作休眠：durationMs=' + waitAction.waitMs);
         await this.sleep(waitAction.waitMs);
       }
       const waitOutput = new NGFActionOutputEnvelope('wait', actionJson, contextJson, Date.now());
-      logger.info(TAG, `动作完成：type=${normalizedType}`);
+      logger.info(TAG, '动作完成：type=' + normalizedType);
       return new NGFActionResult(true, JSON.stringify(waitOutput));
     }
 
@@ -108,7 +108,7 @@ export class ActionExecutorFacade implements IActionExecutor {
       return await this.executeApiAction(actionJson, contextJson);
     }
 
-    logger.warn(TAG, `不支持的动作类型：${normalizedType}`);
+    logger.warn(TAG, '不支持的动作类型：' + normalizedType);
     return new NGFActionResult(false, '');
   }
 
@@ -128,12 +128,12 @@ export class ActionExecutorFacade implements IActionExecutor {
         30000
       );
       const response = await ngfHttpClientFacade.request(options);
-      logger.info(TAG, `fetch 完成: url=${httpAction.url}, status=${response.statusCode}`);
+      logger.info(TAG, 'fetch 完成: url=' + httpAction.url + ', status=' + response.statusCode);
       return new NGFActionResult(true, response.result);
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `fetch 失败: url=${httpAction.url}, error=${message}`);
-      return new NGFActionResult(false, `fetch error: ${message}`);
+      logger.warn(TAG, 'fetch 失败: url=' + httpAction.url + ', error=' + message);
+      return new NGFActionResult(false, 'fetch error: ' + message);
     }
   }
 
@@ -181,13 +181,13 @@ export class ActionExecutorFacade implements IActionExecutor {
       }
       const context: object = JSON.parse(contextJson) as object;
       const result: string = this.resolveJsonPath(context, envelope.path);
-      const outputJson: string = `{"actionType":"extract","executedAt":${Date.now()},"extractedPath":"${envelope.path}","extractedValue":"${result}"}`;
-      logger.info(TAG, `extract 完成: path=${envelope.path}`);
+      const outputJson: string = '{"actionType":"extract","executedAt":' + String(Date.now()) + ',"extractedPath":"' + envelope.path + '","extractedValue":"' + result + '"}';
+      logger.info(TAG, 'extract 完成: path=' + envelope.path);
       return new NGFActionResult(true, outputJson);
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `extract 失败: path=${envelope.path}, error=${message}`);
-      return new NGFActionResult(false, `{"error":"${message}"}`);
+      logger.warn(TAG, 'extract 失败: path=' + envelope.path + ', error=' + message);
+      return new NGFActionResult(false, '{"error":"' + message + '"}');
     }
   }
 
@@ -216,13 +216,13 @@ export class ActionExecutorFacade implements IActionExecutor {
         }
       }
       const transformedJson: string = this.mapToJson(transformed);
-      const outputJson: string = `{"actionType":"transform","executedAt":${Date.now()},"transformedData":${transformedJson}}`;
-      logger.info(TAG, `transform 完成: mapped ${envelope.map.size} fields`);
+      const outputJson: string = '{"actionType":"transform","executedAt":' + String(Date.now()) + ',"transformedData":' + transformedJson + '}';
+      logger.info(TAG, 'transform 完成: mapped ' + envelope.map.size + ' fields');
       return new NGFActionResult(true, outputJson);
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `transform 失败: error=${message}`);
-      return new NGFActionResult(false, `{"error":"${message}"}`);
+      logger.warn(TAG, 'transform 失败: error=' + message);
+      return new NGFActionResult(false, '{"error":"' + message + '"}');
     }
   }
 
@@ -233,8 +233,8 @@ export class ActionExecutorFacade implements IActionExecutor {
       return new NGFActionResult(false, '{"error":"missing route"}');
     }
     const paramsJson: string = this.mapToJson(envelope.params);
-    const outputJson: string = `{"actionType":"navigate","executedAt":${Date.now()},"navigationIntent":{"route":"${envelope.route}","params":${paramsJson}}}`;
-    logger.info(TAG, `navigate 意图已生成: route=${envelope.route}`);
+    const outputJson: string = '{"actionType":"navigate","executedAt":' + String(Date.now()) + ',"navigationIntent":{"route":"' + envelope.route + '","params":' + paramsJson + '}}';
+    logger.info(TAG, 'navigate 意图已生成: route=' + envelope.route);
     return new NGFActionResult(true, outputJson);
   }
 
@@ -282,13 +282,13 @@ export class ActionExecutorFacade implements IActionExecutor {
         match = placeholderPattern.exec(expression);
       }
 
-      logger.info(TAG, `script 完成: outputKey=${outputKey}, expressionLength=${resolvedExpression.length}`);
-      const outputJson: string = `{"actionType":"script","executedAt":${Date.now()},"${outputKey}":${JSON.stringify(resolvedExpression)}}`;
+      logger.info(TAG, 'script 完成: outputKey=' + outputKey + ', expressionLength=' + String(resolvedExpression.length));
+      const outputJson: string = '{"actionType":"script","executedAt":' + String(Date.now()) + ',"' + outputKey + '":' + JSON.stringify(resolvedExpression) + '}';
       return new NGFActionResult(true, outputJson);
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `script 失败: error=${message}`);
-      return new NGFActionResult(false, `{"error":"${message}"}`);
+      logger.warn(TAG, 'script 失败: error=' + message);
+      return new NGFActionResult(false, '{"error":"' + message + '"}');
     }
   }
 
@@ -338,16 +338,16 @@ export class ActionExecutorFacade implements IActionExecutor {
         30000
       );
 
-      logger.info(TAG, `api 请求: method=${method}, url=${url}`);
+      logger.info(TAG, 'api 请求: method=' + method + ', url=' + url);
       const response = await ngfHttpClientFacade.request(options);
-      logger.info(TAG, `api 完成: url=${url}, status=${response.statusCode}`);
+      logger.info(TAG, 'api 完成: url=' + url + ', status=' + response.statusCode);
 
-      const outputJson: string = `{"actionType":"api","executedAt":${Date.now()},"statusCode":${response.statusCode},"responseBody":${JSON.stringify(response.result)}}`;
+      const outputJson: string = '{"actionType":"api","executedAt":' + String(Date.now()) + ',"statusCode":' + response.statusCode + ',"responseBody":' + JSON.stringify(response.result) + '}';
       return new NGFActionResult(true, outputJson);
     } catch (error) {
       const message: string = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `api 失败: error=${message}`);
-      return new NGFActionResult(false, `{"error":"${message}"}`);
+      logger.warn(TAG, 'api 失败: error=' + message);
+      return new NGFActionResult(false, '{"error":"' + message + '"}');
     }
   }
 
@@ -509,7 +509,7 @@ export class ActionExecutorFacade implements IActionExecutor {
       if (!first) {
         result += ',';
       }
-      result += `"${key}":"${value}"`;
+      result += '"' + key + '":"' + value + '"';
       first = false;
     });
     result += '}';
@@ -517,7 +517,7 @@ export class ActionExecutorFacade implements IActionExecutor {
   }
 
   private extractStringField(json: string, fieldName: string): string {
-    const search: string = `"${fieldName}"`;
+    const search: string = '"' + fieldName + '"';
     const index: number = json.indexOf(search);
     if (index < 0) {
       return '';

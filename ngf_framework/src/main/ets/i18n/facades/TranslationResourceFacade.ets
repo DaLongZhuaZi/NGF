@@ -29,11 +29,11 @@ export class TranslationResourceFacade implements ITranslationResource {
         localeMap.set(entry[0], entry[1]);
       }
       this.translations.set(normalizedLocale, localeMap);
-      logger.info(TAG, `加载翻译资源: locale=${normalizedLocale}, keys=${localeMap.size}`);
+      logger.info(TAG, '加载翻译资源: locale=' + normalizedLocale + ', keys=' + String(localeMap.size));
       return new NGFTranslationLoadResult(normalizedLocale, localeMap.size, true);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `加载翻译资源失败: locale=${normalizedLocale}, error=${message}`);
+      logger.error(TAG, '加载翻译资源失败: locale=' + normalizedLocale + ', error=' + message);
       return new NGFTranslationLoadResult(normalizedLocale, 0, false);
     }
   }
@@ -42,7 +42,7 @@ export class TranslationResourceFacade implements ITranslationResource {
     const normalizedLocale = locale.trim();
     if (this.translations.has(normalizedLocale)) {
       this.translations.delete(normalizedLocale);
-      logger.info(TAG, `卸载翻译资源: locale=${normalizedLocale}`);
+      logger.info(TAG, '卸载翻译资源: locale=' + normalizedLocale);
     }
   }
 
@@ -89,9 +89,9 @@ export class TranslationResourceFacade implements ITranslationResource {
 
   listLocales(): Array<string> {
     const locales: Array<string> = [];
-    const keys = this.translations.keys();
-    for (const key of keys) {
-      locales.push(key);
+    const keys: Array<string> = Array.from(this.translations.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      locales.push(keys[i]);
     }
     return locales;
   }
@@ -128,13 +128,13 @@ export class TranslationResourceFacade implements ITranslationResource {
   }
 
   private reportMissing(key: string, locale: string): void {
-    const reportKey = `${locale}:${key}`;
+    const reportKey = locale + ':' + key;
     if (this.reportedMissingKeys.has(reportKey)) {
       return;
     }
     this.reportedMissingKeys.add(reportKey);
     this.missingKeys.push(new NGFMissingKeyReport(key, locale, Date.now()));
-    logger.debug(TAG, `缺失翻译键: key=${key}, locale=${locale}`);
+    logger.debug(TAG, '缺失翻译键: key=' + key + ', locale=' + locale);
   }
 }
 

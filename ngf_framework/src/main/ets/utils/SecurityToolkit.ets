@@ -60,8 +60,8 @@ class SecurityToolkit {
       return this.arrayBufferToHex(digest.data);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `SHA 哈希失败: ${message}`);
-      throw new Error(`SHA hash failed: ${message}`);
+      logger.error(TAG, 'SHA 哈希失败: ' + message);
+      throw new Error('SHA hash failed: ' + message);
     }
   }
 
@@ -79,25 +79,38 @@ class SecurityToolkit {
         : this.generateRandomBytes(12);
       const keyBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(keyBase64) };
       const ivBlob: cryptoFramework.DataBlob = { data: ivBytes };
-      const emptyAad: cryptoFramework.DataBlob = { data: new Uint8Array(0) };
-      const emptyTag: cryptoFramework.DataBlob = { data: new Uint8Array(0) };
+      const aadData: Uint8Array = new Uint8Array(0);
+      const aadBlob: cryptoFramework.DataBlob = { data: aadData };
+      const tagData: Uint8Array = new Uint8Array(16);
+      const tagBlob: cryptoFramework.DataBlob = { data: tagData };
       const gcmParams: cryptoFramework.GcmParamsSpec = {
-        algName: 'AES128|GCM|PKCS7',
+        algName: 'GcmParamsSpec',
         iv: ivBlob,
-        aad: emptyAad,
-        authTag: emptyTag
+        aad: aadBlob,
+        authTag: tagBlob
       };
-      const cipher = cryptoFramework.createCipher('AES128|GCM|PKCS7');
+      const cipher = cryptoFramework.createCipher('AES128|GCM');
       const keyGenerator = cryptoFramework.createSymKeyGenerator('AES128');
       const key = await keyGenerator.convertKey(keyBlob);
       await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, key, gcmParams);
       const plainBlob: cryptoFramework.DataBlob = { data: this.stringToUint8Array(plainText) };
-      const encrypted = await cipher.doFinal(plainBlob);
-      const output: Uint8Array = this.concatUint8Arrays(ivBytes, encrypted.data);
+      const encrypted: cryptoFramework.DataBlob = await cipher.update(plainBlob);
+      const tagResult: cryptoFramework.DataBlob = await cipher.doFinal(null);
+      if (tagResult !== null) {
+        gcmParams.authTag = tagResult;
+      }
+      let cipherData: Uint8Array;
+      if (encrypted !== null) {
+        cipherData = encrypted.data;
+      } else {
+        cipherData = new Uint8Array(0);
+      }
+      const authTagData: Uint8Array = gcmParams.authTag.data;
+      const output: Uint8Array = this.concatUint8Arrays3(ivBytes, cipherData, authTagData);
       return new NGFEncryptResult(true, this.uint8ArrayToBase64(output));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `AES-GCM 加密失败: ${message}`);
+      logger.error(TAG, 'AES-GCM 加密失败: ' + message);
       return new NGFEncryptResult(false, '');
     }
   }
@@ -120,24 +133,32 @@ class SecurityToolkit {
       const cipherBytes: Uint8Array = combined.slice(12, combined.length - 16);
       const keyBlob: cryptoFramework.DataBlob = { data: this.base64ToUint8Array(keyBase64) };
       const ivBlob: cryptoFramework.DataBlob = { data: ivBytes };
-      const emptyAad: cryptoFramework.DataBlob = { data: new Uint8Array(0) };
+      const aadData: Uint8Array = new Uint8Array(0);
+      const aadBlob: cryptoFramework.DataBlob = { data: aadData };
       const authTagBlob: cryptoFramework.DataBlob = { data: authTag };
       const gcmParams: cryptoFramework.GcmParamsSpec = {
-        algName: 'AES128|GCM|PKCS7',
+        algName: 'GcmParamsSpec',
         iv: ivBlob,
-        aad: emptyAad,
+        aad: aadBlob,
         authTag: authTagBlob
       };
-      const decipher = cryptoFramework.createCipher('AES128|GCM|PKCS7');
+      const decipher = cryptoFramework.createCipher('AES128|GCM');
       const keyGenerator = cryptoFramework.createSymKeyGenerator('AES128');
       const key = await keyGenerator.convertKey(keyBlob);
       await decipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, key, gcmParams);
       const dataBlob: cryptoFramework.DataBlob = { data: cipherBytes };
-      const decrypted = await decipher.doFinal(dataBlob);
-      return new NGFEncryptResult(true, this.uint8ArrayToString(decrypted.data));
+      const decrypted: cryptoFramework.DataBlob = await decipher.update(dataBlob);
+      await decipher.doFinal(null);
+      let plainData: Uint8Array;
+      if (decrypted !== null) {
+        plainData = decrypted.data;
+      } else {
+        plainData = new Uint8Array(0);
+      }
+      return new NGFEncryptResult(true, this.uint8ArrayToString(plainData));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `AES-GCM 解密失败: ${message}`);
+      logger.error(TAG, 'AES-GCM 解密失败: ' + message);
       return new NGFEncryptResult(false, '');
     }
   }
@@ -151,7 +172,7 @@ class SecurityToolkit {
       return this.uint8ArrayToBase64(blob.data);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `生成随机数失败: ${message}`);
+      logger.error(TAG, '生成随机数失败: ' + message);
       return '';
     }
   }
@@ -163,7 +184,7 @@ class SecurityToolkit {
       return blob.data;
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `generateRandomBytes failed: ${msg}`);
+      logger.error(TAG, 'generateRandomBytes failed: ' + msg);
       throw new Error(msg);
     }
   }
@@ -175,6 +196,20 @@ class SecurityToolkit {
     }
     for (let i = 0; i < b.length; i++) {
       result[a.length + i] = b[i];
+    }
+    return result;
+  }
+
+  private concatUint8Arrays3(a: Uint8Array, b: Uint8Array, c: Uint8Array): Uint8Array {
+    const result = new Uint8Array(a.length + b.length + c.length);
+    for (let i = 0; i < a.length; i++) {
+      result[i] = a[i];
+    }
+    for (let i = 0; i < b.length; i++) {
+      result[a.length + i] = b[i];
+    }
+    for (let i = 0; i < c.length; i++) {
+      result[a.length + b.length + i] = c[i];
     }
     return result;
   }
@@ -215,7 +250,7 @@ class SecurityToolkit {
     for (let index = 0; index < arr.length; index++) {
       const byte = arr[index];
       const h = byte.toString(16);
-      hex += h.length < 2 ? `0${h}` : h;
+      hex += h.length < 2 ? '0' + h : h;
     }
     return hex;
   }

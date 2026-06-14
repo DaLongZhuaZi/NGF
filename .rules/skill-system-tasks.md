@@ -1,6 +1,6 @@
 # 技能：任务管理与系统通知
 
-**适用场景**：需要在后台执行长时任务、跨模块派发任务、订阅任务进度、显示常驻或临时通知时，按本技能的标准模式接入，不要自行引入底层的 `@kit.BackgroundTasksKit` 和 `@kit.NotificationKit`。
+**适用场景**：需要在后台执行长时任务、跨模块派发任务、订阅任务进度、显示常驻或临时通知时，按本技能的标准模式接入，不要自行引入底层的 `@ohos.resourceschedule.backgroundTaskManager` 和 `@kit.NotificationKit`。
 - **长时任务与保活**（如下载、解压、数据同步）
 - **常驻通知与进度条**（随任务进度实时更新的系统通知）
 - **意图与事件驱动**（跨模块拉起后台任务）
@@ -35,11 +35,11 @@
 
 ```typescript
 import {
-  ngfSystemNotificationManagerFacade,
-  NGFNotificationAction,
+  ngfSystemNotificationManager,
   NGFNotificationType,
-  ngfBackgroundTaskManagerFacade,
-  NGFDataSyncRequest
+  NGFNotificationRequest,
+  ngfBackgroundTaskManager,
+  ngfSystem
 } from 'ngf_framework';
 ```
 
@@ -120,10 +120,26 @@ aboutToDisappear(): void {
 除了在代码中显式调用 `submitTask` 之外，还可以通过发送全局系统意图来拉起任务：
 
 ```typescript
-import { NGFEventPayload } from '../../Framework/NGF/core/contracts/IEventBus';
+import { NGFEventPayload, NGFIntentTaskExecutor, NGFSubmitTaskIntentRequest, NGFTaskProgressUpdater } from 'ngf_framework';
 
-// 发布一个提交任务的意图
-const payloadJson = JSON.stringify({ name: '意图驱动下载任务', url: 'https://...' });
+const executor: NGFIntentTaskExecutor = async (
+  taskId: string,
+  updateCallback: NGFTaskProgressUpdater,
+  request: NGFSubmitTaskIntentRequest
+) => {
+  updateCallback(0, 100, '准备执行...');
+  // request.payloadJson 可由执行器按自己的强类型协议解析
+  updateCallback(100, 100, '执行完成');
+};
+
+ngfSystem.registerIntentTaskExecutor('download.executor', executor);
+
+// 发布一个提交任务的意图。框架只调度已注册的 executorName，不再内置模拟任务。
+const payloadJson = JSON.stringify({
+  executorName: 'download.executor',
+  taskName: '意图驱动下载任务',
+  payloadJson: JSON.stringify({ url: 'https://...' })
+});
 const payload = new NGFEventPayload('ngf.intent.action.SUBMIT_TASK', payloadJson, Date.now());
 
 ngfSystem.publishSystemEvent('ngf.intent.action.SUBMIT_TASK', payload);

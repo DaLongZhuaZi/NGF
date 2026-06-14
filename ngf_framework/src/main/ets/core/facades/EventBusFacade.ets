@@ -26,17 +26,17 @@ export class EventBusFacade implements IEventBus {
 
     const listeners = this.subscriptions.get(normalizedEventName);
     if (!listeners || listeners.length <= 0) {
-      logger.debug(LOG_TAG, `publish skipped: event=${normalizedEventName}, listeners=0`);
+      logger.debug(LOG_TAG, 'publish skipped: event=' + normalizedEventName + ', listeners=0');
       return;
     }
 
-    logger.debug(LOG_TAG, `publishing event: event=${normalizedEventName}, listeners=${listeners.length}`);
+    logger.debug(LOG_TAG, 'publishing event: event=' + normalizedEventName + ', listeners=' + String(listeners.length));
     for (let i = 0; i < listeners.length; i++) {
       const subscription: NGFEventSubscriptionInternal = listeners[i];
       try {
         subscription.listener(payload);
       } catch (error) {
-        logger.error(LOG_TAG, `listener execution failed: event=${normalizedEventName}, listenerId=${subscription.listenerId}, error=${errorToString(error as Object | string | number | boolean)}`);
+        logger.error(LOG_TAG, 'listener execution failed: event=' + normalizedEventName + ', listenerId=' + subscription.listenerId + ', error=' + errorToString(error as Object | string | number | boolean));
       }
     }
   }
@@ -45,21 +45,21 @@ export class EventBusFacade implements IEventBus {
     const normalizedEventName = eventName.trim();
     const normalizedListenerId = listenerId.trim();
     if (normalizedEventName.length <= 0 || normalizedListenerId.length <= 0) {
-      logger.warn(LOG_TAG, `subscribe ignored: event=${normalizedEventName}, listenerId=${normalizedListenerId}`);
+      logger.warn(LOG_TAG, 'subscribe ignored: event=' + normalizedEventName + ', listenerId=' + normalizedListenerId);
       return false;
     }
 
     const listeners = this.ensureSubscriptions(normalizedEventName);
     for (let i = 0; i < listeners.length; i++) {
       if (listeners[i].listenerId === normalizedListenerId) {
-        logger.debug(LOG_TAG, `subscribe skipped (already exists): event=${normalizedEventName}, listenerId=${normalizedListenerId}`);
+        logger.debug(LOG_TAG, 'subscribe skipped (already exists): event=' + normalizedEventName + ', listenerId=' + normalizedListenerId);
         return false;
       }
     }
 
     const subscription = new NGFEventSubscriptionInternal(normalizedListenerId, listener);
     listeners.push(subscription);
-    logger.info(LOG_TAG, `subscribed listener: event=${normalizedEventName}, listenerId=${normalizedListenerId}`);
+    logger.info(LOG_TAG, 'subscribed listener: event=' + normalizedEventName + ', listenerId=' + normalizedListenerId);
     return true;
   }
 
@@ -68,7 +68,7 @@ export class EventBusFacade implements IEventBus {
     const normalizedListenerId = listenerId.trim();
     const listeners = this.subscriptions.get(normalizedEventName);
     if (!listeners || listeners.length <= 0) {
-      logger.debug(LOG_TAG, `unsubscribe skipped: event=${normalizedEventName}, listenerId=${normalizedListenerId}`);
+      logger.debug(LOG_TAG, 'unsubscribe skipped: event=' + normalizedEventName + ', listenerId=' + normalizedListenerId);
       return false;
     }
 
@@ -81,7 +81,7 @@ export class EventBusFacade implements IEventBus {
     }
 
     if (foundIndex < 0) {
-      logger.debug(LOG_TAG, `unsubscribe skipped (not found): event=${normalizedEventName}, listenerId=${normalizedListenerId}`);
+      logger.debug(LOG_TAG, 'unsubscribe skipped (not found): event=' + normalizedEventName + ', listenerId=' + normalizedListenerId);
       return false;
     }
 
@@ -89,14 +89,14 @@ export class EventBusFacade implements IEventBus {
     if (listeners.length <= 0) {
       this.subscriptions.delete(normalizedEventName);
     }
-    logger.info(LOG_TAG, `unsubscribed listener: event=${normalizedEventName}, listenerId=${normalizedListenerId}`);
+    logger.info(LOG_TAG, 'unsubscribed listener: event=' + normalizedEventName + ', listenerId=' + normalizedListenerId);
     return true;
   }
 
   clear(eventName: string): void {
     const normalizedEventName = eventName.trim();
     const existed = this.subscriptions.delete(normalizedEventName);
-    logger.info(LOG_TAG, `cleared event subscriptions: event=${normalizedEventName}, existed=${existed}`);
+    logger.info(LOG_TAG, 'cleared event subscriptions: event=' + normalizedEventName + ', existed=' + existed);
   }
 
   getSubscriptionCount(eventName: string): number {
@@ -110,9 +110,9 @@ export class EventBusFacade implements IEventBus {
 
   getSubscribedEvents(): string[] {
     const result: string[] = [];
-    const keys = this.subscriptions.keys();
-    for (const key of keys) {
-      result.push(key);
+    const keys: Array<string> = Array.from(this.subscriptions.keys());
+    for (let i: number = 0; i < keys.length; i++) {
+      result.push(keys[i]);
     }
     return result;
   }

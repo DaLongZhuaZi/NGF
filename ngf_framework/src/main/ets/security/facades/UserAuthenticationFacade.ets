@@ -30,7 +30,7 @@ export class UserAuthenticationFacade implements IUserAuthentication {
       return new Promise((resolve) => {
         userAuthInstance.on('result', {
           onResult(result) {
-            logger.info(TAG, `身份验证结果: ${result.result}`);
+            logger.info(TAG, '身份验证结果: ' + result.result);
             if (result.result === userAuth.UserAuthResultCode.SUCCESS) {
               resolve(true);
             } else {
@@ -39,19 +39,19 @@ export class UserAuthenticationFacade implements IUserAuthentication {
             try {
               userAuthInstance.off('result');
             } catch (e) {
-              logger.error(TAG, `off() failed: ${e}`);
+              logger.error(TAG, 'off() failed: ' + e);
             }
           }
         });
         try {
           userAuthInstance.start();
         } catch (e) {
-          logger.error(TAG, `start() thrown error: ${e}`);
+          logger.error(TAG, 'start() thrown error: ' + e);
           resolve(false);
         }
       });
     } catch (e) {
-      logger.error(TAG, `调起身份验证失败: ${e}`);
+      logger.error(TAG, '调起身份验证失败: ' + e);
       return false;
     }
   }
@@ -65,7 +65,7 @@ export class UserAuthenticationFacade implements IUserAuthentication {
       userAuth.getAvailableStatus(authType, userAuth.AuthTrustLevel.ATL1);
       return true;
     } catch (e) {
-      logger.warn(TAG, `设备不支持认证类型 ${authType}`);
+      logger.warn(TAG, '设备不支持认证类型 ' + authType);
       return false;
     }
   }

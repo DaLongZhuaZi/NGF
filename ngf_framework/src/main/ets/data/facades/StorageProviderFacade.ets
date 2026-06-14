@@ -26,19 +26,19 @@ export class StorageProviderFacade implements IStorageProvider {
   initialize(filesDir: string | undefined): void {
     this.filesDir = filesDir || '';
     this.sandboxManager.initialize(filesDir);
-    logger.info(TAG, `存储提供者初始化完成: filesDir=${filesDir}`);
+    logger.info(TAG, '存储提供者初始化完成: filesDir=' + filesDir);
   }
 
   getCacheDir(): string {
     try {
       const cacheDir = this.sandboxManager.getDirectory('cache');
-      logger.debug(TAG, `获取缓存目录: ${cacheDir}`);
+      logger.debug(TAG, '获取缓存目录: ' + cacheDir);
       return cacheDir;
     } catch {
       const filesDir = this.getFilesDir();
       if (filesDir.length > 0) {
-        const fallbackCacheDir = `${filesDir}/cache`;
-        logger.debug(TAG, `获取缓存目录回退: ${fallbackCacheDir}`);
+        const fallbackCacheDir = filesDir + '/cache';
+        logger.debug(TAG, '获取缓存目录回退: ' + fallbackCacheDir);
         return fallbackCacheDir;
       }
       logger.warn(TAG, '获取缓存目录失败');
@@ -49,11 +49,11 @@ export class StorageProviderFacade implements IStorageProvider {
   getFilesDir(): string {
     try {
       const filesDir = this.sandboxManager.getDirectory('files');
-      logger.debug(TAG, `获取文件目录: ${filesDir}`);
+      logger.debug(TAG, '获取文件目录: ' + filesDir);
       return filesDir;
     } catch {
       const fallbackFilesDir = this.filesDir;
-      logger.debug(TAG, `获取文件目录回退: ${fallbackFilesDir}`);
+      logger.debug(TAG, '获取文件目录回退: ' + fallbackFilesDir);
       return fallbackFilesDir;
     }
   }
@@ -81,10 +81,10 @@ export class StorageProviderFacade implements IStorageProvider {
 
       const decoder = new util.TextDecoder('utf-8');
       const content = decoder.decodeToString(new Uint8Array(buffer));
-      logger.debug(TAG, `读取文本成功: ${path}`);
+      logger.debug(TAG, '读取文本成功: ' + path);
       return content;
     } catch (error) {
-      logger.warn(TAG, `读取文本失败: path=${path}, error=${errorToString(error)}`);
+      logger.warn(TAG, '读取文本失败: path=' + path + ', error=' + String(errorToString(error)));
       return '';
     } finally {
       this.closeFileQuietly(file, path);
@@ -102,10 +102,10 @@ export class StorageProviderFacade implements IStorageProvider {
       this.ensureParentDirectory(path);
       file = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.WRITE_ONLY | fs.OpenMode.TRUNC);
       fs.writeSync(file.fd, content);
-      logger.info(TAG, `写入文本成功: ${path}`);
+      logger.info(TAG, '写入文本成功: ' + path);
       return true;
     } catch (error) {
-      logger.warn(TAG, `写入文本失败: path=${path}, error=${errorToString(error)}`);
+      logger.warn(TAG, '写入文本失败: path=' + path + ', error=' + String(errorToString(error)));
       return false;
     } finally {
       this.closeFileQuietly(file, path);
@@ -120,10 +120,10 @@ export class StorageProviderFacade implements IStorageProvider {
 
     try {
       const exists = fs.accessSync(path);
-      logger.debug(TAG, `文件存在=${exists}: ${path}`);
+      logger.debug(TAG, '文件存在=' + exists + ': ' + path);
       return exists;
     } catch {
-      logger.debug(TAG, `文件存在=false: ${path}`);
+      logger.debug(TAG, '文件存在=false: ' + path);
       return false;
     }
   }
@@ -143,7 +143,7 @@ export class StorageProviderFacade implements IStorageProvider {
     try {
       fs.mkdirSync(parentDir, true);
     } catch {
-      logger.warn(TAG, `创建父目录失败: ${parentDir}`);
+      logger.warn(TAG, '创建父目录失败: ' + parentDir);
     }
   }
 
@@ -155,7 +155,7 @@ export class StorageProviderFacade implements IStorageProvider {
     try {
       fs.closeSync(file);
     } catch (error) {
-      logger.warn(TAG, `关闭文件失败: path=${path}, error=${errorToString(error)}`);
+      logger.warn(TAG, '关闭文件失败: path=' + path + ', error=' + String(errorToString(error)));
     }
   }
 }

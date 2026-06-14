@@ -11,7 +11,7 @@ NGF (Neon Genesis Framework) 是一个面向 HarmonyOS Next 的可复用软件�
 ## 二、当前架构分层
 
 ```
-entry/src/main/ets/Framework/NGF/
+ngf_framework/src/main/ets/
 ├── core/                    # 核心层 - 契约、生命周期、DI、启动内核
 ├── platformOhos/            # 平台层 - HarmonyOS 窗口/上下文桥接
 ├── data/                    # 数据层 - 缓存、设置、存储、迁移

@@ -84,7 +84,7 @@ export class NGFModuleBootstrapCoordinator {
       Date.now()
     );
     this.lastReportsByPhase.set(phaseName, report);
-    logger.info(TAG, `引导阶段完成：阶段=${phaseName}, 总数=${report.totalCount}, 成功=${report.successCount}, 失败=${report.failureCount}`);
+    logger.info(TAG, '引导阶段完成：阶段=' + phaseName + ', 总数=' + report.totalCount + ', 成功=' + report.successCount + ', 失败=' + report.failureCount);
     return report;
   }
 
@@ -92,7 +92,7 @@ export class NGFModuleBootstrapCoordinator {
     const normalizedPhase = phaseName.trim();
     const report = this.lastReportsByPhase.get(normalizedPhase);
     if (!report) {
-      logger.debug(TAG, `获取最新阶段报告未命中：阶段=${normalizedPhase}`);
+      logger.debug(TAG, '获取最新阶段报告未命中：阶段=' + normalizedPhase);
       return null;
     }
     return report;
@@ -130,7 +130,7 @@ export class NGFModuleBootstrapCoordinator {
       Date.now()
     );
     this.lastReportsByPhase.set(phaseName, report);
-    logger.info(TAG, `卸载阶段完成：阶段=${phaseName}, 总数=${report.totalCount}, 成功=${report.successCount}, 失败=${report.failureCount}`);
+    logger.info(TAG, '卸载阶段完成：阶段=' + phaseName + ', 总数=' + report.totalCount + ', 成功=' + report.successCount + ', 失败=' + report.failureCount);
     return report;
   }
 
@@ -138,7 +138,7 @@ export class NGFModuleBootstrapCoordinator {
     const normalizedModuleName = moduleName.trim();
     const result = this.lastResultsByModule.get(normalizedModuleName);
     if (!result) {
-      logger.debug(TAG, `获取最新模块结果未命中：模块=${normalizedModuleName}`);
+      logger.debug(TAG, '获取最新模块结果未命中：模块=' + normalizedModuleName);
       return null;
     }
     return result;
@@ -151,19 +151,19 @@ export class NGFModuleBootstrapCoordinator {
     for (let index = 0; index < registrations.length; index++) {
       snapshots.push(this.toRuntimeSnapshot(registrations[index]));
     }
-    logger.debug(TAG, `列出模块快照：数量=${snapshots.length}`);
+    logger.debug(TAG, '列出模块快照：数量=' + String(snapshots.length));
     return snapshots;
   }
 
   private bootstrapModule(registration: NGFModuleRegistration): NGFModuleBootstrapResult {
     const moduleName = registration.definition.moduleName;
     if (!ngfModuleConfigFacade.isEnabled(moduleName)) {
-      logger.info(TAG, `引导模块被跳过：模块=${moduleName}, 原因=已禁用`);
+      logger.info(TAG, '引导模块被跳过：模块=' + moduleName + ', 原因=已禁用');
       return new NGFModuleBootstrapResult(moduleName, false, 'disabled by config', Date.now());
     }
     const dependencyMessage = this.validateDependencies(registration.definition);
     if (dependencyMessage.length > 0) {
-      logger.warn(TAG, `引导模块被阻止：模块=${moduleName}, 原因=${dependencyMessage}`);
+      logger.warn(TAG, '引导模块被阻止：模块=' + moduleName + ', 原因=' + dependencyMessage);
       return new NGFModuleBootstrapResult(moduleName, false, dependencyMessage, Date.now());
     }
 
@@ -171,14 +171,14 @@ export class NGFModuleBootstrapCoordinator {
       const success = registration.runtime.bootstrap();
       const message = success ? 'bootstrapped' : 'bootstrap returned false';
       if (success) {
-        logger.info(TAG, `引导模块成功：模块=${moduleName}`);
+        logger.info(TAG, '引导模块成功：模块=' + moduleName);
       } else {
-        logger.warn(TAG, `引导模块失败：模块=${moduleName}`);
+        logger.warn(TAG, '引导模块失败：模块=' + moduleName);
       }
       return new NGFModuleBootstrapResult(moduleName, success, message, Date.now());
     } catch (error) {
       const message = this.errorToString(error as Object | string | number | boolean);
-      logger.error(TAG, `引导模块异常：模块=${moduleName}, 错误=${message}`);
+      logger.error(TAG, '引导模块异常：模块=' + moduleName + ', 错误=' + message);
       return new NGFModuleBootstrapResult(moduleName, false, message, Date.now());
     }
   }
@@ -186,7 +186,7 @@ export class NGFModuleBootstrapCoordinator {
   private shutdownModule(registration: NGFModuleRegistration): NGFModuleBootstrapResult {
     const moduleName = registration.definition.moduleName;
     if (!registration.runtime.isBootstrapped()) {
-      logger.info(TAG, `卸载模块被跳过：模块=${moduleName}, 原因=未引导或已卸载`);
+      logger.info(TAG, '卸载模块被跳过：模块=' + moduleName + ', 原因=未引导或已卸载');
       return new NGFModuleBootstrapResult(moduleName, true, 'already shutdown', Date.now());
     }
 
@@ -194,14 +194,14 @@ export class NGFModuleBootstrapCoordinator {
       const success = registration.runtime.shutdown();
       const message = success ? 'shutdown' : 'shutdown returned false';
       if (success) {
-        logger.info(TAG, `卸载模块成功：模块=${moduleName}`);
+        logger.info(TAG, '卸载模块成功：模块=' + moduleName);
       } else {
-        logger.warn(TAG, `卸载模块失败：模块=${moduleName}`);
+        logger.warn(TAG, '卸载模块失败：模块=' + moduleName);
       }
       return new NGFModuleBootstrapResult(moduleName, success, message, Date.now());
     } catch (error) {
       const message = this.errorToString(error as Object | string | number | boolean);
-      logger.error(TAG, `卸载模块异常：模块=${moduleName}, 错误=${message}`);
+      logger.error(TAG, '卸载模块异常：模块=' + moduleName + ', 错误=' + message);
       return new NGFModuleBootstrapResult(moduleName, false, message, Date.now());
     }
   }
@@ -211,10 +211,10 @@ export class NGFModuleBootstrapCoordinator {
       const dependencyName = definition.dependencies[index];
       const dependencyRegistration = this.registry.resolveModule(dependencyName);
       if (!dependencyRegistration) {
-        return `dependency missing: ${dependencyName}`;
+        return 'dependency missing: ' + dependencyName;
       }
       if (!dependencyRegistration.runtime.isBootstrapped()) {
-        return `dependency not bootstrapped: ${dependencyName}`;
+        return 'dependency not bootstrapped: ' + dependencyName;
       }
     }
     return '';
@@ -342,7 +342,7 @@ export class NGFModuleBootstrapCoordinator {
 
   private registerDefaultModule(definition: NGFModuleDefinition, runtime: IModuleBootstrap): void {
     const success = this.registry.registerModule(definition, runtime);
-    logger.debug(TAG, `注册默认模块：模块=${definition.moduleName}, 成功=${success}`);
+    logger.debug(TAG, '注册默认模块：模块=' + definition.moduleName + ', 成功=' + success);
   }
 
   private toRuntimeSnapshot(registration: NGFModuleRegistration): NGFModuleRuntimeSnapshot {

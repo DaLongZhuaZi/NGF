@@ -180,7 +180,7 @@ export class NGFPageWindowSupport {
     }
 
     NGFPageWindowSupport.initialized = true;
-    logger.info(TAG, `注册演示窗口配置: 数量=${profiles.length}`);
+    logger.info(TAG, '注册演示窗口配置: 数量=' + String(profiles.length));
   }
 
   static apply(pageName: string): void {

@@ -75,17 +75,17 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
     const normalizedWorkflow = workflowName.trim();
     const normalizedSource = sourceId.trim();
     if (normalizedWorkflow.length <= 0 || normalizedSource.length <= 0) {
-      logger.warn(TAG, `executeWorkflow 忽略：workflow=${normalizedWorkflow}, source=${normalizedSource}`);
+      logger.warn(TAG, 'executeWorkflow 忽略：workflow=' + normalizedWorkflow + ', source=' + normalizedSource);
       return new NGFWorkflowResult(false, '');
     }
 
-    logger.info(TAG, `执行工作流：workflow=${normalizedWorkflow}, source=${normalizedSource}`);
+    logger.info(TAG, '执行工作流：workflow=' + normalizedWorkflow + ', source=' + normalizedSource);
 
-    const rateLimitKey = `${normalizedSource}:${normalizedWorkflow}`;
+    const rateLimitKey = normalizedSource + ':' + normalizedWorkflow;
     const now = Date.now();
     if (!ngfRateLimitPolicyFacade.canProceed(rateLimitKey, now)) {
       const retryAfter = ngfRateLimitPolicyFacade.retryAfterMs(rateLimitKey, now);
-      logger.warn(TAG, `工作流被限流：workflow=${normalizedWorkflow}, source=${normalizedSource}, retryAfterMs=${retryAfter}`);
+      logger.warn(TAG, '工作流被限流：workflow=' + normalizedWorkflow + ', source=' + normalizedSource + ', retryAfterMs=' + retryAfter);
       const rateLimitError = new NGFWorkflowErrorEnvelope(
         'RATE_LIMITED',
         'workflow request is rate limited',
@@ -97,10 +97,10 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
     ngfRateLimitPolicyFacade.markRequest(rateLimitKey, now);
 
     const workflowInput = this.parseWorkflowInput(inputJson);
-    logger.debug(TAG, `工作流输入已解析：actionType=${workflowInput.actionType}`);
+    logger.debug(TAG, '工作流输入已解析：actionType=' + workflowInput.actionType);
 
     if (workflowInput.actionType === ACTION_TYPE_LOOP) {
-      logger.info(TAG, `执行循环工作流：workflow=${normalizedWorkflow}`);
+      logger.info(TAG, '执行循环工作流：workflow=' + normalizedWorkflow);
       const loopResult = await this.executeLoopSteps(workflowInput.actionJson, workflowInput.contextJson);
       if (loopResult.success) {
         const successOutput = new NGFWorkflowSuccessEnvelope(
@@ -122,7 +122,7 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
     }
 
     if (workflowInput.actionType === ACTION_TYPE_PARALLEL) {
-      logger.info(TAG, `执行并发工作流：workflow=${normalizedWorkflow}`);
+      logger.info(TAG, '执行并发工作流：workflow=' + normalizedWorkflow);
       const parallelResult = await this.executeParallelSteps(workflowInput.actionJson, workflowInput.contextJson);
       if (parallelResult.success) {
         const successOutput = new NGFWorkflowSuccessEnvelope(
@@ -147,7 +147,7 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
     let attempt = 1;
     let lastRetryDelay = 0;
     while (true) {
-      logger.debug(TAG, `工作流尝试开始：workflow=${normalizedWorkflow}, 尝试=${attempt}`);
+      logger.debug(TAG, '工作流尝试开始：workflow=' + normalizedWorkflow + ', 尝试=' + attempt);
       const actionResult = await ngfActionExecutorFacade.executeAction(
         workflowInput.actionType,
         workflowInput.actionJson,
@@ -161,17 +161,17 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
           actionResult.outputJson,
           Date.now()
         );
-        logger.info(TAG, `工作流完成：workflow=${normalizedWorkflow}, source=${normalizedSource}, attempts=${attempt}`);
+        logger.info(TAG, '工作流完成：workflow=' + normalizedWorkflow + ', source=' + normalizedSource + ', attempts=' + attempt);
         return new NGFWorkflowResult(true, JSON.stringify(successOutput));
       }
 
       if (!ngfRetryPolicyFacade.shouldRetry(attempt, 'ACTION_FAILED')) {
-        logger.warn(TAG, `工作流重试被拒绝：workflow=${normalizedWorkflow}, 尝试=${attempt}`);
+        logger.warn(TAG, '工作流重试被拒绝：workflow=' + normalizedWorkflow + ', 尝试=' + attempt);
         break;
       }
 
       lastRetryDelay = ngfRetryPolicyFacade.nextDelayMs(attempt);
-      logger.info(TAG, `工作流重试已调度：workflow=${normalizedWorkflow}, nextAttempt=${attempt + 1}, delayMs=${lastRetryDelay}`);
+      logger.info(TAG, '工作流重试已调度：workflow=' + normalizedWorkflow + ', nextAttempt=' + String(attempt + 1) + ', delayMs=' + lastRetryDelay);
       await this.sleep(lastRetryDelay);
       attempt = attempt + 1;
     }
@@ -182,7 +182,7 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
       lastRetryDelay,
       attempt
     );
-    logger.warn(TAG, `工作流失败：workflow=${normalizedWorkflow}, source=${normalizedSource}, attempts=${attempt}`);
+    logger.warn(TAG, '工作流失败：workflow=' + normalizedWorkflow + ', source=' + normalizedSource + ', attempts=' + attempt);
     return new NGFWorkflowResult(false, JSON.stringify(failedOutput));
   }
 
@@ -227,13 +227,13 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
     }
 
     if (iterations <= 0) {
-      logger.warn(TAG, `executeLoopSteps 已跳过：iterations=${iterations}`);
+      logger.warn(TAG, 'executeLoopSteps 已跳过：iterations=' + iterations);
       return new NGFWorkflowResult(false, '');
     }
 
     let lastOutput: string = '';
     for (let i: number = 0; i < iterations; i++) {
-      logger.debug(TAG, `循环迭代开始：index=${i}, total=${iterations}`);
+      logger.debug(TAG, '循环迭代开始：index=' + i + ', total=' + iterations);
 
       const contextWithIndex = this.injectLoopIndex(contextJson, i);
       for (let stepIdx: number = 0; stepIdx < steps.length; stepIdx++) {
@@ -244,16 +244,16 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
           contextWithIndex
         );
         if (!stepResult.success) {
-          logger.warn(TAG, `循环内部步骤失败：iteration=${i}, stepIndex=${stepIdx}, actionType=${step.actionType}`);
+          logger.warn(TAG, '循环内部步骤失败：iteration=' + i + ', stepIndex=' + stepIdx + ', actionType=' + step.actionType);
           return new NGFWorkflowResult(false, lastOutput);
         }
         lastOutput = stepResult.outputJson;
       }
 
-      logger.debug(TAG, `循环迭代完成：index=${i}`);
+      logger.debug(TAG, '循环迭代完成：index=' + i);
     }
 
-    logger.info(TAG, `循环执行完成：iterations=${iterations}, steps=${steps.length}`);
+    logger.info(TAG, '循环执行完成：iterations=' + iterations + ', steps=' + String(steps.length));
     return new NGFWorkflowResult(true, lastOutput);
   }
 
@@ -275,7 +275,7 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
       const serialized = JSON.stringify(context);
       return serialized !== undefined ? serialized : '{}';
     } catch {
-      return `{"loopIndex":${loopIndex}}`;
+      return '{"loopIndex":' + loopIndex + '}';
     }
   }
 
@@ -297,7 +297,7 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
       return new NGFWorkflowResult(false, '');
     }
 
-    logger.debug(TAG, `并发执行开始：steps=${steps.length}`);
+    logger.debug(TAG, '并发执行开始：steps=' + String(steps.length));
     const promises: Array<Promise<NGFWorkflowResult>> = [];
     
     for (let stepIdx: number = 0; stepIdx < steps.length; stepIdx++) {
@@ -315,7 +315,7 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
       const outputs: Array<string> = [];
       for (let i = 0; i < results.length; i++) {
         if (!results[i].success) {
-          logger.warn(TAG, `并发内部步骤失败：stepIndex=${i}, actionType=${steps[i].actionType}`);
+          logger.warn(TAG, '并发内部步骤失败：stepIndex=' + i + ', actionType=' + steps[i].actionType);
           allSuccess = false;
           break;
         }
@@ -326,10 +326,10 @@ export class WorkflowEngineFacade implements IWorkflowEngine {
         return new NGFWorkflowResult(false, '');
       }
 
-      logger.info(TAG, `并发执行完成：steps=${steps.length}`);
+      logger.info(TAG, '并发执行完成：steps=' + String(steps.length));
       return new NGFWorkflowResult(true, JSON.stringify(outputs));
     } catch (error) {
-      logger.error(TAG, `并发执行发生异常: ${error}`);
+      logger.error(TAG, '并发执行发生异常: ' + error);
       return new NGFWorkflowResult(false, '');
     }
   }

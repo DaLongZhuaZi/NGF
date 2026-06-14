@@ -71,37 +71,37 @@ export class PageWindowPolicyResolverFacade implements IPageWindowPolicyResolver
 
   register(spec: NGFPageWindowSpec): void {
     this.overrides.set(spec.pageName, spec);
-    logger.info(TAG, `注册页面策略覆盖: page=${spec.pageName}, policy=${spec.policy}, fallback=${spec.fallbackMode}`);
+    logger.info(TAG, '注册页面策略覆盖: page=' + spec.pageName + ', policy=' + spec.policy + ', fallback=' + spec.fallbackMode);
   }
 
   resolve(pageName: string): NGFPageWindowSpec | null {
     const overrideSpec = this.overrides.get(pageName);
     if (overrideSpec) {
-      logger.debug(TAG, `解析覆盖策略: page=${pageName}`);
+      logger.debug(TAG, '解析覆盖策略: page=' + pageName);
       return overrideSpec;
     }
 
     const legacySpec = LegacyPageWindowRegistry.getSpec(pageName);
     if (!legacySpec) {
-      logger.debug(TAG, `解析策略未命中: page=${pageName}`);
+      logger.debug(TAG, '解析策略未命中: page=' + pageName);
       return null;
     }
 
     const fallbackMode = legacySpec.fallbackDisplayMode
       ? this.toNGFDisplayMode(legacySpec.fallbackDisplayMode)
       : NGFDisplayMode.DEFAULT;
-    logger.debug(TAG, `解析旧版策略: page=${pageName}, fallback=${fallbackMode}`);
+    logger.debug(TAG, '解析旧版策略: page=' + pageName + ', fallback=' + fallbackMode);
     return new NGFPageWindowSpec(pageName, this.toNGFPolicy(legacySpec.policy), fallbackMode);
   }
 
   has(pageName: string): boolean {
     if (this.overrides.has(pageName)) {
-      logger.debug(TAG, `页面策略存在=true: page=${pageName}, 来源=覆盖`);
+      logger.debug(TAG, '页面策略存在=true: page=' + pageName + ', 来源=覆盖');
       return true;
     }
 
     const exists = LegacyPageWindowRegistry.getSpec(pageName) !== null;
-    logger.debug(TAG, `页面策略存在=${exists}: page=${pageName}, 来源=旧版`);
+    logger.debug(TAG, '页面策略存在=' + exists + ': page=' + pageName + ', 来源=旧版');
     return exists;
   }
 

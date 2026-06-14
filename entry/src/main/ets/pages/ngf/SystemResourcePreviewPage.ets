@@ -54,7 +54,7 @@ export struct NGFSystemResourcePreviewPage {
     NGFPageWindowSupport.apply(NGFPageWindowName.SYSTEM_RESOURCE_PREVIEW);
     this.ensureSelectedGroup();
     this.ensureSelectedSymbol();
-    logger.info(TAG, `系统 Symbol 预览页出现：total=${SYSTEM_SYMBOL_TOTAL_COUNT}`);
+    logger.info(TAG, '系统 Symbol 预览页出现：total=' + SYSTEM_SYMBOL_TOTAL_COUNT);
   }
 
   aboutToDisappear(): void {
@@ -202,7 +202,7 @@ export struct NGFSystemResourcePreviewPage {
   @Builder
   private buildDropZonePanel(): void {
     Column({ space: 10 }) {
-      Text(this.droppedSymbol ? `已接收拖放 Symbol: ${this.droppedSymbol}` : '长按拖拽下方 Symbol 到此处，测试 UDMF')
+      Text(this.droppedSymbol ? '已接收拖放 Symbol: ' + this.droppedSymbol : '长按拖拽下方 Symbol 到此处，测试 UDMF')
         .fontSize(14)
         .fontColor($r('app.color.text_secondary'))
     }
@@ -219,12 +219,12 @@ export struct NGFSystemResourcePreviewPage {
           const text = ngfDragDropManagerFacade.extractPlainText(data as unifiedDataChannel.UnifiedData);
           if (text) {
             this.droppedSymbol = text;
-            this.statusText = `拖放成功: ${text}`;
-            this.getUIContext().getPromptAction().showToast({ message: `拖放成功: ${text}` });
+            this.statusText = '拖放成功: ' + text;
+            this.getUIContext().getPromptAction().showToast({ message: '拖放成功: ' + text });
           }
         }
       } catch (err) {
-        logger.error(TAG, `onDrop 处理失败: ${err}`);
+        logger.error(TAG, 'onDrop 处理失败: ' + err);
       }
     })
   }
@@ -403,7 +403,7 @@ export struct NGFSystemResourcePreviewPage {
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-      Text(`${visibleCount}/${totalCount}`)
+      Text(visibleCount + '/' + totalCount)
         .fontSize(12)
         .fontColor($r('app.color.text_tertiary'))
     }
@@ -489,7 +489,7 @@ export struct NGFSystemResourcePreviewPage {
           event.setData(data as unifiedDataChannel.UnifiedData);
         }
       } catch (err) {
-        logger.error(TAG, `onDragStart 处理失败: ${err}`);
+        logger.error(TAG, 'onDragStart 处理失败: ' + err);
       }
       return this.buildDragPreview(itemName);
     })
@@ -497,7 +497,7 @@ export struct NGFSystemResourcePreviewPage {
 
   @Builder
   private buildPreviewGlyph(itemName: string, size: number, color: ResourceColor): void {
-    SymbolGlyph($r(`sys.symbol.${itemName}`))
+    SymbolGlyph($r('sys.symbol.' + itemName))
       .fontSize(size)
       .fontColor([color])
   }
@@ -532,7 +532,7 @@ export struct NGFSystemResourcePreviewPage {
   }
 
   private getSelectedSymbolReference(): string {
-    return `$r('sys.symbol.${this.selectedSymbolName}')`;
+    return '$r(\'sys.symbol.' + this.selectedSymbolName + '\')';
   }
 
   private getCurrentGroup(): SystemSymbolResourceGroup | null {
@@ -560,7 +560,7 @@ export struct NGFSystemResourcePreviewPage {
     if (!group) {
       return $r('app.string.ui_str_2449');
     }
-    return `${group.name} · ${group.items.length} 个 Symbol`;
+    return group.name + ' · ' + group.items.length + ' 个 Symbol';
   }
 
   private getCurrentGridItems(): Array<string> {
@@ -729,8 +729,8 @@ export struct NGFSystemResourcePreviewPage {
     this.searchResults = this.copyStringItems(results);
     this.visibleSearchResultCount = SYMBOL_SEARCH_BATCH_SIZE;
     this.refreshVisibleSearchItems();
-    this.statusText = `搜索 ${keyword}：${results.length} 个结果`;
-    logger.info(TAG, `搜索系统 Symbol：keyword=${keyword}, count=${results.length}`);
+    this.statusText = '搜索 ' + keyword + '：' + String(results.length) + ' 个结果';
+    logger.info(TAG, '搜索系统 Symbol：keyword=' + keyword + ', count=' + String(results.length));
   }
 
   private clearSearch(): void {
@@ -743,23 +743,23 @@ export struct NGFSystemResourcePreviewPage {
   }
 
   private async copySymbolName(symbolName: string): Promise<void> {
-    const fullName: string = `$r('sys.symbol.${symbolName}')`;
+    const fullName: string = '$r(\'sys.symbol.' + symbolName + '\')';
     try {
       const pasteData: pasteboard.PasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, fullName);
       const systemPasteboard: pasteboard.SystemPasteboard = pasteboard.getSystemPasteboard();
       await systemPasteboard.setData(pasteData);
-      this.statusText = `已复制 ${fullName}`;
-      this.getUIContext().getPromptAction().openToast({ message: `已复制 ${fullName}` });
-      logger.info(TAG, `复制系统 Symbol 引用：${fullName}`);
+      this.statusText = '已复制 ' + fullName;
+      this.getUIContext().getPromptAction().openToast({ message: '已复制 ' + fullName });
+      logger.info(TAG, '复制系统 Symbol 引用：' + fullName);
     } catch (error) {
       const message: string = this.formatError(error as NGFSystemSymbolError);
-      this.statusText = `复制失败：${message}`;
+      this.statusText = '复制失败：' + message;
       try {
         this.getUIContext().getPromptAction().openToast({ message: $r('app.string.ui_str_2450') });
       } catch (toastError) {
-        logger.warn(TAG, `复制失败后 Toast 显示异常：${toastError}`);
+        logger.warn(TAG, '复制失败后 Toast 显示异常：' + toastError);
       }
-      logger.warn(TAG, `复制系统 Symbol 引用失败：${message}`);
+      logger.warn(TAG, '复制系统 Symbol 引用失败：' + message);
     }
   }
 

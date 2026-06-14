@@ -347,10 +347,10 @@ export struct NGFDemoSecurityPerfPage {
         Column({ space: 4 }) {
           ForEach(this.measures, (entry: NGFDemoMeasureEntry) => {
             Row() {
-              Text(`${entry.id}. ${entry.name}`)
+              Text(entry.id + '. ' + entry.name)
                 .fontSize(13)
                 .fontColor($r('app.color.text_body'))
-              Text(`${entry.durationMs} ms`)
+              Text(entry.durationMs + ' ms')
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
                 .fontColor($r('app.color.button_primary'))
@@ -360,7 +360,7 @@ export struct NGFDemoSecurityPerfPage {
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
             .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
-          }, (entry: NGFDemoMeasureEntry): string => `measure_${entry.id}`)
+          }, (entry: NGFDemoMeasureEntry): string => 'measure_' + entry.id)
         }
         .width('100%')
       }
@@ -390,7 +390,7 @@ export struct NGFDemoSecurityPerfPage {
         .onClick((): void => {
           const snapshot = performanceMonitor.snapshotMemory();
           const now = new Date();
-          const timeText = `${this.pad2(now.getHours())}:${this.pad2(now.getMinutes())}:${this.pad2(now.getSeconds())}`;
+          const timeText = String(this.pad2(now.getHours())) + ':' + String(this.pad2(now.getMinutes())) + ':' + String(this.pad2(now.getSeconds()));
           const nextEntries: Array<NGFDemoMemoryEntry> = [];
           for (let i = 0; i < this.memoryEntries.length; i++) {
             nextEntries.push(this.memoryEntries[i]);
@@ -404,10 +404,10 @@ export struct NGFDemoSecurityPerfPage {
         Column({ space: 4 }) {
           ForEach(this.memoryEntries, (entry: NGFDemoMemoryEntry) => {
             Row() {
-              Text(`#${entry.id}  ${entry.timeText}`)
+              Text('#' + entry.id + '  ' + entry.timeText)
                 .fontSize(13)
                 .fontColor($r('app.color.text_body'))
-              Text(`${entry.pssKb} KB`)
+              Text(entry.pssKb + ' KB')
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
                 .fontColor($r('app.color.tag_red'))
@@ -417,7 +417,7 @@ export struct NGFDemoSecurityPerfPage {
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
             .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
-          }, (entry: NGFDemoMemoryEntry): string => `memory_${entry.id}`)
+          }, (entry: NGFDemoMemoryEntry): string => 'memory_' + entry.id)
         }
         .width('100%')
       }
@@ -438,7 +438,7 @@ export struct NGFDemoSecurityPerfPage {
           : NGFHashAlgorithm.SHA512;
       const hash = await securityToolkit.shaHash(this.shaInput, algo);
       this.shaResult = hash;
-      logger.info(TAG, `SHA 哈希完成: algo=${algo}`);
+      logger.info(TAG, 'SHA 哈希完成: algo=' + algo);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.shaResult = $r('app.string.ui_str_2311', message);
@@ -486,8 +486,8 @@ export struct NGFDemoSecurityPerfPage {
 
   private pad2(value: number): string {
     if (value >= 10) {
-      return `${value}`;
+      return String(value);
     }
-    return `0${value}`;
+    return '0' + value;
   }
 }

@@ -24,7 +24,7 @@ ArkTS 强制要求强类型，全面禁止 `any` 和 `unknown`。这在处理动
 **正确做法**：
 
 ```typescript
-import { NGFTaskInfo } from '../../Framework/NGF/systemTasks/contracts/ITaskManager';
+import { NGFTaskInfo } from 'ngf_framework';
 
 // 必须显式声明 Key 和 Value 的确切类/接口类型
 @StorageProp('ngf_tasks_map') tasksMap: Map<string, NGFTaskInfo> = new Map();

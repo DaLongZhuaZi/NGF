@@ -297,7 +297,7 @@ export struct NGFSettingsPage {
       logger.info(TAG, 'openAboutSheet triggered.');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(TAG, `openAboutSheet failed: ${message}`);
+      logger.error(TAG, 'openAboutSheet failed: ' + message);
     }
   }
 
@@ -330,10 +330,10 @@ export struct NGFSettingsPage {
         }
       }
       const themeLabel = this.describeTheme(mode);
-      logger.info(TAG, `主题已切换为: ${typeof themeLabel === 'string' ? themeLabel : resolveResourceString(this.getUIContext().getHostContext(), themeLabel)}`);
+      logger.info(TAG, '主题已切换为: ' + String(typeof themeLabel === 'string' ? themeLabel : resolveResourceString(this.getUIContext().getHostContext(), themeLabel)));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `切换主题失败: ${message}`);
+      logger.warn(TAG, '切换主题失败: ' + message);
     }
   }
 
@@ -345,10 +345,10 @@ export struct NGFSettingsPage {
         ngfI18nManagerFacade.clearLocaleOverride();
       }
       const langLabel = this.describeLocale(locale);
-      logger.info(TAG, `语言已切换为: ${typeof langLabel === 'string' ? langLabel : resolveResourceString(this.getUIContext().getHostContext(), langLabel)}`);
+      logger.info(TAG, '语言已切换为: ' + String(typeof langLabel === 'string' ? langLabel : resolveResourceString(this.getUIContext().getHostContext(), langLabel)));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `切换语言失败: ${message}`);
+      logger.warn(TAG, '切换语言失败: ' + message);
     }
   }
 
@@ -356,10 +356,10 @@ export struct NGFSettingsPage {
     try {
       ngfVisualEffectsFacade.setMaterialMode(enabled ? NGFVisualEffectsMaterialMode.ADAPTIVE : NGFVisualEffectsMaterialMode.MANUAL);
       const stateLabel: ResourceStr = enabled ? $r('app.string.ui_str_2433') : $r('app.string.ui_str_2434');
-      logger.info(TAG, `沉浸光效已${typeof stateLabel === 'string' ? stateLabel : resolveResourceString(this.getUIContext().getHostContext(), stateLabel)}`);
+      logger.info(TAG, '沉浸光效已' + String(typeof stateLabel === 'string' ? stateLabel : resolveResourceString(this.getUIContext().getHostContext(), stateLabel)));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `切换沉浸光效失败: ${message}`);
+      logger.warn(TAG, '切换沉浸光效失败: ' + message);
     }
   }
 
@@ -373,10 +373,10 @@ export struct NGFSettingsPage {
         });
       }
       const levelLabel = this.describeMaterialLevel(level);
-      logger.info(TAG, `材质等级已切换为: ${typeof levelLabel === 'string' ? levelLabel : resolveResourceString(this.getUIContext().getHostContext(), levelLabel)}`);
+      logger.info(TAG, '材质等级已切换为: ' + String(typeof levelLabel === 'string' ? levelLabel : resolveResourceString(this.getUIContext().getHostContext(), levelLabel)));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.warn(TAG, `切换材质等级失败: ${message}`);
+      logger.warn(TAG, '切换材质等级失败: ' + message);
     }
   }
 
@@ -413,7 +413,7 @@ export struct NGFSettingsPage {
       case 3:
         return $r('app.string.ui_str_2379');
       default:
-        return `未知(${level})`;
+        return '未知(' + level + ')';
     }
   }
 }

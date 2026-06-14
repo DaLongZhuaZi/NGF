@@ -159,8 +159,8 @@ export struct NGFDemoDataStoragePage {
           .onClick(async (): Promise<void> => {
             const uris = await ngfMediaPickerFacade.pickImages(1);
             if (uris.length > 0) {
-              this.getUIContext().getPromptAction().showToast({ message: `成功选取图片: ${uris[0]}` });
-              this.appendLog(`安全选择图片: ${uris[0]}`);
+              this.getUIContext().getPromptAction().showToast({ message: '成功选取图片: ' + uris[0] });
+              this.appendLog('安全选择图片: ' + uris[0]);
             }
           })
         Button($r('app.string.picker_btn_doc'))
@@ -173,7 +173,7 @@ export struct NGFDemoDataStoragePage {
           .onClick(async (): Promise<void> => {
             const uris = await ngfMediaPickerFacade.pickDocuments();
             if (uris.length > 0) {
-              this.appendLog(`安全选择文档: ${uris[0]}`);
+              this.appendLog('安全选择文档: ' + uris[0]);
             }
           })
       }
@@ -301,7 +301,7 @@ export struct NGFDemoDataStoragePage {
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
             .backgroundColor($r('app.color.background_surface'))
             .borderRadius(8)
-          }, (entry: NGFDemoFileEntryDisplay): string => `file_${entry.id}`)
+          }, (entry: NGFDemoFileEntryDisplay): string => 'file_' + entry.id)
         }
         .width('100%')
       }
@@ -413,7 +413,7 @@ export struct NGFDemoDataStoragePage {
           Text($r('app.string.ui_str_2252'))
             .fontSize(12)
             .fontColor($r('app.color.text_tertiary'))
-          Text(`${this.cacheMemorySize}`)
+          Text(String(this.cacheMemorySize))
             .fontSize(13)
             .fontColor($r('app.color.text_body'))
             .fontWeight(FontWeight.Medium)
@@ -439,7 +439,7 @@ export struct NGFDemoDataStoragePage {
       const inputStr: string = typeof this.fileWriteInput === 'string' ? this.fileWriteInput : '';
       const success: boolean = FileUtils.writeText('ngf_demo.txt', inputStr);
       this.statusMessage = success ? $r('app.string.ui_str_2253') : $r('app.string.ui_str_2254');
-      logger.info(TAG, `鏂囦欢鍐欏叆: success=${success}`);
+      logger.info(TAG, '文件写入: success=' + success);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.statusMessage = $r('app.string.ui_str_2255', message);
@@ -451,7 +451,7 @@ export struct NGFDemoDataStoragePage {
       const content: string = FileUtils.readText('ngf_demo.txt');
       const contentStr: string = typeof content === 'string' ? content : '';
       this.fileReadResult = contentStr.length > 0 ? contentStr : resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2256'));
-      logger.info(TAG, `鏂囦欢璇诲彇: length=${content.length}`);
+      logger.info(TAG, '文件读取: length=' + String(content.length));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.fileReadResult = resolveResourceString(this.getUIContext().getHostContext(), $r('app.string.ui_str_2257', message));
@@ -464,12 +464,12 @@ export struct NGFDemoDataStoragePage {
       const result: Array<NGFDemoFileEntryDisplay> = [];
       for (let i: number = 0; i < entries.length; i++) {
         const entry: NGFFileEntry = entries[i];
-        const sizeText: string = entry.isDirectory ? '-' : `${entry.size}B`;
+        const sizeText: string = entry.isDirectory ? '-' : String(entry.size) + 'B';
         const typeText: string = entry.isDirectory ? 'DIR' : 'FILE';
         result.push(new NGFDemoFileEntryDisplay(i + 1, entry.name, sizeText, typeText));
       }
       this.fileEntries = result;
-      logger.info(TAG, `鐩綍鍒楄〃: count=${result.length}`);
+      logger.info(TAG, '目录列表: count=' + String(result.length));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.statusMessage = $r('app.string.ui_str_2258', message);
