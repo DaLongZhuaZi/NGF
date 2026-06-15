@@ -2,7 +2,10 @@
 
 **适用场景**：ArkTS 项目运行时问题调试；涉及崩溃定位、日志插桩、运行时行为验证。
 
-**不会自动触发**，需要开发者/LLM 在任务开始前主动阅读。
+**自动触发条件（满足任意一条即应主动阅读本文件）**：
+- ArkTS 项目运行时问题调试、日志插桩、假设验证、运行时行为确认。
+- 用户提供复现步骤但缺少明确崩溃堆栈，需要通过日志验证假设。
+- 修复运行时问题后需要做前后对比验证。
 
 ---
 
@@ -72,5 +75,6 @@ aboutToAppear() {
 |----------|---------|
 | 遇到编译错误 | `skill-arkts-error-fixes` |
 | 遇到运行时崩溃 | `skill-arkts-runtime-fix` |
+| 需要设备连接、启动应用、采集 HiLog 或 bugreport | `skill-device-hdc-debug` |
 | 需要修改 UI 组件 | `skill-arkui-knowledge` |
 | 语法合规问题 | `skill-arkts-standards` |

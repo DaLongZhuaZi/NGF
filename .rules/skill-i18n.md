@@ -1,6 +1,6 @@
 # 国际化 (i18n) 自动化适配规范
 
-**触发条件**：当 Agent 涉及“新建 UI 界面、修改页面文案、输出面向用户的 Toast/Dialog、配置 HdsNavigation 标题”时，必须在动手前阅读本规范。
+**自动触发条件**：当 Agent 涉及“新建 UI 界面、修改页面文案、输出面向用户的 Toast/Dialog、配置 HdsNavigation/HdsNavDestination 标题”时，必须在动手前阅读本规范。
 
 ## 1. 核心目标：拒绝硬编码中文
 在 HarmonyOS 开发中，所有面向用户展示的文本（包括但不限于 `Text()`, `Button()`, `TextInput({placeholder: ''})`, `showToast()`, 页面标题）都**绝对禁止**直接写死中文文本（如 `Text('确认')`）。必须全部抽离到 `string.json` 中，并使用 `$r('app.string.xxx')` 引用。

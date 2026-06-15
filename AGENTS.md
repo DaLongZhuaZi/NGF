@@ -21,28 +21,51 @@
 
 本仓库在根目录下设有 `.rules/` 技能规则库，是对本文件的**具体技能补充**，优先级低于本文件，但高于自由发挥。
 
-所有 Agent 和开发者在开始任务前，应先检查是否命中以下任意规则文件的触发条件，若命中则**在动手前先阅读对应文件**：
+所有 Agent 在开始任务前，必须把 `.rules/README.md` 当作规则索引入口，并按下表自动判断命中的技能文件。命中后应**先完整阅读对应文件，再动手读取或修改目标源码**；不要等待开发者再次提示。
 
-| 规则文件 | 触发条件（命中任意一条即应阅读） |
-|---------|-------------------------------|
+### 1.1.1 自动触发与阅读记忆流程
+
+1. **触发扫描**：先读取本文件、`.rules/README.md`，再按用户目标、目标文件路径、报错类型、涉及 API/组件/资源判断命中的技能文件。
+2. **完整阅读**：命中的技能文件必须从头到尾阅读；如任务同时命中多个技能，按“环境/语法基础 -> 任务领域 -> 诊断/发布/规则维护”的顺序阅读。
+3. **会话记忆**：阅读后在本次会话内形成一份简短“任务规则记忆”，至少记住适用范围、硬性禁止项、标准实现模式、关键文件路径和交付前检查点；后续修改、复核、交付都必须回看这份记忆。
+4. **恢复重扫**：如果发生上下文压缩、长时间中断、切换目标文件或新增报错，必须重新执行触发扫描，必要时重读已命中的技能文件。
+5. **规则沉淀边界**：自动触发表示自动阅读和应用规则，不表示 Agent 可以无指令改规则库；只有开发者明确要求更新规则时，才进入 `skill-rules-update.md` 流程。
+6. **本地事实边界**：陌生环境中新探测到的本机路径、设备 target、命令验证结果，应写入 `.local-rules/*.local.md`，不要直接回写到 `.rules/` 或本文件；只有跨机器通用规则变化才进入共享规则更新流程。
+
+| 规则文件 | 自动触发条件（命中任意一条即应阅读） |
+|---------|-----------------------------------|
+| [`.rules/skill-llm-onboarding.md`](.rules/skill-llm-onboarding.md) | Agent 新会话初始化、首次接触本项目、中等及以上复杂任务启动；遇到 SDK/Hvigor/DevEco 路径异常；需要构建、预览、运行前尚未确认命令环境 |
+| [`.rules/skill-local-rules.md`](.rules/skill-local-rules.md) | 首次接触新机器、新工作区、新模拟器/真机；探测到 SDK/IDE/Hvigor/HDC/HDB/设备 target 与共享基线不同；需要记录本机事实或本机命令验证结果 |
+| [`.rules/skill-component-reuse.md`](.rules/skill-component-reuse.md) | 任何页面或 `entry` 层新增功能前；准备新增 Dialog、Logger、网络、哈希、标题栏、工具箱、窗口辅助等通用能力；准备在业务层手写可由 `ngf_framework` 提供的基础能力 |
+| [`.rules/skill-scaffold-page.md`](.rules/skill-scaffold-page.md) | 收到“生成页面”“新建页面”“新建路由”“脚手架页面”等指令；从零创建完整 HDS 标准页面 |
 | [`.rules/skill-hds-page-design.md`](.rules/skill-hds-page-design.md) | 新建页面到 `pages/ngf/`；涉及 `HdsNavDestination`/`HdsNavigation` 布局；涉及顶栏配置、沉浸式底板、安全区；涉及 `NGFHdsTitleBarOptionsFactory`、`NGFImmersiveTopChromeUnderlay`；涉及路由常量注册或 `buildNavDestination` 分发 |
 | [`.rules/skill-hds-tab.md`](.rules/skill-hds-tab.md) | 涉及 `HdsTabs`/`Tabs` 组件修改；涉及底部标签栏遮挡、贴边显示或安全区避让时；涉及 `barFloatingStyle` 浮动样式配置时 |
 | [`.rules/skill-manager-apis.md`](.rules/skill-manager-apis.md) | 涉及主题切换/深色模式/`ngf_is_dark_mode`；涉及语言切换/`ngfI18nManagerFacade`；涉及视效档位/`ngfVisualEffectsFacade`/`hdsMaterial.MaterialLevel`；涉及握持感知/`ngfHoldingAwarenessFacade`；需要在 `aboutToAppear`/`aboutToDisappear` 中订阅或取消管理器回调 |
 | [`.rules/skill-system-tasks.md`](.rules/skill-system-tasks.md) | 涉及后台下载、文件上传、数据同步、常驻通知、进度条通知、任务派发或系统事件订阅监听时 |
 | [`.rules/skill-window-management.md`](.rules/skill-window-management.md) | 涉及多窗口、多实例任务卡片、应用内悬浮窗、子窗口、`windowStage.createSubWindow` 或使用 `MultitonEntryAbility` 动态拉起独立页面时 |
-| [`.rules/skill-arkts-types.md`](.rules/skill-arkts-types.md) | 涉及 ArkUI 组件中 Map 或 Array 的遍历（如 ForEach）、异常捕获（catch）、需要显式类型推断以解决 any/unknown 编译报错时 |
-| [`.rules/skill-arkts-standards.md`](.rules/skill-arkts-standards.md) | 编写或修改 `.ets` 文件；涉及 ArkTS 语法规则、限制、TypeScript 到 ArkTS 差异、语法合规审查 |
-| [`.rules/skill-arkui-knowledge.md`](.rules/skill-arkui-knowledge.md) | 涉及 ArkUI 组件、布局、状态装饰器、渲染控制、导航、对话框、交互、组件 API 问题时 |
+| [`.rules/skill-arkts-standards.md`](.rules/skill-arkts-standards.md) | 编写或修改任意 `.ets` 文件；涉及 ArkTS 语法规则、限制、TypeScript 到 ArkTS 差异、语法合规审查 |
+| [`.rules/skill-arkts-types.md`](.rules/skill-arkts-types.md) | 涉及 ArkUI 组件中 Map 或 Array 的遍历（如 ForEach/LazyForEach）；异常捕获（catch）；需要显式类型推断以解决 any/unknown 编译报错 |
+| [`.rules/skill-arkui-knowledge.md`](.rules/skill-arkui-knowledge.md) | 涉及 ArkUI 组件、布局、状态装饰器、渲染控制、导航、对话框、交互、组件 API、声明式 UI |
 | [`.rules/skill-arkts-error-fixes.md`](.rules/skill-arkts-error-fixes.md) | 编译失败、ArkTS 类型错误、构建报错时；涉及 Notification/Window/AppStorage/IDataSource 等常见类型不匹配 |
 | [`.rules/skill-arkts-runtime-fix.md`](.rules/skill-arkts-runtime-fix.md) | 运行时崩溃、闪退、白屏、jscrash 日志、未捕获异常、faultlog/hilog 诊断时 |
 | [`.rules/skill-arkts-debug.md`](.rules/skill-arkts-debug.md) | ArkTS 项目运行时问题调试；涉及日志插桩、假设验证、运行时行为确认时 |
-| [`.rules/skill-llm-onboarding.md`](.rules/skill-llm-onboarding.md) | LLM 新会话初始化、首次接触本项目、遇到环境/SDK 路径异常、或遇到构建命令不生效问题时 |
-| [`.rules/skill-app-release.md`](.rules/skill-app-release.md) | 涉及修改应用包名、应用图标、打包发布、申请证书、生成 p12/csr 文件或上架 AGC 时 |
-| [`.rules/skill-ui-symbols.md`](.rules/skill-ui-symbols.md) | 涉及在 UI 中添加图标、状态提示、字符串带图或 LLM 意图主动生成 Emoji 作为标识时 |
-| [`.rules/skill-i18n.md`](.rules/skill-i18n.md) | 涉及新建 UI 界面、修改页面文案、输出面向用户的 Toast/Dialog、配置 HdsNavigation 标题时 |
-| [`.rules/skill-rules-update.md`](.rules/skill-rules-update.md) | 开发者明确要求将本次经验沉淀到规则库时（仅由开发者手动提起，不自动触发） |
+| [`.rules/skill-device-hdc-debug.md`](.rules/skill-device-hdc-debug.md) | 涉及 `hdb`/`hdc`、模拟器/真机连接、HAP 安装、命令行启动/停止应用、设备运行状态、HiLog、bugreport、`aa appdebug` 时 |
+| [`.rules/skill-app-release.md`](.rules/skill-app-release.md) | 涉及修改应用包名、应用图标、版本号、打包发布、申请证书、生成 p12/csr 文件或上架 AGC 时 |
+| [`.rules/skill-ui-symbols.md`](.rules/skill-ui-symbols.md) | 涉及在 UI 中添加图标、状态提示、字符串带图；发现或准备新增 Emoji 作为 UI 标识 |
+| [`.rules/skill-i18n.md`](.rules/skill-i18n.md) | 涉及新建 UI 界面、修改页面文案、输出面向用户的 Toast/Dialog、配置 HdsNavigation/HdsNavDestination 标题时 |
+| [`.rules/skill-rules-update.md`](.rules/skill-rules-update.md) | 开发者明确要求新增、修改、合并、删除、自动触发化或沉淀 `.rules/`/`AGENTS.md` 规则时 |
 
-> **规则库使用原则**：规则文件各自在开头明确列出了触发条件，LLM 每次分析任务时应主动对照检查，无需等开发者提示。规则库内容以 `.rules/README.md` 为索引入口。
+> **规则库使用原则**：规则文件各自在开头明确列出了触发条件，LLM 每次分析任务时应主动对照检查，无需等开发者提示。规则库内容以 `.rules/README.md` 为索引入口；技能文件内容与本表不一致时，先以本文件为准，并在规则维护任务中同步修正漂移。
+
+### 1.2 本地规则库（.local-rules/）
+
+`.local-rules/` 是当前机器的本地事实库，用于保存 SDK 路径、DevEco Studio 路径、Hvigor/HDC/HDB 路径、设备 target、构建/安装/启动/日志命令实测结果等**本机信息**。
+
+- Agent 在陌生环境或检测到环境漂移时，必须先读取 `.local-rules/README.md` 与 `.local-rules/base-local-rules.md`（如存在），再读取相关 `*.local.md`。
+- `.local-rules/*.local.md` 中的本机事实可以覆盖本文件中的历史“当前机器基线”，但不能覆盖项目架构、ArkTS、UI、资源、规则维护等共享规范。
+- 新探测到的本机事实应写入 `.local-rules/*.local.md`，不要直接修改 `.rules/` 或本文件。
+- `.local-rules/*.local.md` 默认不提交到 Git；共享索引和基础规则可以提交，以便不同 Agent 都知道读取方式。
+- 如果本机事实揭示了跨机器通用规则变化，先在交付中说明，再由开发者明确触发 `skill-rules-update.md` 更新共享规则。
 
 ## 2. 项目定位
 
@@ -75,9 +98,9 @@
   - `entry/src/main/module.json5`
   - `entry/src/main/resources/base/profile/main_pages.json`
 - 当前 `build-profile.json5` 的产品配置为：
-  - `targetSdkVersion: 6.1.0(23)`
-  - `compatibleSdkVersion: 6.1.0(23)`
-- 当前根目录 `oh-package.json5` 的 `modelVersion` 为 `6.1.0`。
+  - `targetSdkVersion: 26.0.0`
+  - `compatibleSdkVersion: 26.0.0`
+- 当前根目录 `oh-package.json5` 的 `modelVersion` 为 `26.0.0`。
 - 当前 `AppScope/app.json5` 的 `bundleName` 为 `com.dlzz.ngf`。
 - 当前 `entry/src/main/module.json5` 的主能力为 `EntryAbility`，页面入口通过 `$profile:main_pages` 声明。
 - 当前 `entry/src/main/resources/base/profile/main_pages.json` 中注册的入口页面为 `pages/ngf/MainMenuPage`。
@@ -88,37 +111,38 @@
   - `data`：缓存、设置(SettingsManager)、存储(SandboxManager)、迁移与数据门面。
   - `contentWorkflow`：通用工作流、动作执行、重试、限流等流程编排能力。
   - `contentSource`：通用内容源注册、加载、仓储与接入门面。
+  - `deviceAwareness`：视效能力、握持感知、设备状态等感知能力门面与契约。
+  - `hardware`：硬件能力接入与演示支撑。
+  - `i18n`：国际化、语言管理、资源字符串解析、相对时间等能力。
+  - `interconnect`：跨端互联与连接能力。
+  - `media`：媒体能力接入与演示支撑。
+  - `network`：网络请求、连接状态、网络能力封装。
+  - `platformOhos`：HarmonyOS 平台桥接、上下文桥接(UIContextManager)、窗口策略、平台控制能力。
+  - `push`：推送与系统消息接入能力。
+  - `resources`：框架资源、系统符号目录与资源辅助能力。
+  - `security`：加解密、哈希、安全工具与安全能力演示支撑。
+  - `systemTasks`：后台任务、系统通知、任务进度与系统事件能力。
   - `uiShell`：导航壳层、页面策略宿主、UI 外壳能力，以及可复用 UI 组件(`components/` 下含 HdsNavigationSupport、NGFImmersiveTopChrome)。
+  - `uiTheme`：主题、深色模式、视觉主题状态与管理门面。
   - `utils`：日志、时间、日志收集等基础工具。
+  - `webBridge`：WebView/JSBridge 与 Web 能力桥接。
 - 当前日志实现文件为 `ngf_framework/src/main/ets/utils/Logger.ets`。
 - 当前 `local.properties` 未记录 SDK 路径，因此 **不能** 把它作为判断 SDK 绑定状态的唯一依据。
 
-### 3.1 本机 SDK 与 IDE 路径基线
+### 3.1 本机 SDK 与 IDE 路径事实
 
-- 当前机器已确认存在的 HarmonyOS SDK 主目录为 `F:\HarmonyOS\SDK`。
-- 当前机器已确认存在的 HarmonyOS SDK 版本目录包括：
-  - `F:\HarmonyOS\SDK\23`
-  - `F:\HarmonyOS\SDK\20`
-  - `F:\HarmonyOS\SDK\18`
-- 当前仓库实际 `targetSdkVersion` / `compatibleSdkVersion` 为 `6.1.0(23)`，且本机已确认存在 `F:\HarmonyOS\SDK\23`；如果后续遇到历史 `6.0.1(21)` 说明或旧分支配置，应以当前 `build-profile.json5` 与实际 SDK 目录为准，不要凭历史文字推断。
-- 当前机器已确认存在的 DevEco Studio 安装目录为 `F:\DevEco Studio`。
-- 当前机器已确认存在的 DevEco Studio SDK 根目录为 `F:\DevEco Studio\sdk`。
-- 当前机器已确认存在的 DevEco Studio 默认 OpenHarmony SDK 目录为 `F:\DevEco Studio\sdk\default\openharmony`。
-- 当前机器已确认存在的 DevEco Studio 默认 HMS SDK 目录为 `F:\DevEco Studio\sdk\default\hms`。
-- 涉及 SDK 路径、toolchains、previewer、hvigor、构建环境或 IDE 绑定目录排查时，优先先核对以上路径，不要凭空假设其他安装位置。
-- 如果任务涉及“为什么能编译 / 为什么不能编译 / SDK 是否匹配”等问题，必须同时对照 `build-profile.json5`、本机路径、DevEco Studio 默认 SDK 目录以及用户实际报错，不能只看单一文件下结论。
+- 本机 HarmonyOS SDK、DevEco Studio、OpenHarmony SDK、HMS SDK、toolchains、previewer、Hvigor、HDC/HDB 路径都属于本地事实，应优先从 `.local-rules/current-machine.local.md`、`.local-rules/build-commands.local.md`、`.local-rules/device-hdc.local.md` 读取。
+- 如果 `.local-rules/*.local.md` 不存在、过期或与现场结果冲突，应先执行非破坏性探测命令，再把新事实写入对应本地文件；不要把单台机器路径追加到本文件或共享 `.rules/`。
+- 当前仓库实际 `targetSdkVersion` / `compatibleSdkVersion` 仍以 `build-profile.json5` 为准；本机是否安装了对应 SDK 版本，应通过本地规则库或现场探测确认。
+- 涉及 SDK 路径、toolchains、previewer、hvigor、构建环境或 IDE 绑定目录排查时，必须同时对照 `build-profile.json5`、本机实测路径、DevEco Studio 默认 SDK 目录以及用户实际报错，不能只看单一文件下结论。
 
 ### 3.2 本机已验证的常用构建命令
 
-- 本机命令行可用的 Hvigor 入口已实测确认为：`F:\DevEco Studio\tools\hvigor\bin\hvigorw.bat`。
-- 在 PowerShell 中执行 HarmonyOS 构建命令前，优先先显式设置：
-  - `$env:DEVECO_SDK_HOME='F:\DevEco Studio\sdk'`
-- 执行任何 `hvigorw.bat` 命令前，必须先确认当前工作目录就是仓库根目录 `F:\DevEcoStudioProject\NGF`；不要在无关目录直接执行，否则 Hvigor 会解析异常。
-- 不要先后反复尝试 `hvigor`、`hvigorw`、`ohpm`、猜测 SDK 路径等无根据写法；除非上述已验证入口失效，否则默认直接使用该入口和该环境变量。
-- 已在本仓库根目录实测通过的常用命令包括：
-  - `& 'F:\DevEco Studio\tools\hvigor\bin\hvigorw.bat' -v`
-  - `& 'F:\DevEco Studio\tools\hvigor\bin\hvigorw.bat' clean --no-daemon`
-  - `& 'F:\DevEco Studio\tools\hvigor\bin\hvigorw.bat' assembleHap --no-daemon --stacktrace`
+- 本机可用 Hvigor 入口、`DEVECO_SDK_HOME`、构建产物路径和失败命令原因都应记录到 `.local-rules/build-commands.local.md`。
+- 在 PowerShell 中执行 HarmonyOS 构建命令前，优先采用“显式环境变量 + 绝对 Hvigor 路径”的形式：
+  - `$env:DEVECO_SDK_HOME='<包含 default/openharmony 的 DevEco SDK 根目录>'; & '<本机 hvigorw.bat 绝对路径>' assembleHap --no-daemon --stacktrace`
+- 执行任何 `hvigorw.bat` 命令前，必须先确认当前工作目录就是仓库根目录；不要在无关目录直接执行，否则 Hvigor 会解析异常。
+- 不要先后反复尝试 `hvigor`、`hvigorw`、`ohpm`、猜测 SDK 路径等无根据写法；如果本地规则库已有已验证命令，优先使用该命令。
 - 遇到 `generator : Ninja does not match the generator used previously: Visual Studio 17 2022` 缓存冲突时，应优先判断为本地 `.cxx` / `CMakeCache.txt` 缓存冲突，只有在任务本身就是构建排障且允许处理缓存时，才清理报错指向的二进制目录（如 `entry\.cxx\default\default\debug\arm64-v8a`），禁止无差别清空整个 `entry`。
 
 ## 4. 框架目录与修改原则
@@ -130,8 +154,20 @@
   - `data`：缓存、设置(SettingsManager)、存储(SandboxManager)、迁移与数据门面。
   - `contentWorkflow`：通用工作流、动作执行、重试、限流等流程编排能力。
   - `contentSource`：通用内容源注册、加载、仓储与接入门面，按“通用适配层”理解，不要写成单一来源特例层。
+  - `deviceAwareness`：视效能力、握持感知、设备状态等感知能力门面与契约。
+  - `hardware`：硬件能力接入与演示支撑。
+  - `i18n`：国际化、语言管理、资源字符串解析、相对时间等能力。
+  - `interconnect`：跨端互联与连接能力。
+  - `media`：媒体能力接入与演示支撑。
+  - `network`：网络请求、连接状态、网络能力封装。
+  - `push`：推送与系统消息接入能力。
+  - `resources`：框架资源、系统符号目录与资源辅助能力。
+  - `security`：加解密、哈希、安全工具与安全能力演示支撑。
+  - `systemTasks`：后台任务、系统通知、任务进度与系统事件能力。
   - `uiShell`：导航壳层、页面策略宿主、UI 外壳能力，以及可复用 UI 组件(`components/` 下含 HdsNavigationSupport、NGFImmersiveTopChrome)。
+  - `uiTheme`：主题、深色模式、视觉主题状态与管理门面。
   - `utils`：日志、时间、日志收集等基础工具。
+  - `webBridge`：WebView/JSBridge 与 Web 能力桥接。
 - 如果目标修改只影响某一层，则优先在该层内完成闭环，不要把局部问题扩散到无关模块。
 - 同名或近名文件较多时，必须先确认正确路径和职责范围再修改，避免误改展示层与框架层、页面层与门面层。
 - 处理现有页面时，应优先保持目标目录现有组织方式；例如演示页继续保持“展示 / 验证”定位，不要无意间改造成业务首页。
@@ -143,8 +179,9 @@
 
 ### 5.1 启动任务前必须自动执行的核查
 
-- 先确认当前工作目录是否仍为仓库根目录 `F:\DevEcoStudioProject\NGF`，并确认目标文件确实属于本仓库。
+- 先确认当前工作目录是否仍为仓库根目录，并确认目标文件确实属于本仓库。
 - 先读取根目录 `AGENTS.md`；如任务进入更深子目录，继续搜索该目录链上是否存在新的 `AGENTS.md`。
+- 先读取 `.rules/README.md`；如果存在 `.local-rules/README.md`，继续读取本地规则库索引与相关 `*.local.md`。
 - 先读取以下配置文件，再开始推断环境：
   - `build-profile.json5`
   - `oh-package.json5`
@@ -156,6 +193,7 @@
 - 先确认目标文件位于哪一层：`pages`、`entryability`、`Framework/NGF/core`、`platformOhos`、`data`、`contentWorkflow`、`contentSource`、`uiShell` 或 `utils`。
 - 如果任务与 API、导入、编译、运行、弃用接口、窗口行为有关，必须先查官方文档，再结合源文件与声明定义分析。
 - 如果任务与构建环境有关，必须先核对本机 SDK 目录和 DevEco Studio 默认 SDK 目录是否存在，且不能依赖空白的 `local.properties` 做推断。
+- 如果核对结果与本文件或 `.rules/` 中的历史机器基线不一致，应把新事实记录到 `.local-rules/*.local.md`，当前任务按实测结果执行，不要直接回写共享规则。
 - 如果任务不要求构建、运行、预览或排查构建失败，则默认只做静态分析与代码修改，不自动执行 hvigor 构建。
 - 对于普通代码修改、文档修改、规则文件修改或静态重构任务，完成修改后默认直接进入静态复核与交付，不需要额外手动触发自动编译。
 
@@ -173,8 +211,8 @@
 - `Get-Content -Encoding utf8 entry/src/main/module.json5`
 - `Get-Content -Encoding utf8 entry/src/main/resources/base/profile/main_pages.json`
 - `Get-ChildItem -Path ngf_framework/src/main/ets -Directory`
-- `Test-Path "F:\HarmonyOS\SDK"`
-- `Test-Path "F:\DevEco Studio\sdk\default\openharmony"`
+- `Test-Path "<可能的 HarmonyOS SDK 根目录>"`
+- `Test-Path "<可能的 DevEco Studio SDK>\default\openharmony"`
 
 ### 5.3 启动任务时应向自己确认的环境摘要
 
@@ -349,7 +387,9 @@
 
 ## 9. 提交修改前的简明检查清单
 
-- **规则库命中检查（任务开始时）**：是否已对照 `1.1 技能规则库` 的触发条件扫描本次任务，并在动手前阅读了命中的 `.rules/` 规则文件？
+- **规则库自动触发检查（任务开始时）**：是否已读取 `.rules/README.md`，对照 `1.1 技能规则库` 扫描本次任务，并在动手前完整阅读了命中的 `.rules/` 规则文件？
+- **规则记忆检查（任务进行中）**：是否已形成本次任务的“规则记忆”摘要，并在修改、复核、交付前回看其中的硬性禁止项、标准模式和关键路径？
+- **本地事实检查（陌生环境/环境漂移时）**：是否已读取 `.local-rules/`，并把新探测到的本机事实写入 `*.local.md` 而不是直接污染共享规则？
 - 是否先核对了最新 HarmonyOS 官方文档与目标模块源码。
 - 是否确认本次修改是在建设 NGF 框架能力，而不是无意中把仓库往某个单一 App 方向收窄。
 - 是否完成了最小必要的环境核查，并确认当前实际 SDK、入口页、模块层级与工作目录。

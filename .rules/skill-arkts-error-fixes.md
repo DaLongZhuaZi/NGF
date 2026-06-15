@@ -2,7 +2,10 @@
 
 **适用场景**：编译失败或修复 ArkTS 类型错误时；涉及 ArkTS 编译报错、类型不匹配、构建错误。
 
-**不会自动触发**，需要开发者/LLM 在任务开始前主动阅读。
+**自动触发条件（满足任意一条即应主动阅读本文件）**：
+- 编译失败、ArkTS 类型错误、Hvigor/构建报错。
+- 报错涉及 Notification、Window、AppStorage、IDataSource、Resource、对象字面量、catch、null 安全等常见类型问题。
+- 用户要求解释或修复构建日志、编译日志、IDE 报错。
 
 ---
 

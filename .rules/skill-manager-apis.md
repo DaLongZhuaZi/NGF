@@ -6,7 +6,7 @@
 - **视效等级**（材质档位、沉浸式支持检测）
 - **握持感知**（左手/右手/双手握持侧推断）
 
-**触发条件（满足任意一条即应主动阅读本文件）**：
+**自动触发条件（满足任意一条即应主动阅读本文件）**：
 - 任务涉及主题切换、深色模式响应、`ngf_is_dark_mode` / `ngf_current_theme` 相关逻辑
 - 任务涉及语言切换、`ngf_current_locale`、`resolveResourceString`、`ngfI18nManagerFacade`
 - 任务涉及视效/材质档位读取或设置、`ngfVisualEffectsFacade`、`hdsMaterial.MaterialLevel`

@@ -2,7 +2,7 @@
 
 **适用场景**：当需要将纯净的 NGF 框架工程转变为你自己的真实业务 App，修改包名、图标、版本号，配置真实的签名证书（调试/发布），以及最终打包推送到 AppGallery Connect (AGC) 上架或内测时。绝对禁止使用针对 Android 的打包流程。
 
-**触发条件（满足任意一条即应主动阅读本文件）**：
+**自动触发条件（满足任意一条即应主动阅读本文件）**：
 - 收到“修改应用名”、“替换 App 图标”、“更换包名(bundleName)”等业务化指令。
 - 收到“如何生成签名证书”、“如何获取 p12/p7b 文件”、“帮我打包正式版”等上架相关指令。
 - 试图执行构建应用级别的包（如 `.app` 或 `.hap`）以准备对外发布时。
@@ -54,7 +54,7 @@ HarmonyOS Next 的应用签名体系非常严格，禁止使用未经授权的�
 1. 登录 [AppGallery Connect](https://developer.huawei.com/consumer/cn/service/josp/agc/index.html)。
 2. 在“APP与元服务”中创建新发布。
 3. **应用包名**：填入你在阶段一中设定的 `bundleName`（例如 `com.yourcompany.yourapp`）。
-4. **应用名称**: 填入你在阶段一中设定的 `app_ame`（例如 `NGF`）。
+4. **应用名称**: 填入你在阶段一中设定的 `app_name`（例如 `NGF`）。
 5. **支持设备**: 一般选择 `手机` 与 `平板` 与 `PC/2in1` 。
 6. **默认语言**: 一般选择 `简体中文` 。
 
@@ -103,7 +103,7 @@ HarmonyOS Next 的应用签名体系非常严格，禁止使用未经授权的�
 
 如果必须使用命令行环境自动构建，请确保显式设置 SDK 路径并带上 `--release` 标志：
 ```powershell
-$env:DEVECO_SDK_HOME='F:\DevEco Studio\sdk'; & 'F:\DevEco Studio\tools\hvigor\bin\hvigorw.bat' assembleApp --release --no-daemon
+$env:DEVECO_SDK_HOME='<包含 default/openharmony 的 DevEco SDK 根目录>'; & '<本机 hvigorw.bat 绝对路径>' assembleApp --release --no-daemon
 ```
 > **注意**：上架使用的是 `.app` 包，而局域网单模块测试分发使用的是 `.hap` 包。
 

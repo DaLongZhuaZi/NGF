@@ -2,7 +2,10 @@
 
 **适用场景**：在编写 ArkUI 组件状态（@State, @StorageProp）、使用 `Map` 或 `Array` 集合，以及配合 `ForEach` 渲染时，确保严格符合 ArkTS 的强类型规范。
 
-**不会自动触发**，需要开发者/LLM 在任务开始前主动阅读。
+**自动触发条件（满足任意一条即应主动阅读本文件）**：
+- ArkUI 组件状态、`@State`、`@StorageProp`、`Map`、`Array`、`ForEach`、`LazyForEach`、`IDataSource` 相关修改。
+- 异常捕获、Promise 回调、事件监听或集合遍历中需要显式类型。
+- 需要处理 `any`/`unknown`、隐式类型、对象字面量或泛型推断相关编译错误。
 
 ---
 

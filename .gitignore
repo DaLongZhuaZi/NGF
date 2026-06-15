@@ -1,26 +1,111 @@
-/node_modules
-/oh_modules
+# Dependencies
+/node_modules/
+/oh_modules/
+**/node_modules/
+**/oh_modules/
+
+# HarmonyOS / DevEco generated files
 /local.properties
-/.idea
-**/build
-/.hvigor
-.cxx
+**/build/
+**/.cxx/
+**/.preview/
+**/.test/
+/.hvigor/
+**/.hvigor/
+/.appanalyzer/
+**/.appanalyzer/
+*.hap
+*.app
+*.hsp
+
+# Native / analyzer local config
 /.clangd
 /.clang-format
 /.clang-tidy
-**/.test
-/.appanalyzer
-/.antigravitycli
-/.claude
-/.atomcode
-/.workbuddy
-/.deveco
+compile_commands.json
 
-# Signing and Certificate files
+# Logs, diagnostics, and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.swp
+*~
+bugreport*.txt
+*_bugreport*.txt
+hilog*.txt
+faultlog/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / tooling cache
+.npm/
+.pnpm-store/
+.yarn/
+.parcel-cache/
+.turbo/
+.cache/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+/.idea/
+/.vscode/
+
+# Agent local state
+/.antigravitycli/
+/.claude/
+/.atomcode/
+/.workbuddy/
+/.deveco/
+/.cursor/
+/.windsurf/
+/.codex/
+/.trae/
+/.kiro/
+/.opencode/
+/.continue/
+/.aider*
+/.gemini/
+/.openhands/
+
+# Local rule facts
+/.local-rules/*.local.md
+/.local-rules/snapshots/
+/.local-rules/*.log
+/.local-rules/*.tmp
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Signing and certificate files
 *.p12
 *.cer
 *.csr
+*.crt
+*.der
 *.p7b
 *.pem
+*.pfx
+*.key
 *.keystore
 *.jks

@@ -2,7 +2,10 @@
 
 **适用场景**：ArkTS/JavaScript jscrash、运行时崩溃、未捕获异常、堆栈跟踪、faultlog、hilog 诊断；应用闪退/崩溃/白屏、点击/启动/启动后退出、构建成功但运行时失败。
 
-**不会自动触发**，需要开发者/LLM 在任务开始前主动阅读。
+**自动触发条件（满足任意一条即应主动阅读本文件）**：
+- 运行时崩溃、闪退、白屏、启动后退出、点击后退出。
+- 用户提供 jscrash、faultlog、hilog、堆栈跟踪或未捕获异常文本。
+- 构建成功但运行行为异常，需要从设备端日志或崩溃锚点定位根因。
 
 ---
 
@@ -82,3 +85,4 @@
 | 编译报错、构建失败后的类型错误 | `skill-arkts-error-fixes` |
 | ArkUI 组件、布局、状态装饰器 | `skill-arkui-knowledge` |
 | ArkTS 项目调试工作流（含日志插桩） | `skill-arkts-debug` |
+| 需要设备连接、启动应用、采集 HiLog、bugreport | `skill-device-hdc-debug` |
