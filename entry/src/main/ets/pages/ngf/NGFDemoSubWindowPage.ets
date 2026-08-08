@@ -1,4 +1,6 @@
 import { ngfPlatformWindowManagerFacade } from 'ngf_framework';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
 import { NGFSettingsPage } from './NGFSettingsPage';
 import { NGFTaskManagerPage } from './NGFTaskManagerPage';
 import { HdsNavigation } from '@kit.UIDesignKit';
@@ -9,6 +11,7 @@ struct NGFDemoSubWindowPage {
   @State targetRouteName: string = '';
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private isVisible: boolean = false;
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   aboutToAppear() {
     this.targetRouteName = AppStorage.get('CurrentSubWindowRoute') as string || '';
@@ -58,8 +61,9 @@ struct NGFDemoSubWindowPage {
               Blank()
               Button($r('app.string.subwin_btn_close'))
                 .type(ButtonType.Capsule)
-                .backgroundColor($r('app.color.button_primary'))
-                .fontColor($r('app.color.text_white'))
+                .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+                .fontColor($r('app.color.text_primary'))
+                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .onClick(() => this.closeSubWindow('sub_window_settings'))
             }.width('100%').padding(16)
             
@@ -69,8 +73,9 @@ struct NGFDemoSubWindowPage {
           }
           .width('90%')
           .height('85%')
-          .backgroundColor($r('app.color.background_primary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_primary'), this.useSysMat))
           .borderRadius(16)
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
           .clip(true)
           .transition(TransitionEffect.OPACITY.combine(TransitionEffect.scale({ x: 0.9, y: 0.9 })))
         } else if (this.targetRouteName === 'NGFTaskManager') {
@@ -83,8 +88,9 @@ struct NGFDemoSubWindowPage {
               Blank()
               Button($r('app.string.subwin_btn_close'))
                 .type(ButtonType.Capsule)
-                .backgroundColor($r('app.color.button_primary'))
-                .fontColor($r('app.color.text_white'))
+                .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+                .fontColor($r('app.color.text_primary'))
+                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .onClick(() => this.closeSubWindow('sub_window_task'))
             }.width('100%').padding(16).zIndex(10)
 
@@ -96,12 +102,13 @@ struct NGFDemoSubWindowPage {
           }
           .width('90%')
           .height('85%')
-          .backgroundColor($r('app.color.background_primary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_primary'), this.useSysMat))
           .borderRadius(16)
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
           .clip(true)
           .transition(TransitionEffect.OPACITY.combine(TransitionEffect.scale({ x: 0.9, y: 0.9 })))
         } else {
-          Text($r('app.string.subwin_unknown_content')).fontColor(Color.White)
+          Text($r('app.string.subwin_unknown_content')).fontColor($r('app.color.text_primary'))
         }
       }
     }

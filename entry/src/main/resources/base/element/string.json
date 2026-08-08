@@ -5303,6 +5303,46 @@
     {
       "name": "EntryFormAbility_desc",
       "value": "提供桌面卡片能力"
+    },
+    {
+      "name": "settings_system_material_policy",
+      "value": "系统材质策略"
+    },
+    {
+      "name": "settings_system_material_auto",
+      "value": "跟随系统"
+    },
+    {
+      "name": "settings_system_material_force",
+      "value": "强制沉浸"
+    },
+    {
+      "name": "settings_system_material_disabled",
+      "value": "关闭材质"
+    },
+    {
+      "name": "settings_system_material_state",
+      "value": "系统材质状态"
+    },
+    {
+      "name": "settings_system_material_type",
+      "value": "系统材质类型"
+    },
+    {
+      "name": "settings_api_version_label",
+      "value": "API 版本"
+    },
+    {
+      "name": "api26_visual_migration_title",
+      "value": "API26 视效迁移"
+    },
+    {
+      "name": "api26_visual_migration_done",
+      "value": "沉浸材质、组件样式和触摸热区已接入框架策略。"
+    },
+    {
+      "name": "settings_language_english",
+      "value": "English"
     }
   ]
 }

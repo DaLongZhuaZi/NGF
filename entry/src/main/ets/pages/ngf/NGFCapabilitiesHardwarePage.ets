@@ -1,6 +1,8 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from 'ngf_framework';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
@@ -23,6 +25,7 @@ export struct NGFCapabilitiesHardwarePage {
   @State private topInsetVp: number = 108;
   @State private statusMessage: ResourceStr = '';
   @State private hardwareData: string = '';
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   aboutToAppear(): void {
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
@@ -83,20 +86,19 @@ export struct NGFCapabilitiesHardwarePage {
       Text($r('app.string.card_hardware_title'))
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.panel_background'))
+        .fontColor($r('app.color.text_primary'))
       Text($r('app.string.card_hardware_desc'))
         .fontSize(13)
         .lineHeight(20)
-        .fontColor($r('app.color.text_white_low'))
+        .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
     .padding(18)
-    .linearGradient({
-      angle: 140,
-      colors: [['#78350F', 0], ['#F59E0B', 1]]
-    })
-    .borderRadius(20)
-    .shadow({ radius: 14, color: '#1A78350F', offsetX: 0, offsetY: 8 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   @Builder
@@ -108,7 +110,9 @@ export struct NGFCapabilitiesHardwarePage {
           .height(44)
           .fontSize(14)
           .borderRadius(12)
-          .backgroundColor($r('app.color.tag_amber'))
+          .fontColor($r('app.color.text_primary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             void this.handleGetLocation();
           })
@@ -118,7 +122,9 @@ export struct NGFCapabilitiesHardwarePage {
           .height(44)
           .fontSize(14)
           .borderRadius(12)
-          .backgroundColor($r('app.color.tag_purple'))
+          .fontColor($r('app.color.text_primary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             void this.handleStartShake();
           })
@@ -130,8 +136,9 @@ export struct NGFCapabilitiesHardwarePage {
           .fontColor($r('app.color.text_body'))
           .width('100%')
           .padding(10)
-          .backgroundColor($r('app.color.background_surface'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
           .borderRadius(10)
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
       }
 
       if ((typeof this.statusMessage === "string" ? this.statusMessage : '').length > 0) {
@@ -143,10 +150,15 @@ export struct NGFCapabilitiesHardwarePage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   /**

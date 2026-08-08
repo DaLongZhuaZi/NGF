@@ -12,6 +12,8 @@ import {
   NGFImmersiveTopChromeSpec,
   NGFImmersiveTopChromeUnderlay
 } from './NGFImmersiveTopChrome';
+import { ngfVisualEffectsFacade } from '../../deviceAwareness/facades/VisualEffectsFacade';
+import { NGFMaterialSurfaceTokens } from './NGFMaterialSurfaceTokens';
 
 // ──────────────────────────────────────────────────────────────────
 // 通用 KeyValue 数据类型
@@ -33,6 +35,7 @@ export class NGFKeyValueEntry {
 
 @Component
 export struct NGFListPageTemplate {
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   /** 顶部沉浸底板色彩配置 */
   spec: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFactory.build(
     '#07111F', '#0C2540', '#08121E', '#3B82F6D8', '#93C5FDD8', 160, 88
@@ -102,9 +105,13 @@ export struct NGFListPageTemplate {
                 }
                 .width('100%')
                 .padding({ left: 14, right: 14, top: 12, bottom: 12 })
-                .backgroundColor($r('app.color.panel_background'))
+                .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
                 .borderRadius(12)
-                .border({ width: 1, color: $r('app.color.card_border') })
+                .border({
+                  width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+                  color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+                })
+                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
                 .onClick((): void => {
                   this.onItemTap(item, index);
                 })
@@ -139,6 +146,7 @@ export struct NGFListPageTemplate {
 
 @Component
 export struct NGFDetailPageTemplate {
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   spec: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFactory.build(
     '#0A0F1A', '#142040', '#08101E', '#6366F1D8', '#A5B4FCD8', 160, 88
   );
@@ -221,6 +229,7 @@ export struct NGFDetailPageTemplate {
 
 @Component
 export struct NGFFormPageTemplate {
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   spec: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFactory.build(
     '#0F0A1A', '#1E1145', '#0A0618', '#818CF8D8', '#C7D2FED8', 160, 88
   );
@@ -261,9 +270,13 @@ export struct NGFFormPageTemplate {
           }
           .width('100%')
           .padding(16)
-          .backgroundColor($r('app.color.panel_background'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
           .borderRadius(16)
-          .border({ width: 1, color: $r('app.color.card_border') })
+          .border({
+            width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+            color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+          })
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
 
           // Submit 按钮
           Button(this.submitLabel)
@@ -272,12 +285,11 @@ export struct NGFFormPageTemplate {
             .fontSize(15)
             .fontWeight(FontWeight.Medium)
             .borderRadius(14)
-            .backgroundColor(this.submitEnabled
-              ? $r('app.color.button_primary')
-              : $r('app.color.background_surface'))
-            .fontColor(this.submitEnabled
-              ? $r('app.color.panel_background')
-              : $r('app.color.text_muted'))
+            .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+            .fontColor(this.submitEnabled ? $r('app.color.text_primary') : $r('app.color.text_muted'))
+            .systemMaterial(this.submitEnabled
+              ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
+              : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
             .enabled(this.submitEnabled)
             .onClick((): void => {
               this.onSubmit();

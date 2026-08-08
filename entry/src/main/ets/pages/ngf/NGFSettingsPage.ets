@@ -1,31 +1,23 @@
 import { ConfigurationConstant } from '@kit.AbilityKit';
 import { ComponentContent } from '@kit.ArkUI';
+import uiMaterial from '@ohos.arkui.uiMaterial';
 import { NGFThemeMode } from 'ngf_framework';
 import { ngfThemeManagerFacade } from 'ngf_framework';
 import { ngfI18nManagerFacade } from 'ngf_framework';
 import { resolveResourceString } from 'ngf_framework';
 import { uiContextManager } from 'ngf_framework';
+import { NGFControlStyleTokens } from 'ngf_framework';
+import { NGFMaterialBackgroundEffectOptions } from 'ngf_framework';
+import { NGFMaterialSheetOptions } from 'ngf_framework';
+import { NGFMaterialShadowOptions } from 'ngf_framework';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
+import { NGFSystemMaterialPolicy } from 'ngf_framework';
 import { NGFVisualEffectsMaterialMode } from 'ngf_framework';
 import { ngfVisualEffectsFacade } from 'ngf_framework';
 import { AboutSheetContent } from 'ngf_framework';
 import { logger } from 'ngf_framework';
 
 const TAG: string = 'NGFSettingsPage';
-
-class AboutSheetOptions implements SheetOptions {
-  preferType: SheetType = SheetType.BOTTOM;
-  detents: [SheetSize, SheetSize] = [SheetSize.LARGE, SheetSize.MEDIUM];
-  dragBar: boolean = true;
-  showClose: boolean = false;
-  blurStyle: BlurStyle;
-  maskColor: ResourceColor = '#66000000';
-  backgroundColor: ResourceColor = Color.Transparent;
-  keyboardAvoidMode: SheetKeyboardAvoidMode = SheetKeyboardAvoidMode.RESIZE_ONLY;
-
-  constructor() {
-    this.blurStyle = BlurStyle.NONE;
-  }
-}
 
 @Builder
 function buildAboutSheetContent(): void {
@@ -40,6 +32,9 @@ export struct NGFSettingsPage {
   @StorageProp('ngf_visual_effects_material_mode') private materialMode: string = 'adaptive';
   @StorageProp('ngf_visual_effects_effective_material_level') private effectiveLevel: number = 3;
   @StorageProp('ngf_visual_effects_supports_immersive') private supportsImmersive: boolean = false;
+  @StorageProp('ngf_visual_effects_system_material_policy') private systemMaterialPolicy: string = 'auto';
+  @StorageProp('ngf_visual_effects_system_material_state') private systemMaterialState: number = 0;
+  @StorageProp('ngf_visual_effects_system_material_type') private systemMaterialType: number = 2;
   @StorageProp('ngf_holding_awareness_available') private holdingAvailable: boolean = false;
   @StorageProp('ngf_holding_awareness_detect_gesture_granted') private detectGestureGranted: boolean = false;
   @StorageProp('ngf_holding_awareness_activity_motion_granted') private activityMotionGranted: boolean = false;
@@ -67,31 +62,40 @@ export struct NGFSettingsPage {
       this.buildSettingRow($r('app.string.ui_str_2417'), this.isDarkMode ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359'))
       Row({ space: 8 }) {
         Button($r('app.string.ui_str_2418'))
-          .fontSize(13)
-          .height(36)
-          .backgroundColor(this.currentTheme === NGFThemeMode.AUTO ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.currentTheme === NGFThemeMode.AUTO ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(18)
+          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.currentTheme === NGFThemeMode.AUTO))
+          .fontColor(this.resolveSegmentButtonFontColor(this.currentTheme === NGFThemeMode.AUTO))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.currentTheme === NGFThemeMode.AUTO))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.currentTheme === NGFThemeMode.AUTO))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyTheme(NGFThemeMode.AUTO);
           })
         Button($r('app.string.ui_str_2419'))
-          .fontSize(13)
-          .height(36)
-          .backgroundColor(this.currentTheme === NGFThemeMode.LIGHT ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.currentTheme === NGFThemeMode.LIGHT ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(18)
+          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.currentTheme === NGFThemeMode.LIGHT))
+          .fontColor(this.resolveSegmentButtonFontColor(this.currentTheme === NGFThemeMode.LIGHT))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.currentTheme === NGFThemeMode.LIGHT))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.currentTheme === NGFThemeMode.LIGHT))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyTheme(NGFThemeMode.LIGHT);
           })
         Button($r('app.string.ui_str_2420'))
-          .fontSize(13)
-          .height(36)
-          .backgroundColor(this.currentTheme === NGFThemeMode.DARK ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.currentTheme === NGFThemeMode.DARK ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(18)
+          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.currentTheme === NGFThemeMode.DARK))
+          .fontColor(this.resolveSegmentButtonFontColor(this.currentTheme === NGFThemeMode.DARK))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.currentTheme === NGFThemeMode.DARK))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.currentTheme === NGFThemeMode.DARK))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyTheme(NGFThemeMode.DARK);
@@ -101,9 +105,12 @@ export struct NGFSettingsPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -117,31 +124,40 @@ export struct NGFSettingsPage {
       this.buildSettingRow($r('app.string.ui_str_2422'), this.describeLocale(this.currentLocale))
       Row({ space: 8 }) {
         Button($r('app.string.ui_str_2418'))
-          .fontSize(13)
-          .height(36)
-          .backgroundColor(this.currentLocale === '' ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.currentLocale === '' ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(18)
+          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.currentLocale === ''))
+          .fontColor(this.resolveSegmentButtonFontColor(this.currentLocale === ''))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.currentLocale === ''))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.currentLocale === ''))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyLanguage('');
           })
         Button($r('app.string.ui_str_2423'))
-          .fontSize(13)
-          .height(36)
-          .backgroundColor(this.currentLocale === 'zh-Hans' ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.currentLocale === 'zh-Hans' ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(18)
+          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.currentLocale === 'zh-Hans'))
+          .fontColor(this.resolveSegmentButtonFontColor(this.currentLocale === 'zh-Hans'))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.currentLocale === 'zh-Hans'))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.currentLocale === 'zh-Hans'))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyLanguage('zh-Hans');
           })
-        Button('English')
-          .fontSize(13)
-          .height(36)
-          .backgroundColor(this.currentLocale === 'en' ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.currentLocale === 'en' ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(18)
+        Button($r('app.string.settings_language_english'))
+          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.currentLocale === 'en'))
+          .fontColor(this.resolveSegmentButtonFontColor(this.currentLocale === 'en'))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.currentLocale === 'en'))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.currentLocale === 'en'))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyLanguage('en');
@@ -151,9 +167,12 @@ export struct NGFSettingsPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -170,7 +189,8 @@ export struct NGFSettingsPage {
           .fontColor($r('app.color.text_secondary'))
           .layoutWeight(1)
         Toggle({ type: ToggleType.Switch, isOn: this.materialMode === 'adaptive' })
-          .selectedColor($r('app.color.button_primary'))
+          .backgroundColor(Color.Transparent)
+          .systemMaterial(this.resolveDefaultComponentMaterial())
           .onChange((isOn: boolean): void => {
             this.applyImmersiveToggle(isOn);
           })
@@ -180,6 +200,52 @@ export struct NGFSettingsPage {
       this.buildSettingRow($r('app.string.ui_str_2378'), this.materialMode === 'adaptive' ? $r('app.string.ui_str_2379') : $r('app.string.ui_str_2380'))
       this.buildSettingRow($r('app.string.ui_str_2381'), this.describeMaterialLevel(this.effectiveLevel))
       this.buildSettingRow($r('app.string.ui_str_2382'), this.supportsImmersive ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359'))
+      this.buildSettingRow($r('app.string.settings_system_material_policy'), this.describeSystemMaterialPolicy(this.systemMaterialPolicy))
+      this.buildSettingRow($r('app.string.settings_system_material_state'), this.describeSystemMaterialState(this.systemMaterialState))
+      this.buildSettingRow($r('app.string.settings_system_material_type'), this.describeSystemMaterialType(this.systemMaterialType))
+
+      Row({ space: 8 }) {
+        Button($r('app.string.settings_system_material_auto'))
+          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.systemMaterialPolicy === NGFSystemMaterialPolicy.AUTO))
+          .fontColor(this.resolveSegmentButtonFontColor(this.systemMaterialPolicy === NGFSystemMaterialPolicy.AUTO))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.systemMaterialPolicy === NGFSystemMaterialPolicy.AUTO))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.systemMaterialPolicy === NGFSystemMaterialPolicy.AUTO))
+          .layoutWeight(1)
+          .onClick((): void => {
+            this.applySystemMaterialPolicy(NGFSystemMaterialPolicy.AUTO);
+          })
+        Button($r('app.string.settings_system_material_force'))
+          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE))
+          .fontColor(this.resolveSegmentButtonFontColor(this.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE))
+          .layoutWeight(1)
+          .onClick((): void => {
+            this.applySystemMaterialPolicy(NGFSystemMaterialPolicy.FORCE_IMMERSIVE);
+          })
+        Button($r('app.string.settings_system_material_disabled'))
+          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED))
+          .fontColor(this.resolveSegmentButtonFontColor(this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED))
+          .layoutWeight(1)
+          .onClick((): void => {
+            this.applySystemMaterialPolicy(NGFSystemMaterialPolicy.DISABLED);
+          })
+      }
+      .width('100%')
 
       Text($r('app.string.ui_str_2425'))
         .fontSize(14)
@@ -187,41 +253,53 @@ export struct NGFSettingsPage {
         .width('100%')
       Row({ space: 8 }) {
         Button($r('app.string.ui_str_2414'))
-          .fontSize(12)
-          .height(32)
-          .backgroundColor(this.effectiveLevel === 0 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.effectiveLevel === 0 ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(16)
+          .fontSize(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.effectiveLevel === 0))
+          .fontColor(this.resolveSegmentButtonFontColor(this.effectiveLevel === 0))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.effectiveLevel === 0))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.effectiveLevel === 0))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyMaterialLevel(0);
           })
         Button($r('app.string.ui_str_2413'))
-          .fontSize(12)
-          .height(32)
-          .backgroundColor(this.effectiveLevel === 1 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.effectiveLevel === 1 ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(16)
+          .fontSize(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.effectiveLevel === 1))
+          .fontColor(this.resolveSegmentButtonFontColor(this.effectiveLevel === 1))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.effectiveLevel === 1))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.effectiveLevel === 1))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyMaterialLevel(1);
           })
         Button($r('app.string.ui_str_2412'))
-          .fontSize(12)
-          .height(32)
-          .backgroundColor(this.effectiveLevel === 2 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.effectiveLevel === 2 ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(16)
+          .fontSize(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.effectiveLevel === 2))
+          .fontColor(this.resolveSegmentButtonFontColor(this.effectiveLevel === 2))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.effectiveLevel === 2))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.effectiveLevel === 2))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyMaterialLevel(2);
           })
         Button($r('app.string.ui_str_2426'))
-          .fontSize(12)
-          .height(32)
-          .backgroundColor(this.effectiveLevel === 3 ? $r('app.color.button_primary') : $r('app.color.button_inactive_bg'))
-          .fontColor(this.effectiveLevel === 3 ? $r('app.color.panel_background') : $r('app.color.text_primary'))
-          .borderRadius(16)
+          .fontSize(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .backgroundColor(this.resolveSegmentButtonBackground(this.effectiveLevel === 3))
+          .fontColor(this.resolveSegmentButtonFontColor(this.effectiveLevel === 3))
+          .fontWeight(this.resolveSegmentButtonFontWeight(this.effectiveLevel === 3))
+          .borderRadius(NGFControlStyleTokens.DENSE_BUTTON_RADIUS)
+          .systemMaterial(this.resolveSegmentButtonMaterial(this.effectiveLevel === 3))
           .layoutWeight(1)
           .onClick((): void => {
             this.applyMaterialLevel(3);
@@ -231,9 +309,12 @@ export struct NGFSettingsPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -250,9 +331,12 @@ export struct NGFSettingsPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -265,14 +349,18 @@ export struct NGFSettingsPage {
 
       this.buildSettingRow($r('app.string.ui_str_2428'), 'NGF')
       this.buildSettingRow($r('app.string.ui_str_2429'), '1.0.0')
-      this.buildSettingRow($r('app.string.ui_str_2430'), '6.1.0(23)')
+      this.buildSettingRow($r('app.string.settings_api_version_label'), '26.0.0')
       this.buildSettingRow($r('app.string.ui_str_2431'), $r('app.string.ui_str_2432'))
+      this.buildSettingRow($r('app.string.api26_visual_migration_title'), $r('app.string.api26_visual_migration_done'))
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForClickablePanel())
     .gesture(
       TapGesture()
         .onAction((_event: GestureEvent): void => {
@@ -290,7 +378,10 @@ export struct NGFSettingsPage {
 
     try {
       const content = new ComponentContent(uiContext, wrapBuilder(buildAboutSheetContent));
-      const options = new AboutSheetOptions();
+      const options = new NGFMaterialSheetOptions(
+        ngfVisualEffectsFacade.buildSystemMaterialForSheet(),
+        ngfVisualEffectsFacade.shouldUseSystemMaterialSurface()
+      );
       uiContext.openBindSheet(content, options).catch((_err: Error): void => {
         logger.error(TAG, 'openBindSheet promise rejected.');
       });
@@ -314,6 +405,79 @@ export struct NGFSettingsPage {
         .fontWeight(FontWeight.Medium)
     }
     .width('100%')
+  }
+
+  private shouldUseTransparentSystemMaterialSurface(): boolean {
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return false;
+    }
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
+      return true;
+    }
+    return this.systemMaterialState !== uiMaterial.MaterialState.DISABLE;
+  }
+
+  private resolveGlassPanelBackground(): ResourceColor {
+    return this.shouldUseTransparentSystemMaterialSurface() ? Color.Transparent : $r('app.color.panel_background');
+  }
+
+  private resolveGlassPanelBorderColor(): ResourceColor {
+    return this.shouldUseTransparentSystemMaterialSurface() ? Color.Transparent : $r('app.color.panel_border');
+  }
+
+  private resolveGlassPanelBorderWidth(): number {
+    return this.shouldUseTransparentSystemMaterialSurface() ? 0 : NGFMaterialSurfaceTokens.BORDER_WIDTH;
+  }
+
+  private buildGlassPanelBackgroundEffect(): NGFMaterialBackgroundEffectOptions | undefined {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return undefined;
+    }
+    return NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect();
+  }
+
+  private buildGlassPanelShadow(): NGFMaterialShadowOptions | undefined {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return undefined;
+    }
+    return NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow();
+  }
+
+  private resolveSegmentButtonBackground(selected: boolean): ResourceColor {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return Color.Transparent;
+    }
+    if (selected) {
+      return $r('app.color.background_surface');
+    }
+    return Color.Transparent;
+  }
+
+  private resolveSegmentButtonFontColor(selected: boolean): ResourceColor {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return selected ? $r('app.color.text_primary') : $r('app.color.text_secondary');
+    }
+    return selected ? $r('app.color.text_primary') : $r('app.color.text_secondary');
+  }
+
+  private resolveSegmentButtonFontWeight(selected: boolean): FontWeight {
+    return selected ? FontWeight.Bold : FontWeight.Normal;
+  }
+
+  private resolveSegmentButtonMaterial(selected: boolean): uiMaterial.Material | undefined {
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return uiMaterial.Material.empty;
+    }
+    if (!this.shouldUseTransparentSystemMaterialSurface()) {
+      return undefined;
+    }
+    return selected
+      ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
+      : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl();
+  }
+
+  private resolveDefaultComponentMaterial(): uiMaterial.Material | undefined {
+    return this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED ? uiMaterial.Material.empty : undefined;
   }
 
   private applyTheme(mode: NGFThemeMode): void {
@@ -380,6 +544,17 @@ export struct NGFSettingsPage {
     }
   }
 
+  private applySystemMaterialPolicy(policy: NGFSystemMaterialPolicy): void {
+    try {
+      ngfVisualEffectsFacade.setSystemMaterialPolicy(policy);
+      const policyLabel = this.describeSystemMaterialPolicy(policy);
+      logger.info(TAG, '系统材质策略已切换为: ' + String(typeof policyLabel === 'string' ? policyLabel : resolveResourceString(this.getUIContext().getHostContext(), policyLabel)));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn(TAG, '切换系统材质策略失败: ' + message);
+    }
+  }
+
   private describeTheme(theme: string): ResourceStr {
     switch (theme) {
       case NGFThemeMode.LIGHT:
@@ -396,7 +571,7 @@ export struct NGFSettingsPage {
       case 'zh-Hans':
         return $r('app.string.ui_str_2423');
       case 'en':
-        return 'English';
+        return $r('app.string.settings_language_english');
       default:
         return $r('app.string.ui_str_2418');
     }
@@ -415,5 +590,34 @@ export struct NGFSettingsPage {
       default:
         return '未知(' + level + ')';
     }
+  }
+
+  private describeSystemMaterialPolicy(policy: string): ResourceStr {
+    switch (policy) {
+      case NGFSystemMaterialPolicy.FORCE_IMMERSIVE:
+        return $r('app.string.settings_system_material_force');
+      case NGFSystemMaterialPolicy.DISABLED:
+        return $r('app.string.settings_system_material_disabled');
+      default:
+        return $r('app.string.settings_system_material_auto');
+    }
+  }
+
+  private describeSystemMaterialState(state: number): string {
+    switch (state) {
+      case uiMaterial.MaterialState.ENABLE:
+        return 'ENABLE';
+      case uiMaterial.MaterialState.DISABLE:
+        return 'DISABLE';
+      default:
+        return 'DEFAULT';
+    }
+  }
+
+  private describeSystemMaterialType(type: number): string {
+    if (type === uiMaterial.MaterialType.IMMERSIVE) {
+      return 'IMMERSIVE';
+    }
+    return String(type);
   }
 }

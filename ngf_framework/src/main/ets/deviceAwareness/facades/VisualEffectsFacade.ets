@@ -7,10 +7,12 @@
 
 import { logger } from '../../utils/Logger';
 import { hdsMaterial } from '@kit.UIDesignKit';
+import uiMaterial from '@ohos.arkui.uiMaterial';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { SettingsManager } from '../../data/SettingsManager';
 import {
   IVisualEffectsManager,
+  NGFSystemMaterialPolicy,
   NGFVisualEffectsMaterialMode,
   NGFVisualEffectsCapability,
   NGFVisualEffectsSettings,
@@ -26,9 +28,41 @@ const TAG: string = 'NGFVisualEffectsFacade';
 export class NGFVisualEffectsSettingKeys {
   static readonly VISUAL_EFFECTS_MATERIAL_MODE: string = 'ngf_visual_effects_material_mode';
   static readonly VISUAL_EFFECTS_MANUAL_MATERIAL_LEVEL: string = 'ngf_visual_effects_manual_material_level';
+  static readonly VISUAL_EFFECTS_SYSTEM_MATERIAL_POLICY: string = 'ngf_visual_effects_system_material_policy';
   static readonly VISUAL_EFFECTS_SUPPORTED_MATERIAL_TYPES: string = 'ngf_visual_effects_supported_material_types';
+  static readonly VISUAL_EFFECTS_SYSTEM_MATERIAL_STATE: string = 'ngf_visual_effects_system_material_state';
+  static readonly VISUAL_EFFECTS_SYSTEM_MATERIAL_TYPE: string = 'ngf_visual_effects_system_material_type';
   static readonly VISUAL_EFFECTS_CAPABILITY_LAST_CHECKED_AT: string = 'ngf_visual_effects_capability_last_checked_at';
   static readonly VISUAL_EFFECTS_CAPABILITY_DETECT_ERROR: string = 'ngf_visual_effects_capability_detect_error';
+}
+
+class NGFImmersiveMaterialOptions implements uiMaterial.ImmersiveOptions {
+  style?: uiMaterial.ImmersiveStyle;
+  materialColor?: ResourceColor;
+  colorInvert?: boolean;
+  applyShadow?: boolean;
+  interactive?: boolean;
+  lightEffect?: uiMaterial.LightEffectOptions | null;
+
+  constructor(
+    style: uiMaterial.ImmersiveStyle,
+    interactive: boolean,
+    enableLightEffect: boolean,
+    materialColor: ResourceColor | undefined
+  ) {
+    this.style = style;
+    if (materialColor !== undefined) {
+      this.materialColor = materialColor;
+    }
+    this.colorInvert = true;
+    this.applyShadow = true;
+    this.interactive = interactive;
+    this.lightEffect = enableLightEffect ? new NGFImmersiveLightEffectOptions() : null;
+  }
+}
+
+class NGFImmersiveLightEffectOptions implements uiMaterial.LightEffectOptions {
+  color?: ResourceColor;
 }
 
 const DEFAULT_VISUAL_EFFECTS_CAPABILITY: NGFVisualEffectsCapability = {
@@ -37,13 +71,16 @@ const DEFAULT_VISUAL_EFFECTS_CAPABILITY: NGFVisualEffectsCapability = {
   supportsAdaptiveMaterial: true,
   availableManualLevels: [hdsMaterial.MaterialLevel.SMOOTH],
   recommendedManualLevel: hdsMaterial.MaterialLevel.SMOOTH,
+  systemMaterialState: uiMaterial.MaterialState.DEFAULT,
+  systemMaterialType: uiMaterial.MaterialType.IMMERSIVE,
   lastCheckedAt: 0,
   detectError: ''
 };
 
 const DEFAULT_VISUAL_EFFECTS_SETTINGS: NGFVisualEffectsSettings = {
   materialMode: NGFVisualEffectsMaterialMode.ADAPTIVE,
-  manualMaterialLevel: hdsMaterial.MaterialLevel.SMOOTH
+  manualMaterialLevel: hdsMaterial.MaterialLevel.SMOOTH,
+  systemMaterialPolicy: NGFSystemMaterialPolicy.AUTO
 };
 
 class NGFVisualEffectsManager implements IVisualEffectsManager {
@@ -145,9 +182,23 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     logger.info(TAG, '已更新手动材质等级：' + normalizedLevel);
   }
 
+  public async setSystemMaterialPolicy(policy: NGFSystemMaterialPolicy): Promise<void> {
+    const normalizedPolicy: NGFSystemMaterialPolicy = this.normalizeSystemMaterialPolicy(policy);
+    if (normalizedPolicy === this.currentState.settings.systemMaterialPolicy) {
+      return;
+    }
+
+    this.currentState.settings.systemMaterialPolicy = normalizedPolicy;
+    await this.persistSettings();
+    this.syncStateToAppStorage();
+    this.notifyListeners();
+    logger.info(TAG, '已更新系统材质策略：' + normalizedPolicy);
+  }
+
   public async resetToRecommended(): Promise<void> {
     this.currentState.settings.materialMode = DEFAULT_VISUAL_EFFECTS_SETTINGS.materialMode;
     this.currentState.settings.manualMaterialLevel = this.currentState.capability.recommendedManualLevel;
+    this.currentState.settings.systemMaterialPolicy = DEFAULT_VISUAL_EFFECTS_SETTINGS.systemMaterialPolicy;
     this.recalculateEffectiveMaterialLevel();
     await this.persistSettings();
     this.syncStateToAppStorage();
@@ -161,6 +212,59 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
 
   public removeListener(listener: NGFVisualEffectsStateListener): void {
     this.listeners.delete(listener);
+  }
+
+  public shouldUseSystemMaterialSurface(): boolean {
+    if (this.currentState.settings.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return false;
+    }
+    if (this.currentState.settings.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
+      return true;
+    }
+    return this.currentState.capability.systemMaterialState !== uiMaterial.MaterialState.DISABLE;
+  }
+
+  public buildSystemMaterialForOverlay(): uiMaterial.Material | undefined {
+    return this.buildSystemMaterial(uiMaterial.ImmersiveStyle.REGULAR, false, true);
+  }
+
+  public buildSystemMaterialForInteractive(): uiMaterial.Material | undefined {
+    return this.buildSystemMaterial(uiMaterial.ImmersiveStyle.THIN, true, true);
+  }
+
+  public buildSystemMaterialForPanel(): uiMaterial.Material | undefined {
+    return this.buildSystemMaterial(uiMaterial.ImmersiveStyle.REGULAR, false, false);
+  }
+
+  public buildSystemMaterialForProminentPanel(): uiMaterial.Material | undefined {
+    return this.buildSystemMaterial(uiMaterial.ImmersiveStyle.REGULAR, false, false);
+  }
+
+  public buildSystemMaterialForSheet(): uiMaterial.Material | undefined {
+    return this.buildSystemMaterial(uiMaterial.ImmersiveStyle.THICK, false, false);
+  }
+
+  public buildSystemMaterialForFloatingControl(): uiMaterial.Material | undefined {
+    return this.buildSystemMaterial(uiMaterial.ImmersiveStyle.THIN, true, true);
+  }
+
+  public buildSystemMaterialForLightEffectControl(): uiMaterial.Material | undefined {
+    return this.buildSystemMaterial(uiMaterial.ImmersiveStyle.ULTRA_THIN, true, true);
+  }
+
+  public buildSystemMaterialForClickablePanel(): uiMaterial.Material | undefined {
+    return this.buildSystemMaterial(uiMaterial.ImmersiveStyle.REGULAR, true, true);
+  }
+
+  public buildImmersiveMaterialForTabs(): uiMaterial.ImmersiveMaterial | undefined {
+    if (this.currentState.settings.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return undefined;
+    }
+    if (this.currentState.settings.systemMaterialPolicy === NGFSystemMaterialPolicy.AUTO &&
+      this.currentState.capability.systemMaterialState === uiMaterial.MaterialState.DISABLE) {
+      return undefined;
+    }
+    return this.createImmersiveMaterial(uiMaterial.ImmersiveStyle.REGULAR, true, true, undefined);
   }
 
   public getMaterialTypeLabel(type: hdsMaterial.MaterialType): string {
@@ -195,6 +299,35 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     return mode === NGFVisualEffectsMaterialMode.MANUAL ? '手动固定档位' : '系统自适应（推荐）';
   }
 
+  public getSystemMaterialPolicyLabel(policy: NGFSystemMaterialPolicy): string {
+    switch (policy) {
+      case NGFSystemMaterialPolicy.DISABLED:
+        return '关闭系统材质';
+      case NGFSystemMaterialPolicy.FORCE_IMMERSIVE:
+        return '强制沉浸材质';
+      default:
+        return '跟随系统默认';
+    }
+  }
+
+  public getSystemMaterialStateLabel(state: uiMaterial.MaterialState): string {
+    switch (state) {
+      case uiMaterial.MaterialState.ENABLE:
+        return 'ENABLE（默认开启）';
+      case uiMaterial.MaterialState.DISABLE:
+        return 'DISABLE（全局关闭）';
+      default:
+        return 'DEFAULT（系统默认）';
+    }
+  }
+
+  public getSystemMaterialTypeLabel(type: uiMaterial.MaterialType): string {
+    if (type === uiMaterial.MaterialType.IMMERSIVE) {
+      return 'IMMERSIVE（沉浸式）';
+    }
+    return '未知系统材质(' + type + ')';
+  }
+
   private createDefaultState(): NGFVisualEffectsState {
     return {
       capability: this.copyCapability(DEFAULT_VISUAL_EFFECTS_CAPABILITY),
@@ -218,6 +351,8 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       supportsAdaptiveMaterial: source.supportsAdaptiveMaterial,
       availableManualLevels: source.availableManualLevels.slice(),
       recommendedManualLevel: source.recommendedManualLevel,
+      systemMaterialState: source.systemMaterialState,
+      systemMaterialType: source.systemMaterialType,
       lastCheckedAt: source.lastCheckedAt,
       detectError: source.detectError
     };
@@ -226,14 +361,17 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
   private copySettings(source: NGFVisualEffectsSettings): NGFVisualEffectsSettings {
     return {
       materialMode: source.materialMode,
-      manualMaterialLevel: source.manualMaterialLevel
+      manualMaterialLevel: source.manualMaterialLevel,
+      systemMaterialPolicy: source.systemMaterialPolicy
     };
   }
 
   private createCapability(
     materialTypes: Array<hdsMaterial.MaterialType>,
     checkedAt: number,
-    detectError: string
+    detectError: string,
+    systemMaterialState: uiMaterial.MaterialState = DEFAULT_VISUAL_EFFECTS_CAPABILITY.systemMaterialState,
+    systemMaterialType: uiMaterial.MaterialType = DEFAULT_VISUAL_EFFECTS_CAPABILITY.systemMaterialType
   ): NGFVisualEffectsCapability {
     const normalizedTypes: Array<hdsMaterial.MaterialType> = this.normalizeMaterialTypes(materialTypes);
     const supportsImmersive: boolean = this.hasMaterialType(normalizedTypes, hdsMaterial.MaterialType.IMMERSIVE);
@@ -249,6 +387,8 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       supportsAdaptiveMaterial: supportsAdaptive,
       availableManualLevels,
       recommendedManualLevel,
+      systemMaterialState,
+      systemMaterialType,
       lastCheckedAt: checkedAt,
       detectError
     };
@@ -259,11 +399,22 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     try {
       const queriedTypes: Array<hdsMaterial.MaterialType> = hdsMaterial.getSystemMaterialTypes();
       const normalizedTypes: Array<hdsMaterial.MaterialType> = this.normalizeMaterialTypes(queriedTypes);
-      const capability: NGFVisualEffectsCapability = this.createCapability(normalizedTypes, checkedAt, '');
+      const materialInfo: uiMaterial.MaterialInfo = uiMaterial.getMaterialInfo();
+      const capability: NGFVisualEffectsCapability = this.createCapability(
+        normalizedTypes,
+        checkedAt,
+        '',
+        this.normalizeSystemMaterialState(materialInfo.state),
+        this.normalizeSystemMaterialType(materialInfo.type)
+      );
       this.currentState.capability = capability;
       logger.info(
         TAG,
-        '系统材质能力检测完成：支持沉浸式=' + capability.supportsImmersiveMaterial + '，支持自适应=' + capability.supportsAdaptiveMaterial + '，类型=' + JSON.stringify(normalizedTypes)
+        '系统材质能力检测完成：支持沉浸式=' + capability.supportsImmersiveMaterial +
+          '，支持自适应=' + capability.supportsAdaptiveMaterial +
+          '，类型=' + JSON.stringify(normalizedTypes) +
+          '，系统材质状态=' + capability.systemMaterialState +
+          '，系统材质类型=' + capability.systemMaterialType
       );
     } catch (error) {
       const businessError: BusinessError = error as BusinessError;
@@ -274,8 +425,14 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       const fallbackTypes: Array<hdsMaterial.MaterialType> = hasPreviousCapability
         ? this.currentState.capability.supportedMaterialTypes.slice()
         : DEFAULT_VISUAL_EFFECTS_CAPABILITY.supportedMaterialTypes.slice();
+      const fallbackState: uiMaterial.MaterialState = hasPreviousCapability
+        ? this.currentState.capability.systemMaterialState
+        : DEFAULT_VISUAL_EFFECTS_CAPABILITY.systemMaterialState;
+      const fallbackType: uiMaterial.MaterialType = hasPreviousCapability
+        ? this.currentState.capability.systemMaterialType
+        : DEFAULT_VISUAL_EFFECTS_CAPABILITY.systemMaterialType;
 
-      this.currentState.capability = this.createCapability(fallbackTypes, checkedAt, detectError);
+      this.currentState.capability = this.createCapability(fallbackTypes, checkedAt, detectError, fallbackState, fallbackType);
       logger.warn(
         TAG,
         '材质能力检测失败，' + String(hasPreviousCapability ? '保留上次能力快照' : '回退至保守默认值') + '：' + detectError
@@ -330,6 +487,14 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_CAPABILITY_DETECT_ERROR,
       ''
     );
+    const rawSystemMaterialState: number = this.settingsManager.getNumber(
+      NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_SYSTEM_MATERIAL_STATE,
+      DEFAULT_VISUAL_EFFECTS_CAPABILITY.systemMaterialState
+    );
+    const rawSystemMaterialType: number = this.settingsManager.getNumber(
+      NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_SYSTEM_MATERIAL_TYPE,
+      DEFAULT_VISUAL_EFFECTS_CAPABILITY.systemMaterialType
+    );
     const hasPersistedCapability: boolean = rawMaterialTypes.length > 0 || checkedAt > 0 || detectError.length > 0;
 
     if (!hasPersistedCapability) {
@@ -340,11 +505,23 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     const normalizedTypes: Array<hdsMaterial.MaterialType> = materialTypes.length > 0
       ? materialTypes
       : DEFAULT_VISUAL_EFFECTS_CAPABILITY.supportedMaterialTypes.slice();
+    const systemMaterialState: uiMaterial.MaterialState = this.parseSystemMaterialState(rawSystemMaterialState);
+    const systemMaterialType: uiMaterial.MaterialType = this.parseSystemMaterialType(rawSystemMaterialType);
 
-    this.currentState.capability = this.createCapability(normalizedTypes, checkedAt, detectError);
+    this.currentState.capability = this.createCapability(
+      normalizedTypes,
+      checkedAt,
+      detectError,
+      systemMaterialState,
+      systemMaterialType
+    );
     logger.info(
       TAG,
-      '已从持久化存储加载材质能力快照：检测时间=' + checkedAt + '，有错误=' + String(detectError.length > 0) + '，类型=' + JSON.stringify(normalizedTypes)
+      '已从持久化存储加载材质能力快照：检测时间=' + checkedAt +
+        '，有错误=' + String(detectError.length > 0) +
+        '，类型=' + JSON.stringify(normalizedTypes) +
+        '，系统材质状态=' + systemMaterialState +
+        '，系统材质类型=' + systemMaterialType
     );
     return true;
   }
@@ -360,9 +537,14 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_MANUAL_MATERIAL_LEVEL,
       DEFAULT_VISUAL_EFFECTS_SETTINGS.manualMaterialLevel
     );
+    const policyFromStorage: string = this.settingsManager.getString(
+      NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_SYSTEM_MATERIAL_POLICY,
+      DEFAULT_VISUAL_EFFECTS_SETTINGS.systemMaterialPolicy
+    );
 
     const mode: NGFVisualEffectsMaterialMode = this.parseMaterialMode(modeFromStorage);
     const manualLevel: hdsMaterial.MaterialLevel = this.parseMaterialLevel(manualLevelFromStorage);
+    const systemMaterialPolicy: NGFSystemMaterialPolicy = this.parseSystemMaterialPolicy(policyFromStorage);
 
     if (modeFromStorage !== mode) {
       normalized = true;
@@ -370,10 +552,14 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     if (manualLevelFromStorage !== manualLevel) {
       normalized = true;
     }
+    if (policyFromStorage !== systemMaterialPolicy) {
+      normalized = true;
+    }
 
     this.currentState.settings = {
       materialMode: mode,
-      manualMaterialLevel: manualLevel
+      manualMaterialLevel: manualLevel,
+      systemMaterialPolicy
     };
 
     if (this.sanitizeSettingsByCapability()) {
@@ -414,6 +600,94 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     return mode === NGFVisualEffectsMaterialMode.MANUAL
       ? NGFVisualEffectsMaterialMode.MANUAL
       : NGFVisualEffectsMaterialMode.ADAPTIVE;
+  }
+
+  private parseSystemMaterialPolicy(raw: string): NGFSystemMaterialPolicy {
+    if (raw === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
+      return NGFSystemMaterialPolicy.FORCE_IMMERSIVE;
+    }
+    if (raw === NGFSystemMaterialPolicy.DISABLED) {
+      return NGFSystemMaterialPolicy.DISABLED;
+    }
+    return NGFSystemMaterialPolicy.AUTO;
+  }
+
+  private normalizeSystemMaterialPolicy(policy: NGFSystemMaterialPolicy): NGFSystemMaterialPolicy {
+    if (policy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
+      return NGFSystemMaterialPolicy.FORCE_IMMERSIVE;
+    }
+    if (policy === NGFSystemMaterialPolicy.DISABLED) {
+      return NGFSystemMaterialPolicy.DISABLED;
+    }
+    return NGFSystemMaterialPolicy.AUTO;
+  }
+
+  private parseSystemMaterialState(raw: number): uiMaterial.MaterialState {
+    switch (raw) {
+      case uiMaterial.MaterialState.ENABLE:
+        return uiMaterial.MaterialState.ENABLE;
+      case uiMaterial.MaterialState.DISABLE:
+        return uiMaterial.MaterialState.DISABLE;
+      default:
+        return uiMaterial.MaterialState.DEFAULT;
+    }
+  }
+
+  private normalizeSystemMaterialState(state: uiMaterial.MaterialState): uiMaterial.MaterialState {
+    switch (state) {
+      case uiMaterial.MaterialState.ENABLE:
+        return uiMaterial.MaterialState.ENABLE;
+      case uiMaterial.MaterialState.DISABLE:
+        return uiMaterial.MaterialState.DISABLE;
+      default:
+        return uiMaterial.MaterialState.DEFAULT;
+    }
+  }
+
+  private parseSystemMaterialType(raw: number): uiMaterial.MaterialType {
+    if (raw === uiMaterial.MaterialType.IMMERSIVE) {
+      return uiMaterial.MaterialType.IMMERSIVE;
+    }
+    return DEFAULT_VISUAL_EFFECTS_CAPABILITY.systemMaterialType;
+  }
+
+  private normalizeSystemMaterialType(type: uiMaterial.MaterialType): uiMaterial.MaterialType {
+    if (type === uiMaterial.MaterialType.IMMERSIVE) {
+      return uiMaterial.MaterialType.IMMERSIVE;
+    }
+    return DEFAULT_VISUAL_EFFECTS_CAPABILITY.systemMaterialType;
+  }
+
+  private buildSystemMaterial(
+    style: uiMaterial.ImmersiveStyle,
+    interactive: boolean,
+    enableLightEffect: boolean,
+    materialColor: ResourceColor | undefined = undefined
+  ): uiMaterial.Material | undefined {
+    if (this.currentState.settings.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return uiMaterial.Material.empty;
+    }
+    if (this.currentState.settings.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
+      return this.createImmersiveMaterial(style, interactive, enableLightEffect, materialColor);
+    }
+    if (this.currentState.capability.systemMaterialState === uiMaterial.MaterialState.DISABLE) {
+      return undefined;
+    }
+    return this.createImmersiveMaterial(style, interactive, enableLightEffect, materialColor);
+  }
+
+  private createImmersiveMaterial(
+    style: uiMaterial.ImmersiveStyle,
+    interactive: boolean,
+    enableLightEffect: boolean,
+    materialColor: ResourceColor | undefined
+  ): uiMaterial.ImmersiveMaterial {
+    return new uiMaterial.ImmersiveMaterial(new NGFImmersiveMaterialOptions(
+      style,
+      interactive,
+      enableLightEffect,
+      materialColor
+    ));
   }
 
   private parsePersistedMaterialTypes(raw: string): Array<hdsMaterial.MaterialType> {
@@ -496,12 +770,24 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
       NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_MANUAL_MATERIAL_LEVEL,
       this.currentState.settings.manualMaterialLevel
     );
+    await this.settingsManager.setString(
+      NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_SYSTEM_MATERIAL_POLICY,
+      this.currentState.settings.systemMaterialPolicy
+    );
   }
 
   private async persistCapability(): Promise<void> {
     await this.settingsManager.setString(
       NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_SUPPORTED_MATERIAL_TYPES,
       this.serializeMaterialTypes(this.currentState.capability.supportedMaterialTypes)
+    );
+    await this.settingsManager.setNumber(
+      NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_SYSTEM_MATERIAL_STATE,
+      this.currentState.capability.systemMaterialState
+    );
+    await this.settingsManager.setNumber(
+      NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_SYSTEM_MATERIAL_TYPE,
+      this.currentState.capability.systemMaterialType
     );
     await this.settingsManager.setNumber(
       NGFVisualEffectsSettingKeys.VISUAL_EFFECTS_CAPABILITY_LAST_CHECKED_AT,
@@ -516,6 +802,7 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
   private syncStateToAppStorage(): void {
     AppStorage.setOrCreate('ngf_visual_effects_material_mode', this.currentState.settings.materialMode);
     AppStorage.setOrCreate('ngf_visual_effects_manual_material_level', this.currentState.settings.manualMaterialLevel);
+    AppStorage.setOrCreate('ngf_visual_effects_system_material_policy', this.currentState.settings.systemMaterialPolicy);
     AppStorage.setOrCreate('ngf_visual_effects_effective_material_level', this.currentState.effectiveMaterialLevel);
     AppStorage.setOrCreate(
       'ngf_visual_effects_supported_material_types',
@@ -528,8 +815,11 @@ class NGFVisualEffectsManager implements IVisualEffectsManager {
     AppStorage.setOrCreate('ngf_visual_effects_supports_immersive', this.currentState.capability.supportsImmersiveMaterial);
     AppStorage.setOrCreate('ngf_visual_effects_supports_adaptive', this.currentState.capability.supportsAdaptiveMaterial);
     AppStorage.setOrCreate('ngf_visual_effects_recommended_manual_level', this.currentState.capability.recommendedManualLevel);
+    AppStorage.setOrCreate('ngf_visual_effects_system_material_state', this.currentState.capability.systemMaterialState);
+    AppStorage.setOrCreate('ngf_visual_effects_system_material_type', this.currentState.capability.systemMaterialType);
     AppStorage.setOrCreate('ngf_visual_effects_capability_last_checked_at', this.currentState.capability.lastCheckedAt);
     AppStorage.setOrCreate('ngf_visual_effects_capability_error', this.currentState.capability.detectError);
+    AppStorage.setOrCreate('ngf_visual_effects_should_use_system_material_surface', this.shouldUseSystemMaterialSurface());
   }
 
   private notifyListeners(): void {

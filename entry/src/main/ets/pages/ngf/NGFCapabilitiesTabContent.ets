@@ -1,8 +1,11 @@
 import { NGFHdsDemoRouteName } from './HdsDemoRoutes';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
 
 @Component
 export struct NGFCapabilitiesTabContent {
   onActionTap: (actionKey: string, label: ResourceStr) => void = () => {};
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   build() {
     Column({ space: 12 }) {
@@ -63,9 +66,10 @@ export struct NGFCapabilitiesTabContent {
       .width(48)
       .height(48)
       .justifyContent(FlexAlign.Center)
-      .backgroundColor($r('app.color.background_primary'))
+      .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_primary'), this.useSysMat))
       .borderRadius(14)
       .margin({ right: 14 })
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
 
       Column({ space: 4 }) {
         Text(title)
@@ -88,10 +92,15 @@ export struct NGFCapabilitiesTabContent {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     .onClick(() => {
       this.onActionTap(routeName, title);
     })

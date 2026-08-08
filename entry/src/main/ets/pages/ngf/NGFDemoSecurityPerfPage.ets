@@ -1,6 +1,9 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from 'ngf_framework';
+import { NGFControlStyleTokens } from 'ngf_framework';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
 import { resolveResourceString } from 'ngf_framework';
 import {
   NGFHashAlgorithm,
@@ -55,6 +58,7 @@ class NGFDemoMemoryEntry {
 
 @Component
 export struct NGFDemoSecurityPerfPage {
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private shaInput: string = 'Hello NGF Framework';
@@ -134,20 +138,19 @@ export struct NGFDemoSecurityPerfPage {
       Text($r('app.string.ui_str_2294'))
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.panel_background'))
+        .fontColor($r('app.color.text_primary'))
       Text($r('app.string.ui_str_2295'))
         .fontSize(13)
         .lineHeight(20)
-        .fontColor($r('app.color.text_white_low'))
+        .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
     .padding(18)
-    .linearGradient({
-      angle: 140,
-      colors: [['#0D4B59', 0], ['#14B8A6', 1]]
-    })
-    .borderRadius(20)
-    .shadow({ radius: 14, color: '#1A0D4B59', offsetX: 0, offsetY: 8 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   @Builder
@@ -169,11 +172,15 @@ export struct NGFDemoSecurityPerfPage {
       Row({ space: 8 }) {
         ForEach(this.algorithms, (algo: string, index: number) => {
           Button(algo)
-            .height(36)
-            .fontSize(13)
+            .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+            .controlSize(ControlSize.SMALL)
+            .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
             .borderRadius(10)
-            .backgroundColor(this.shaAlgorithmIndexes[0] === index ? $r('app.color.tag_teal') : $r('app.color.card_border'))
-            .fontColor(this.shaAlgorithmIndexes[0] === index ? $r('app.color.panel_background') : $r('app.color.text_body'))
+            .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+            .fontColor($r('app.color.text_primary'))
+            .systemMaterial(this.shaAlgorithmIndexes[0] === index
+              ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
+              : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
             .onClick((): void => {
               this.shaAlgorithmIndexes = [index];
             })
@@ -183,10 +190,13 @@ export struct NGFDemoSecurityPerfPage {
 
       Button($r('app.string.ui_str_2298'))
         .width('100%')
-        .height(40)
-        .fontSize(14)
-        .borderRadius(12)
-        .backgroundColor($r('app.color.tag_teal'))
+        .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+        .controlSize(ControlSize.SMALL)
+        .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+        .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+        .fontColor($r('app.color.text_primary'))
+        .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .onClick((): void => {
           void this.handleShaHash();
         })
@@ -204,8 +214,9 @@ export struct NGFDemoSecurityPerfPage {
             .maxLines(4)
             .width('100%')
             .padding(10)
-            .backgroundColor($r('app.color.background_surface'))
+            .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .borderRadius(10)
+            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
         }
         .width('100%')
         .alignItems(HorizontalAlign.Start)
@@ -213,10 +224,15 @@ export struct NGFDemoSecurityPerfPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -238,19 +254,25 @@ export struct NGFDemoSecurityPerfPage {
       Row({ space: 10 }) {
         Button($r('app.string.ui_str_2302'))
           .layoutWeight(1)
-          .height(40)
-          .fontSize(14)
-          .borderRadius(12)
-          .backgroundColor($r('app.color.tag_cyan'))
+          .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+          .fontColor($r('app.color.text_primary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             void this.handleAesEncrypt();
           })
         Button($r('app.string.ui_str_2303'))
           .layoutWeight(1)
-          .height(40)
-          .fontSize(14)
-          .borderRadius(12)
-          .backgroundColor($r('app.color.tag_purple'))
+          .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+          .fontColor($r('app.color.text_primary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             void this.handleAesDecrypt();
           })
@@ -269,8 +291,9 @@ export struct NGFDemoSecurityPerfPage {
             .maxLines(3)
             .width('100%')
             .padding(10)
-            .backgroundColor($r('app.color.background_surface'))
+            .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .borderRadius(10)
+            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
         }
         .width('100%')
         .alignItems(HorizontalAlign.Start)
@@ -287,8 +310,9 @@ export struct NGFDemoSecurityPerfPage {
             .fontColor($r('app.color.tag_green'))
             .width('100%')
             .padding(10)
-            .backgroundColor('#FFF0FDF4')
+            .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground('#FFF0FDF4', this.useSysMat))
             .borderRadius(10)
+            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         }
         .width('100%')
         .alignItems(HorizontalAlign.Start)
@@ -296,10 +320,15 @@ export struct NGFDemoSecurityPerfPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -313,20 +342,26 @@ export struct NGFDemoSecurityPerfPage {
       Row({ space: 10 }) {
         Button($r('app.string.ui_str_2307'))
           .layoutWeight(1)
-          .height(40)
-          .fontSize(14)
-          .borderRadius(12)
-          .backgroundColor($r('app.color.button_primary'))
+          .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+          .fontColor($r('app.color.text_primary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             performanceMonitor.mark('demo_start');
             logger.info(TAG, '已记录开始打点: demo_start');
           })
         Button($r('app.string.ui_str_2308'))
           .layoutWeight(1)
-          .height(40)
-          .fontSize(14)
-          .borderRadius(12)
-          .backgroundColor($r('app.color.tag_purple'))
+          .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+          .fontColor($r('app.color.text_primary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             performanceMonitor.mark('demo_end');
             const result = performanceMonitor.measure('demo_measure', 'demo_start', 'demo_end');
@@ -353,13 +388,14 @@ export struct NGFDemoSecurityPerfPage {
               Text(entry.durationMs + ' ms')
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
-                .fontColor($r('app.color.button_primary'))
+                .fontColor($r('app.color.text_primary'))
             }
             .width('100%')
             .justifyContent(FlexAlign.SpaceBetween)
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
-            .backgroundColor($r('app.color.background_surface'))
+            .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .borderRadius(8)
+            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           }, (entry: NGFDemoMeasureEntry): string => 'measure_' + entry.id)
         }
         .width('100%')
@@ -367,10 +403,15 @@ export struct NGFDemoSecurityPerfPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -383,10 +424,13 @@ export struct NGFDemoSecurityPerfPage {
 
       Button($r('app.string.ui_str_2310'))
         .width('100%')
-        .height(40)
-        .fontSize(14)
-        .borderRadius(12)
-        .backgroundColor($r('app.color.tag_red'))
+        .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+        .controlSize(ControlSize.SMALL)
+        .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+        .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+        .fontColor($r('app.color.text_primary'))
+        .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .onClick((): void => {
           const snapshot = performanceMonitor.snapshotMemory();
           const now = new Date();
@@ -415,8 +459,9 @@ export struct NGFDemoSecurityPerfPage {
             .width('100%')
             .justifyContent(FlexAlign.SpaceBetween)
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
-            .backgroundColor($r('app.color.background_surface'))
+            .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .borderRadius(8)
+            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           }, (entry: NGFDemoMemoryEntry): string => 'memory_' + entry.id)
         }
         .width('100%')
@@ -424,10 +469,15 @@ export struct NGFDemoSecurityPerfPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   private async handleShaHash(): Promise<void> {

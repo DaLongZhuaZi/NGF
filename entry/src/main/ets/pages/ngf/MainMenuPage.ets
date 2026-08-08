@@ -6,6 +6,11 @@ import { NGFErrorContext, NGFErrorSeverity } from 'ngf_framework';
 import { NGFEventPayload } from 'ngf_framework';
 import { NGFLogLevel } from 'ngf_framework';
 import { NGFPhaseState } from 'ngf_framework';
+import { NGFControlStyleTokens } from 'ngf_framework';
+import { NGFMaterialSheetOptions } from 'ngf_framework';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
+import { ngfOverlayManagerFacade } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
 import {
   NGFFrameworkRuntimeSnapshot,
   NGFModuleBootstrapReport,
@@ -45,7 +50,6 @@ import { NGFDemoErrorRecoveryPage } from './NGFDemoErrorRecoveryPage';
 import { NGFDemoSyncManagerPage } from './NGFDemoSyncManagerPage';
 
 const TAG: string = 'NGFStarterMainMenuPage';
-const NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT: number = 188;
 const NGF_MAIN_MENU_CONTENT_TOP_INSET: number = 112;
 const NGF_MAIN_MENU_HEADER_HEIGHT: number = 356;
 const NGF_MAIN_MENU_HEADER_CONTENT_TOP_PADDING: number = 54;
@@ -315,6 +319,9 @@ struct NGFStarterMainMenuPage {
   @StorageProp('ngf_window_status') private windowStatus: string = 'undefined';
   @StorageProp('ngf_window_snapshot_updated_at') private windowSnapshotUpdatedAt: number = 0;
   @StorageProp('ngf_window_snapshot_json') private windowSnapshotJson: string = '{}';
+  @StorageProp('ngf_visual_effects_effective_material_level')
+  private effectiveMaterialLevel: number = hdsMaterial.MaterialLevel.ADAPTIVE;
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   private readonly scroller0: Scroller = new Scroller();
   private readonly scroller1: Scroller = new Scroller();
@@ -367,6 +374,31 @@ struct NGFStarterMainMenuPage {
       this.bottomInsetVp = 0;
       this.topInsetVp = NGF_MAIN_MENU_CONTENT_TOP_INSET;
     });
+  }
+
+  private resolveEffectiveHdsMaterialLevel(): hdsMaterial.MaterialLevel {
+    switch (this.effectiveMaterialLevel) {
+      case hdsMaterial.MaterialLevel.EXQUISITE:
+        return hdsMaterial.MaterialLevel.EXQUISITE;
+      case hdsMaterial.MaterialLevel.GENTLE:
+        return hdsMaterial.MaterialLevel.GENTLE;
+      case hdsMaterial.MaterialLevel.SMOOTH:
+        return hdsMaterial.MaterialLevel.SMOOTH;
+      default:
+        return hdsMaterial.MaterialLevel.ADAPTIVE;
+    }
+  }
+
+  private resolveGlassPrimaryTextColor(): ResourceColor {
+    return $r('app.color.text_primary');
+  }
+
+  private resolveGlassSecondaryTextColor(): ResourceColor {
+    return $r('app.color.text_secondary');
+  }
+
+  private resolveGlassMetaTextColor(): ResourceColor {
+    return $r('app.color.text_tertiary');
   }
 
   aboutToDisappear(): void {
@@ -629,7 +661,7 @@ struct NGFStarterMainMenuPage {
     if (actionKey === NGFMainMenuActionKey.DEMO_CONTINUATION) {
       this.appendLog('当前页面状态已保存到 ContinuationFacade，请在另一台鸿蒙设备通过多设备控制中心触发流转。');
       try {
-        this.getUIContext().getPromptAction().showToast({ message: '流转数据准备就绪' });
+        ngfOverlayManagerFacade.showToast('流转数据准备就绪');
       } catch (err) {
         this.appendLog('显示Toast失败: ' + err);
       }
@@ -829,7 +861,7 @@ struct NGFStarterMainMenuPage {
   build() {
     HdsNavigation(this.pathStack) {
       Stack({ alignContent: Alignment.TopStart }) {
-        this.buildTitleBarUnderlay()
+        this.buildFullscreenBackgroundUnderlay()
 
         HdsTabs({ barPosition: BarPosition.End, controller: this.tabsController }) {
           TabContent() {
@@ -970,7 +1002,7 @@ struct NGFStarterMainMenuPage {
           adaptToHandedness: true,
           systemMaterialEffect: {
             materialType: hdsMaterial.MaterialType.IMMERSIVE,
-            materialLevel: hdsMaterial.MaterialLevel.EXQUISITE
+            materialLevel: this.resolveEffectiveHdsMaterialLevel()
           },
           thermoCtrl: true,
           barOpacity: 0.95,
@@ -983,13 +1015,13 @@ struct NGFStarterMainMenuPage {
       }
       .width('100%')
       .height('100%')
-      .backgroundColor($r('app.color.background_primary'))
+      .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_primary'), this.useSysMat))
     }
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
       'NGF MainMenuPage',
       $r('app.string.ui_str_2020'),
-      $r('app.color.background_primary'),
-      hdsMaterial.MaterialLevel.EXQUISITE,
+      NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_primary'), this.useSysMat),
+      this.resolveEffectiveHdsMaterialLevel(),
       true,
       false
     ))
@@ -1000,7 +1032,7 @@ struct NGFStarterMainMenuPage {
     .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP])
     .width('100%')
     .height('100%')
-    .backgroundColor($r('app.color.background_primary'))
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_primary'), this.useSysMat))
     .bindToScrollable([this.scroller0, this.scroller1, this.scroller2, this.scroller3, this.scroller4])
   }
 
@@ -1043,17 +1075,18 @@ struct NGFStarterMainMenuPage {
 
 
   @Builder
-  private buildTitleBarUnderlay(): void {
+  private buildFullscreenBackgroundUnderlay(): void {
     Stack({ alignContent: Alignment.TopStart }) {
       Column() {}
         .width('100%')
-        .height(NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT)
+        .height('100%')
         .linearGradient({
           angle: 150,
           colors: [
             ['#07101E', 0],
-            ['#0C2341', 0.38],
-            ['#143964', 0.72],
+            ['#0C2341', 0.28],
+            ['#143964', 0.58],
+            ['#0B2747', 0.82],
             ['#0A1626', 1]
           ]
         })
@@ -1077,6 +1110,24 @@ struct NGFStarterMainMenuPage {
         .shadow({ radius: 74, color: $r('app.color.glow_circle_cyan_shadow'), offsetX: -8, offsetY: 8 })
 
       Column() {}
+        .width(260)
+        .height(260)
+        .borderRadius(260)
+        .backgroundColor($r('app.color.glow_circle_blue'))
+        .opacity(0.12)
+        .position({ right: -96, bottom: 104 })
+        .shadow({ radius: 112, color: $r('app.color.glow_circle_blue_shadow'), offsetX: -18, offsetY: -12 })
+
+      Column() {}
+        .width(220)
+        .height(220)
+        .borderRadius(220)
+        .backgroundColor($r('app.color.glow_circle_cyan'))
+        .opacity(0.10)
+        .position({ left: -72, bottom: 28 })
+        .shadow({ radius: 96, color: $r('app.color.glow_circle_cyan_shadow'), offsetX: 16, offsetY: -10 })
+
+      Column() {}
         .width('86%')
         .height(1)
         .backgroundColor($r('app.color.glass_divider'))
@@ -1085,13 +1136,13 @@ struct NGFStarterMainMenuPage {
 
       Column() {}
         .width('100%')
-        .height(NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT)
+        .height('100%')
         .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(42, 1.24, 1.05, $r('app.color.glass_bg_effect')))
         .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
     }
     .width('100%')
-    .height(NGF_MAIN_MENU_TITLE_BAR_UNDERLAY_HEIGHT)
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
+    .height('100%')
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 
   @Builder
@@ -1158,7 +1209,7 @@ struct NGFStarterMainMenuPage {
         .selectedItemWidth(24)
         .selectedItemHeight(8)
         .color($r('app.color.glass_divider_strong'))
-        .selectedColor($r('app.color.text_white'))
+        .selectedColor($r('app.color.text_primary'))
     )
   }
 
@@ -1168,53 +1219,19 @@ struct NGFStarterMainMenuPage {
       Column() {}
         .width('100%')
         .height('100%')
-        .linearGradient({
-          angle: 145,
-          colors: [
-            ['#070E1D', 0],
-            ['#0B1E37', 0.32],
-            ['#13345E', 0.68],
-            ['#08111F', 1]
-          ]
-        })
-        .borderRadius(30)
-        .shadow({ radius: 18, color: $r('app.color.card_shadow'), offsetX: 0, offsetY: 10 })
-
-      Column() {}
-        .width(196)
-        .height(196)
-        .borderRadius(196)
-        .backgroundColor($r('app.color.glow_circle_purple'))
-        .opacity(0.32)
-        .margin({ left: 12, top: 26 })
-        .shadow({ radius: 78, color: $r('app.color.glow_circle_purple_shadow'), offsetX: -12, offsetY: 10 })
-
-      Column() {}
-        .width(164)
-        .height(164)
-        .borderRadius(164)
-        .backgroundColor($r('app.color.glow_circle_green'))
-        .opacity(0.28)
-        .margin({ left: 180, top: 54 })
-        .shadow({ radius: 72, color: $r('app.color.glow_circle_green_shadow'), offsetX: 14, offsetY: -8 })
-
-      Column() {}
-        .width('82%')
-        .height(1)
-        .backgroundColor($r('app.color.glass_divider_strong'))
-        .opacity(0.45)
-        .margin({ left: 18, top: 106 })
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
       Column({ space: 14 }) {
         Text('NGF MainMenuPage')
           .fontSize(28)
           .fontWeight(FontWeight.Bold)
-          .fontColor($r('app.color.text_glass_value'))
+          .fontColor(this.resolveGlassPrimaryTextColor())
 
         Text(this.statusMessage)
           .fontSize(13)
           .lineHeight(20)
-          .fontColor($r('app.color.text_glass_status'))
+          .fontColor(this.resolveGlassSecondaryTextColor())
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
@@ -1237,10 +1254,15 @@ struct NGFStarterMainMenuPage {
       .height('100%')
       .justifyContent(FlexAlign.End)
       .padding({ top: NGF_MAIN_MENU_HEADER_CONTENT_TOP_PADDING, right: 20, bottom: 24, left: 20 })
-      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(44, 1.28, 1.06, $r('app.color.glass_bg_effect_strong')))
-      .borderRadius(30)
-      .border({ width: 1, color: $r('app.color.glass_border_strong') })
+      .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .border({
+        width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+        color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_strong'), this.useSysMat)
+      })
       .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
     .height('100%')
@@ -1249,22 +1271,28 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildActionCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
+      Column() {}
+        .width('100%')
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+
       Column({ space: 12 }) {
         Text($r('app.string.ui_str_2037'))
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_white'))
+          .fontColor(this.resolveGlassPrimaryTextColor())
 
         Row({ space: 12 }) {
-          this.buildSmallActionButton('CORE', $r('app.string.ui_str_2039'), '#155E75', '#0891B2', NGFMainMenuActionKey.BOOTSTRAP)
-          this.buildSmallActionButton('EVENT', $r('app.string.ui_str_2041'), '#1D4ED8', '#2563EB', NGFMainMenuActionKey.PUBLISH_EVENT)
+          this.buildSmallActionButton('CORE', $r('app.string.ui_str_2039'), NGFMainMenuActionKey.BOOTSTRAP)
+          this.buildSmallActionButton('EVENT', $r('app.string.ui_str_2041'), NGFMainMenuActionKey.PUBLISH_EVENT)
         }
         .width('100%')
         .layoutWeight(1)
 
         Row({ space: 12 }) {
-          this.buildSmallActionButton('LIFECYCLE', $r('app.string.ui_str_2043'), '#0F766E', '#14B8A6', NGFMainMenuActionKey.ADVANCE_LIFECYCLE)
-          this.buildSmallActionButton('ERROR', $r('app.string.ui_str_2045'), '#9A3412', '#F97316', NGFMainMenuActionKey.SIMULATE_ERROR)
+          this.buildSmallActionButton('LIFECYCLE', $r('app.string.ui_str_2043'), NGFMainMenuActionKey.ADVANCE_LIFECYCLE)
+          this.buildSmallActionButton('ERROR', $r('app.string.ui_str_2045'), NGFMainMenuActionKey.SIMULATE_ERROR)
         }
         .width('100%')
         .layoutWeight(1)
@@ -1273,22 +1301,19 @@ struct NGFStarterMainMenuPage {
       .height('100%')
       .alignItems(HorizontalAlign.Start)
       .padding(18)
+      .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .border({
+        width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+        color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_medium'), this.useSysMat)
+      })
+      .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+      .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
     .height('100%')
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#09111D', 0],
-        ['#10263A', 0.5],
-        ['#0A1828', 1]
-      ]
-    })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.22, 1.05, $r('app.color.glass_bg_effect')))
-    .borderRadius(26)
-    .border({ width: 1, color: $r('app.color.glass_border_medium') })
-    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
   }
 
   @Builder
@@ -1297,21 +1322,26 @@ struct NGFStarterMainMenuPage {
       Text(label)
         .fontSize(11)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor(this.resolveGlassMetaTextColor())
 
       Text(value)
         .fontSize(12)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_value'))
+        .fontColor(this.resolveGlassPrimaryTextColor())
         .maxLines(2)
     }
     .width('48%')
     .padding({ top: 10, right: 12, bottom: 10, left: 12 })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(20, 1.18, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect(this.useSysMat))
     .borderRadius(18)
-    .border({ width: 1, color: $r('app.color.glass_border_light') })
-    .shadow({ radius: 8, color: $r('app.color.circle_shadow_light'), offsetX: 0, offsetY: 4 })
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_light'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareControlShadow(this.useSysMat))
     .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroChipEffect())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
   }
 
   @Builder
@@ -1319,34 +1349,35 @@ struct NGFStarterMainMenuPage {
     badge: string,
     title: ResourceStr,
     subtitle: ResourceStr,
-    accentStart: string,
-    accentEnd: string,
-    glowColor: string,
     actionKey: string
   ): void {
     Button() {
       Stack({ alignContent: Alignment.Start }) {
-
+        Column() {}
+          .width('100%')
+          .height('100%')
+          .backgroundColor(Color.Transparent)
+          .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
 
         Row({ space: 12 }) {
           Column({ space: 6 }) {
             Text(badge)
               .fontSize(10)
               .fontWeight(FontWeight.Medium)
-              .fontColor($r('app.color.text_glass_badge'))
+              .fontColor(this.resolveGlassMetaTextColor())
 
             Text(title)
               .width('100%')
               .fontSize(15)
               .fontWeight(FontWeight.Medium)
-              .fontColor($r('app.color.text_white'))
+              .fontColor(this.resolveGlassPrimaryTextColor())
               .maxLines(2)
 
             Text(subtitle)
               .width('100%')
               .fontSize(12)
               .lineHeight(18)
-              .fontColor($r('app.color.text_glass_desc'))
+              .fontColor(this.resolveGlassSecondaryTextColor())
               .maxLines(2)
           }
           .width('82%')
@@ -1362,31 +1393,31 @@ struct NGFStarterMainMenuPage {
           .width(28)
           .height(28)
           .borderRadius(14)
-          .backgroundColor($r('app.color.panel_background'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
           .justifyContent(FlexAlign.Center)
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         }
         .width('100%')
         .alignItems(VerticalAlign.Center)
+        .padding({ left: 16, right: 16, top: 14, bottom: 14 })
+        .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+        .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+        .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+        .border({
+          width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+          color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_light'), this.useSysMat)
+        })
+        .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+        .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
       }
       .width('100%')
-      .padding({ left: 16, right: 16, top: 14, bottom: 14 })
-      .linearGradient({
-        angle: 140,
-        colors: [
-          [accentStart, 0],
-          [accentEnd, 1]
-        ]
-      })
-      .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(24, 1.2, 1.05, $r('app.color.glass_bg_effect')))
-      .borderRadius(22)
-      .border({ width: 1, color: $r('app.color.glass_border_light') })
-      .shadow({ radius: 14, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 8 })
-      .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
     }
     .width('100%')
     .padding(0)
     .backgroundColor($r('app.color.background_transparent'))
     .buttonStyle(ButtonStyleMode.NORMAL)
+    .controlSize(ControlSize.NORMAL)
     .onClick((): void => {
       this.handleFeatureActionTap(actionKey, title);
     })
@@ -1396,48 +1427,53 @@ struct NGFStarterMainMenuPage {
   private buildSmallActionButton(
     badge: string,
     title: ResourceStr,
-    accentStart: string,
-    accentEnd: string,
     actionKey: string
   ): void {
     Button() {
-      Column({ space: 8 }) {
-        Text(badge)
-          .fontSize(10)
-          .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_glass_badge'))
+      Stack({ alignContent: Alignment.Start }) {
+        Column() {}
+          .width('100%')
+          .height('100%')
+          .backgroundColor(Color.Transparent)
+          .borderRadius(NGFMaterialSurfaceTokens.CONTROL_RADIUS)
 
-        Text(title)
-          .fontSize(14)
-          .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_white'))
-          .maxLines(1)
+        Column({ space: 8 }) {
+          Text(badge)
+            .fontSize(10)
+            .fontWeight(FontWeight.Medium)
+            .fontColor(this.resolveGlassMetaTextColor())
+
+          Text(title)
+            .fontSize(14)
+            .fontWeight(FontWeight.Medium)
+            .fontColor(this.resolveGlassPrimaryTextColor())
+            .maxLines(1)
+        }
+        .width('100%')
+        .height('100%')
+        .alignItems(HorizontalAlign.Start)
+        .padding({ left: 16, right: 16, top: 16, bottom: 16 })
+        .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+        .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect(this.useSysMat))
+        .borderRadius(NGFMaterialSurfaceTokens.CONTROL_RADIUS)
+        .border({
+          width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+          color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_light'), this.useSysMat)
+        })
+        .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareControlShadow(this.useSysMat))
+        .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
       }
       .width('100%')
-      .alignItems(HorizontalAlign.Start)
     }
     .layoutWeight(1)
     .height('100%')
-    .padding({ left: 16, right: 16, top: 16, bottom: 16 })
-    .linearGradient({
-      angle: 140,
-      colors: [
-        [accentStart, 0],
-        [accentEnd, 1]
-      ]
-    })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(24, 1.2, 1.05, $r('app.color.glass_bg_effect')))
-    .borderRadius(20)
-    .border({ width: 1, color: $r('app.color.glass_border_light') })
-    .shadow({ radius: 14, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 8 })
-    .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
+    .backgroundColor($r('app.color.background_transparent'))
     .buttonStyle(ButtonStyleMode.NORMAL)
+    .controlSize(ControlSize.SMALL)
     .onClick((): void => {
       const labelStr = typeof title === 'string' ? title : resolveResourceString(this.getUIContext().getHostContext(), title);
-      this.getUIContext().getPromptAction().showToast({
-        message: labelStr,
-        duration: 2000
-      });
+      ngfOverlayManagerFacade.showToast(labelStr, { duration: 2000 });
       this.handleFeatureActionTap(actionKey, title);
     })
   }
@@ -1445,61 +1481,56 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildHdsDemoCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-
+      Column() {}
+        .width('100%')
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
       Column({ space: 12 }) {
         Text($r('app.string.ui_str_2030'))
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_white'))
+          .fontColor(this.resolveGlassPrimaryTextColor())
 
         Text($r('app.string.ui_str_2031'))
           .fontSize(13)
           .lineHeight(20)
-          .fontColor($r('app.color.text_glass_body'))
+          .fontColor(this.resolveGlassSecondaryTextColor())
 
         Text($r('app.string.ui_str_2032'))
           .fontSize(13)
           .lineHeight(20)
-          .fontColor($r('app.color.text_glass_body'))
+          .fontColor(this.resolveGlassSecondaryTextColor())
 
         this.buildFeatureActionButton(
           'OFFICIAL',
           $r('app.string.ui_str_2033'),
           $r('app.string.ui_str_2034'),
-          '#173887',
-          '#2C61F4',
-          '#6F8FFFFF',
           NGFMainMenuActionKey.OPEN_OFFICIAL_NAVIGATION
         )
         this.buildFeatureActionButton(
           'INTEGRATED',
           $r('app.string.ui_str_2035'),
           $r('app.string.ui_str_2036'),
-          '#0D4B59',
-          '#1698A6',
-          '#59D9F4FF',
           NGFMainMenuActionKey.OPEN_HDS_SHOWCASE
         )
       }
       .width('100%')
       .alignItems(HorizontalAlign.Start)
       .padding(18)
+      .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .border({
+        width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+        color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
+      })
+      .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+      .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#08111F', 0],
-        ['#122746', 0.48],
-        ['#091624', 1]
-      ]
-    })
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(36, 1.24, 1.06, $r('app.color.glass_bg_effect')))
-    .borderRadius(26)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
-    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
   }
 
 
@@ -1509,9 +1540,6 @@ struct NGFStarterMainMenuPage {
       'SECURITY',
       $r('app.string.ui_str_2047'),
       $r('app.string.ui_str_2048'),
-      '#0D4B59',
-      '#14B8A6',
-      '#5EEAD4FF',
       NGFMainMenuActionKey.DEMO_SECURITY_PERF
     )
   }
@@ -1522,9 +1550,6 @@ struct NGFStarterMainMenuPage {
       'STORAGE',
       $r('app.string.ui_str_2049'),
       $r('app.string.ui_str_2050'),
-      '#78350F',
-      '#F59E0B',
-      '#FCD34DFF',
       NGFMainMenuActionKey.DEMO_DATA_STORAGE
     )
   }
@@ -1535,9 +1560,6 @@ struct NGFStarterMainMenuPage {
       'WORKFLOW',
       $r('app.string.ui_str_2051'),
       $r('app.string.ui_str_2052'),
-      '#312E81',
-      '#6366F1',
-      '#A5B4FCFF',
       NGFMainMenuActionKey.DEMO_WORKFLOW
     )
   }
@@ -1548,9 +1570,6 @@ struct NGFStarterMainMenuPage {
       'DEVICE',
       $r('app.string.ui_str_2053'),
       $r('app.string.ui_str_2054'),
-      '#14532D',
-      '#22C55E',
-      '#86EFACFF',
       NGFMainMenuActionKey.DEMO_DEVICE_DISPLAY
     )
   }
@@ -1561,9 +1580,6 @@ struct NGFStarterMainMenuPage {
       'SYMBOL',
       $r('app.string.ui_str_2055'),
       $r('app.string.ui_str_2056'),
-      '#1E3A8A',
-      '#7C3AED',
-      '#C4B5FDFF',
       NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW
     )
   }
@@ -1574,9 +1590,6 @@ struct NGFStarterMainMenuPage {
       'ERROR',
       $r('app.string.demo_error_recovery_title'),
       $r('app.string.demo_error_recovery_desc'),
-      '#881337',
-      '#F43F5E',
-      '#FDA4AFFF',
       NGFMainMenuActionKey.DEMO_ERROR_RECOVERY
     )
   }
@@ -1587,9 +1600,6 @@ struct NGFStarterMainMenuPage {
       'SYNC',
       $r('app.string.demo_sync_title'),
       $r('app.string.demo_sync_desc'),
-      '#1E3A8A',
-      '#3B82F6',
-      '#93C5FDFF',
       NGFMainMenuActionKey.DEMO_SYNC_MANAGER
     )
   }
@@ -1600,9 +1610,6 @@ struct NGFStarterMainMenuPage {
       'MULTI',
       $r('app.string.feat_multiton_symbol_title'),
       $r('app.string.feat_multiton_symbol_desc'),
-      '#1E3A8A',
-      '#3B82F6',
-      '#93C5FDFF',
       NGFMainMenuActionKey.DEMO_MULTITON_SYMBOL
     )
   }
@@ -1613,9 +1620,6 @@ struct NGFStarterMainMenuPage {
       'MULTI',
       $r('app.string.feat_multiton_data_title'),
       $r('app.string.feat_multiton_data_desc'),
-      '#1E3A8A',
-      '#3B82F6',
-      '#93C5FDFF',
       NGFMainMenuActionKey.DEMO_MULTITON_DATA
     )
   }
@@ -1626,9 +1630,6 @@ struct NGFStarterMainMenuPage {
       'SUBWIN',
       $r('app.string.feat_subwin_settings_title'),
       $r('app.string.feat_subwin_settings_desc'),
-      '#1E3A8A',
-      '#3B82F6',
-      '#93C5FDFF',
       NGFMainMenuActionKey.DEMO_SUB_WINDOW_SETTINGS
     )
   }
@@ -1639,9 +1640,6 @@ struct NGFStarterMainMenuPage {
       'SUBWIN',
       $r('app.string.feat_subwin_task_title'),
       $r('app.string.feat_subwin_task_desc'),
-      '#1E3A8A',
-      '#3B82F6',
-      '#93C5FDFF',
       NGFMainMenuActionKey.DEMO_SUB_WINDOW_TASK
     )
   }
@@ -1687,22 +1685,26 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(14)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     .onClick(() => {
       this.isStatusDetailSheetOpen = true;
     })
-    .bindSheet($$this.isStatusDetailSheetOpen, this.buildStatusDetailSheetContent(), {
-      preferType: SheetType.BOTTOM,
-      detents: [SheetSize.LARGE, SheetSize.MEDIUM],
-      dragBar: true,
-      showClose: false,
-      backgroundColor: Color.Transparent,
-      blurStyle: BlurStyle.NONE,
-      maskColor: '#66000000',
-      keyboardAvoidMode: SheetKeyboardAvoidMode.RESIZE_ONLY
-    })
+    .bindSheet(
+      $$this.isStatusDetailSheetOpen,
+      this.buildStatusDetailSheetContent(),
+      new NGFMaterialSheetOptions(
+        ngfVisualEffectsFacade.buildSystemMaterialForSheet(),
+        ngfVisualEffectsFacade.shouldUseSystemMaterialSurface()
+      )
+    )
   }
 
   @Builder
@@ -1731,8 +1733,6 @@ struct NGFStarterMainMenuPage {
     .width('100%')
     .height('100%')
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(40, 1.26, 1.06, $r('app.color.glass_bg_effect')))
-    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
   }
 
   @Builder
@@ -1766,23 +1766,27 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(14)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     .onClick(() => {
       this.runtimeStatus = ngfDeviceAdaptationFacade.getDeviceRuntimeStatus();
       this.isPerformanceSheetOpen = true;
     })
-    .bindSheet($$this.isPerformanceSheetOpen, this.buildPerformanceSheetContent(), {
-      preferType: SheetType.BOTTOM,
-      detents: [SheetSize.LARGE, SheetSize.MEDIUM],
-      dragBar: true,
-      showClose: false,
-      backgroundColor: Color.Transparent,
-      blurStyle: BlurStyle.NONE,
-      maskColor: '#66000000',
-      keyboardAvoidMode: SheetKeyboardAvoidMode.RESIZE_ONLY
-    })
+    .bindSheet(
+      $$this.isPerformanceSheetOpen,
+      this.buildPerformanceSheetContent(),
+      new NGFMaterialSheetOptions(
+        ngfVisualEffectsFacade.buildSystemMaterialForSheet(),
+        ngfVisualEffectsFacade.shouldUseSystemMaterialSurface()
+      )
+    )
   }
 
   @Builder
@@ -1813,8 +1817,6 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(40, 1.26, 1.06, $r('app.color.glass_bg_effect')))
-    .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
     .onAppear(() => this.startPerformanceMonitor())
     .onDisAppear(() => this.stopPerformanceMonitor())
   }
@@ -1851,7 +1853,7 @@ struct NGFStarterMainMenuPage {
       Text($r('app.string.monitor_process_uptime'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       this.buildPerfInfoRow('PID / UID', String(this.runtimeStatus?.processId) + ' / ' + String(this.runtimeStatus?.uid))
@@ -1862,9 +1864,14 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect(this.useSysMat))
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
+    })
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -1873,7 +1880,7 @@ struct NGFStarterMainMenuPage {
       Text($r('app.string.monitor_memory_info'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       this.buildPerfInfoRow('App 内存限制', String(this.runtimeStatus?.appMemoryLimit || 0) + ' MB')
@@ -1897,9 +1904,14 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect(this.useSysMat))
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
+    })
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -1908,7 +1920,7 @@ struct NGFStarterMainMenuPage {
       Text($r('app.string.monitor_cpu_usage'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       Row() {
@@ -1941,9 +1953,14 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect(this.useSysMat))
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
+    })
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -1952,7 +1969,7 @@ struct NGFStarterMainMenuPage {
       Text($r('app.string.monitor_battery_temp'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       Row({ space: 8 }) {
@@ -1977,9 +1994,14 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect(this.useSysMat))
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
+    })
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -1988,7 +2010,7 @@ struct NGFStarterMainMenuPage {
       Text($r('app.string.monitor_thread_info'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       if (this.runtimeStatus && this.runtimeStatus.threads && this.runtimeStatus.threads.length > 0) {
@@ -2020,9 +2042,14 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFMainMenuBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect(this.useSysMat))
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
+    })
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -2102,8 +2129,9 @@ struct NGFStarterMainMenuPage {
             }
             .width('100%')
             .padding(10)
-            .backgroundColor($r('app.color.background_secondary'))
+            .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_secondary'), this.useSysMat))
             .borderRadius(10)
+            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           }, (entry: NGFStarterModuleDetailEntry): string => 'starter_module_' + entry.id)
         }
         .width('100%')
@@ -2111,9 +2139,15 @@ struct NGFStarterMainMenuPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundColor($r('app.color.panel_background'))
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
     .borderRadius(14)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -2135,14 +2169,21 @@ struct NGFStarterMainMenuPage {
       }
       .width('100%')
       .padding(10)
-      .backgroundColor($r('app.color.background_secondary'))
+      .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_secondary'), this.useSysMat))
       .borderRadius(10)
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
     }
     .width('100%')
     .padding(14)
-    .backgroundColor($r('app.color.panel_background'))
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
     .borderRadius(14)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -2151,86 +2192,27 @@ struct NGFStarterMainMenuPage {
       'TASK',
       $r('app.string.task_manager_title'),
       $r('app.string.task_manager_desc'),
-      '#4A044E',
-      '#D946EF',
-      '#F0ABFCFF',
       NGFMainMenuActionKey.DEMO_TASK_MANAGER
     )
   }
 
   @Builder
   private buildDemoContinuationCard(): void {
-    Column({ space: 12 }) {
-      Row() {
-        Text($r('app.string.feat_continuation_title'))
-          .fontSize(16)
-          .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_body'))
-          .margin({ left: 10 })
-      }
-      .width('100%')
-
-      Text($r('app.string.feat_continuation_desc'))
-        .fontSize(13)
-        .lineHeight(18)
-        .fontColor($r('app.color.text_secondary'))
-        .width('100%')
-
-      Row({ space: 10 }) {
-        Button($r('app.string.feat_continuation_btn'))
-          .layoutWeight(1)
-          .height(36)
-          .fontSize(13)
-          .borderRadius(18)
-          .backgroundColor($r('app.color.button_primary'))
-          .onClick((): void => {
-            this.handleFeatureActionTap(NGFMainMenuActionKey.DEMO_CONTINUATION, '流转准备');
-          })
-      }
-      .width('100%')
-    }
-    .width('100%')
-    .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
+    this.buildFeatureActionButton(
+      'FLOW',
+      $r('app.string.feat_continuation_title'),
+      $r('app.string.feat_continuation_desc'),
+      NGFMainMenuActionKey.DEMO_CONTINUATION
+    )
   }
 
   @Builder
   private buildDemoShareKitCard(): void {
-    Column({ space: 12 }) {
-      Row() {
-        Text($r('app.string.feat_sharekit_title'))
-          .fontSize(16)
-          .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_body'))
-          .margin({ left: 10 })
-      }
-      .width('100%')
-
-      Text($r('app.string.feat_sharekit_desc'))
-        .fontSize(13)
-        .lineHeight(18)
-        .fontColor($r('app.color.text_secondary'))
-        .width('100%')
-
-      Row({ space: 10 }) {
-        Button($r('app.string.feat_sharekit_btn'))
-          .layoutWeight(1)
-          .height(36)
-          .fontSize(13)
-          .borderRadius(18)
-          .backgroundColor($r('app.color.tag_blue'))
-          .onClick((): void => {
-            this.handleFeatureActionTap(NGFMainMenuActionKey.DEMO_SHARE_KIT, '分享');
-          })
-      }
-      .width('100%')
-    }
-    .width('100%')
-    .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
+    this.buildFeatureActionButton(
+      'SHARE',
+      $r('app.string.feat_sharekit_title'),
+      $r('app.string.feat_sharekit_desc'),
+      NGFMainMenuActionKey.DEMO_SHARE_KIT
+    )
   }
 }

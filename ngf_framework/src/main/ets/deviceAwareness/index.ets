@@ -22,6 +22,7 @@ export {
 
 export {
   IVisualEffectsManager,
+  NGFSystemMaterialPolicy,
   NGFVisualEffectsCapability,
   NGFVisualEffectsMaterialMode,
   NGFVisualEffectsSettings,

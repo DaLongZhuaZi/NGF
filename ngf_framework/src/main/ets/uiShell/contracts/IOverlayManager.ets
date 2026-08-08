@@ -1,4 +1,9 @@
-import { ComponentContent } from '@kit.ArkUI';
+import { ComponentContent, promptAction } from '@kit.ArkUI';
+
+export interface NGFOverlayToastOptions {
+  duration?: number;
+  showMode?: promptAction.ToastShowMode;
+}
 
 export interface IOverlayManager {
   /**
@@ -17,7 +22,7 @@ export interface IOverlayManager {
    * Show a global toast message decoupled from the component tree.
    * @param message The text message to show.
    */
-  showToast(message: string): void;
+  showToast(message: ResourceStr, options?: NGFOverlayToastOptions): void;
 
   /**
    * Open a bind sheet with the given component content.

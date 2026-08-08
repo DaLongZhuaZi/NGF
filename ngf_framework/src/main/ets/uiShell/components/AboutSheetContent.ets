@@ -1,71 +1,15 @@
 import { bundleManager, common, Want } from '@kit.AbilityKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
-import { hdsEffect } from '@kit.UIDesignKit';
-import { NGFHdsBackgroundEffectOptions } from './NGFHdsEffectPresets';
 import { uiContextManager } from '../../platformOhos/UIContextManager';
 import { logger } from '../../utils/Logger';
+import { ngfVisualEffectsFacade } from '../../deviceAwareness/facades/VisualEffectsFacade';
+import { NGFMaterialSurfaceTokens } from './NGFMaterialSurfaceTokens';
 
 const TAG: string = 'AboutSheetContent';
 
 interface ModuleStatus {
   label: Resource;
   active: boolean;
-}
-
-class AboutSheetGlassFactory {
-  static buildSheetSurfaceEffect(): VisualEffect {
-    const pointLightOptions = new NGFHdsPointLightOptionsImpl($r('app.color.glass_surface_overlay'), 0.32, 30, 0.22);
-    const pointLightEffect = new NGFHdsPointLightEffectImpl(
-      hdsEffect.PointLightSourceType.SOFT,
-      hdsEffect.PointLightIlluminatedType.BORDER_CONTENT,
-      pointLightOptions
-    );
-    return new hdsEffect.HdsEffectBuilder()
-      .pointLight(pointLightEffect)
-      .buildEffect();
-  }
-
-  static buildCardEffect(): VisualEffect {
-    const pointLightOptions = new NGFHdsPointLightOptionsImpl($r('app.color.glass_chip_overlay'), 0.22, 24, 0.16);
-    const pointLightEffect = new NGFHdsPointLightEffectImpl(
-      hdsEffect.PointLightSourceType.SOFT,
-      hdsEffect.PointLightIlluminatedType.BORDER,
-      pointLightOptions
-    );
-    return new hdsEffect.HdsEffectBuilder()
-      .pointLight(pointLightEffect)
-      .buildEffect();
-  }
-}
-
-class NGFHdsPointLightOptionsImpl implements hdsEffect.PointLightOptions {
-  color?: ResourceColor;
-  intensity?: number;
-  height?: Dimension;
-  bloom?: number;
-
-  constructor(color: ResourceColor, intensity: number, height: Dimension, bloom: number) {
-    this.color = color;
-    this.intensity = intensity;
-    this.height = height;
-    this.bloom = bloom;
-  }
-}
-
-class NGFHdsPointLightEffectImpl implements hdsEffect.PointLightEffect {
-  sourceType?: hdsEffect.PointLightSourceType;
-  illuminatedType?: hdsEffect.PointLightIlluminatedType;
-  options?: hdsEffect.PointLightOptions;
-
-  constructor(
-    sourceType: hdsEffect.PointLightSourceType,
-    illuminatedType: hdsEffect.PointLightIlluminatedType,
-    options: hdsEffect.PointLightOptions
-  ) {
-    this.sourceType = sourceType;
-    this.illuminatedType = illuminatedType;
-    this.options = options;
-  }
 }
 
 @Component
@@ -75,7 +19,7 @@ export struct AboutSheetContent {
   @State private versionName: string = '1.0.0';
   @State private versionCode: number = 1000000;
   @State private buildVersion: string = '1';
-  @State private sdkApiVersion: string = '23';
+  @State private sdkApiVersion: string = '26';
   @State private deviceModel: string = '';
   @State private osFullName: string = '';
   @State private brand: string = '';
@@ -169,8 +113,6 @@ export struct AboutSheetContent {
     .width('100%')
     .height('100%')
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
-    .backgroundEffect(new NGFHdsBackgroundEffectOptions(40, 1.26, 1.06, $r('app.color.glass_bg_effect')))
-    .visualEffect(AboutSheetGlassFactory.buildSheetSurfaceEffect())
   }
 
   @Builder
@@ -206,17 +148,21 @@ export struct AboutSheetContent {
 
       Text(this.bundleName)
         .fontSize(12)
-        .fontColor($r('app.color.text_glass_hint'))
+        .fontColor($r('app.color.text_secondary'))
         .opacity(0.7)
     }
     .width('100%')
     .padding({ top: 20, bottom: 20 })
     .alignItems(HorizontalAlign.Center)
-    .backgroundEffect(new NGFHdsBackgroundEffectOptions(28, 1.2, 1.04, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(Color.Transparent)
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect())
     .borderRadius(20)
-    .border({ width: 1, color: $r('app.color.glass_border_light') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 4 })
-    .visualEffect(AboutSheetGlassFactory.buildCardEffect())
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_light'))
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   @Builder
@@ -225,7 +171,7 @@ export struct AboutSheetContent {
       Text($r('app.string.about_section_basic'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       this.buildInfoRow($r('app.string.about_app_name'), this.appName)
@@ -240,11 +186,15 @@ export struct AboutSheetContent {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFHdsBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(Color.Transparent)
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect())
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
-    .shadow({ radius: 8, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 3 })
-    .visualEffect(AboutSheetGlassFactory.buildCardEffect())
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'))
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -253,7 +203,7 @@ export struct AboutSheetContent {
       Text($r('app.string.about_section_tech'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       this.buildInfoRow($r('app.string.about_sdk_api'), this.sdkApiVersion)
@@ -264,11 +214,15 @@ export struct AboutSheetContent {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFHdsBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(Color.Transparent)
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect())
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
-    .shadow({ radius: 8, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 3 })
-    .visualEffect(AboutSheetGlassFactory.buildCardEffect())
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'))
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -277,7 +231,7 @@ export struct AboutSheetContent {
       Text($r('app.string.about_section_modules'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       Column({ space: 8 }) {
@@ -308,11 +262,15 @@ export struct AboutSheetContent {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFHdsBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(Color.Transparent)
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect())
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
-    .shadow({ radius: 8, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 3 })
-    .visualEffect(AboutSheetGlassFactory.buildCardEffect())
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'))
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -321,7 +279,7 @@ export struct AboutSheetContent {
       Text($r('app.string.about_section_opensource'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       this.buildLinkRow('GitHub', 'https://github.com/DaLongZhuaZi/NGF')
@@ -330,11 +288,15 @@ export struct AboutSheetContent {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFHdsBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(Color.Transparent)
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect())
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
-    .shadow({ radius: 8, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 3 })
-    .visualEffect(AboutSheetGlassFactory.buildCardEffect())
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'))
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -343,7 +305,7 @@ export struct AboutSheetContent {
       Text($r('app.string.about_section_developer'))
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_glass_label'))
+        .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       this.buildInfoRow($r('app.string.about_vendor'), this.vendor)
@@ -352,11 +314,15 @@ export struct AboutSheetContent {
     }
     .width('100%')
     .padding(14)
-    .backgroundEffect(new NGFHdsBackgroundEffectOptions(22, 1.16, 1.03, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(Color.Transparent)
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect())
     .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
-    .shadow({ radius: 8, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 3 })
-    .visualEffect(AboutSheetGlassFactory.buildCardEffect())
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'))
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -373,9 +339,14 @@ export struct AboutSheetContent {
         .opacity(item.active ? 1.0 : 0.5)
     }
     .padding({ top: 6, bottom: 6, left: 10, right: 10 })
-    .backgroundEffect(new NGFHdsBackgroundEffectOptions(14, 1.1, 1.02, $r('app.color.glass_bg_effect_light')))
+    .backgroundColor(Color.Transparent)
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect())
     .borderRadius(12)
-    .border({ width: 0.5, color: item.active ? $r('app.color.glass_border_light') : $r('app.color.glass_divider') })
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(0.5),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(item.active ? $r('app.color.glass_border_light') : $r('app.color.glass_divider'))
+    })
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
     .layoutWeight(1)
   }
 
@@ -388,7 +359,7 @@ export struct AboutSheetContent {
         .layoutWeight(1)
       Text(url)
         .fontSize(12)
-        .fontColor($r('app.color.button_primary'))
+        .fontColor($r('app.color.text_primary'))
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
         .layoutWeight(2)

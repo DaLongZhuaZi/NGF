@@ -8,6 +8,9 @@ import {
 } from '@kit.ArkUI';
 import { hdsEffect, hdsMaterial, HdsNavDestination, HdsNavDestinationTitleMode, HdsTabs, HdsTabsController } from '@kit.UIDesignKit';
 import { logger } from 'ngf_framework';
+import { NGFControlStyleTokens } from 'ngf_framework';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
 import { resolveResourceString } from 'ngf_framework';
 import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import {
@@ -129,6 +132,7 @@ export struct HdsIntegratedShowcasePage {
   @State private motionCurrentIndex: number = 0;
   @State private motionAutoPlayEnabled: boolean = true;
   @State private motionIntervalValue: number = 3200;
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   private readonly scroller: Scroller = new Scroller();
   private readonly layoutTabsController: HdsTabsController = new HdsTabsController();
@@ -167,8 +171,9 @@ export struct HdsIntegratedShowcasePage {
       { text: $r('app.string.ui_str_2093') }
     ],
     fontColor: $r('app.color.text_primary'),
-    selectedFontColor: $r('app.color.text_white'),
-    backgroundColor: $r('app.color.component_control_bg')
+    selectedFontColor: $r('app.color.text_primary'),
+    backgroundColor: Color.Transparent,
+    backgroundSystemMaterial: ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
   });
   private componentTagItems: Array<ChipGroupItemOptions> = [];
   private readonly componentCards: Array<NGFHdsIntegratedComponentCard> = [
@@ -256,8 +261,9 @@ export struct HdsIntegratedShowcasePage {
       { text: $r('app.string.ui_str_2123') }
     ],
     fontColor: $r('app.color.text_primary'),
-    selectedFontColor: $r('app.color.text_white'),
-    backgroundColor: $r('app.color.component_control_bg')
+    selectedFontColor: $r('app.color.text_primary'),
+    backgroundColor: Color.Transparent,
+    backgroundSystemMaterial: ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
   });
   private readonly motionSlides: Array<NGFHdsIntegratedMotionSlide> = [
     new NGFHdsIntegratedMotionSlide(
@@ -575,40 +581,46 @@ export struct HdsIntegratedShowcasePage {
 
   @Builder
   private buildHeroCard(): void {
-    Column({ space: 12 }) {
-      Text($r('app.string.ui_str_2139'))
-        .fontSize(24)
-        .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.text_white'))
+    Stack({ alignContent: Alignment.TopStart }) {
+      Column() {}
+        .width('100%')
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
-      Text($r('app.string.ui_str_2140'))
-        .fontSize(14)
-        .lineHeight(22)
-        .fontColor($r('app.color.text_glass_body'))
+      Column({ space: 12 }) {
+        Text($r('app.string.ui_str_2139'))
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
 
-      Text(this.lastActionText)
-        .fontSize(13)
-        .fontColor($r('app.color.text_glass_desc'))
+        Text($r('app.string.ui_str_2140'))
+          .fontSize(14)
+          .lineHeight(22)
+          .fontColor($r('app.color.text_secondary'))
 
-      Text($r('app.string.ui_str_2141', this.capabilityCards[this.selectedCapabilityIndexes[0]].title))
-        .fontSize(13)
-        .fontColor($r('app.color.text_glass_desc'))
+        Text(this.lastActionText)
+          .fontSize(13)
+          .fontColor($r('app.color.text_tertiary'))
+
+        Text($r('app.string.ui_str_2141', this.capabilityCards[this.selectedCapabilityIndexes[0]].title))
+          .fontSize(13)
+          .fontColor($r('app.color.text_tertiary'))
+      }
+      .width('100%')
+      .padding(20)
+      .backgroundColor(Color.Transparent)
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .border({
+        width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+        color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
+      })
+      .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+      .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
-    .padding(20)
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#08111F', 0],
-        ['#122746', 0.48],
-        ['#091624', 1]
-      ]
-    })
-    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
-    .borderRadius(26)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
-    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
   @Builder
@@ -630,25 +642,31 @@ export struct HdsIntegratedShowcasePage {
   private buildCapabilityCard(card: NGFHdsIntegratedCapabilityCard, index: number): void {
     Button() {
       Stack({ alignContent: Alignment.Start }) {
+        Column() {}
+          .width('100%')
+          .height('100%')
+          .backgroundColor(Color.Transparent)
+          .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+
         Row({ space: 12 }) {
           Column({ space: 6 }) {
             Text(card.title)
               .fontSize(10)
               .fontWeight(FontWeight.Medium)
-              .fontColor($r('app.color.text_glass_badge'))
+              .fontColor($r('app.color.text_tertiary'))
 
             Text(card.subtitle)
               .width('100%')
               .fontSize(15)
               .fontWeight(FontWeight.Medium)
-              .fontColor($r('app.color.text_white'))
+              .fontColor($r('app.color.text_primary'))
               .maxLines(2)
 
             Text(card.description)
               .width('100%')
               .fontSize(12)
               .lineHeight(18)
-              .fontColor($r('app.color.text_glass_desc'))
+              .fontColor($r('app.color.text_secondary'))
               .maxLines(2)
           }
           .width('82%')
@@ -664,29 +682,25 @@ export struct HdsIntegratedShowcasePage {
           .width(28)
           .height(28)
           .borderRadius(14)
-          .backgroundColor($r('app.color.panel_background'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
           .justifyContent(FlexAlign.Center)
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         }
         .width('100%')
         .alignItems(VerticalAlign.Center)
+        .padding({ left: 16, right: 16, top: 14, bottom: 14 })
+        .backgroundColor(Color.Transparent)
+        .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+        .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+        .border({
+          width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(this.selectedCapabilityIndexes[0] === index ? 2 : 1, this.useSysMat),
+          color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(this.selectedCapabilityIndexes[0] === index ? $r('app.color.glass_border_strong') : $r('app.color.glass_border_light'), this.useSysMat)
+        })
+        .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+        .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
       }
       .width('100%')
-      .padding({ left: 16, right: 16, top: 14, bottom: 14 })
-      .linearGradient({
-        angle: 140,
-        colors: [
-          [card.accentStart, 0],
-          [card.accentEnd, 1]
-        ]
-      })
-      .backgroundEffect({ radius: 24, saturation: 1.2, brightness: 1.05, color: $r('app.color.glass_bg_effect') })
-      .borderRadius(22)
-      .border({
-        width: this.selectedCapabilityIndexes[0] === index ? 2 : 1,
-        color: this.selectedCapabilityIndexes[0] === index ? $r('app.color.glass_border_strong') : $r('app.color.glass_border_light')
-      })
-      .shadow({ radius: 14, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 8 })
-      .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
     }
     .width('100%')
     .padding(0)
@@ -699,108 +713,122 @@ export struct HdsIntegratedShowcasePage {
 
   @Builder
   private buildFactCard(): void {
-    Column({ space: 10 }) {
-      Text($r('app.string.ui_str_2143'))
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_white'))
-
-      Text($r('app.string.ui_str_2144'))
+    Stack({ alignContent: Alignment.TopStart }) {
+      Column() {}
         .width('100%')
-        .fontSize(13)
-        .fontColor($r('app.color.text_glass_body'))
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
-      Text($r('app.string.ui_str_2145'))
-        .width('100%')
-        .fontSize(13)
-        .fontColor($r('app.color.text_glass_body'))
+      Column({ space: 10 }) {
+        Text($r('app.string.ui_str_2143'))
+          .fontSize(18)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_primary'))
 
-      Text($r('app.string.ui_str_2146'))
-        .width('100%')
-        .fontSize(13)
-        .fontColor($r('app.color.text_glass_body'))
+        Text($r('app.string.ui_str_2144'))
+          .width('100%')
+          .fontSize(13)
+          .fontColor($r('app.color.text_secondary'))
+
+        Text($r('app.string.ui_str_2145'))
+          .width('100%')
+          .fontSize(13)
+          .fontColor($r('app.color.text_secondary'))
+
+        Text($r('app.string.ui_str_2146'))
+          .width('100%')
+          .fontSize(13)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .width('100%')
+      .padding(16)
+      .backgroundColor(Color.Transparent)
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .border({
+        width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+        color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
+      })
+      .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+      .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     }
     .width('100%')
-    .padding(16)
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#08111F', 0],
-        ['#122746', 0.48],
-        ['#091624', 1]
-      ]
-    })
-    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
-    .borderRadius(26)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
-    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
   @Builder
   private buildComponentSection(): void {
-    Column({ space: 14 }) {
-      SubHeader({
-        primaryTitle: $r('app.string.ui_str_2082'),
-        secondaryTitle: $r('app.string.ui_str_2147'),
-        operationType: OperationType.BUTTON,
-        operationItem: [
-          {
-            value: $r('app.string.ui_str_2148'),
-            action: (): void => {
-              this.resetComponentFilters();
-            }
-          }
-        ]
-      })
-
-      Search({ value: this.componentSearchValue, placeholder: $r('app.string.ui_str_2149') })
-        .searchButton($r('app.string.ui_str_2150'))
+    Stack({ alignContent: Alignment.TopStart }) {
+      Column() {}
         .width('100%')
-        .backgroundColor(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND)
-        .borderRadius(18)
-        .border({ width: 1, color: NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BORDER })
-        .onChange((value: string): void => {
-          this.componentSearchValue = value;
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+
+      Column({ space: 14 }) {
+        SubHeader({
+          primaryTitle: $r('app.string.ui_str_2082'),
+          secondaryTitle: $r('app.string.ui_str_2147'),
+          operationType: OperationType.BUTTON,
+          operationItem: [
+            {
+              value: $r('app.string.ui_str_2148'),
+              action: (): void => {
+                this.resetComponentFilters();
+              }
+            }
+          ]
         })
 
-      SegmentButton({
-        options: this.componentGroupOptions,
-        selectedIndexes: this.componentGroupIndexes,
-        onItemClicked: (index: number): void => {
-          this.componentGroupIndexes = [index];
-          this.lastActionText = $r('app.string.ui_str_2151', this.resolveComponentGroupLabel());
-          logger.info(TAG, '组件大类切换: indexes=' + JSON.stringify(this.componentGroupIndexes));
-        }
+        Search({ value: this.componentSearchValue, placeholder: $r('app.string.ui_str_2149') })
+          .searchButton($r('app.string.ui_str_2150'))
+          .width('100%')
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BACKGROUND, this.useSysMat))
+          .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect(this.useSysMat))
+          .borderRadius(NGFMaterialSurfaceTokens.CONTROL_RADIUS)
+          .border({
+            width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+            color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BORDER, this.useSysMat)
+          })
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
+          .onChange((value: string): void => {
+            this.componentSearchValue = value;
+          })
+
+        SegmentButton({
+          options: this.componentGroupOptions,
+          selectedIndexes: this.componentGroupIndexes,
+          onItemClicked: (index: number): void => {
+            this.componentGroupIndexes = [index];
+            this.lastActionText = $r('app.string.ui_str_2151', this.resolveComponentGroupLabel());
+            logger.info(TAG, '组件大类切换: indexes=' + JSON.stringify(this.componentGroupIndexes));
+          }
+        })
+
+        Text($r('app.string.ui_str_2153', this.resolveComponentGroupLabel(), $r('app.string.ui_str_2090'), this.buildVisibleComponentCards().length))
+          .width('100%')
+          .fontSize(13)
+          .fontColor($r('app.color.text_secondary'))
+
+        ForEach(this.buildVisibleComponentCards(), (card: NGFHdsIntegratedComponentCard): void => {
+          this.buildComponentExampleCard(card)
+        }, (card: NGFHdsIntegratedComponentCard): string => card.id)
+      }
+      .width('100%')
+      .padding(16)
+      .backgroundColor(Color.Transparent)
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .border({
+        width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(this.isFocusedCapability('components') ? 2 : 1, this.useSysMat),
+        color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(this.isFocusedCapability('components') ? '#3B82F666' : $r('app.color.glass_border_subtle'), this.useSysMat)
       })
-
-      Text($r('app.string.ui_str_2153', this.resolveComponentGroupLabel(), $r('app.string.ui_str_2090'), this.buildVisibleComponentCards().length))
-        .width('100%')
-        .fontSize(13)
-        .fontColor($r('app.color.text_secondary'))
-
-      ForEach(this.buildVisibleComponentCards(), (card: NGFHdsIntegratedComponentCard): void => {
-        this.buildComponentExampleCard(card)
-      }, (card: NGFHdsIntegratedComponentCard): string => card.id)
+      .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+      .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
-    .padding(16)
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#08111F', 0],
-        ['#122746', 0.48],
-        ['#091624', 1]
-      ]
-    })
-    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
-    .borderRadius(24)
-    .border({
-      width: this.isFocusedCapability('components') ? 2 : 1,
-      color: this.isFocusedCapability('components') ? '#3B82F666' : $r('app.color.glass_border_subtle')
-    })
-    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
   @Builder
@@ -810,7 +838,7 @@ export struct HdsIntegratedShowcasePage {
         Text(card.title)
           .fontSize(17)
           .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_white'))
+          .fontColor($r('app.color.text_primary'))
         Blank()
         Text(card.group)
           .fontSize(12)
@@ -822,76 +850,85 @@ export struct HdsIntegratedShowcasePage {
         .width('100%')
         .fontSize(13)
         .lineHeight(20)
-        .fontColor($r('app.color.text_glass_body'))
+        .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
     .padding(14)
-    .backgroundColor(NGF_HDS_INTEGRATED_INNER_BACKGROUND)
-    .borderRadius(18)
-    .border({ width: 1, color: NGF_HDS_INTEGRATED_INNER_BORDER })
-    .shadow({ radius: 8, color: '#100F172A', offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INNER_BACKGROUND, this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(NGF_HDS_INTEGRATED_INNER_BORDER, this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildLayoutSection(): void {
-    Column({ space: 14 }) {
-      SubHeader({
-        primaryTitle: $r('app.string.ui_str_2084'),
-        secondaryTitle: $r('app.string.ui_str_2154')
-      })
+    Stack({ alignContent: Alignment.TopStart }) {
+      Column() {}
+        .width('100%')
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
-      HdsTabs({ controller: this.layoutTabsController }) {
-        TabContent() {
-          this.buildLayoutTabPanel($r('app.string.ui_str_2107'))
-        }
-        .tabBar($r('app.string.ui_str_2107'))
+      Column({ space: 14 }) {
+        SubHeader({
+          primaryTitle: $r('app.string.ui_str_2084'),
+          secondaryTitle: $r('app.string.ui_str_2154')
+        })
 
-        TabContent() {
-          this.buildLayoutTabPanel($r('app.string.ui_str_2112'))
-        }
-        .tabBar($r('app.string.ui_str_2112'))
+        HdsTabs({ controller: this.layoutTabsController }) {
+          TabContent() {
+            this.buildLayoutTabPanel($r('app.string.ui_str_2107'))
+          }
+          .tabBar($r('app.string.ui_str_2107'))
 
-        TabContent() {
-          this.buildLayoutTabPanel($r('app.string.ui_str_2117'))
+          TabContent() {
+            this.buildLayoutTabPanel($r('app.string.ui_str_2112'))
+          }
+          .tabBar($r('app.string.ui_str_2112'))
+
+          TabContent() {
+            this.buildLayoutTabPanel($r('app.string.ui_str_2117'))
+          }
+          .tabBar($r('app.string.ui_str_2117'))
         }
-        .tabBar($r('app.string.ui_str_2117'))
+        .barPosition(BarPosition.Start)
+        .barMode(BarMode.Fixed)
+        .width('100%')
+        .height(332)
+        .barFloatingStyle({
+          adaptToHandedness: true,
+          systemMaterialEffect: {
+            materialType: hdsMaterial.MaterialType.IMMERSIVE,
+            materialLevel: hdsMaterial.MaterialLevel.ADAPTIVE
+          },
+          thermoCtrl: true
+        })
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
+        .onChange((index: number): void => {
+          this.layoutTabIndex = index;
+          this.lastActionText = $r('app.string.ui_str_2155', index === 0 ? $r('app.string.ui_str_2107') : index === 1 ? $r('app.string.ui_str_2112') : $r('app.string.ui_str_2117'));
+          logger.info(TAG, '布局标签切换: index=' + index);
+        })
       }
-      .barPosition(BarPosition.Start)
-      .barMode(BarMode.Fixed)
       .width('100%')
-      .height(332)
-      .barFloatingStyle({
-        adaptToHandedness: true,
-        systemMaterialEffect: {
-          materialType: hdsMaterial.MaterialType.IMMERSIVE,
-          materialLevel: hdsMaterial.MaterialLevel.ADAPTIVE
-        },
-        thermoCtrl: true
+      .padding(16)
+      .backgroundColor(Color.Transparent)
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .border({
+        width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(this.isFocusedCapability('layouts') ? 2 : 1, this.useSysMat),
+        color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(this.isFocusedCapability('layouts') ? '#8B5CF666' : $r('app.color.glass_border_subtle'), this.useSysMat)
       })
-      .onChange((index: number): void => {
-        this.layoutTabIndex = index;
-        this.lastActionText = $r('app.string.ui_str_2155', index === 0 ? $r('app.string.ui_str_2107') : index === 1 ? $r('app.string.ui_str_2112') : $r('app.string.ui_str_2117'));
-        logger.info(TAG, '布局标签切换: index=' + index);
-      })
+      .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+      .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
-    .padding(16)
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#08111F', 0],
-        ['#122746', 0.48],
-        ['#091624', 1]
-      ]
-    })
-    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
-    .borderRadius(24)
-    .border({
-      width: this.isFocusedCapability('layouts') ? 2 : 1,
-      color: this.isFocusedCapability('layouts') ? '#8B5CF666' : $r('app.color.glass_border_subtle')
-    })
-    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 
   @Builder
@@ -912,7 +949,7 @@ export struct HdsIntegratedShowcasePage {
       Column() {}
         .width(4)
         .height('80%')
-        .backgroundColor(card.accentColor)
+        .backgroundColor($r('app.color.glass_divider'))
         .borderRadius(4)
 
       Column({ space: 6 }) {
@@ -920,23 +957,28 @@ export struct HdsIntegratedShowcasePage {
           .width('100%')
           .fontSize(16)
           .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_white'))
+          .fontColor($r('app.color.text_primary'))
 
         Text(card.description)
           .width('100%')
           .fontSize(13)
           .lineHeight(20)
-          .fontColor($r('app.color.text_glass_body'))
+          .fontColor($r('app.color.text_secondary'))
       }
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)
     }
     .width('100%')
     .padding(14)
-    .backgroundColor(NGF_HDS_INTEGRATED_INNER_BACKGROUND)
-    .borderRadius(18)
-    .border({ width: 1, color: NGF_HDS_INTEGRATED_INNER_BORDER })
-    .shadow({ radius: 8, color: '#100F172A', offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INNER_BACKGROUND, this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(NGF_HDS_INTEGRATED_INNER_BORDER, this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -980,62 +1022,73 @@ export struct HdsIntegratedShowcasePage {
           .itemHeight(8)
           .selectedItemWidth(18)
           .selectedItemHeight(8)
-          .color('#66FFFFFF')
-          .selectedColor(Color.White)
+          .color($r('app.color.text_tertiary'))
+          .selectedColor($r('app.color.text_primary'))
       )
       .onChange((index: number): void => {
         this.motionCurrentIndex = index;
         logger.info(TAG, '动效轮播切换: index=' + index);
       })
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
 
       this.buildMotionSelectorRow()
       this.buildMotionActionRow()
     }
     .width('100%')
     .padding(16)
+    .backgroundColor(Color.Transparent)
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(this.isFocusedCapability('motion') ? 2 : 1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(this.isFocusedCapability('motion') ? '#14B8A666' : $r('app.color.glass_border_subtle'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   @Builder
   private buildMotionSlide(slide: NGFHdsIntegratedMotionSlide, index: number): void {
-    Column({ space: 10 }) {
-      Text(slide.title)
+    Stack({ alignContent: Alignment.TopStart }) {
+      Column() {}
         .width('100%')
-        .fontSize(20)
-        .fontWeight(FontWeight.Bold)
-        .fontColor('#FFFFFF')
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
-      Text(slide.subtitle)
-        .width('100%')
-        .fontSize(13)
-        .fontColor('#E6FFFFFF')
+      Column({ space: 10 }) {
+        Text(slide.title)
+          .width('100%')
+          .fontSize(20)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
 
-      Text(slide.description)
-        .width('100%')
-        .fontSize(13)
-        .lineHeight(20)
-        .fontColor('#E6FFFFFF')
+        Text(slide.subtitle)
+          .width('100%')
+          .fontSize(13)
+          .fontColor($r('app.color.text_secondary'))
+
+        Text(slide.description)
+          .width('100%')
+          .fontSize(13)
+          .lineHeight(20)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .width('100%')
+      .height('100%')
+      .padding(20)
+      .alignItems(HorizontalAlign.Start)
+      .justifyContent(FlexAlign.Center)
+      .backgroundColor(Color.Transparent)
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
     .height('100%')
-    .padding(20)
-    .alignItems(HorizontalAlign.Start)
-    .justifyContent(FlexAlign.Center)
-    .linearGradient({
-      angle: 135,
-      colors: [
-        [slide.colorStart, 0],
-        [slide.colorEnd, 1]
-      ]
-    })
-    .borderRadius(24)
     .scale({ x: this.resolveMotionScale(index), y: this.resolveMotionScale(index) })
     .opacity(this.resolveMotionOpacity(index))
-    .shadow({
-      radius: this.motionCurrentIndex === index ? 18 : 10,
-      color: '#26000000',
-      offsetX: 0,
-      offsetY: 8
-    })
     .visualEffect(NGFHdsEffectPresetFactory.buildAccentCardEffect())
   }
 
@@ -1044,11 +1097,15 @@ export struct HdsIntegratedShowcasePage {
     Row({ space: 10 }) {
       ForEach(this.motionSlides, (slide: NGFHdsIntegratedMotionSlide, index: number): void => {
         Button(String(index + 1))
-          .width(36)
-          .height(36)
+          .width(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
           .buttonStyle(ButtonStyleMode.NORMAL)
-          .backgroundColor(this.motionCurrentIndex === index ? '#0F766E' : NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND)
-          .fontColor(this.motionCurrentIndex === index ? $r('app.color.panel_background') : $r('app.color.text_primary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND, this.useSysMat))
+          .fontColor($r('app.color.text_primary'))
+          .systemMaterial(this.motionCurrentIndex === index
+            ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
+            : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           .onClick((): void => {
             this.selectMotionSlide(index);
           })
@@ -1063,9 +1120,11 @@ export struct HdsIntegratedShowcasePage {
     Row({ space: 10 }) {
       Button($r('app.string.ui_str_2162'))
         .layoutWeight(1)
-        .height(42)
+        .height(NGFControlStyleTokens.NORMAL_BUTTON_HEIGHT)
+        .controlSize(ControlSize.NORMAL)
         .buttonStyle(ButtonStyleMode.NORMAL)
-        .backgroundColor(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND)
+        .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND, this.useSysMat))
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .fontColor($r('app.color.text_primary'))
         .onClick((): void => {
           this.shiftMotionSlide(-1);
@@ -1073,10 +1132,12 @@ export struct HdsIntegratedShowcasePage {
 
       Button(this.motionAutoPlayEnabled ? $r('app.string.ui_str_2163') : $r('app.string.ui_str_2164'))
         .layoutWeight(1)
-        .height(42)
+        .height(NGFControlStyleTokens.NORMAL_BUTTON_HEIGHT)
+        .controlSize(ControlSize.NORMAL)
         .buttonStyle(ButtonStyleMode.NORMAL)
-        .backgroundColor('#1D4ED8')
-        .fontColor($r('app.color.panel_background'))
+        .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND, this.useSysMat))
+        .fontColor($r('app.color.text_primary'))
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .onClick((): void => {
           this.motionAutoPlayEnabled = !this.motionAutoPlayEnabled;
           this.lastActionText = this.motionAutoPlayEnabled ? $r('app.string.ui_str_2165') : $r('app.string.ui_str_2166');
@@ -1085,10 +1146,12 @@ export struct HdsIntegratedShowcasePage {
 
       Button($r('app.string.ui_str_2167'))
         .layoutWeight(1)
-        .height(42)
+        .height(NGFControlStyleTokens.NORMAL_BUTTON_HEIGHT)
+        .controlSize(ControlSize.NORMAL)
         .buttonStyle(ButtonStyleMode.NORMAL)
-        .backgroundColor(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND)
+        .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND, this.useSysMat))
         .fontColor($r('app.color.text_primary'))
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .onClick((): void => {
           this.shiftMotionSlide(1);
         })
@@ -1098,32 +1161,38 @@ export struct HdsIntegratedShowcasePage {
 
   @Builder
   private buildVerificationCard(): void {
-    Column({ space: 10 }) {
-      Text($r('app.string.ui_str_2168'))
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_white'))
-
-      Text($r('app.string.ui_str_2169'))
+    Stack({ alignContent: Alignment.TopStart }) {
+      Column() {}
         .width('100%')
-        .fontSize(13)
-        .lineHeight(20)
-        .fontColor($r('app.color.text_glass_body'))
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+
+      Column({ space: 10 }) {
+        Text($r('app.string.ui_str_2168'))
+          .fontSize(18)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_primary'))
+
+        Text($r('app.string.ui_str_2169'))
+          .width('100%')
+          .fontSize(13)
+          .lineHeight(20)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .width('100%')
+      .padding(16)
+      .backgroundColor(Color.Transparent)
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .border({
+        width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+        color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
+      })
+      .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+      .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     }
     .width('100%')
-    .padding(16)
-    .linearGradient({
-      angle: 145,
-      colors: [
-        ['#08111F', 0],
-        ['#122746', 0.48],
-        ['#091624', 1]
-      ]
-    })
-    .backgroundEffect({ radius: 36, saturation: 1.24, brightness: 1.06, color: $r('app.color.glass_bg_effect') })
-    .borderRadius(26)
-    .border({ width: 1, color: $r('app.color.glass_border_subtle') })
-    .shadow({ radius: 16, color: $r('app.color.card_shadow_light'), offsetX: 0, offsetY: 10 })
-    .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
   }
 }

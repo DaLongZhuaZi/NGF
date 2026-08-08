@@ -2,12 +2,20 @@ import { HdsNavDestination, HdsNavDestinationTitleMode } from '@kit.UIDesignKit'
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { pasteboard } from '@kit.BasicServicesKit';
 import unifiedDataChannel from '@ohos.data.unifiedDataChannel';
+import uiMaterial from '@ohos.arkui.uiMaterial';
 import {
   SYSTEM_SYMBOL_GROUPS,
   SYSTEM_SYMBOL_TOTAL_COUNT,
   SystemSymbolResourceGroup
 } from 'ngf_framework';
 import { logger } from 'ngf_framework';
+import { NGFControlStyleTokens } from 'ngf_framework';
+import { NGFMaterialBackgroundEffectOptions } from 'ngf_framework';
+import { NGFMaterialShadowOptions } from 'ngf_framework';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
+import { NGFSystemMaterialPolicy } from 'ngf_framework';
+import { ngfOverlayManagerFacade } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
 import { NGFImmersiveTopChromePresetFactory, NGFImmersiveTopChromeSpec, NGFImmersiveTopChromeUnderlay } from 'ngf_framework';
 import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import { ngfDragDropManagerFacade } from 'ngf_framework';
@@ -45,6 +53,9 @@ export struct NGFSystemResourcePreviewPage {
   @State private selectedSymbolName: string = 'ohos_arrow_up';
   @State private statusText: ResourceStr = $r('app.string.ui_str_2435');
   @State private droppedSymbol: string = '';
+  @StorageProp('ngf_visual_effects_system_material_policy') private systemMaterialPolicy: string = 'auto';
+  @StorageProp('ngf_visual_effects_system_material_state') private systemMaterialState: number = 0;
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   private readonly scroller: Scroller = new Scroller();
 
   aboutToAppear(): void {
@@ -129,74 +140,84 @@ export struct NGFSystemResourcePreviewPage {
 
   @Builder
   private buildSummaryPanel(): void {
-    Column({ space: 12 }) {
-      Row({ space: 12 }) {
-        this.buildPreviewGlyph(this.selectedSymbolName, 46, $r('app.color.text_white'))
+    Stack({ alignContent: Alignment.TopStart }) {
+      Column() {}
+        .width('100%')
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
-        Column({ space: 5 }) {
-          Text(this.selectedSymbolName)
-            .fontSize(18)
-            .fontWeight(FontWeight.Bold)
-            .fontColor($r('app.color.text_white'))
-            .maxLines(2)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
+      Column({ space: 12 }) {
+        Row({ space: 12 }) {
+          this.buildPreviewGlyph(this.selectedSymbolName, 46, $r('app.color.text_primary'))
 
-          Text(this.getSelectedSymbolReference())
-            .fontSize(12)
-            .fontColor($r('app.color.text_white_medium'))
-            .maxLines(1)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
-        }
-        .layoutWeight(1)
-        .alignItems(HorizontalAlign.Start)
-      }
-      .width('100%')
-      .alignItems(VerticalAlign.Center)
+          Column({ space: 5 }) {
+            Text(this.selectedSymbolName)
+              .fontSize(18)
+              .fontWeight(FontWeight.Bold)
+              .fontColor($r('app.color.text_primary'))
+              .maxLines(2)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-      Row({ space: 8 }) {
-        this.buildMetricPill($r('app.string.ui_str_2438'), String(SYSTEM_SYMBOL_TOTAL_COUNT))
-        this.buildMetricPill($r('app.string.ui_str_2439'), String(SYSTEM_SYMBOL_GROUPS.length))
-        this.buildMetricPill($r('app.string.ui_str_2440'), String(this.getCurrentGridItemCount()))
-      }
-      .width('100%')
-
-      Row({ space: 10 }) {
-        Button() {
-          Row({ space: 6 }) {
-            SymbolGlyph($r('sys.symbol.doc_plaintext_and_checkmark'))
-              .fontSize(17)
-              .fontColor([$r('app.color.text_white')])
-            Text($r('app.string.ui_str_2441'))
-              .fontSize(13)
-              .fontWeight(FontWeight.Medium)
-              .fontColor($r('app.color.text_white'))
+            Text(this.getSelectedSymbolReference())
+              .fontSize(12)
+              .fontColor($r('app.color.text_secondary'))
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
           }
-        }
-        .height(38)
-        .padding({ left: 14, right: 14 })
-        .borderRadius(12)
-        .backgroundColor($r('app.color.button_primary'))
-        .onClick((): void => {
-          void this.copySymbolName(this.selectedSymbolName);
-        })
-
-        Text(this.statusText)
-          .fontSize(12)
-          .fontColor($r('app.color.text_white_medium'))
           .layoutWeight(1)
-          .maxLines(2)
+          .alignItems(HorizontalAlign.Start)
+        }
+        .width('100%')
+        .alignItems(VerticalAlign.Center)
+
+        Row({ space: 8 }) {
+          this.buildMetricPill($r('app.string.ui_str_2438'), String(SYSTEM_SYMBOL_TOTAL_COUNT))
+          this.buildMetricPill($r('app.string.ui_str_2439'), String(SYSTEM_SYMBOL_GROUPS.length))
+          this.buildMetricPill($r('app.string.ui_str_2440'), String(this.getCurrentGridItemCount()))
+        }
+        .width('100%')
+
+        Row({ space: 10 }) {
+          Button() {
+            Row({ space: 6 }) {
+              SymbolGlyph($r('sys.symbol.doc_plaintext_and_checkmark'))
+                .fontSize(17)
+                .fontColor([this.resolveGlassActionTextColor(true)])
+              Text($r('app.string.ui_str_2441'))
+                .fontSize(13)
+                .fontWeight(FontWeight.Medium)
+                .fontColor(this.resolveGlassActionTextColor(true))
+            }
+          }
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .padding({ left: 14, right: 14 })
+          .borderRadius(12)
+          .backgroundColor(this.resolveGlassPrimaryActionBackground())
+          .systemMaterial(this.resolveGlassPrimaryActionMaterial())
+          .onClick((): void => {
+            void this.copySymbolName(this.selectedSymbolName);
+          })
+
+          Text(this.statusText)
+            .fontSize(12)
+            .fontColor($r('app.color.text_secondary'))
+            .layoutWeight(1)
+            .maxLines(2)
+        }
+        .width('100%')
+        .alignItems(VerticalAlign.Center)
       }
       .width('100%')
-      .alignItems(VerticalAlign.Center)
+      .padding(16)
+      .backgroundColor(Color.Transparent)
+      .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+      .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+      .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
-    .padding(16)
-    .linearGradient({
-      angle: 140,
-      colors: [['#1D4ED8', 0], ['#7C3AED', 0.62], ['#F59E0B', 1]]
-    })
-    .borderRadius(20)
-    .shadow({ radius: 14, color: '#221D4ED8', offsetX: 0, offsetY: 8 })
   }
 
   @Builder
@@ -209,9 +230,15 @@ export struct NGFSystemResourcePreviewPage {
     .width('100%')
     .height(60)
     .justifyContent(FlexAlign.Center)
-    .backgroundColor($r('app.color.background_surface'))
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
     .borderRadius(12)
-    .border({ width: 1, color: $r('app.color.panel_border'), style: BorderStyle.Dashed })
+    .border({
+      width: this.resolveGlassPanelBorderWidth(),
+      color: this.resolveGlassDropZoneBorderColor(),
+      style: BorderStyle.Dashed
+    })
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     .onDrop((event: DragEvent, extraParams: string) => {
       try {
         const data = event.getData();
@@ -220,7 +247,7 @@ export struct NGFSystemResourcePreviewPage {
           if (text) {
             this.droppedSymbol = text;
             this.statusText = '拖放成功: ' + text;
-            this.getUIContext().getPromptAction().showToast({ message: '拖放成功: ' + text });
+            ngfOverlayManagerFacade.showToast('拖放成功: ' + text);
           }
         }
       } catch (err) {
@@ -234,17 +261,19 @@ export struct NGFSystemResourcePreviewPage {
     Column({ space: 2 }) {
       Text(label)
         .fontSize(11)
-        .fontColor($r('app.color.text_white_medium'))
+        .fontColor($r('app.color.text_secondary'))
       Text(value)
         .fontSize(15)
         .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.text_white'))
+        .fontColor($r('app.color.text_primary'))
         .maxLines(1)
     }
     .layoutWeight(1)
     .padding({ top: 8, bottom: 8 })
-    .backgroundColor('#24FFFFFF')
+    .backgroundColor(this.resolveGlassFloatingControlBackground())
+    .backgroundEffect(this.buildGlassControlBackgroundEffect())
     .borderRadius(12)
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
   }
 
   @Builder
@@ -254,10 +283,12 @@ export struct NGFSystemResourcePreviewPage {
         .width('100%')
         .height(44)
         .searchButton($r('app.string.ui_str_2443'))
-        .backgroundColor($r('app.color.background_surface'))
+        .backgroundColor(this.resolveGlassFloatingControlBackground())
+        .backgroundEffect(this.buildGlassControlBackgroundEffect())
         .placeholderColor($r('app.color.text_tertiary'))
         .textFont({ size: 14 })
         .placeholderFont({ size: 14 })
+        .systemMaterial(this.resolveGlassFloatingControlMaterial())
         .onChange((value: string): void => {
           this.searchText = value;
           if (value.trim().length <= 0) {
@@ -271,11 +302,13 @@ export struct NGFSystemResourcePreviewPage {
 
       Row({ space: 8 }) {
         Button($r('app.string.ui_str_2444'))
-          .height(32)
-          .fontSize(12)
-          .fontColor(this.isSearching ? $r('app.color.text_secondary') : $r('app.color.text_white'))
-          .backgroundColor(this.isSearching ? $r('app.color.background_surface') : $r('app.color.button_primary'))
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .fontSize(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE)
+          .fontColor(this.resolveGlassActionTextColor(!this.isSearching))
+          .backgroundColor(this.resolveGlassSegmentButtonBackground(!this.isSearching))
           .borderRadius(12)
+          .systemMaterial(this.resolveGlassSegmentButtonMaterial(!this.isSearching))
           .onClick((): void => {
             this.clearSearch();
           })
@@ -299,9 +332,12 @@ export struct NGFSystemResourcePreviewPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(18)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -326,17 +362,19 @@ export struct NGFSystemResourcePreviewPage {
               Text(group.name)
                 .fontSize(12)
                 .fontWeight(this.isSelectedGroup(group.name) ? FontWeight.Medium : FontWeight.Normal)
-                .fontColor(this.isSelectedGroup(group.name) ? $r('app.color.text_white') : $r('app.color.text_primary'))
+                .fontColor(this.resolveGlassActionTextColor(this.isSelectedGroup(group.name)))
                 .maxLines(1)
               Text(String(group.items.length))
                 .fontSize(11)
-                .fontColor(this.isSelectedGroup(group.name) ? $r('app.color.text_white_medium') : $r('app.color.text_tertiary'))
+                .fontColor(this.resolveGlassActionMetaColor(this.isSelectedGroup(group.name)))
             }
           }
-          .height(34)
+          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .controlSize(ControlSize.SMALL)
           .padding({ left: 12, right: 12 })
           .borderRadius(14)
-          .backgroundColor(this.isSelectedGroup(group.name) ? $r('app.color.button_primary') : $r('app.color.background_surface'))
+          .backgroundColor(this.resolveGlassSegmentButtonBackground(this.isSelectedGroup(group.name)))
+          .systemMaterial(this.resolveGlassSegmentButtonMaterial(this.isSelectedGroup(group.name)))
           .margin({ right: 8, bottom: 8 })
           .onClick((): void => {
             this.selectGroup(group.name);
@@ -347,9 +385,12 @@ export struct NGFSystemResourcePreviewPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(18)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -360,9 +401,12 @@ export struct NGFSystemResourcePreviewPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundColor($r('app.color.panel_background'))
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
     .borderRadius(18)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -387,9 +431,12 @@ export struct NGFSystemResourcePreviewPage {
     }
     .width('100%')
     .padding(14)
-    .backgroundColor($r('app.color.panel_background'))
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
     .borderRadius(18)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -445,14 +492,14 @@ export struct NGFSystemResourcePreviewPage {
   @Builder
   private buildDragPreview(itemName: string): void {
     Column({ space: 7 }) {
-      this.buildPreviewGlyph(itemName, 32, $r('app.color.text_white'))
+      this.buildPreviewGlyph(itemName, 32, $r('app.color.text_primary'))
     }
     .width(60)
     .height(60)
     .justifyContent(FlexAlign.Center)
-    .backgroundColor($r('app.color.button_primary'))
     .borderRadius(12)
-    .shadow({ radius: 10, color: '#44000000', offsetX: 0, offsetY: 4 })
+    .backgroundColor(this.resolveGlassFloatingControlBackground())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
   }
 
   @Builder
@@ -463,6 +510,7 @@ export struct NGFSystemResourcePreviewPage {
       Text(itemName)
         .fontSize(9)
         .lineHeight(12)
+        .fontWeight(this.isSelectedSymbol(itemName) ? FontWeight.Medium : FontWeight.Normal)
         .fontColor(this.getSymbolTextColor(itemName))
         .maxLines(2)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -475,9 +523,10 @@ export struct NGFSystemResourcePreviewPage {
     .backgroundColor(this.getSymbolCellBackgroundColor(itemName))
     .borderRadius(12)
     .border({
-      width: this.isSelectedSymbol(itemName) ? 1.5 : 1,
-      color: this.isSelectedSymbol(itemName) ? $r('app.color.text_white_medium') : $r('app.color.card_border')
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(this.isSelectedSymbol(itemName) ? 1.5 : 1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
+    .systemMaterial(this.getSymbolCellMaterial(itemName))
     .onClick((): void => {
       this.selectSymbol(itemName);
       void this.copySymbolName(itemName);
@@ -696,15 +745,125 @@ export struct NGFSystemResourcePreviewPage {
   }
 
   private getSymbolCellBackgroundColor(symbolName: string): ResourceColor {
-    return this.isSelectedSymbol(symbolName) ? $r('app.color.button_primary') : $r('app.color.background_surface');
+    return NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat);
+  }
+
+  private getSymbolCellMaterial(symbolName: string): uiMaterial.Material | undefined {
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return uiMaterial.Material.empty;
+    }
+    return this.isSelectedSymbol(symbolName)
+      ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
+      : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl();
+  }
+
+  private shouldUseTransparentSystemMaterialSurface(): boolean {
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return false;
+    }
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
+      return true;
+    }
+    return this.systemMaterialState !== uiMaterial.MaterialState.DISABLE;
+  }
+
+  private resolveGlassPanelBackground(): ResourceColor {
+    return this.shouldUseTransparentSystemMaterialSurface() ? Color.Transparent : $r('app.color.panel_background');
+  }
+
+  private resolveGlassPanelBorderWidth(): number {
+    return this.shouldUseTransparentSystemMaterialSurface() ? 0 : NGFMaterialSurfaceTokens.BORDER_WIDTH;
+  }
+
+  private resolveGlassPanelBorderColor(): ResourceColor {
+    return this.shouldUseTransparentSystemMaterialSurface() ? Color.Transparent : $r('app.color.panel_border');
+  }
+
+  private resolveGlassDropZoneBorderColor(): ResourceColor {
+    return this.shouldUseTransparentSystemMaterialSurface() ? Color.Transparent : $r('app.color.panel_border');
+  }
+
+  private buildGlassPanelBackgroundEffect(): NGFMaterialBackgroundEffectOptions | undefined {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return undefined;
+    }
+    return NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat);
+  }
+
+  private buildGlassPanelShadow(): NGFMaterialShadowOptions | undefined {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return undefined;
+    }
+    return NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat);
+  }
+
+  private resolveGlassFloatingControlBackground(): ResourceColor {
+    return this.shouldUseTransparentSystemMaterialSurface() ? Color.Transparent : $r('app.color.background_surface');
+  }
+
+  private buildGlassControlBackgroundEffect(): NGFMaterialBackgroundEffectOptions | undefined {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return undefined;
+    }
+    return NGFMaterialSurfaceTokens.buildMaterialAwareControlBackgroundEffect(this.useSysMat);
+  }
+
+  private resolveGlassFloatingControlMaterial(): uiMaterial.Material | undefined {
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return uiMaterial.Material.empty;
+    }
+    return ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl();
+  }
+
+  private resolveGlassPrimaryActionBackground(): ResourceColor {
+    return this.shouldUseTransparentSystemMaterialSurface() ? Color.Transparent : $r('app.color.background_surface');
+  }
+
+  private resolveGlassPrimaryActionMaterial(): uiMaterial.Material | undefined {
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return uiMaterial.Material.empty;
+    }
+    return this.shouldUseTransparentSystemMaterialSurface()
+      ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
+      : undefined;
+  }
+
+  private resolveGlassSegmentButtonBackground(selected: boolean): ResourceColor {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return Color.Transparent;
+    }
+    if (selected) {
+      return $r('app.color.background_surface');
+    }
+    return Color.Transparent;
+  }
+
+  private resolveGlassSegmentButtonMaterial(selected: boolean): uiMaterial.Material | undefined {
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return uiMaterial.Material.empty;
+    }
+    if (!this.shouldUseTransparentSystemMaterialSurface()) {
+      return undefined;
+    }
+    return selected
+      ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
+      : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl();
+  }
+
+  private resolveGlassActionTextColor(selected: boolean): ResourceColor {
+    return selected ? $r('app.color.text_primary') : $r('app.color.text_secondary');
+  }
+
+  private resolveGlassActionMetaColor(selected: boolean): ResourceColor {
+    return selected ? $r('app.color.text_secondary') : $r('app.color.text_tertiary');
   }
 
   private getSymbolIconColor(symbolName: string): ResourceColor {
-    return this.isSelectedSymbol(symbolName) ? $r('app.color.text_white') : $r('app.color.text_primary');
+    return this.isSelectedSymbol(symbolName) ? $r('app.color.text_primary') : $r('app.color.text_secondary');
   }
 
   private getSymbolTextColor(symbolName: string): ResourceColor {
-    return this.isSelectedSymbol(symbolName) ? $r('app.color.text_white_high') : $r('app.color.text_secondary');
+    return this.isSelectedSymbol(symbolName) ? $r('app.color.text_primary') : $r('app.color.text_secondary');
   }
 
   private performSearch(): void {
@@ -749,13 +908,13 @@ export struct NGFSystemResourcePreviewPage {
       const systemPasteboard: pasteboard.SystemPasteboard = pasteboard.getSystemPasteboard();
       await systemPasteboard.setData(pasteData);
       this.statusText = '已复制 ' + fullName;
-      this.getUIContext().getPromptAction().openToast({ message: '已复制 ' + fullName });
+      ngfOverlayManagerFacade.showToast('已复制 ' + fullName);
       logger.info(TAG, '复制系统 Symbol 引用：' + fullName);
     } catch (error) {
       const message: string = this.formatError(error as NGFSystemSymbolError);
       this.statusText = '复制失败：' + message;
       try {
-        this.getUIContext().getPromptAction().openToast({ message: $r('app.string.ui_str_2450') });
+        ngfOverlayManagerFacade.showToast($r('app.string.ui_str_2450'));
       } catch (toastError) {
         logger.warn(TAG, '复制失败后 Toast 显示异常：' + toastError);
       }

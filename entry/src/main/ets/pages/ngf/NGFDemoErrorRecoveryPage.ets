@@ -1,7 +1,10 @@
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from 'ngf_framework';
+import { NGFControlStyleTokens } from 'ngf_framework';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
 import { NGFErrorContext, NGFErrorSeverity } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
 import { ngfStarterKernel } from 'ngf_framework';
 import {
   NGFImmersiveTopChromePresetFactory,
@@ -41,6 +44,7 @@ export struct NGFDemoErrorRecoveryPage {
   @State private errorLog: Array<NGFErrorLogEntry> = [];
   @State private recentErrorCount: number = 0;
   @State private strategyRegistered: boolean = false;
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   aboutToAppear(): void {
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
@@ -154,20 +158,19 @@ export struct NGFDemoErrorRecoveryPage {
       Text($r('app.string.demo_error_recovery_title'))
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.panel_background'))
+        .fontColor($r('app.color.text_primary'))
       Text($r('app.string.demo_error_recovery_desc'))
         .fontSize(13)
         .lineHeight(20)
-        .fontColor($r('app.color.text_white_low'))
+        .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
     .padding(18)
-    .linearGradient({
-      angle: 140,
-      colors: [['#881337', 0], ['#F43F5E', 1]]
-    })
-    .borderRadius(20)
-    .shadow({ radius: 14, color: '#1A881337', offsetX: 0, offsetY: 8 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   @Builder
@@ -186,40 +189,52 @@ export struct NGFDemoErrorRecoveryPage {
       Column({ space: 8 }) {
         Button($r('app.string.err_trigger_low'))
           .width('100%')
-          .height(40)
-          .fontSize(14)
-          .borderRadius(12)
-          .backgroundColor('#FF16A34A')
+          .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontColor($r('app.color.text_primary'))
+          .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           .onClick((): void => {
             void this.handleTriggerError(NGFErrorSeverity.LOW);
           })
 
         Button($r('app.string.err_trigger_medium'))
           .width('100%')
-          .height(40)
-          .fontSize(14)
-          .borderRadius(12)
-          .backgroundColor('#FFD97706')
+          .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontColor($r('app.color.text_primary'))
+          .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           .onClick((): void => {
             void this.handleTriggerError(NGFErrorSeverity.MEDIUM);
           })
 
         Button($r('app.string.err_trigger_high'))
           .width('100%')
-          .height(40)
-          .fontSize(14)
-          .borderRadius(12)
-          .backgroundColor('#FFEA580C')
+          .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontColor($r('app.color.text_primary'))
+          .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           .onClick((): void => {
             void this.handleTriggerError(NGFErrorSeverity.HIGH);
           })
 
         Button($r('app.string.err_trigger_critical'))
           .width('100%')
-          .height(40)
-          .fontSize(14)
-          .borderRadius(12)
-          .backgroundColor('#FFE11D48')
+          .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
+          .controlSize(ControlSize.SMALL)
+          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontColor($r('app.color.text_primary'))
+          .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             void this.handleTriggerError(NGFErrorSeverity.CRITICAL);
           })
@@ -246,10 +261,15 @@ export struct NGFDemoErrorRecoveryPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -266,35 +286,42 @@ export struct NGFDemoErrorRecoveryPage {
           .fontWeight(FontWeight.Medium)
           .fontColor(this.strategyRegistered ? $r('app.color.tag_green') : $r('app.color.tag_red'))
           .padding({ left: 10, right: 10, top: 3, bottom: 3 })
-          .backgroundColor($r('app.color.background_surface'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
           .borderRadius(8)
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
       }
       .width('100%')
 
       Column({ space: 6 }) {
-        this.buildStrategyRule($r('app.string.err_rule_low'), $r('app.string.err_rule_low_desc'), '#16A34A')
-        this.buildStrategyRule($r('app.string.err_rule_medium'), $r('app.string.err_rule_medium_desc'), '#D97706')
-        this.buildStrategyRule($r('app.string.err_rule_high'), $r('app.string.err_rule_high_desc'), '#EA580C')
-        this.buildStrategyRule($r('app.string.err_rule_critical'), $r('app.string.err_rule_critical_desc'), '#E11D48')
+        this.buildStrategyRule($r('app.string.err_rule_low'), $r('app.string.err_rule_low_desc'))
+        this.buildStrategyRule($r('app.string.err_rule_medium'), $r('app.string.err_rule_medium_desc'))
+        this.buildStrategyRule($r('app.string.err_rule_high'), $r('app.string.err_rule_high_desc'))
+        this.buildStrategyRule($r('app.string.err_rule_critical'), $r('app.string.err_rule_critical_desc'))
       }
       .width('100%')
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
-  private buildStrategyRule(level: ResourceStr, desc: ResourceStr, color: string): void {
+  private buildStrategyRule(level: ResourceStr, desc: ResourceStr): void {
     Row({ space: 10 }) {
       Column() {}
         .width(4)
         .height(32)
         .borderRadius(2)
-        .backgroundColor(color)
+        .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
 
       Column({ space: 2 }) {
         Text(level)
@@ -310,8 +337,9 @@ export struct NGFDemoErrorRecoveryPage {
     }
     .width('100%')
     .padding({ left: 10, right: 10, top: 6, bottom: 6 })
-    .backgroundColor($r('app.color.background_surface'))
     .borderRadius(10)
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
   }
 
   @Builder
@@ -350,13 +378,15 @@ export struct NGFDemoErrorRecoveryPage {
                 .fontWeight(FontWeight.Medium)
                 .fontColor(entry.recovered ? $r('app.color.tag_green') : $r('app.color.tag_red'))
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
-                .backgroundColor($r('app.color.background_surface'))
+                .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
                 .borderRadius(6)
+                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
             }
             .width('100%')
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
-            .backgroundColor($r('app.color.background_surface'))
+            .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .borderRadius(10)
+            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           }, (entry: NGFErrorLogEntry): string => 'err_' + entry.id)
         }
         .width('100%')
@@ -364,9 +394,14 @@ export struct NGFDemoErrorRecoveryPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.card_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 }

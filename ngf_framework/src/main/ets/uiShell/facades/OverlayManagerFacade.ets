@@ -1,9 +1,47 @@
-import { ComponentContent, promptAction } from '@kit.ArkUI';
-import { IOverlayManager } from '../contracts/IOverlayManager';
+import { ComponentContent, ImmersiveMode, promptAction } from '@kit.ArkUI';
+import uiMaterial from '@ohos.arkui.uiMaterial';
+import { IOverlayManager, NGFOverlayToastOptions } from '../contracts/IOverlayManager';
 import { logger } from '../../utils/Logger';
 import { uiContextManager } from '../../platformOhos/UIContextManager';
+import { ngfVisualEffectsFacade } from '../../deviceAwareness/facades/VisualEffectsFacade';
+import { NGFMaterialSheetOptions } from '../components/NGFMaterialSurfaceTokens';
 
 const TAG: string = 'OverlayManagerFacade';
+
+class NGFOverlayDialogOptions implements promptAction.BaseDialogOptions {
+  immersiveMode?: ImmersiveMode;
+  systemMaterial?: uiMaterial.Material;
+
+  constructor(systemMaterial: uiMaterial.Material | undefined) {
+    this.immersiveMode = ImmersiveMode.EXTEND;
+    if (systemMaterial !== undefined) {
+      this.systemMaterial = systemMaterial;
+    }
+  }
+}
+
+class NGFOverlayToastRequest implements promptAction.ShowToastOptions {
+  message: ResourceStr;
+  duration?: number;
+  showMode?: promptAction.ToastShowMode;
+  systemMaterial?: uiMaterial.Material;
+
+  constructor(
+    message: ResourceStr,
+    duration: number,
+    showMode: promptAction.ToastShowMode | undefined,
+    systemMaterial: uiMaterial.Material | undefined
+  ) {
+    this.message = message;
+    this.duration = duration;
+    if (showMode !== undefined) {
+      this.showMode = showMode;
+    }
+    if (systemMaterial !== undefined) {
+      this.systemMaterial = systemMaterial;
+    }
+  }
+}
 
 export class OverlayManagerFacade implements IOverlayManager {
   showCustomDialog(content: ComponentContent<object>): void {
@@ -12,10 +50,11 @@ export class OverlayManagerFacade implements IOverlayManager {
       logger.error(TAG, 'showCustomDialog failed: UIContext not found.');
       return;
     }
-    
+
     try {
-      const promptAction = uiContext.getPromptAction();
-      promptAction.openCustomDialog(content).catch((e: Error) => {
+      const promptActionController = uiContext.getPromptAction();
+      const options = new NGFOverlayDialogOptions(ngfVisualEffectsFacade.buildSystemMaterialForOverlay());
+      promptActionController.openCustomDialog(content, options).catch((e: Error) => {
         logger.error(TAG, 'openCustomDialog failed with promise rejection: ' + e);
       });
       logger.info(TAG, 'showCustomDialog triggered.');
@@ -30,10 +69,10 @@ export class OverlayManagerFacade implements IOverlayManager {
       logger.error(TAG, 'hideCustomDialog failed: UIContext not found.');
       return;
     }
-    
+
     try {
-      const promptAction = uiContext.getPromptAction();
-      promptAction.closeCustomDialog(content).catch((e: Error) => {
+      const promptActionController = uiContext.getPromptAction();
+      promptActionController.closeCustomDialog(content).catch((e: Error) => {
         logger.error(TAG, 'closeCustomDialog failed with promise rejection: ' + e);
       });
       logger.info(TAG, 'hideCustomDialog triggered.');
@@ -50,8 +89,9 @@ export class OverlayManagerFacade implements IOverlayManager {
     }
 
     try {
-      if (options !== undefined) {
-        uiContext.openBindSheet(content, options);
+      const effectiveOptions: SheetOptions | undefined = this.buildEffectiveSheetOptions(options);
+      if (effectiveOptions !== undefined) {
+        uiContext.openBindSheet(content, effectiveOptions);
       } else {
         uiContext.openBindSheet(content);
       }
@@ -59,6 +99,33 @@ export class OverlayManagerFacade implements IOverlayManager {
     } catch (e) {
       logger.error(TAG, 'showSheet failed: ' + e);
     }
+  }
+
+  private buildEffectiveSheetOptions(options: SheetOptions | undefined): SheetOptions | undefined {
+    const defaultMaterial: uiMaterial.Material | undefined = ngfVisualEffectsFacade.buildSystemMaterialForSheet();
+    const useTransparentMaterialSurface: boolean = ngfVisualEffectsFacade.shouldUseSystemMaterialSurface();
+    if (options === undefined) {
+      return new NGFMaterialSheetOptions(defaultMaterial, useTransparentMaterialSurface);
+    }
+    const hasSystemMaterial: boolean = options.systemMaterial !== undefined || defaultMaterial !== undefined;
+    if (hasSystemMaterial && useTransparentMaterialSurface) {
+      options.backgroundColor = Color.Transparent;
+      options.blurStyle = BlurStyle.NONE;
+    } else {
+      if (options.backgroundColor === undefined) {
+        options.backgroundColor = $r('app.color.panel_background');
+      }
+      if (options.blurStyle === undefined) {
+        options.blurStyle = BlurStyle.NONE;
+      }
+    }
+    if (options.keyboardAvoidMode === undefined) {
+      options.keyboardAvoidMode = SheetKeyboardAvoidMode.RESIZE_ONLY;
+    }
+    if (options.systemMaterial === undefined && defaultMaterial !== undefined) {
+      options.systemMaterial = defaultMaterial;
+    }
+    return options;
   }
 
   hideSheet(content: ComponentContent<object>): void {
@@ -76,28 +143,27 @@ export class OverlayManagerFacade implements IOverlayManager {
     }
   }
 
-  showToast(message: string): void {
+  showToast(message: ResourceStr, options?: NGFOverlayToastOptions): void {
     const uiContext = uiContextManager.getUIContext();
-    if (uiContext) {
-      try {
-        uiContext.getPromptAction().openToast({
-          message: message,
-          duration: 2000
-        });
-        return;
-      } catch (e) {
-        logger.warn(TAG, 'UIContext openToast failed, falling back to global: ' + e);
-      }
+    if (!uiContext) {
+      logger.error(TAG, 'showToast failed: UIContext not found.');
+      return;
     }
-    
-    // Fallback to global promptAction if uiContext fails or is missing
+
     try {
-      promptAction.openToast({
-        message: message,
-        duration: 2000
+      const duration: number = options && options.duration !== undefined ? options.duration : 2000;
+      const showMode: promptAction.ToastShowMode | undefined = options ? options.showMode : undefined;
+      const request = new NGFOverlayToastRequest(
+        message,
+        duration,
+        showMode,
+        ngfVisualEffectsFacade.buildSystemMaterialForOverlay()
+      );
+      uiContext.getPromptAction().openToast(request).catch((e: Error) => {
+        logger.error(TAG, 'openToast failed with promise rejection: ' + e);
       });
     } catch (e) {
-      logger.error(TAG, 'Global promptAction.openToast failed: ' + e);
+      logger.error(TAG, 'showToast failed: ' + e);
     }
   }
 }

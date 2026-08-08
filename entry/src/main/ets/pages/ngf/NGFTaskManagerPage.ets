@@ -7,6 +7,10 @@ import {
 } from 'ngf_framework';
 import { ngfSystem, NGFTaskInfo, NGFTaskState } from 'ngf_framework';
 import { NGFNotificationRequest, NGFNotificationType } from 'ngf_framework';
+import { NGFControlStyleTokens } from 'ngf_framework';
+import { NGFMaterialSurfaceTokens } from 'ngf_framework';
+import { ngfOverlayManagerFacade } from 'ngf_framework';
+import { ngfVisualEffectsFacade } from 'ngf_framework';
 import { NGFPageWindowSupport } from './NGFPageWindowSupport';
 import { resolveResourceString } from 'ngf_framework';
 
@@ -20,6 +24,7 @@ const DEMO_TOP_CHROME_BLUE: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePre
 
 @Component
 export struct NGFTaskManagerPage {
+  @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private tasks: Array<NGFTaskInfo> = [];
   @State private topInsetVp: number = DEMO_TOP_CHROME_BLUE.metrics.contentTopInset;
@@ -70,9 +75,12 @@ export struct NGFTaskManagerPage {
 
             Button($r('app.string.task_manager_submit_download'), { type: ButtonType.Capsule })
               .width('100%')
-              .height(44)
+              .height(NGFControlStyleTokens.NORMAL_BUTTON_HEIGHT)
+              .controlSize(ControlSize.NORMAL)
               .fontSize(14)
-              .backgroundColor($r('app.color.button_primary'))
+              .fontColor($r('app.color.text_primary'))
+.backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+              .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
               .onClick(() => {
                 this.submitMockDownloadTask();
               })
@@ -87,40 +95,48 @@ export struct NGFTaskManagerPage {
               Button($r('app.string.task_manager_basic_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
-                .height(40)
-                .fontSize(13)
-                .backgroundColor($r('app.color.button_secondary'))
+                .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+                .controlSize(ControlSize.SMALL)
+                .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
                 .fontColor($r('app.color.text_primary'))
+.backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .margin({ bottom: 12 })
                 .onClick(() => this.testBasicNotification())
 
               Button($r('app.string.task_manager_longtext_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
-                .height(40)
-                .fontSize(13)
-                .backgroundColor($r('app.color.button_secondary'))
+                .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+                .controlSize(ControlSize.SMALL)
+                .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
                 .fontColor($r('app.color.text_primary'))
+.backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .margin({ bottom: 12 })
                 .onClick(() => this.testLongTextNotification())
 
               Button($r('app.string.task_manager_multiline_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
-                .height(40)
-                .fontSize(13)
-                .backgroundColor($r('app.color.button_secondary'))
+                .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+                .controlSize(ControlSize.SMALL)
+                .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
                 .fontColor($r('app.color.text_primary'))
+.backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .margin({ bottom: 12 })
                 .onClick(() => this.testMultiLineNotification())
 
               Button($r('app.string.task_manager_custom_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
-                .height(40)
-                .fontSize(13)
-                .backgroundColor($r('app.color.button_secondary'))
+                .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+                .controlSize(ControlSize.SMALL)
+                .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
                 .fontColor($r('app.color.text_primary'))
+.backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
+                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .margin({ bottom: 12 })
                 .onClick(() => this.testCustomNotification())
             }
@@ -129,7 +145,7 @@ export struct NGFTaskManagerPage {
             List({ space: 12 }) {
               ForEach(this.tasks, (task: NGFTaskInfo) => {
                 ListItem() {
-                  TaskListItem({ task: task })
+                  TaskListItem({ task: task, useSysMat: this.useSysMat })
                 }
               }, (task: NGFTaskInfo) => task.taskId)
             }
@@ -175,20 +191,19 @@ export struct NGFTaskManagerPage {
       Text($r('app.string.task_manager_route_label'))
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.panel_background'))
+        .fontColor($r('app.color.text_primary'))
       Text($r('app.string.task_manager_intro'))
         .fontSize(13)
         .lineHeight(20)
-        .fontColor($r('app.color.text_white_low'))
+        .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
     .padding(18)
-    .linearGradient({
-      angle: 140,
-      colors: [['#1E3A8A', 0], ['#3B82F6', 1]]
-    })
-    .borderRadius(20)
-    .shadow({ radius: 14, color: '#1A1E3A8A', offsetX: 0, offsetY: 8 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   private submitMockDownloadTask() {
@@ -210,16 +225,12 @@ export struct NGFTaskManagerPage {
     }).then((taskId: string) => {
       if (hostCtx) {
         const baseText = resolveResourceString(hostCtx, $r('app.string.task_manager_submitted'));
-        this.getUIContext().getPromptAction().openToast({
-          message: baseText + ' ' + taskId
-        });
+        ngfOverlayManagerFacade.showToast(baseText + ' ' + taskId);
       }
     }).catch((e: Error) => {
       if (hostCtx) {
         const baseText = resolveResourceString(hostCtx, $r('app.string.task_manager_submit_failed'));
-        this.getUIContext().getPromptAction().openToast({
-          message: baseText + ' ' + e.message
-        });
+        ngfOverlayManagerFacade.showToast(baseText + ' ' + e.message);
       }
     });
   }
@@ -294,6 +305,7 @@ export struct NGFTaskManagerPage {
 @Component
 struct TaskListItem {
   @ObjectLink task: NGFTaskInfo;
+  @Prop useSysMat: boolean = true;
 
   build() {
     Column({ space: 8 }) {
@@ -307,8 +319,9 @@ struct TaskListItem {
           .fontSize(12)
           .fontColor(this.getStateColor(this.task.state))
           .padding({ left: 8, right: 8, top: 4, bottom: 4 })
-          .backgroundColor($r('app.color.background_secondary'))
+          .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_secondary'), this.useSysMat))
           .borderRadius(12)
+          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
       }
       .width('100%')
 
@@ -324,10 +337,15 @@ struct TaskListItem {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(12)
-    .border({ width: 1, color: $r('app.color.panel_border') })
-    .shadow({ radius: 10, color: $r('app.color.card_shadow_demo'), offsetX: 0, offsetY: 4 })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   private getStateColor(state: string): ResourceColor {

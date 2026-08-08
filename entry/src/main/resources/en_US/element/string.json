@@ -5295,6 +5295,46 @@
     {
       "name": "EntryFormAbility_desc",
       "value": "Provides desktop widget capability"
+    },
+    {
+      "name": "settings_system_material_policy",
+      "value": "System Material Policy"
+    },
+    {
+      "name": "settings_system_material_auto",
+      "value": "Auto"
+    },
+    {
+      "name": "settings_system_material_force",
+      "value": "Force Immersive"
+    },
+    {
+      "name": "settings_system_material_disabled",
+      "value": "Off"
+    },
+    {
+      "name": "settings_system_material_state",
+      "value": "System Material State"
+    },
+    {
+      "name": "settings_system_material_type",
+      "value": "System Material Type"
+    },
+    {
+      "name": "settings_api_version_label",
+      "value": "API Version"
+    },
+    {
+      "name": "api26_visual_migration_title",
+      "value": "API26 Visual Migration"
+    },
+    {
+      "name": "api26_visual_migration_done",
+      "value": "Immersive material, component style, and touch target updates now use framework policy."
+    },
+    {
+      "name": "settings_language_english",
+      "value": "English"
     }
   ]
 }

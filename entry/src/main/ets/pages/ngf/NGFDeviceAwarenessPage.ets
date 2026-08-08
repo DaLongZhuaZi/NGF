@@ -1,4 +1,5 @@
 import { hdsMaterial } from '@kit.UIDesignKit';
+import uiMaterial from '@ohos.arkui.uiMaterial';
 import {
   NGFBreakpoint,
   NGFDeviceChangeListener,
@@ -11,6 +12,10 @@ import {
   NGFHoldingAwarenessSnapshot,
   NGFHoldingAwarenessSource,
   NGFHoldingUiAnchor,
+  NGFMaterialBackgroundEffectOptions,
+  NGFMaterialShadowOptions,
+  NGFMaterialSurfaceTokens,
+  NGFSystemMaterialPolicy,
   NGFScreenOrientation,
   NGFVisualEffectsMaterialMode,
   NGFVisualEffectsState,
@@ -72,6 +77,8 @@ export struct NGFDeviceAwarenessPage {
   @State private materialMode: NGFVisualEffectsMaterialMode = NGFVisualEffectsMaterialMode.ADAPTIVE;
   @State private effectiveLevel: hdsMaterial.MaterialLevel = hdsMaterial.MaterialLevel.ADAPTIVE;
   @State private supportsImmersive: boolean = false;
+  @StorageProp('ngf_visual_effects_system_material_policy') private systemMaterialPolicy: string = 'auto';
+  @StorageProp('ngf_visual_effects_system_material_state') private systemMaterialState: number = 0;
 
   private listenersAttached: boolean = false;
   private readonly deviceChangeListener: NGFDeviceChangeListener = (info: NGFDeviceInfo): void => {
@@ -111,9 +118,12 @@ export struct NGFDeviceAwarenessPage {
       }
       .width('100%')
       .padding(12)
-      .backgroundColor($r('app.color.panel_background'))
-      .borderRadius(16)
-      .border({ width: 1, color: $r('app.color.panel_border') })
+      .backgroundColor(this.resolveGlassPanelBackground())
+      .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+      .borderRadius(NGFMaterialSurfaceTokens.CONTROL_RADIUS)
+      .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+      .shadow(this.buildGlassPanelShadow())
+      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
 
       this.buildHoldingCard()
       this.buildDeviceCard()
@@ -143,9 +153,12 @@ export struct NGFDeviceAwarenessPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -170,9 +183,12 @@ export struct NGFDeviceAwarenessPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -189,9 +205,12 @@ export struct NGFDeviceAwarenessPage {
     }
     .width('100%')
     .padding(16)
-    .backgroundColor($r('app.color.panel_background'))
-    .borderRadius(16)
-    .border({ width: 1, color: $r('app.color.panel_border') })
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -321,6 +340,42 @@ export struct NGFDeviceAwarenessPage {
   @Builder
   private buildSupportsImmersiveRow(): void {
     NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2382'), value: this.supportsImmersive ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359') })
+  }
+
+  private shouldUseTransparentSystemMaterialSurface(): boolean {
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
+      return false;
+    }
+    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
+      return true;
+    }
+    return this.systemMaterialState !== uiMaterial.MaterialState.DISABLE;
+  }
+
+  private resolveGlassPanelBackground(): ResourceColor {
+    return this.shouldUseTransparentSystemMaterialSurface() ? Color.Transparent : $r('app.color.panel_background');
+  }
+
+  private resolveGlassPanelBorderWidth(): number {
+    return this.shouldUseTransparentSystemMaterialSurface() ? 0 : NGFMaterialSurfaceTokens.BORDER_WIDTH;
+  }
+
+  private resolveGlassPanelBorderColor(): ResourceColor {
+    return this.shouldUseTransparentSystemMaterialSurface() ? Color.Transparent : $r('app.color.panel_border');
+  }
+
+  private buildGlassPanelBackgroundEffect(): NGFMaterialBackgroundEffectOptions | undefined {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return undefined;
+    }
+    return NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect();
+  }
+
+  private buildGlassPanelShadow(): NGFMaterialShadowOptions | undefined {
+    if (this.shouldUseTransparentSystemMaterialSurface()) {
+      return undefined;
+    }
+    return NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow();
   }
 
   private attachLiveStateListeners(): void {

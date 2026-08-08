@@ -1,4 +1,28 @@
-import { hdsMaterial, HdsTabs, HdsTabsController } from '@kit.UIDesignKit';
+import { hdsMaterial, HdsTabs, HdsTabsController, HdsTabsFloatingStyle, SystemMaterialParams } from '@kit.UIDesignKit';
+
+class NGFHdsTabsSystemMaterialParams implements SystemMaterialParams {
+  materialType?: hdsMaterial.MaterialType;
+  materialLevel?: hdsMaterial.MaterialLevel;
+
+  constructor(materialLevel: hdsMaterial.MaterialLevel) {
+    this.materialType = hdsMaterial.MaterialType.IMMERSIVE;
+    this.materialLevel = materialLevel;
+  }
+}
+
+class NGFHdsTabsFloatingStyle implements HdsTabsFloatingStyle {
+  adaptToHandedness?: boolean;
+  systemMaterialEffect?: SystemMaterialParams;
+  thermoCtrl?: boolean;
+  barOpacity?: number;
+
+  constructor(materialLevel: hdsMaterial.MaterialLevel) {
+    this.adaptToHandedness = true;
+    this.systemMaterialEffect = new NGFHdsTabsSystemMaterialParams(materialLevel);
+    this.thermoCtrl = true;
+    this.barOpacity = 0.92;
+  }
+}
 
 export class NGFHdsTabItem {
   readonly title: string;
@@ -13,6 +37,8 @@ export struct NGFHdsImmersiveTabs {
   private controller: HdsTabsController = new HdsTabsController();
   private items: Array<NGFHdsTabItem> = [];
   @Prop private selectedIndex: number = 0;
+  @StorageProp('ngf_visual_effects_effective_material_level')
+  private effectiveMaterialLevel: number = hdsMaterial.MaterialLevel.ADAPTIVE;
   private onChangeCallback: (index: number) => void = (): void => {};
   @Builder defaultBuilder(index: number) {}
   @BuilderParam contentBuilder: (index: number) => void = this.defaultBuilder;
@@ -29,18 +55,23 @@ export struct NGFHdsImmersiveTabs {
     .barPosition(BarPosition.End)
     .barMode(BarMode.Fixed)
     .barOverlap(true)
-    .barFloatingStyle({
-      adaptToHandedness: true,
-      systemMaterialEffect: {
-        materialType: hdsMaterial.MaterialType.IMMERSIVE,
-        materialLevel: hdsMaterial.MaterialLevel.ADAPTIVE
-      },
-      thermoCtrl: true,
-      barOpacity: 0.92
-    })
+    .barFloatingStyle(new NGFHdsTabsFloatingStyle(this.resolveMaterialLevel()))
     .onChange((index: number): void => {
       this.onChangeCallback(index);
     })
+  }
+
+  private resolveMaterialLevel(): hdsMaterial.MaterialLevel {
+    switch (this.effectiveMaterialLevel) {
+      case hdsMaterial.MaterialLevel.EXQUISITE:
+        return hdsMaterial.MaterialLevel.EXQUISITE;
+      case hdsMaterial.MaterialLevel.GENTLE:
+        return hdsMaterial.MaterialLevel.GENTLE;
+      case hdsMaterial.MaterialLevel.SMOOTH:
+        return hdsMaterial.MaterialLevel.SMOOTH;
+      default:
+        return hdsMaterial.MaterialLevel.ADAPTIVE;
+    }
   }
 
   @Builder

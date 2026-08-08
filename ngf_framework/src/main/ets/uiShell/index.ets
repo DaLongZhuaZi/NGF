@@ -16,7 +16,7 @@ export {
   NGFPageTransitionType,
   NGFPageTransitionConfig
 } from './contracts/IPageTransitionManager';
-export { IOverlayManager } from './contracts/IOverlayManager';
+export { IOverlayManager, NGFOverlayToastOptions } from './contracts/IOverlayManager';
 
 export { NavigationShellFacade, ngfNavigationShellFacade } from './facades/NavigationShellFacade';
 export { PagePolicyHostFacade, ngfPagePolicyHostFacade } from './facades/PagePolicyHostFacade';
@@ -42,4 +42,11 @@ export {
 } from './components/NGFHdsEffectPresets';
 export { AboutSheetContent } from './components/AboutSheetContent';
 export { NGFHdsImmersiveTabs, NGFHdsTabItem } from './components/NGFHdsTabsFactory';
+export { NGFControlStyleTokens } from './components/NGFControlStyleTokens';
+export {
+  NGFMaterialBackgroundEffectOptions,
+  NGFMaterialSheetOptions,
+  NGFMaterialShadowOptions,
+  NGFMaterialSurfaceTokens
+} from './components/NGFMaterialSurfaceTokens';
 export { DragDropManagerFacade, ngfDragDropManagerFacade } from './utils/DragDropManager';
