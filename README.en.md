@@ -1,371 +1,99 @@
 # NGF (Neon Genesis Framework)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![HarmonyOS SDK](https://img.shields.io/badge/HarmonyOS_SDK-6.1.0_(API_23)-blue.svg)](https://developer.harmonyos.com/)
+[![HarmonyOS SDK](https://img.shields.io/badge/HarmonyOS_SDK-26.0.0_(API_26)-blue.svg)](https://developer.harmonyos.com/)
 [![Language](https://img.shields.io/badge/Language-ArkTS-orange.svg)]()
 
 **🌐 Language / 语言:** English | [中文](README.md)
 
-A reusable software development framework for HarmonyOS Next, featuring a 10-layer core architecture + 9 extended capability layers that provides complete infrastructure from core bootstrapping and data management to internationalization and UI shell.
+Welcome to **NGF (Neon Genesis Framework)**! This is an **out-of-the-box application development framework** built specifically for HarmonyOS Next.
 
-## Project Orientation
-
-NGF is a **framework project**, not a single business app. All capabilities are designed with reusability, low coupling, and extensibility in mind, following a unified `contracts/` + `facades/` + `index.ets` pattern where each layer achieves loose coupling through a DI container and service registration.
+Whether you want to build a beautiful native HarmonyOS application from scratch or use an AI assistant (Vibe Coding) to rapidly generate pages, NGF provides solid infrastructure (themes, multilingual support, storage, networking, navigation, and more), allowing you to **focus 90% of your effort on the business itself**.
 
 ---
 
-## 🤖 Vibe Coding Friendly
+## 🙋‍♂️ Developer Quick Start (For Developers)
 
-This project is purpose-built for AI-assisted development workflows — Cursor, GitHub Copilot, Windsurf, Claude Code, and similar tools. Every pattern, contract, and facade is clearly documented and annotated so that LLMs can accurately understand and generate code that conforms to the framework conventions.
+NGF was designed from the outset to **become your own App at any time**.
 
-**🚀 Quick Start for AI Developers / LLMs**
-
-Before starting any development task, read in this order:
-
-| Step | File | Why It Matters |
-|------|------|----------------|
-| 1️⃣ | [AGENTS.md](AGENTS.md) | **Highest priority**: project-wide conventions, ArkTS constraints, layering principles, and prohibited patterns. All agents must read this. |
-| 2️⃣ | [.rules/README.md](.rules/README.md) | Rules library index: discover what skill-rule files are available. |
-| 3️⃣ | [.rules/skill-hds-page-design.md](.rules/skill-hds-page-design.md) | **Read before creating any new page**: immersive top bar, safe area, material/light-effect standard patterns. |
-| 4️⃣ | [.rules/skill-manager-apis.md](.rules/skill-manager-apis.md) | **Read before using theme/i18n/visual-effects/holding-awareness**: reactive binding and listener lifecycle pairing patterns. |
-| 5️⃣ | [.rules/skill-rules-update.md](.rules/skill-rules-update.md) | **Read when distilling new experience**: rules library update workflow (manually triggered by the developer). |
-
-> **Note**: Rule files are not auto-triggered. Read the relevant skill file before starting the appropriate task. `AGENTS.md` takes precedence over the rules library; the rules library provides concrete skill supplements to `AGENTS.md`.
+1. **Clone and run the project**:
+   Open the project with DevEco Studio and click Run. You will see a complete framework sample with 5 built-in demo tabs, including immersive navigation, frosted-glass effects, and demonstrations of all core capabilities.
+2. **Turn it into your App**:
+   - Read the [Productization and Release Guide](.rules/skill-app-release.md) and follow the steps to modify the `bundleName`, app name, and icon.
+   - Delete the demo pages you do not need and start writing your own business logic!
+3. **Use out-of-the-box capabilities**:
+   No need to reinvent the wheel; directly import the tools you need from the framework:
+   ```typescript
+   import { logger, securityToolkit, FileUtils, ngfNetworkClient } from 'ngf_framework';
+   ```
 
 ---
 
-## Tech Stack
+## 🤖 AI Assistant Quick Start (For AI Agents / Vibe Coding)
 
-| Item | Version |
-|------|---------|
-| HarmonyOS SDK | 6.1.0 (API 23) |
-| Build Tool | hvigorw |
-| Language | ArkTS (Stage Mode) |
-| UI Framework | ArkUI + HDS (HarmonyOS Design System) |
-| Runtime | HarmonyOS |
+This project is extremely well suited for development with AI programming assistants (such as Cursor, Windsurf, Claude Code, and others). We have prepared detailed "behavioral guidelines" for Agents.
 
-## Architecture Overview
+**As an AI assistant, before starting to write code, you must strictly read the rules in the following order**:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    EntryAbility                         │
-│  ngfStarterKernel.bootstrap() → 8 modules boot by dep  │
-├──────────┬──────────┬──────────┬──────────┬─────────────┤
-│  core    │ platform │  data    │ workflow │contentSource│
-│  98%     │  85%     │  95%     │  95%     │  92%        │
-├──────────┼──────────┼──────────┼──────────┼─────────────┤
-│ uiShell  │ uiTheme  │   i18n   │ device   │   utils     │
-│  95%     │  95%     │  92%     │  92%     │   100%      │
-└──────────┴──────────┴──────────┴──────────┴─────────────┘
-┌─────────────────────────────────────────────────────────┐
-│        Extended Capability Layers (standalone)           │
-│  network │ security │ hardware │ media  │  webBridge     │
-│  systemTasks │ push │ interconnect │ resources           │
-└─────────────────────────────────────────────────────────┘
-```
+| Priority | File | Required Reading Reason |
+|--------|------|--------|
+| 1️⃣ | [AGENTS.md](AGENTS.md) | **Highest priority**: the project's absolute constitution! It contains directory structure analysis, import rules, and prohibitions. |
+| 2️⃣ | [.rules/README.md](.rules/README.md) | **Skill index**: browse the various "superpowers" available to you, such as one-click page generation and component reuse. |
+| 3️⃣ | [.rules/skill-scaffold-page.md](.rules/skill-scaffold-page.md) | **Rapid page creation**: when you receive a "create a new page" instruction, directly use the template code in this file. |
+| 4️⃣ | [.rules/skill-component-reuse.md](.rules/skill-component-reuse.md) | **Reuse guide**: when developing features, learn how to call the existing dialogs, title bars, and core tools in the framework. |
 
-## 10-Layer Architecture
+> 💡 **Hint for Agents**: This project is a modular project (`ngf_framework` is the core library and `entry` is the business layer). When developing in `entry`, you must use `import { ... } from 'ngf_framework'` for imports.
 
-| Layer | Responsibility | Completion | Key Capabilities |
-|-------|---------------|------------|------------------|
-| **core** | DI container, lifecycle orchestration, event bus, error handling, module registration | 98% | StarterKernel, DependencyContainer, ModuleBootstrapCoordinator, 8 default modules auto-registered, standalone EventBus/ErrorHandler/Lifecycle facades, module hot-reload |
-| **platformOhos** | Window management, context bridging, system bar control | 100% | Multiton task card instances & application SubWindows without permissions, WindowStage management, PageWindowPolicy, UIContextManager, window lifecycle, 🪟 **Multi-Window & SubWindow Management**: Supports system-level multiton task cards and flexible in-app floating windows. Includes generalized shell containers to quickly mount any page as a floating window or independent task card via simple AppStorage parameters! |
-| **data** | Cache, settings, storage, DB migration, data sync | 95% | RDB + Preferences + true LRU cache + sync queue + conflict strategy + pagination + entity persistence + encrypted settings |
-| **contentWorkflow** | Workflow engine, action execution, retry/rate-limit policies | 95% | DSL workflow definition (serial + conditional branching + loop), state persistence, all 7 action types implemented |
-| **contentSource** | Content source registration, loading, repository, networking, health check | 92% | HTTP client, two-tier cache (memory true-LRU + disk), content pipeline (with real JSON parse), source health check, logging/auth interceptors |
-| **uiShell** | Navigation shell, route interception, deep linking, page state | 95% | NavigationShell, RouteInterceptor, DeepLink, PageStateStore, sheet support, OverlayManager/PageTransitionManager registered in DI |
-| **uiTheme** | Theme modes, semantic colors, font scaling | 95% | 20 semantic color tokens, 4-level font scaling, AUTO/LIGHT/DARK themes, custom theme pack loading, component-level theme override |
-| **i18n** | Internationalization, translation resources, relative time | 92% | Translation resource management, multi-language relative time (zh/en/ja), date/number formatting, RTL layout helpers, currency format fix |
-| **deviceAwareness** | Holding awareness, device adaptation, visual effects, capability detection | 92% | Holding awareness, foldable adaptation, HDS visual effects, 13-item hardware capability detection, accessibility manager (contract + facade + DI registered) |
-| **utils** | Logging, performance monitoring, security tools, file operations | 100% | Logger + LogCollector, PerformanceMonitor, SecurityToolkit (SHA/AES128-GCM), FileUtils, ErrorUtils, StringUtils |
+---
 
-## Extended Capability Layers
+## 📦 What Is Built into the Framework?
 
-The following 9 directories are not part of the 8-module registration system. They exist as standalone capability layers, called directly by demo pages:
+NGF uses a highly cohesive and loosely coupled layered architecture to encapsulate complex capabilities into simple APIs:
 
-| Layer | Directory | Responsibility |
-|-------|-----------|---------------|
-| **network** | `network/` | HTTP network request encapsulation (contracts + facades) |
-| **security** | `security/` | Security capabilities (Keystore, biometric auth) |
-| **hardware** | `hardware/` | Hardware capabilities (location, sensors) |
-| **media** | `media/` | Media capabilities (PhotoPicker) |
-| **webBridge** | `webBridge/` | Native-to-H5 page bridging (JS Bridge injection) |
-| **interconnect** | `interconnect/` | Cross-device interconnection |
-| **push** | `push/` | Push notification capabilities |
-| **systemTasks** | `systemTasks/` | Background tasks and system notification management |
-| **resources** | `resources/` | System symbol catalog (3778 HarmonyOS system symbols) |
+- 🎨 **UI and Theme (uiTheme & uiShell)**: Includes 20 semantic color Tokens, with full support for dark mode switching, an immersive top title bar (HDS), and frosted-glass effects.
+- 🪟 **Multi-Window, Cards, and Floating Windows (platformOhos)**: Supports not only flexible in-app floating windows (SubWindow), but also system-level desktop shortcuts (Shortcuts), desktop service cards (Widgets), and independent macro-level multitons (Multiton). With powerful shell containers built in, pages can be quickly mounted independently through simple AppStorage and Want parameters, whether inside the app or launched directly from the desktop, and cold-start multitons automatically take over the framework's global initialization!
+- 🌍 **Internationalization (i18n)**: Supports language switching and relative time formatting ("just now", "2 hours ago").
+- 💾 **Data and Storage (data)**: Provides simple wrappers for a true LRU in-memory cache, Preferences, and relational databases (RDB).
+- ⚙️ **Workflow and Tasks (workflow & systemTasks)**: Supports complex asynchronous task orchestration, as well as long-running background tasks with a keep-alive lock and persistent system notification bar.
+- 📱 **Device Awareness (deviceAwareness)**: Supports foldable-device adaptation, one-hand/two-hand holding awareness, and detection of 13 hardware capabilities.
+- 🛠️ **Comprehensive Toolbox (utils)**: Includes performance monitoring, SHA/AES encryption and decryption security suites, a unified logging system, and more.
 
-## Boot Flow
+---
 
-```
-EntryAbility.onCreate()
-  → setContext(abilityContext)
-  → uiContextManager.bindAbilityContext()
-  → ngfStarterKernel.bootstrap()
-      → context_setup: register core services to DependencyContainer
-      → core_services: ModuleBootstrapCoordinator bootstraps 8 modules by dependency order
-      → ready: publishes CORE_READY event
-  → ThemeManagerFacade.initializeDefaults()
-  → I18nManagerFacade.initializeDefaults()
-  → HoldingAwarenessFacade.initialize()
-  → VisualEffectsFacade.initialize()
+## 📁 Minimal Project Structure
+
+```text
+NGF/
+ ├── ngf_framework/src/main/ets/  # 🛠️ Framework core package (HAR), all core capabilities are here
+ ├── entry/src/main/ets/          # 📱 Your business App (HAP), write your pages and logic here
+ │    └── pages/ngf/              # Framework's built-in demo pages (can be deleted when productizing)
+ ├── .rules/                      # 🤖 Working rules and skill library for AI assistants
+ ├── AGENTS.md                    # 📜 Global development constraints and Agent constitution
+ └── build-profile.json5          # ⚙️ HarmonyOS project configuration
 ```
 
-## Module Registry
+---
 
-8 default modules auto-bootstrap during the `core_services` phase by priority:
-
-| # | Module Name | Priority | Dependencies | Registered Services |
-|---|-------------|----------|--------------|---------------------|
-| 1 | `ngf.platform.ohos` | 10 | None | ngf.platform.window_manager, ngf.platform.window_controller, ngf.platform.page_policy_resolver, ngf.platform.context_bridge |
-| 2 | `ngf.uiTheme.core` | 15 | platform | ngf.theme.theme_manager, ngf.theme.color_token_provider, ngf.theme.font_scale_manager |
-| 3 | `ngf.i18n.core` | 15 | platform | ngf.i18n.i18n_manager, ngf.i18n.translation_resource, ngf.i18n.relative_time |
-| 4 | `ngf.data.core` | 20 | platform | ngf.data.data_facade, ngf.data.settings_store, ngf.data.cache_store, ngf.data.storage_provider, ngf.data.db_migrator, ngf.data.relational_store, ngf.data.sync_manager |
-| 5 | `ngf.device.awareness` | 25 | platform | ngf.device.holding_awareness, ngf.device.adaptation, ngf.device.visual_effects, ngf.device.adaptive_layout, ngf.device.capability_detector |
-| 6 | `ngf.workflow.core` | 30 | data | ngf.workflow.workflow_engine, ngf.workflow.action_executor, ngf.workflow.retry_policy, ngf.workflow.rate_limit_policy, ngf.workflow.definition_manager, ngf.workflow.persistence |
-| 7 | `ngf.content_source.core` | 40 | data, workflow | ngf.source.source_repository, ngf.source.source_loader, ngf.source.source_registry, ngf.source.http_client, ngf.source.content_cache, ngf.source.content_pipeline, ngf.source.health_checker |
-| 8 | `ngf.ui_shell.core` | 50 | platform | ngf.shell.navigation_shell, ngf.shell.page_policy_host, ngf.shell.route_interceptor, ngf.shell.deep_link, ngf.shell.page_state_store |
-
-## Demo Pages
-
-Entry point: `pages/ngf/MainMenuPage` with 5 tabs:
-
-### Tab 0 - Framework
-- Framework status overview (core readiness, lifecycle, module bootstrap reports)
-- Quick actions (initialize core, publish event, advance lifecycle, simulate error)
-- Window monitoring (window state, display mode, snapshot data)
-- Runtime logs
-
-### Tab 1 - Feature Demos
-| Page | Covered Features |
-|------|-----------------|
-| **Security & Performance** | SHA256/384/512 hashing, AES-GCM encrypt/decrypt, performance marks, memory snapshots |
-| **Data & Storage** | FileUtils read/write, directory listing, ContentCache LRU operations |
-| **Workflow Orchestration** | Workflow DSL registration & execution (with conditional branching), state persistence |
-| **Device & Display** | Multi-language relative time, 13-item hardware capability detection, 4-level font scaling |
-
-### Tab 2 - Capabilities
-Full showcase of NGF framework's encapsulation of system-level capabilities:
-| Page | Covered Features |
-|------|-----------------|
-| **Network** | HTTP requests, connection configuration, response handling |
-| **Database** | Relational database RDB creation, CRUD operations |
-| **Web Bridge** | Native-to-H5 page interaction, JS Bridge injection |
-| **Security** | Keystore access, user biometric authentication |
-| **Hardware** | Location info retrieval, sensor event stream subscription |
-| **Media** | Media resource selection (PhotoPicker) API |
-
-### Tab 3 - Device
-- Holding awareness state, device info, foldable status, visual effects parameters
-
-### Tab 4 - Settings
-- Theme switching (AUTO/LIGHT/DARK), language switching, visual effects toggles, about info
-
-### HDS Showcase Pages
-| Page | Verified Capabilities |
-|------|----------------------|
-| Official HDS Navigation | Single-root navigation architecture, Material levels, hdsEffect point lights |
-| HDS Integrated Showcase | Component + layout + motion single-page fusion, SegmentButton, Swiper carousel |
-
-## Utilities (utils)
-
-```typescript
-// Logging
-import { logger } from '../../Framework/NGF/utils/Logger';
-logger.info(TAG, 'message');
-
-// Performance Monitoring
-import { performanceMonitor } from '../../Framework/NGF/utils/PerformanceMonitor';
-performanceMonitor.mark('start');
-performanceMonitor.mark('end');
-const result = performanceMonitor.measure('name', 'start', 'end');
-const snapshot = performanceMonitor.snapshotMemory();
-
-// Security Toolkit
-import { securityToolkit, NGFHashAlgorithm } from '../../Framework/NGF/utils/SecurityToolkit';
-const hash = await securityToolkit.shaHash('input', NGFHashAlgorithm.SHA256);
-const key = securityToolkit.generateRandomBase64(16);
-const iv = securityToolkit.generateRandomBase64(12);
-const encrypted = await securityToolkit.aesEncrypt('plain', key, iv);
-const decrypted = await securityToolkit.aesDecrypt(encrypted.data, key, iv);
-
-// File Operations
-import { FileUtils } from '../../Framework/NGF/utils/FileUtils';
-FileUtils.writeText('path.txt', 'content');
-const content = FileUtils.readText('path.txt');
-const entries = FileUtils.listDirectory('');
-```
-
-## Project Structure
-
-```
-entry/src/main/ets/
-├── Framework/NGF/
-│   ├── core/                    # Core Layer (100%)
-│   │   ├── contracts/           # ILogger, IEventBus, IErrorHandler, ILifecycleOrchestrator...
-│   │   ├── facades/             # LoggerFacade, ServiceContainerFacade, ModuleConfigFacade
-│   │   ├── starter/             # StarterKernel, ModuleRegistry, ModuleBootstrapCoordinator
-│   │   └── index.ets
-│   ├── platformOhos/            # Platform Layer (100%)
-│   │   ├── contracts/           # IPlatformWindowController, IPageWindowPolicyResolver...
-│   │   ├── facades/             # PlatformWindowControllerFacade, OhosContextBridgeFacade...
-│   │   └── index.ets
-│   ├── data/                    # Data Layer (100%)
-│   │   ├── contracts/           # IDataFacade, ISettingsStore, ICacheStore, ISyncManager...
-│   │   ├── facades/             # DataFacade, SettingsStoreFacade, SyncManagerFacade...
-│   │   ├── rdb/                 # Relational database encapsulation
-│   │   ├── SandboxManager.ets   # Sandbox file management
-│   │   ├── SettingsManager.ets  # Settings management
-│   │   └── index.ets
-│   ├── contentWorkflow/         # Workflow Layer (100%)
-│   │   ├── contracts/           # IWorkflowEngine, IWorkflowDefinitionManager, IWorkflowPersistence...
-│   │   ├── facades/             # WorkflowEngineFacade, WorkflowDefinitionFacade...
-│   │   └── index.ets
-│   ├── contentSource/           # Content Source Layer (100%)
-│   │   ├── contracts/           # ISourceRepository, IHttpClient, IContentCache, IContentPipeline...
-│   │   ├── facades/             # SourceRepositoryFacade, ContentCacheFacade, HttpClientFacade...
-│   │   └── index.ets
-│   ├── uiShell/                 # UI Shell Layer (100%)
-│   │   ├── contracts/           # INavigationShell, IRouteInterceptor, IDeepLinkHandler...
-│   │   ├── components/          # NGFImmersiveTopChrome, HdsNavigationSupport, AboutSheetContent...
-│   │   ├── facades/             # NavigationShellFacade, RouteInterceptorFacade...
-│   │   └── index.ets
-│   ├── uiTheme/                 # Theme Layer (100%)
-│   │   ├── contracts/           # IThemeManager, IColorTokenProvider, IFontScaleManager
-│   │   ├── facades/             # ThemeManagerFacade, FontScaleManagerFacade...
-│   │   └── index.ets
-│   ├── i18n/                    # i18n Layer (100%)
-│   │   ├── contracts/           # II18nManager, ITranslationResource, IRelativeTimeFormatter
-│   │   ├── facades/             # I18nManagerFacade, RelativeTimeFormatterFacade...
-│   │   └── index.ets
-│   ├── deviceAwareness/         # Device Awareness Layer (100%)
-│   │   ├── contracts/           # IHoldingAwarenessManager, IDeviceAdaptationManager, IDeviceCapabilityDetector...
-│   │   ├── facades/             # HoldingAwarenessFacade, DeviceCapabilityDetectorFacade...
-│   │   └── index.ets
-│   ├── utils/                   # Utilities (100%)
-│   │   ├── Logger.ets           # Logging system
-│   │   ├── LogCollector.ets     # Log collection
-│   │   ├── PerformanceMonitor.ets # Performance monitoring
-│   │   ├── SecurityToolkit.ets  # SHA/AES-GCM security tools
-│   │   ├── CrashAnalyticsFacade.ets # Crash analytics
-│   │   ├── FileUtils.ets        # File I/O
-│   │   ├── TimeUtils.ets        # Time utilities
-│   │   ├── ErrorUtils.ets       # Error handling utilities
-│   │   └── index.ets
-│   ├── network/                 # Network capability layer
-│   │   ├── contracts/           # INetworkManager...
-│   │   └── facades/             # NetworkFacade...
-│   ├── security/                # Security capability layer
-│   │   └── facades/             # SecurityFacade...
-│   ├── hardware/                # Hardware capability layer
-│   │   └── facades/             # HardwareFacade...
-│   ├── media/                   # Media capability layer
-│   │   ├── components/          # MediaPicker...
-│   │   └── facades/             # MediaFacade...
-│   ├── webBridge/               # Web bridge layer
-│   │   ├── contracts/           # IWebBridge...
-│   │   ├── components/          # WebBridgeComponent...
-│   │   └── facades/             # WebBridgeFacade...
-│   ├── interconnect/            # Interconnect capability layer
-│   │   └── facades/             # InterconnectFacade...
-│   ├── push/                    # Push capability layer
-│   │   └── facades/             # PushFacade...
-│   ├── systemTasks/             # System tasks layer
-│   │   ├── contracts/           # ISystemNotificationManager, IBackgroundTaskManager...
-│   │   ├── facades/             # SystemNotificationManagerFacade, BackgroundTaskManagerFacade...
-│   │   └── index.ets
-│   ├── resources/               # Resources directory
-│   │   └── SystemSymbolCatalog.ets # 3778 HarmonyOS system symbols
-│   └── index.ets                # Top-level re-export
-└── pages/ngf/
-    ├── MainMenuPage.ets         # Main entry (5 tabs)
-    ├── HdsDemoRoutes.ets        # Route constants
-    ├── NGFHdsTabRoutes.ets      # Tab configuration
-    ├── NGFPageWindowSupport.ets # Window policy support
-    ├── HdsNavigationOfficialShowcasePage.ets  # Official HDS demo
-    ├── HdsIntegratedShowcasePage.ets          # Integrated HDS demo
-    ├── NGFDeviceAwarenessPage.ets             # Device awareness page
-    ├── NGFSettingsPage.ets                    # Settings page
-    ├── NGFTaskManagerPage.ets                 # Task manager page
-    ├── NGFCapabilitiesTabContent.ets          # Capabilities tab content
-    ├── NGFCapabilitiesNetworkPage.ets         # Network capability demo
-    ├── NGFCapabilitiesDatabasePage.ets        # Database capability demo
-    ├── NGFCapabilitiesWebBridgePage.ets       # Web bridge capability demo
-    ├── NGFCapabilitiesSecurityPage.ets        # Security capability demo
-    ├── NGFCapabilitiesHardwarePage.ets        # Hardware capability demo
-    ├── NGFCapabilitiesMediaPage.ets           # Media capability demo
-    ├── NGFDemoErrorRecoveryPage.ets           # Error recovery demo
-    ├── NGFDemoSecurityPerfPage.ets            # Security & performance demo
-    ├── NGFDemoDataStoragePage.ets             # Data & storage demo
-    ├── NGFDemoWorkflowPage.ets                # Workflow orchestration demo
-    ├── NGFDemoSyncManagerPage.ets             # Sync manager demo
-    ├── NGFDemoDeviceDisplayPage.ets           # Device & display demo
-    └── SystemResourcePreviewPage.ets          # System resource preview
-```
-
-## Design Patterns
-
-### Unified Layering Pattern
-Each layer follows the `contracts/` + `facades/` + `index.ets` structure:
-- **contracts/** — Pure interfaces, enums, data classes (zero dependencies)
-- **facades/** — Default implementations inheriting `NGFIntegrationFacadeBase`
-- **index.ets** — Public API exports
-
-### Integration Facade Pattern
-Each integration facade implements a unified 3-step lifecycle:
-1. `getServiceRegistrations()` — Declare service registration items
-2. `bootstrap()` — Auto-register to DI container + ServiceContainer
-3. `syncAppStorage()` — Sync state to AppStorage
-
-### Module Bootstrap Pattern
-`ModuleBootstrapCoordinator` manages the module dependency graph, bootstrapping modules in topological order. Modules declare dependencies and service tokens via `NGFModuleDefinition`, and bootstrap results are broadcast through the event bus.
-
-## Build
-
-```bash
-hvigorw assembleHap            # Debug build
-hvigorw assembleHap --release  # Release build
-hvigorw clean                  # Clean
-```
-
-## Documentation
+## 📚 More Documentation
 
 | Document | Description |
-|----------|-------------|
-| [AGENTS.md](AGENTS.md) | **Agent working guidelines (highest priority — all AI agents must read)** |
-| [.rules/ Library](.rules/README.md) | AI skill rules: HDS page design, manager APIs, rules rolling update |
-| [Framework README](ngf_framework/src/main/ets/README.md) | Internal framework architecture |
-| [Framework Status Analysis](docs/NGF_FRAMEWORK_STATUS.md) | Layer completion & feature gaps |
-| [Implementation Plan](docs/development/NGF_IMPLEMENTATION_PLAN.md) | Development roadmap |
-| [API 23 Migration Guide](docs/API23_Migration_Guide.md) | API 23 adaptation notes |
-| [Changelog](docs/CHANGELOG.md) | Version change log |
+|------|------|
+| [Detailed Internal Framework Architecture](ngf_framework/src/main/ets/README.md) | For hardcore developers who want to understand the underlying implementation of NGF |
+| [Framework Productization Guide](.rules/skill-app-release.md) | How to change the package name, apply for a certificate, and publish to Huawei AppGallery |
 
-## License
+---
 
-This project is licensed under the [MIT License](LICENSE).
+## 📄 License
+
+This project is open source under the [MIT License](LICENSE).
 
 ```
 Copyright (c) 2026 DaLongzhuazi
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Anyone who obtains a copy of this software and related documentation is hereby granted free of charge the unrestricted right to use, copy, modify, merge,
+publish, distribute, sublicense, or sell copies of the software, provided that the above copyright notice and this license notice are included.
+The software is provided "as is" without any warranty of any kind.
 ```
 
 ---
-
-*NGF is developed and maintained by **DaLongzhuazi** as a general-purpose framework infrastructure for the HarmonyOS Next ecosystem.*
+*This framework is developed and maintained by **DaLongzhuazi**, with the goal of making it easy for every developer to build outstanding native HarmonyOS applications.*
