@@ -1,7 +1,7 @@
 # NGF (Neon Genesis Framework)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![HarmonyOS SDK](https://img.shields.io/badge/HarmonyOS_SDK-6.1.0_(API_26)-blue.svg)](https://developer.harmonyos.com/)
+[![HarmonyOS SDK](https://img.shields.io/badge/HarmonyOS_SDK-26.0.0_(API_26)-blue.svg)](https://developer.harmonyos.com/)
 [![Language](https://img.shields.io/badge/Language-ArkTS-orange.svg)]()
 
 **🌐 语言 / Language:** 中文 | [English](README.en.md)
