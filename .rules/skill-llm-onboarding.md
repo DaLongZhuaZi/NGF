@@ -27,6 +27,7 @@ HarmonyOS Next 项目依赖特定的 DevEco Studio 与 SDK 路径，不同机器
 - `AppScope/app.json5`：获取 `bundleName`。
 - `.local-rules/README.md` 与 `.local-rules/base-local-rules.md`：如果存在，读取本地规则库边界。
 - 相关 `.local-rules/*.local.md`：如果存在，优先读取本机已验证事实。
+- `.agent-rules/README.md` 与 `project-rules.md`：如果存在，读取所有 `active` 项目规则；存在 `preferences.local.md` 时也读取，并仅在不与更高优先级规则冲突时应用。
 
 ### 2.2 扫描本地 SDK 与 IDE 路径
 请运行 PowerShell 脚本来动态嗅探本地可能存在的 SDK 与构建工具路径，严禁凭空编造：

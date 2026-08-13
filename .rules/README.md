@@ -13,10 +13,11 @@
 1. **入口读取**：先读 `AGENTS.md`，再读 `.rules/README.md`。
 2. **触发匹配**：根据任务目标、文件路径、源码类型、报错信息、UI/资源/API 关键词匹配下表技能。
 3. **完整阅读**：命中的技能文件必须从头到尾阅读，不只看标题或触发条件。
-4. **形成记忆**：阅读后在本次会话内形成“任务规则记忆”，至少覆盖硬性禁止项、标准模式、关键路径、验证方式。
-5. **持续回看**：修改、复核、交付前都要回看本次任务命中的规则；上下文压缩、中断恢复、目标切换或新增报错后重新扫描。
-6. **沉淀边界**：自动触发表示自动阅读和应用规则，不表示可自行改规则库；只有开发者明确要求时才更新规则文件。
-7. **本地事实**：陌生环境中新探测到的机器路径、设备 target、命令验证结果写入 `.local-rules/*.local.md`；不要把本机事实直接写进共享 `.rules/`。
+4. **项目规则读取**：存在 `.agent-rules/README.md` 时，读取其索引、`project-rules.md` 的全部 `active` 条目和存在时的 `preferences.local.md`；只将有效规则纳入当前任务。
+5. **形成记忆**：阅读后在本次会话内形成“任务规则记忆”，至少覆盖硬性禁止项、标准模式、关键路径、验证方式和适用的项目规则/个人偏好。
+6. **持续回看**：修改、复核、交付前都要回看本次任务命中的规则；上下文压缩、中断恢复、目标切换或新增报错后重新扫描并重读有效项目规则。
+7. **沉淀边界**：共享 `AGENTS.md` 与 `.rules/` 只有开发者明确要求时才更新；已验证的当前项目/App 专属规则和非敏感长期偏好可按 `skill-project-rule-governance.md` 自动写入 `.agent-rules/`，但不能越级写入共享规则。
+8. **本地事实**：陌生环境中新探测到的机器路径、设备 target、命令验证结果写入 `.local-rules/*.local.md`；不要把本机事实直接写进共享 `.rules/`。
 
 ---
 
@@ -42,6 +43,8 @@
 | **设备调试** | [skill-device-hdc-debug.md](skill-device-hdc-debug.md) | `hdb`/`hdc`、模拟器/真机连接、HAP 安装、应用启动/停止、HiLog、bugreport、`aa appdebug`。 |
 | **UI 规范** | [skill-ui-symbols.md](skill-ui-symbols.md) | UI 图标、状态提示、符号标识、发现或准备新增 Emoji。 |
 | **UI 规范** | [skill-i18n.md](skill-i18n.md) | 新建 UI、修改页面文案、Toast/Dialog 文案、HDS 导航标题、面向用户文本。 |
+| **项目治理** | [skill-project-rule-governance.md](skill-project-rule-governance.md) | 项目规则、Agent Harness、持续性用户偏好、项目级架构/产品决策；发现已验证重复模式；需要操作 `.agent-rules/`。 |
+| **应用启动** | [skill-ngf-app-harness.md](skill-ngf-app-harness.md) | 使用 NGF 新建、迁移、拆分或长期维护独立 App/应用模块；为 App 建立专属规则与 Harness。 |
 | **应用发布** | [skill-app-release.md](skill-app-release.md) | 修改应用名、包名、图标、版本号、签名证书、p12/csr、打包发布、AGC 上架。 |
 | **规则维护** | [skill-rules-update.md](skill-rules-update.md) | 开发者明确要求新增、修改、合并、删除、自动触发化或沉淀 `.rules/`/`AGENTS.md` 规则。 |
 
@@ -53,6 +56,8 @@
 - **陌生环境/环境漂移**：`skill-llm-onboarding.md` -> `skill-local-rules.md` -> `.local-rules/README.md`。
 - **任意 `.ets` 修改**：`skill-arkts-standards.md` 必读；涉及集合/回调再读 `skill-arkts-types.md`；涉及 UI 再读 `skill-arkui-knowledge.md`。
 - **新建 HDS 页面**：`skill-scaffold-page.md` -> `skill-hds-page-design.md` -> `skill-i18n.md` -> `skill-ui-symbols.md`。
+- **新建 NGF App/应用模块**：`skill-ngf-app-harness.md` -> `skill-project-rule-governance.md` -> `skill-component-reuse.md` -> 目标领域技能。
+- **项目规则/偏好/Harness**：`skill-project-rule-governance.md` -> 目标领域技能；涉及共享框架规则时再等待开发者明确触发 `skill-rules-update.md`。
 - **构建或编译报错**：`skill-arkts-error-fixes.md` -> 相关 API/页面技能；运行时问题再读 `skill-arkts-runtime-fix.md` 与 `skill-arkts-debug.md`。
 - **设备端调试/启动**：`skill-device-hdc-debug.md` -> `skill-arkts-debug.md` 或 `skill-arkts-runtime-fix.md`。
 - **规则库维护**：`skill-rules-update.md` -> 被修改的目标规则文件 -> `AGENTS.md` 与本索引同步复核。

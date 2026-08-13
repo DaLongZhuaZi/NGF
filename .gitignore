@@ -70,6 +70,9 @@ desktop.ini
 
 # Agent local state
 /.antigravitycli/
+/.agent-state/
+**/.agent-state/
+**/.agent-rules/*.local.md
 /.claude/
 /.atomcode/
 /.workbuddy/
