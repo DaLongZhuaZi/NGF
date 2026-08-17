@@ -1,9 +1,11 @@
-name: Build HAP
+name: Build HAP (构建 / Build)
 
-# 云端构建 NGF(API 26): debug 模式产出未签名 HAP 并归档为 artifact。
-# 签名与 Release 发布见 sign-and-release.yml(第一阶段 CI 不引入签名)。
-# 运行环境: ghcr.io/<owner>/harmonyos-ci:api26(由 docker-image.yml 一次性构建,
-# 内含与 API 26 匹配的 command-line-tools + hvigor + ohpm + SDK, 版本随镜像锁定)。
+# 云端构建 NGF(API 26): debug 模式产出未签名 HAP -> 归档 artifact -> 并在 push 到
+# main/master 时自动发布一个滚动(nightly)Release。签名 + 版本化 Release 见 sign-and-release.yml(v* tag)。
+# Cloud build for NGF (API 26): produces an unsigned debug HAP, archives the artifact, and auto-publishes
+# a rolling (nightly) Release on push to main/master. Signed + versioned releases live in sign-and-release.yml.
+# 镜像 / Image: ghcr.io/<owner>/harmonyos-ci:api26 (docker-image.yml 一次性构建, 锁定与 API 26 匹配的
+# command-line-tools + hvigor + ohpm + SDK)。
 
 on:
   push:
@@ -12,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       image:
-        description: '覆盖 CI 镜像(如 ghcr.io/owner/harmonyos-ci:api26)'
+        description: '覆盖 CI 镜像 / Override CI image (ghcr.io/owner/harmonyos-ci:api26)'
         required: false
         default: ''
 
@@ -24,19 +26,18 @@ permissions:
   contents: read
   packages: read
 
-# collect/sign 步骤用到 shopt 与 bash 数组, runner 默认 sh 无 shopt
 defaults:
   run:
     shell: bash
 
 jobs:
   prepare:
-    name: Resolve CI image
+    name: 解析 CI 镜像 / Resolve CI image
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.img.outputs.image }}
     steps:
-      - name: Compute image reference (lowercase owner for ghcr)
+      - name: 计算镜像引用 / Compute image reference
         id: img
         env:
           INPUT_IMAGE: ${{ inputs.image }}
@@ -48,30 +49,28 @@ jobs:
             owner=$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')
             image="ghcr.io/${owner}/harmonyos-ci:api26"
           fi
-          echo "Using CI image: $image"
+          echo "Use CI image / 使用镜像: $image"
           echo "image=$image" >> "$GITHUB_OUTPUT"
 
   build:
-    name: Assemble HAP (debug, unsigned)
+    name: 构建 HAP (debug, 未签名) / Assemble HAP (debug, unsigned)
     needs: prepare
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare.outputs.image }}
-      # ghcr 镜像首次推送后默认私有; GITHUB_TOKEN 推送时会自动授权本仓库拉取
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout
+      - name: Checkout 检出代码 / Checkout
         uses: actions/checkout@v4
-        # 本仓库当前无 git 子模块; 若未来引入, 必须改为:
-        # with:
-        #   submodules: recursive
+        # 本仓库无 git 子模块; 引入后需开启 submodules: recursive
+        # No submodules yet; enable "submodules: recursive" if added later.
 
-      - name: Strip local signing config (produce unsigned hap in CI)
+      - name: 剥离本机签名配置 / Strip local signing config
         run: python3 .github/scripts/strip_signing.py build-profile.json5
 
-      - name: Cache hvigor & oh_modules
+      - name: 缓存 hvigor & oh_modules / Cache hvigor & oh_modules
         uses: actions/cache@v4
         with:
           path: |
@@ -81,39 +80,78 @@ jobs:
           restore-keys: |
             hvigor-${{ runner.os }}-
 
-      - name: Install dependencies (ohpm)
+      - name: 安装依赖 / Install dependencies (ohpm)
         run: ohpm install --all
 
-      - name: Build HAP (debug)
+      - name: 构建 HAP / Build HAP (debug)
         run: hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon --stacktrace
 
-      - name: Collect & verify HAP artifacts
+      - name: 收集并校验产物 / Collect & verify HAP
         run: |
           set -eu
           mkdir -p dist
-          # 多模块兜底定位: <module>/build/<product>/outputs/<target>/*.hap
           find . -type f -name '*.hap' -path '*/outputs/*' \
             -not -path './oh_modules/*' -not -path './node_modules/*' \
             -exec cp -v {} dist/ \;
           shopt -s nullglob
           haps=(dist/*.hap)
           if [ ${#haps[@]} -eq 0 ]; then
-            echo "::error::No .hap file produced - check the build log above"
+            echo "::error::No .hap produced - check the build log / 未产出 hap, 检查上方构建日志"
             exit 1
           fi
           for h in "${haps[@]}"; do
             size=$(stat -c%s "$h")
-            if [ "$size" -le 0 ]; then
-              echo "::error::$h is empty"
-              exit 1
-            fi
+            if [ "$size" -le 0 ]; then echo "::error::$h is empty / 为空"; exit 1; fi
             echo "$h : $size bytes"
           done
 
-      - name: Upload HAP artifact
+      - name: 上传 artifact / Upload HAP artifact
         uses: actions/upload-artifact@v4
         with:
           name: hap-unsigned
           path: dist/
           if-no-files-found: error
           retention-days: 14
+
+  release:
+    name: 自动发布滚动 Release / Auto-publish rolling Release
+    needs: build
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 下载构建产物 / Download built artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hap-unsigned
+          path: dist
+
+      - name: 生成双语发布说明 / Write bilingual release notes
+        run: |
+          cat > body.md <<'EOF'
+          ## 夜间滚动构建 / Nightly rolling build
+
+          每次 push 到 `main`/`master` 自动生成。包含**未签名** debug HAP。
+          Auto-generated on every push to `main`/`master`. Contains the **unsigned** debug HAP.
+
+          | 项目 / Item | 值 / Value |
+          |---|---|
+          | 提交 / Commit | ${{ github.sha }} |
+          | 分支 / Branch | ${{ github.ref_name }} |
+          | 产物 / Artifact | `entry-default-unsigned.hap`(未签名 / unsigned) |
+
+          > 安装前需先用 DevEco Studio 或 hap-sign-tool 签名。
+          > Sign before installing (via DevEco Studio or hap-sign-tool).
+          EOF
+
+      - name: 发布/更新 nightly Release / Publish rolling nightly Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete nightly --cleanup-tag --yes 2>/dev/null || true
+          gh release create nightly dist/*.hap \
+            --target "${{ github.sha }}" \
+            --prerelease \
+            --title "Nightly build (滚动最新构建 / rolling latest)" \
+            --notes-file body.md

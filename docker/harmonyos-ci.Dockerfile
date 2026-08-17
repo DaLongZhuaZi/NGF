@@ -77,5 +77,14 @@ RUN hvigorw --version
 # 签名工具固定路径(需 JDK 17):
 #   /opt/command-line-tools/sdk/default/openharmony/toolchains/lib/hap-sign-tool.jar
 
+# OCI 元数据: 这些 label 会显示在 GitHub Package 页面(ghcr.io)的描述区。
+# OCI labels: these populate the GitHub Package (ghcr.io) page description.
+LABEL org.opencontainers.image.title="harmonyos-ci (HarmonyOS NEXT API 26 构建镜像 / CI build image)" \
+      org.opencontainers.image.description="无 DevEco Studio 的 HarmonyOS NEXT (API 26) 云端构建镜像: command-line-tools 26.0.0.461 + hvigor + ohpm + SDK + hap-sign-tool。 / Build HarmonyOS NEXT (API 26) HAPs in CI without DevEco Studio: command-line-tools 26.0.0.461 + hvigor + ohpm + SDK + hap-sign-tool." \
+      org.opencontainers.image.version="26.0.0.461" \
+      org.opencontainers.image.source="https://github.com/DaLongZhuaZi/NGF" \
+      org.opencontainers.image.documentation="https://github.com/DaLongZhuaZi/NGF/blob/main/docker/README.md" \
+      org.opencontainers.image.licenses="MIT"
+
 WORKDIR /workspace
 CMD ["/bin/bash"]

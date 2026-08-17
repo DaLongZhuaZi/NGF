@@ -76,12 +76,12 @@ NGF/
 
 ## 🔧 CI 云端构建（GitHub Actions）
 
-本仓库内置三个 workflow（位于 `.github/workflows/`），实现"push 即云端出包"的 HAP 流水线，体验与 Android APK 的 CI 一致：
+本仓库内置三个 workflow（位于 `.github/workflows/`），实现"push 即云端出包"的 HAP 流水线，体验与 Android APK 的 CI 一致。**全程无需 DevEco Studio**，push 即有自动构建与自动发布。详细步骤见 [CI 免 DevEco Studio 构建指南](docs/CI_Guide.md) / [CI Build Guide (EN)](docs/CI_Guide.en.md)：
 
 | Workflow | 触发方式 | 作用 |
 |---|---|---|
 | `docker-image.yml` | 手动（workflow_dispatch） | 一次性构建含 API 26 command-line-tools 的 CI 镜像并推送 ghcr.io |
-| `build.yml` | push `main`/`master`、PR | debug 模式构建**未签名** HAP 并上传 artifact（`hap-unsigned`） |
+| `build.yml` | push `main`/`master`、PR | debug 模式构建**未签名** HAP，上传 artifact（`hap-unsigned`），**push 时自动发布/更新滚动 `nightly` Release** |
 | `sign-and-release.yml` | push `v*` tag | 构建 → hap-sign-tool 签名 → 发布 GitHub Release（需配置 Secrets） |
 
 ### 首次接入（一次性，约 15 分钟）
@@ -93,11 +93,13 @@ NGF/
    2. 把 zip 上传到任意可直链下载的位置（GitHub Release 附件、对象存储等）；
    3. 在仓库 Settings → Secrets and variables → Actions 添加 secret `CLT_ZIP_URL`（zip 直链）；
    4. 手动运行一次 **Build CI image** workflow，产出 `ghcr.io/<owner>/harmonyos-ci:api26`。此后 `build.yml` 默认使用该锁定 tag，构建环境可复现。
-2. **完成**：之后每次 push 主分支 / PR 都会自动构建，在 Action 页面下载 `hap-unsigned` artifact（含 `entry-default-unsigned.hap`，可在 DevEco Studio 中重新签名后安装）。
+2. **完成**：之后每次 push 主分支都会**自动构建并自动发布 `nightly` 滚动 Release**（PR 仅构建不发布）；在 Action 页面或 Releases 页下载 `hap-unsigned` artifact / 产物（含 `entry-default-unsigned.hap`，可在 DevEco Studio 中重新签名后安装）。
 
 > **签名说明**：`build-profile.json5` 中的 `signingConfigs` 指向开发者本机证书路径，CI 会自动执行 `.github/scripts/strip_signing.py` 剥离该配置并产出**未签名** HAP，不影响本机签名构建。第一阶段 CI 不引入签名；本仓库无 git 子模块，若未来引入，请在 checkout 步骤开启 `submodules: recursive`。
 
-### 配置签名与自动 Release（可选）
+### 配置签名与版本化 Release（可选）
+
+> 未签名 HAP 的**滚动 `nightly` Release 已默认开启**（每次 push 自动更新）；本小节说的是 `v*` tag 触发的**签名 + 版本化**发布。
 
 push `v*` tag 会触发 `sign-and-release.yml`。所需 Secrets（证书/密钥文件 **base64 编码后**存放，绝不入库；`.gitignore` 已拦截所有证书类文件）：
 

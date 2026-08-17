@@ -92,6 +92,15 @@ EntryAbility.onCreate()
 2. `bootstrap()` 自动注册到 DependencyContainer + ServiceContainer
 3. `syncAppStorage()` 同步引导状态到 AppStorage
 
+## 构建 / 免 DevEco Studio 的 CI 构建
+
+本框架可在**不安装 DevEco Studio**的情况下，通过 GitHub Actions 云端构建 HAP：
+- 工作流：`.github/workflows/`（`build.yml` 构建+自动发布、`sign-and-release.yml` tag 签名发布、`docker-image.yml` 构建镜像）
+- 镜像：`ghcr.io/<owner>/harmonyos-ci:api26`
+- 详细步骤：[CI 免 DevEco Studio 构建指南](../../docs/CI_Guide.md) / [CI Build Guide (EN)](../../docs/CI_Guide.en.md)
+
+Build HAPs without DevEco Studio via GitHub Actions — see [`docs/CI_Guide.md`](../../docs/CI_Guide.md) / [`docs/CI_Guide.en.md`](../../docs/CI_Guide.en.md).
+
 ## 详细文档
 
 - [框架现状与功能缺口分析](../../../../docs/NGF_FRAMEWORK_STATUS.md)

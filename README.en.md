@@ -76,12 +76,12 @@ NGF/
 
 ## 🔧 Cloud CI Builds (GitHub Actions)
 
-Three workflows under `.github/workflows/` provide a push-to-build HAP pipeline, just like Android APK CI:
+Three workflows under `.github/workflows/` provide a push-to-build HAP pipeline, just like Android APK CI — **no DevEco Studio required**, with automatic build and automatic release on push. See the detailed [CI Build Guide](docs/CI_Guide.en.md) / [CI 构建指南](docs/CI_Guide.md):
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
 | `docker-image.yml` | Manual (workflow_dispatch) | One-time build of the API 26 CI image (command-line-tools) pushed to ghcr.io |
-| `build.yml` | push `main`/`master`, PR | Debug build of an **unsigned** HAP uploaded as artifact (`hap-unsigned`) |
+| `build.yml` | push `main`/`master`, PR | Debug build of an **unsigned** HAP uploaded as artifact (`hap-unsigned`); **auto-publishes a rolling `nightly` Release on push** |
 | `sign-and-release.yml` | push `v*` tag | Build → sign with hap-sign-tool → publish a GitHub Release (secrets required) |
 
 ### First-time setup (one-time, ~15 minutes)
@@ -93,11 +93,13 @@ Three workflows under `.github/workflows/` provide a push-to-build HAP pipeline,
    2. Upload the zip somewhere directly fetchable (a GitHub Release asset, object storage, etc.);
    3. Add the repository secret `CLT_ZIP_URL` (direct zip URL) under Settings → Secrets and variables → Actions;
    4. Manually run the **Build CI image** workflow once, producing `ghcr.io/<owner>/harmonyos-ci:api26`. `build.yml` then uses that pinned tag, keeping builds reproducible.
-2. **Done**: every push to the main branches / PR builds automatically; download the `hap-unsigned` artifact from the Action page (contains `entry-default-unsigned.hap`, installable after re-signing in DevEco Studio).
+2. **Done**: every push to the main branches now **builds automatically and auto-publishes a rolling `nightly` Release** (PRs build only, without releasing); download the `hap-unsigned` artifact / asset from the Action or Releases page (contains `entry-default-unsigned.hap`, installable after re-signing in DevEco Studio).
 
 > **Signing note**: `signingConfigs` in `build-profile.json5` points to developer-local certificate paths; CI strips it automatically via `.github/scripts/strip_signing.py` and produces **unsigned** HAPs — local signed builds are unaffected. This repo has no git submodules; if one is added later, enable `submodules: recursive` in the checkout step.
 
-### Optional: signing & auto Release
+### Optional: signing & versioned Release
+
+> The unsigned **rolling `nightly` Release is already enabled by default** (updated on every push). This section covers **signed + versioned** releases triggered by `v*` tags.
 
 Pushing a `v*` tag triggers `sign-and-release.yml`. Required secrets (certificate/key files stored **base64-encoded**, never committed; `.gitignore` already blocks certificate file types):
 
