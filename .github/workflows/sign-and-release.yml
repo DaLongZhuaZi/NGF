@@ -21,6 +21,10 @@ permissions:
   contents: write
   packages: read
 
+defaults:
+  run:
+    shell: bash
+
 env:
   HAP_SIGN_TOOL: /opt/command-line-tools/sdk/default/openharmony/toolchains/lib/hap-sign-tool.jar
 

@@ -24,6 +24,11 @@ permissions:
   contents: read
   packages: read
 
+# collect/sign 步骤用到 shopt 与 bash 数组, runner 默认 sh 无 shopt
+defaults:
+  run:
+    shell: bash
+
 jobs:
   prepare:
     name: Resolve CI image
