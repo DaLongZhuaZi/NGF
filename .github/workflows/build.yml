@@ -124,7 +124,7 @@ jobs:
       - name: Checkout 检出代码 / Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: 下载构建产物 / Download built artifact
         uses: actions/download-artifact@v4
@@ -132,9 +132,29 @@ jobs:
           name: hap-unsigned
           path: dist
 
-      - name: 生成双语发布说明 / Write bilingual release notes
+      - name: 生成双语发布说明(含变更) / Write bilingual release notes (with changelog)
+        env:
+          BEFORE: ${{ github.event.before }}
         run: |
-          cat > body.md <<'EOF'
+          set -eu
+          if [[ -z $BEFORE ]] || [[ $BEFORE = 0000000000000000000000000000000000000000 ]]; then
+            BEFORE=$(git rev-parse 'HEAD^' 2>/dev/null || true)
+          fi
+          CHANGES=$(mktemp)
+          if [[ -n $BEFORE ]] && git cat-file -e $BEFORE^{commit} 2>/dev/null; then
+            git log --pretty=format:'- %h %s' $BEFORE..HEAD > $CHANGES || true
+          else
+            git log --pretty=format:'- %h %s' -n 20 > $CHANGES || true
+          fi
+          [ -s $CHANGES ] || printf '%s' '(无提交信息 / no commit info)' > $CHANGES
+          FILES=$(mktemp)
+          if [[ -n $BEFORE ]] && git cat-file -e $BEFORE^{commit} 2>/dev/null; then
+            git diff --stat $BEFORE..HEAD > $FILES || true
+          else
+            git show --stat --format= HEAD > $FILES || true
+          fi
+          [ -s $FILES ] || printf '%s' '(无文件变更 / no file changes)' > $FILES
+          cat > body.md <<'BODY'
           ## 夜间滚动构建 / Nightly rolling build
 
           每次 push 到 `main`/`master` 自动生成。包含**未签名** debug HAP。
@@ -144,11 +164,27 @@ jobs:
           |---|---|
           | 提交 / Commit | ${{ github.sha }} |
           | 分支 / Branch | ${{ github.ref_name }} |
-          | 产物 / Artifact | `entry-default-unsigned.hap`(未签名 / unsigned) |
-
-          > 安装前需先用 DevEco Studio 或 hap-sign-tool 签名。
-          > Sign before installing (via DevEco Studio or hap-sign-tool).
-          EOF
+          BODY
+          {
+            echo ''
+            echo '## 本次变更 / What is Changed'
+            echo ''
+            cat $CHANGES
+            echo ''
+            echo ''
+            echo '## 变更文件 / Changed files'
+            echo ''
+            echo '```'
+            cat $FILES
+            echo '```'
+            echo ''
+            echo '## 产物 / Artifacts'
+            echo ''
+            echo '- `entry-default-unsigned.hap` (未签名 / unsigned)'
+            echo ''
+            echo '> 安装前需先用 DevEco Studio 或 hap-sign-tool 签名。'
+            echo '> Sign before installing (via DevEco Studio or hap-sign-tool).'
+          } >> body.md
 
       - name: 发布/更新 nightly Release / Publish rolling nightly Release
         env:
