@@ -78,3 +78,12 @@ jobs:
           tags: ${{ steps.img.outputs.image }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: 设为 public(供多仓库复用) / Make package public (for cross-repo reuse)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PATCH \
+            -H "Accept: application/vnd.github+json" \
+            "/user/packages/container/harmonyos-ci/visibility" \
+            -f visibility='public'
