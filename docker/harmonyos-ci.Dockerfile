@@ -20,9 +20,16 @@ FROM ubuntu:24.04
 # command-line-tools linux x64 zip 的下载直链(必须通过 --build-arg 传入)
 ARG CLT_ZIP_URL
 
-# 基础依赖: JDK 17 供 hap-sign-tool 签名; git 供 actions/checkout; python3 供仓库内 CI 脚本
+# 基础依赖: JDK 17 供 hap-sign-tool 签名; git/python3 供 actions/checkout 与仓库内 CI 脚本;
+# libGL/EGL/X11 等 headless 图形运行库为 SDK 资源编译器(restool/image_transcoder)必需,
+# 缺失会报 'libGL.so.1: cannot open shared object file'(裸容器 CI 常见坑)。
 RUN apt-get update && apt-get install -y --no-install-recommends \
       openjdk-17-jdk-headless unzip curl git ca-certificates python3 \
+      libgl1 libegl1 libgles2 libglib2.0-0 \
+      libx11-6 libxext6 libxrender1 libxrandr2 libxfixes3 libxi6 libxcursor1 \
+      libxcomposite1 libxdamage1 libxtst6 libxkbcommon0 \
+      libnss3 libasound2 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+      libgbm1 libdrm2 fontconfig fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 # 下载并解压 command-line-tools。
