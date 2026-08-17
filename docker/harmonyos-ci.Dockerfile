@@ -38,24 +38,28 @@ RUN apt-get update -o Dpkg::Use-Pty=0 \
          libgbm1 libdrm2 fontconfig fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
-# 下载并解压 command-line-tools。
-# CLT_ZIP_URL 支持以空格分隔的多个 URL: GitHub Release 单资产上限 2GB, 大 zip
-# 常被切成 clt.zip.part00/part01...(cat 拼接即可还原), 单 URL 同样适用。
-# 可用来源示例(社区镜像, 26.0.0.461 linux-x64):
-#   https://github.com/jerry-271828/harmonyos-commandline-tools/releases/download/v26.0.0.461/clt.zip.part00
-#   https://github.com/jerry-271828/harmonyos-commandline-tools/releases/download/v26.0.0.461/clt.zip.part01
+# 下载、拼接、校验并解压 command-line-tools, 自动判型 zip / tar.gz。
+# CLT_ZIP_URL: 以空格分隔的分片直链, 按顺序 cat 拼接还原完整归档:
+#   - zip 分片:    ...clt.zip.part00 / .part01 (API 26 社区镜像)
+#   - tar.gz 分片: ...ohos-sdk-linux-amd64.tar.gz.aa / .ab (API 23 社区镜像)
+#   可在末尾附加一个 *.sha256 的直链做完整性校验。
+# 解压后统一归一化到 /opt/command-line-tools(bin/ tool/ sdk/ 结构)。
 RUN set -eux; \
     test -n "$CLT_ZIP_URL"; \
     mkdir -p /tmp/clt; cd /tmp/clt; \
-    i=0; for u in $CLT_ZIP_URL; do \
-      curl -fL --retry 3 --retry-delay 5 -o "clt.part$i" "$u"; i=$((i+1)); \
-    done; \
-    cat clt.part* > clt.zip; \
-    unzip -q clt.zip -d /opt/; \
-    if [ ! -x /opt/command-line-tools/bin/hvigorw ]; then \
-      d=$(dirname "$(dirname "$(find /opt -maxdepth 3 -type f -path '*/bin/hvigorw' | head -n1)")"); \
-      mv "$d" /opt/command-line-tools; \
-    fi; \
+    i=0; for u in $CLT_ZIP_URL; do curl -fL --retry 3 --retry-delay 5 -o dl.$i "$u"; i=$((i+1)); done; \
+    SHAF=; for f in dl.*; do case $f in *.sha256) SHAF=$f;; esac; done; \
+    FIRURL=$(echo "$CLT_ZIP_URL" | awk '{print $1}'); \
+    ARCHIVE=/tmp/clt/clt.bin; \
+    case $FIRURL in *.tar*) ARCHIVE=/tmp/clt/clt.tar.gz;; esac; \
+    : > "$ARCHIVE"; \
+    for f in dl.*; do case $f in *.sha256) ;; *) cat "$f" >> "$ARCHIVE";; esac; done; \
+    if [ -n "$SHAF" ]; then EXPECT=$(awk '{print $1}' "$SHAF"); ACTUAL=$(sha256sum "$ARCHIVE" | awk '{print $1}'); test "$EXPECT" = "$ACTUAL"; fi; \
+    mkdir -p /tmp/clt/out; \
+    case $ARCHIVE in *.tar.gz) tar -xzf "$ARCHIVE" -C /tmp/clt/out;; *) unzip -q "$ARCHIVE" -d /tmp/clt/out;; esac; \
+    CLTDIR=$(find /tmp/clt/out -maxdepth 2 -type d -name command-line-tools | head -n1); \
+    test -n "$CLTDIR"; \
+    mv "$CLTDIR" /opt/command-line-tools; \
     test -x /opt/command-line-tools/bin/hvigorw; \
     test -d /opt/command-line-tools/sdk; \
     rm -rf /tmp/clt
