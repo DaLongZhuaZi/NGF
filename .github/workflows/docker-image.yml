@@ -78,12 +78,8 @@ jobs:
           tags: ${{ steps.img.outputs.image }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: 设为 public(供多仓库复用) / Make package public (for cross-repo reuse)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api --method PATCH \
-            -H "Accept: application/vnd.github+json" \
-            "/user/packages/container/harmonyos-ci/visibility" \
-            -f visibility='public'
+      # 注意: 该镜像需保持 public(供 NGF / ASFWorkshop 等多仓库复用, 匿名可拉)。
+      # visibility 是 package 级元数据, 重建推送新 tag 不会改回 private; 若被改回,
+      # 请在 GitHub 包页面 Settings → Change visibility 手动设为 Public。”
+      # NOTE: keep this image Public for cross-repo reuse (NGF / ASFWorkshop). It is already
+      # public; pushing new tags does not reset it. Change it back only manually if needed.
