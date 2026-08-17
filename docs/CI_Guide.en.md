@@ -9,7 +9,7 @@ Three workflows under `.github/workflows/`:
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `docker-image.yml` | Manual (workflow_dispatch) | One-time build & push of the API 26 CI image to ghcr.io |
+| `docker-image.yml` | moved to the [harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) repo | central build of API 23/26 CI images (this repo only consumes) |
 | `build.yml` | push `main`/`master`, PR, manual | Build unsigned debug HAP → upload artifact → **auto-publish rolling `nightly` Release on push** |
 | `sign-and-release.yml` | push `v*` tag, manual | Build → sign with hap-sign-tool → publish a versioned release |
 
@@ -23,25 +23,8 @@ Trigger matrix:
 
 ## 2. Prerequisites
 
-- A GitHub repo (public repos expose release assets for direct download).
-- One-time CI image build (below), after which everything is automatic.
-
-## 3. First-time setup (one-time, ~15 minutes)
-
-### 3.1 Get a command-line-tools Linux zip URL
-
-You need a Linux (x86-64) command-line-tools zip matching API 26 — either source:
-
-1. **Community mirror (recommended, stable public links)**: the `v26.0.0.461` release of [jerry-271828/harmonyos-commandline-tools](https://github.com/jerry-271828/harmonyos-commandline-tools) ships the zip split into `clt.zip.part00` / `clt.zip.part01`; pass both URLs space-separated and the Dockerfile concatenates them.
-2. **Official**: download from the [Obtaining Command Line Tools](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/ide-commandline-get) page (links are short-lived; re-host the zip first).
-
-### 3.2 Configure and build the image
-
-1. Add secret `CLT_ZIP_URL` (space-separated URLs) under Settings → Secrets and variables → Actions.
-2. Run the **Build CI image** workflow once → produces `ghcr.io/<owner>/harmonyos-ci:api26`.
-3. `build.yml` / `sign-and-release.yml` then reference that pinned tag, keeping builds reproducible.
-
-> You can also pass the URL directly via the `clt_zip_url` workflow_dispatch input (no secret needed).
+- Image `ghcr.io/dalongzhuazi/harmonyos-ci:api26` is already built and public.
+- Image build & maintenance is centralized in the **[harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) repo** (Dockerfile + build workflow + multi-API tags); rebuild or add new API versions (e.g. api23, api24) there — this repo only consumes the image.
 
 ## 4. Three ways to build without DevEco Studio
 
@@ -81,7 +64,7 @@ Push a `v*` tag to trigger `sign-and-release.yml`. Required secrets (cert/key fi
 | `SIGNING_KEY` | `.p12` keystore, base64 |
 | `SIGNING_KEY_ALIAS` | Key alias (plain) |
 | `KEYSTORE_PASSWORD` / `KEY_PASSWORD` | Keystore / key passwords (plain) |
-| `CLT_ZIP_URL` | (docker-image.yml only) zip direct URL |
+| `CLT_ZIP_URL` | (moved to the harmonyos-ci repo along with the image build) |
 
 > Without signing secrets, tag builds skip signing with a notice instead of failing red.
 
@@ -98,13 +81,12 @@ Push a `v*` tag to trigger `sign-and-release.yml`. Required secrets (cert/key fi
 | `libGL.so.1: cannot open shared object file` | Bare container lacks OpenGL; image ships `libgl1/libegl1/...` |
 | `shopt: not found` | Runner default `sh` (dash) lacks `shopt`; workflows use `defaults.run.shell: bash` |
 | hvigor version mismatch / unsupported model version | command-line-tools ≠ project `modelVersion 26.0.0`; rebuild with a 26.0.0.x zip |
-| Build fails because image is missing | Run Build CI image once before pushing |
+| Build fails because image is missing | The image is built centrally in [harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci); verify the tag exists |
 | `entry-default-unsigned.hap` won't install | Unsigned HAPs must be signed first (DevEco Studio or hap-sign-tool) |
 
 ## 8. File index
 
 - `.github/workflows/build.yml` — build + artifact + auto rolling Release
 - `.github/workflows/sign-and-release.yml` — tag signing & release
-- `.github/workflows/docker-image.yml` — build & push the CI image
+- (image build moved to the [harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) repo)
 - `.github/scripts/strip_signing.py` — strip local signing config (unsigned output)
-- `docker/harmonyos-ci.Dockerfile` / `docker/README.md` — CI image definition & docs

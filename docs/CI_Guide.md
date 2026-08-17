@@ -9,7 +9,7 @@
 
 | Workflow | 触发 | 作用 |
 |---|---|---|
-| `docker-image.yml` | 手动（workflow_dispatch） | 一次性构建 API 26 CI 镜像并推送 ghcr.io |
+| `docker-image.yml` | 已迁至 [harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) 仓库 | 统一构建 API 23/26 CI 镜像（本仓库只消费） |
 | `build.yml` | push `main`/`master`、PR、手动 | 构建未签名 debug HAP → 上传 artifact → **push 时自动发布滚动 `nightly` Release** |
 | `sign-and-release.yml` | push `v*` tag、手动 | 构建 → hap-sign-tool 签名 → 发布版本化 Release |
 
@@ -23,25 +23,8 @@
 
 ## 2. 前置条件
 
-- GitHub 仓库（公开仓库的 release 资产可直接下载）。
-- 首次需要一次性构建 CI 镜像（见 §3），之后全自动。
-
-## 3. 首次搭建（一次性，约 15 分钟）
-
-### 3.1 取得 command-line-tools Linux zip 直链
-
-需要与工程 API 26 匹配的 Linux (x86-64) command-line-tools zip，两种来源任选：
-
-1. **社区镜像（推荐，链接稳定公开）**：[jerry-271828/harmonyos-commandline-tools](https://github.com/jerry-271828/harmonyos-commandline-tools) 的 `v26.0.0.461` release，zip 被切成两个分片（`clt.zip.part00` / `clt.zip.part01`），把两个分片 URL 以空格分隔填入即可，Dockerfile 会自动 cat 拼接。
-2. **华为官方**：[「获取命令行工具」](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-commandline-get) 下载（链接带时效签名，先下载到本地再上传到 GitHub Release 附件 / 对象存储等可直链处）。
-
-### 3.2 配置并构建镜像
-
-1. 在仓库 Settings → Secrets and variables → Actions 添加 secret `CLT_ZIP_URL`（值为 zip 直链，多个 URL 空格分隔）。
-2. 手动运行一次 **Build CI image** workflow，产出 `ghcr.io/<owner>/harmonyos-ci:api26`。
-3. 后续 `build.yml` / `sign-and-release.yml` 默认引用该锁定 tag，构建环境可复现。
-
-> 也可在 workflow_dispatch 的 `clt_zip_url` 输入框直接填 URL（不必存 secret）。
+- 镜像 `ghcr.io/dalongzhuazi/harmonyos-ci:api26` 已就绪（public）。
+- 镜像的构建/维护统一由 **[harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) 仓库**负责（Dockerfile + 构建 workflow + 多 API 版本 tag）；需要重建或新增 API 版本（如 api23、api24）时，按该仓库 README 操作即可，本仓库只消费镜像。
 
 ## 4. 免 DevEco Studio 的三种构建方式
 
@@ -81,7 +64,7 @@ push `v*` tag 触发 `sign-and-release.yml`。所需 Secrets（证书/密钥文�
 | `SIGNING_KEY` | `.p12` 密钥库文件，base64 |
 | `SIGNING_KEY_ALIAS` | 密钥别名（明文） |
 | `KEYSTORE_PASSWORD` / `KEY_PASSWORD` | 密钥库 / 密钥口令（明文） |
-| `CLT_ZIP_URL` | （仅 docker-image.yml 用）zip 直链 |
+| `CLT_ZIP_URL` | （已随镜像构建迁至 harmonyos-ci 仓库） |
 
 > 未配置签名 Secrets 时，tag 构建会跳过签名并输出指引，不会报红失败。
 
@@ -98,13 +81,12 @@ push `v*` tag 触发 `sign-and-release.yml`。所需 Secrets（证书/密钥文�
 | `libGL.so.1: cannot open shared object file` | 裸容器缺 OpenGL 系统库；镜像已内置 `libgl1/libegl1/...` |
 | `shopt: not found` | runner 默认 sh(dash) 无 shopt；workflow 已用 `defaults.run.shell: bash` |
 | `hvigor 版本不匹配 / unsupported model version` | command-line-tools 与工程 `modelVersion 26.0.0` 不匹配；改用 26.0.0.x 的 zip 重建镜像 |
-| 镜像不存在导致构建失败 | 首次需先跑 Build CI image，再让 push 触发构建 |
+| 镜像不存在导致构建失败 | 镜像由 [harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) 仓库统一构建；先确认对应 tag 已存在 |
 | `entry-default-unsigned.hap` 无法直接安装 | 未签名 HAP 需先签名（DevEco Studio 或 hap-sign-tool） |
 
 ## 8. 文件索引
 
 - `.github/workflows/build.yml` — 构建 + artifact + 自动滚动 Release
 - `.github/workflows/sign-and-release.yml` — tag 签名发布
-- `.github/workflows/docker-image.yml` — 构建推送 CI 镜像
+- （镜像构建已迁至 [harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) 仓库）
 - `.github/scripts/strip_signing.py` — 剥离本机签名配置（产出未签名 HAP）
-- `docker/harmonyos-ci.Dockerfile` / `docker/README.md` — CI 镜像定义与说明

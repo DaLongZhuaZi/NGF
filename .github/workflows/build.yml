@@ -4,8 +4,8 @@ name: Build HAP (构建 / Build)
 # main/master 时自动发布一个滚动(nightly)Release。签名 + 版本化 Release 见 sign-and-release.yml(v* tag)。
 # Cloud build for NGF (API 26): produces an unsigned debug HAP, archives the artifact, and auto-publishes
 # a rolling (nightly) Release on push to main/master. Signed + versioned releases live in sign-and-release.yml.
-# 镜像 / Image: ghcr.io/<owner>/harmonyos-ci:api26 (docker-image.yml 一次性构建, 锁定与 API 26 匹配的
-# command-line-tools + hvigor + ohpm + SDK)。
+# 镜像 / Image: ghcr.io/<owner>/harmonyos-ci:api26 (由 harmonyos-ci 仓库统一构建, 锁定与 API 26 匹配的
+# command-line-tools + hvigor + ohpm + SDK, public 可复用)。
 
 on:
   push:
