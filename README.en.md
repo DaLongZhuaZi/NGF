@@ -74,6 +74,46 @@ NGF/
 
 ---
 
+## 🔧 Cloud CI Builds (GitHub Actions)
+
+Three workflows under `.github/workflows/` provide a push-to-build HAP pipeline, just like Android APK CI:
+
+| Workflow | Trigger | Purpose |
+|---|---|---|
+| `docker-image.yml` | Manual (workflow_dispatch) | One-time build of the API 26 CI image (command-line-tools) pushed to ghcr.io |
+| `build.yml` | push `main`/`master`, PR | Debug build of an **unsigned** HAP uploaded as artifact (`hap-unsigned`) |
+| `sign-and-release.yml` | push `v*` tag | Build → sign with hap-sign-tool → publish a GitHub Release (secrets required) |
+
+### First-time setup (one-time, ~15 minutes)
+
+1. **Prepare the CI image**:
+   1. Obtain the **Linux (x86-64)** command-line-tools zip matching API 26, from either source:
+      - **Community mirror (recommended, stable public links)**: the `v26.0.0.461` release of [jerry-271828/harmonyos-commandline-tools](https://github.com/jerry-271828/harmonyos-commandline-tools) ships the zip split into two parts (`clt.zip.part00` / `clt.zip.part01`); pass **both URLs separated by a space** and the Dockerfile concatenates them automatically;
+      - **Official**: download from the ["Obtaining Command Line Tools"](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/ide-commandline-get) page (links are short-lived; re-host the zip first);
+   2. Upload the zip somewhere directly fetchable (a GitHub Release asset, object storage, etc.);
+   3. Add the repository secret `CLT_ZIP_URL` (direct zip URL) under Settings → Secrets and variables → Actions;
+   4. Manually run the **Build CI image** workflow once, producing `ghcr.io/<owner>/harmonyos-ci:api26`. `build.yml` then uses that pinned tag, keeping builds reproducible.
+2. **Done**: every push to the main branches / PR builds automatically; download the `hap-unsigned` artifact from the Action page (contains `entry-default-unsigned.hap`, installable after re-signing in DevEco Studio).
+
+> **Signing note**: `signingConfigs` in `build-profile.json5` points to developer-local certificate paths; CI strips it automatically via `.github/scripts/strip_signing.py` and produces **unsigned** HAPs — local signed builds are unaffected. This repo has no git submodules; if one is added later, enable `submodules: recursive` in the checkout step.
+
+### Optional: signing & auto Release
+
+Pushing a `v*` tag triggers `sign-and-release.yml`. Required secrets (certificate/key files stored **base64-encoded**, never committed; `.gitignore` already blocks certificate file types):
+
+| Secret | Content |
+|---|---|
+| `SIGNING_CERT` | `.cer` certificate, base64 (single line via `base64 -w 0`) |
+| `SIGNING_PROFILE` | `.p7b` signing profile, base64 |
+| `SIGNING_KEY` | `.p12` keystore file, base64 |
+| `SIGNING_KEY_ALIAS` | Key alias (plain text) |
+| `KEYSTORE_PASSWORD` / `KEY_PASSWORD` | Keystore / key passwords (plain text) |
+| `CLT_ZIP_URL` | (for `docker-image.yml`) command-line-tools zip direct URL |
+
+When signing secrets are not configured, tag builds **skip signing with a guidance notice** instead of failing.
+
+---
+
 ## 📚 More Documentation
 
 | Document | Description |

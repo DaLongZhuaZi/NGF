@@ -1,0 +1,114 @@
+name: Build HAP
+
+# 云端构建 NGF(API 26): debug 模式产出未签名 HAP 并归档为 artifact。
+# 签名与 Release 发布见 sign-and-release.yml(第一阶段 CI 不引入签名)。
+# 运行环境: ghcr.io/<owner>/harmonyos-ci:api26(由 docker-image.yml 一次性构建,
+# 内含与 API 26 匹配的 command-line-tools + hvigor + ohpm + SDK, 版本随镜像锁定)。
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: '覆盖 CI 镜像(如 ghcr.io/owner/harmonyos-ci:api26)'
+        required: false
+        default: ''
+
+concurrency:
+  group: build-hap-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  prepare:
+    name: Resolve CI image
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.img.outputs.image }}
+    steps:
+      - name: Compute image reference (lowercase owner for ghcr)
+        id: img
+        env:
+          INPUT_IMAGE: ${{ inputs.image }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          if [ -n "$INPUT_IMAGE" ]; then
+            image="$INPUT_IMAGE"
+          else
+            owner=$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')
+            image="ghcr.io/${owner}/harmonyos-ci:api26"
+          fi
+          echo "Using CI image: $image"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Assemble HAP (debug, unsigned)
+    needs: prepare
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.image }}
+      # ghcr 镜像首次推送后默认私有; GITHUB_TOKEN 推送时会自动授权本仓库拉取
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        # 本仓库当前无 git 子模块; 若未来引入, 必须改为:
+        # with:
+        #   submodules: recursive
+
+      - name: Strip local signing config (produce unsigned hap in CI)
+        run: python3 .github/scripts/strip_signing.py build-profile.json5
+
+      - name: Cache hvigor & oh_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            /root/.hvigor
+            **/oh_modules
+          key: hvigor-${{ runner.os }}-${{ hashFiles('**/oh-package-lock.json5') }}
+          restore-keys: |
+            hvigor-${{ runner.os }}-
+
+      - name: Install dependencies (ohpm)
+        run: ohpm install --all
+
+      - name: Build HAP (debug)
+        run: hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon --stacktrace
+
+      - name: Collect & verify HAP artifacts
+        run: |
+          set -eu
+          mkdir -p dist
+          # 多模块兜底定位: <module>/build/<product>/outputs/<target>/*.hap
+          find . -type f -name '*.hap' -path '*/outputs/*' \
+            -not -path './oh_modules/*' -not -path './node_modules/*' \
+            -exec cp -v {} dist/ \;
+          shopt -s nullglob
+          haps=(dist/*.hap)
+          if [ ${#haps[@]} -eq 0 ]; then
+            echo "::error::No .hap file produced - check the build log above"
+            exit 1
+          fi
+          for h in "${haps[@]}"; do
+            size=$(stat -c%s "$h")
+            if [ "$size" -le 0 ]; then
+              echo "::error::$h is empty"
+              exit 1
+            fi
+            echo "$h : $size bytes"
+          done
+
+      - name: Upload HAP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hap-unsigned
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14

@@ -74,6 +74,46 @@ NGF/
 
 ---
 
+## 🔧 CI 云端构建（GitHub Actions）
+
+本仓库内置三个 workflow（位于 `.github/workflows/`），实现"push 即云端出包"的 HAP 流水线，体验与 Android APK 的 CI 一致：
+
+| Workflow | 触发方式 | 作用 |
+|---|---|---|
+| `docker-image.yml` | 手动（workflow_dispatch） | 一次性构建含 API 26 command-line-tools 的 CI 镜像并推送 ghcr.io |
+| `build.yml` | push `main`/`master`、PR | debug 模式构建**未签名** HAP 并上传 artifact（`hap-unsigned`） |
+| `sign-and-release.yml` | push `v*` tag | 构建 → hap-sign-tool 签名 → 发布 GitHub Release（需配置 Secrets） |
+
+### 首次接入（一次性，约 15 分钟）
+
+1. **准备 CI 镜像**（方案：自建 Docker 镜像，API 版本完全可控）：
+   1. 获取与本工程 API 26 匹配的 **Linux (x86-64)** 版 command-line-tools zip。两种来源任选：
+      - **社区镜像（推荐，链接稳定公开）**：[jerry-271828/harmonyos-commandline-tools](https://github.com/jerry-271828/harmonyos-commandline-tools) 的 `v26.0.0.461` release，zip 被切成两个分片（`clt.zip.part00` / `clt.zip.part01`），把两个分片 URL **以空格分隔**一起填入即可，Dockerfile 会自动拼接；
+      - **华为官方**：[「获取命令行工具」](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-commandline-get)页面下载（链接带时效签名，需先转存到可直链处）；
+   2. 把 zip 上传到任意可直链下载的位置（GitHub Release 附件、对象存储等）；
+   3. 在仓库 Settings → Secrets and variables → Actions 添加 secret `CLT_ZIP_URL`（zip 直链）；
+   4. 手动运行一次 **Build CI image** workflow，产出 `ghcr.io/<owner>/harmonyos-ci:api26`。此后 `build.yml` 默认使用该锁定 tag，构建环境可复现。
+2. **完成**：之后每次 push 主分支 / PR 都会自动构建，在 Action 页面下载 `hap-unsigned` artifact（含 `entry-default-unsigned.hap`，可在 DevEco Studio 中重新签名后安装）。
+
+> **签名说明**：`build-profile.json5` 中的 `signingConfigs` 指向开发者本机证书路径，CI 会自动执行 `.github/scripts/strip_signing.py` 剥离该配置并产出**未签名** HAP，不影响本机签名构建。第一阶段 CI 不引入签名；本仓库无 git 子模块，若未来引入，请在 checkout 步骤开启 `submodules: recursive`。
+
+### 配置签名与自动 Release（可选）
+
+push `v*` tag 会触发 `sign-and-release.yml`。所需 Secrets（证书/密钥文件 **base64 编码后**存放，绝不入库；`.gitignore` 已拦截所有证书类文件）：
+
+| Secret | 内容 |
+|---|---|
+| `SIGNING_CERT` | `.cer` 公钥证书，base64（建议 `base64 -w 0` 生成单行） |
+| `SIGNING_PROFILE` | `.p7b` 签名 Profile，base64 |
+| `SIGNING_KEY` | `.p12` 密钥库文件，base64 |
+| `SIGNING_KEY_ALIAS` | 密钥别名（明文） |
+| `KEYSTORE_PASSWORD` / `KEY_PASSWORD` | 密钥库 / 密钥口令（明文） |
+| `CLT_ZIP_URL` | （供 `docker-image.yml`）command-line-tools zip 直链 |
+
+未配置签名 Secrets 时，tag 构建会**跳过签名并输出指引**，不会报红失败。
+
+---
+
 ## 📚 更多文档
 
 | 文档 | 说明 |
