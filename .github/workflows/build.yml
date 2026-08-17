@@ -121,6 +121,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout 检出代码 / Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: 下载构建产物 / Download built artifact
         uses: actions/download-artifact@v4
         with:
@@ -151,7 +156,6 @@ jobs:
         run: |
           gh release delete nightly --cleanup-tag --yes 2>/dev/null || true
           gh release create nightly dist/*.hap \
-            --target "${{ github.sha }}" \
             --prerelease \
             --title "Nightly build (滚动最新构建 / rolling latest)" \
             --notes-file body.md
