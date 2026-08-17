@@ -47,19 +47,27 @@ RUN apt-get update -o Dpkg::Use-Pty=0 \
 RUN set -eux; \
     test -n "$CLT_ZIP_URL"; \
     mkdir -p /tmp/clt; cd /tmp/clt; \
-    i=0; for u in $CLT_ZIP_URL; do curl -fL --retry 3 --retry-delay 5 -o dl.$i "$u"; i=$((i+1)); done; \
-    SHAF=; for f in dl.*; do case $f in *.sha256) SHAF=$f;; esac; done; \
-    FIRURL=$(echo "$CLT_ZIP_URL" | awk '{print $1}'); \
-    ARCHIVE=/tmp/clt/clt.bin; \
-    case $FIRURL in *.tar*) ARCHIVE=/tmp/clt/clt.tar.gz;; esac; \
+    i=0; for u in $CLT_ZIP_URL; do \
+      case "$u" in *.sha256) curl -fL --retry 3 --retry-delay 5 -o sha256.txt "$u";; \
+      *) curl -fL --retry 3 --retry-delay 5 -o "part.$i" "$u"; i=$((i+1));; \
+      esac; \
+    done; \
+    for u in $CLT_ZIP_URL; do FIRURL="$u"; break; done; \
+    ARCHIVE=clt.zip; \
+    case "$FIRURL" in *.tar*) ARCHIVE=clt.tar.gz;; esac; \
     : > "$ARCHIVE"; \
-    for f in dl.*; do case $f in *.sha256) ;; *) cat "$f" >> "$ARCHIVE";; esac; done; \
-    if [ -n "$SHAF" ]; then EXPECT=$(awk '{print $1}' "$SHAF"); ACTUAL=$(sha256sum "$ARCHIVE" | awk '{print $1}'); test "$EXPECT" = "$ACTUAL"; fi; \
-    mkdir -p /tmp/clt/out; \
-    case $ARCHIVE in *.tar.gz) tar -xzf "$ARCHIVE" -C /tmp/clt/out;; *) unzip -q "$ARCHIVE" -d /tmp/clt/out;; esac; \
-    CLTDIR=$(find /tmp/clt/out -maxdepth 2 -type d -name command-line-tools | head -n1); \
+    for f in part.*; do cat "$f" >> "$ARCHIVE"; done; \
+    if [ -f sha256.txt ]; then \
+      EXPECT=$(awk '{print $1}' sha256.txt); \
+      ACTUAL=$(sha256sum "$ARCHIVE" | awk '{print $1}'); \
+      test "$EXPECT" = "$ACTUAL"; \
+    fi; \
+    mkdir -p out; \
+    case "$ARCHIVE" in *.tar.gz) tar -xzf "$ARCHIVE" -C out;; *) unzip -q "$ARCHIVE" -d out;; esac; \
+    CLTDIR=$(find out -maxdepth 2 -type d -name command-line-tools | head -n1); \
     test -n "$CLTDIR"; \
     mv "$CLTDIR" /opt/command-line-tools; \
+    ls -la /opt/command-line-tools/bin/; \
     test -x /opt/command-line-tools/bin/hvigorw; \
     test -d /opt/command-line-tools/sdk; \
     rm -rf /tmp/clt
