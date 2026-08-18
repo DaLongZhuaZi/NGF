@@ -6,6 +6,7 @@ import { ngfPlatformWindowManagerFacade } from './PlatformWindowManagerFacade';
 import { ngfPlatformWindowControllerFacade } from './PlatformWindowControllerFacade';
 import { ngfMultiWindowManagerFacade } from './MultiWindowManagerFacade';
 import { ngfPermissionManagerFacade } from './PermissionManagerFacade';
+import { ngfScreenKeepAwakeFacade } from './ScreenKeepAwakeFacade';
 
 export class NGFPlatformOhosIntegrationFacade extends NGFIntegrationFacadeBase {
   protected readonly tag: string = 'NGFPlatformOhosIntegrationFacade';
@@ -19,6 +20,7 @@ export class NGFPlatformOhosIntegrationFacade extends NGFIntegrationFacadeBase {
     registrations.push(new NGFServiceRegistration('ngf.platform.context_bridge', 'OhosContextBridgeFacade', ngfOhosContextBridgeFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.platform.multi_window_manager', 'MultiWindowManagerFacade', ngfMultiWindowManagerFacade as object));
     registrations.push(new NGFServiceRegistration('ngf.platform.permission_manager', 'PermissionManagerFacade', ngfPermissionManagerFacade as object));
+    registrations.push(new NGFServiceRegistration('ngf.platform.screen_keep_awake', 'ScreenKeepAwakeFacade', ngfScreenKeepAwakeFacade as object));
     return registrations;
   }
 

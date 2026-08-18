@@ -3,6 +3,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { window } from '@kit.ArkUI';
 import { isInitialized, setContext, NGFAbilityContextLike, clearContext } from '../GlobalContext';
 import { uiContextManager, ngfStarterKernel, ngfPlatformWindowManagerFacade, ngfThemeManagerFacade, ngfI18nManagerFacade, ngfHoldingAwarenessFacade, ngfDeviceAdaptationFacade, ngfVisualEffectsFacade, logger, crashAnalytics, ngfContinuationManagerFacade } from 'ngf_framework';
+import { ngfScreenKeepAwakeFacade } from 'ngf_framework';
 
 const TAG: string = 'MultitonEntryAbility';
 
@@ -36,6 +37,7 @@ export default class MultitonEntryAbility extends UIAbility {
       logger.info(TAG, '全局环境已初始化，仅绑定当前 AbilityContext');
       uiContextManager.bindAbilityContext(this.context as common.UIAbilityContext);
     }
+    void ngfScreenKeepAwakeFacade.initialize(this.context as common.UIAbilityContext);
     
     // 解析流转数据
     if (want.parameters) {
@@ -77,6 +79,7 @@ export default class MultitonEntryAbility extends UIAbility {
     logger.lifecycle(TAG, '生命周期: onWindowStageCreate (Multiton)');
     
     ngfPlatformWindowManagerFacade.bindWindowStage(windowStage);
+    ngfScreenKeepAwakeFacade.onWindowStageCreate();
     ngfDeviceAdaptationFacade.bindWindowStage(windowStage);
 
     AppStorage.setOrCreate('CurrentMultitonRoute', this.targetPage);
@@ -91,6 +94,7 @@ export default class MultitonEntryAbility extends UIAbility {
   }
 
   onWindowStageDestroy(): void {
+    ngfScreenKeepAwakeFacade.onWindowStageDestroy();
     ngfDeviceAdaptationFacade.clearWindowStage();
     ngfPlatformWindowManagerFacade.clearWindowStage();
     logger.lifecycle(TAG, '生命周期: onWindowStageDestroy (Multiton)');
@@ -98,12 +102,14 @@ export default class MultitonEntryAbility extends UIAbility {
 
   onForeground(): void {
     logger.lifecycle(TAG, '生命周期: onForeground (Multiton)');
+    ngfScreenKeepAwakeFacade.onForeground();
     ngfDeviceAdaptationFacade.refresh('ability_foreground');
     void ngfHoldingAwarenessFacade.resume();
   }
 
   onBackground(): void {
     logger.lifecycle(TAG, '生命周期: onBackground (Multiton)');
+    ngfScreenKeepAwakeFacade.onBackground();
   }
 
   onConfigurationUpdate(config: Configuration): void {

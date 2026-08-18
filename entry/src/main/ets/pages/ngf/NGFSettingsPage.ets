@@ -16,6 +16,7 @@ import { NGFVisualEffectsMaterialMode } from 'ngf_framework';
 import { ngfVisualEffectsFacade } from 'ngf_framework';
 import { AboutSheetContent } from 'ngf_framework';
 import { logger } from 'ngf_framework';
+import { ngfScreenKeepAwakeFacade } from 'ngf_framework';
 
 const TAG: string = 'NGFSettingsPage';
 
@@ -38,11 +39,13 @@ export struct NGFSettingsPage {
   @StorageProp('ngf_holding_awareness_available') private holdingAvailable: boolean = false;
   @StorageProp('ngf_holding_awareness_detect_gesture_granted') private detectGestureGranted: boolean = false;
   @StorageProp('ngf_holding_awareness_activity_motion_granted') private activityMotionGranted: boolean = false;
+  @StorageProp('ngf_keep_screen_on') private keepScreenOn: boolean = false;
 
   build() {
     Column({ space: 12 }) {
       this.buildThemeCard()
       this.buildLanguageCard()
+      this.buildScreenCard()
       this.buildVisualEffectsCard()
       this.buildHoldingCard()
       this.buildAboutCard()
@@ -99,6 +102,38 @@ export struct NGFSettingsPage {
           .layoutWeight(1)
           .onClick((): void => {
             this.applyTheme(NGFThemeMode.DARK);
+          })
+      }
+      .width('100%')
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor(this.resolveGlassPanelBackground())
+    .backgroundEffect(this.buildGlassPanelBackgroundEffect())
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
+    .shadow(this.buildGlassPanelShadow())
+    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
+  }
+
+  @Builder
+  private buildScreenCard(): void {
+    Column({ space: 8 }) {
+      Text($r('app.string.settings_screen_title'))
+        .fontSize(18)
+        .fontWeight(FontWeight.Bold)
+        .fontColor($r('app.color.text_primary'))
+
+      Row() {
+        Text($r('app.string.settings_keep_screen_on'))
+          .fontSize(14)
+          .fontColor($r('app.color.text_secondary'))
+          .layoutWeight(1)
+        Toggle({ type: ToggleType.Switch, isOn: this.keepScreenOn })
+          .backgroundColor(Color.Transparent)
+          .systemMaterial(this.resolveDefaultComponentMaterial())
+          .onChange((isOn: boolean): void => {
+            this.applyKeepScreenOnToggle(isOn);
           })
       }
       .width('100%')
@@ -542,6 +577,10 @@ export struct NGFSettingsPage {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(TAG, '切换材质等级失败: ' + message);
     }
+  }
+
+  private applyKeepScreenOnToggle(enabled: boolean): void {
+    void ngfScreenKeepAwakeFacade.setEnabled(enabled);
   }
 
   private applySystemMaterialPolicy(policy: NGFSystemMaterialPolicy): void {

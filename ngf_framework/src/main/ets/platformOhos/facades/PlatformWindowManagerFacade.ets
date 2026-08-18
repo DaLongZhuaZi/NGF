@@ -47,6 +47,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
   private static readonly MANUAL_PAGE_NAME: string = 'ngf.window.manual';
   private windowStage: window.WindowStage | null = null;
   private mainWindow: window.Window | null = null;
+  private keepScreenOn: boolean = false;
   private activePageName: string = '';
   private activeMode: NGFDisplayMode = NGFDisplayMode.DEFAULT;
   private pageProfiles: Map<string, NGFPageWindowProfile> = new Map<string, NGFPageWindowProfile>();
@@ -98,6 +99,7 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     this.unregisterWindowListeners();
     this.windowStage = null;
     this.mainWindow = null;
+    this.keepScreenOn = false;
 
     // 清理所有子窗口
     this.subWindows.forEach((subWindow, name) => {
@@ -201,6 +203,24 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     return this.mainWindow !== null;
   }
 
+  async setWindowKeepScreenOn(isKeepScreenOn: boolean): Promise<void> {
+    this.keepScreenOn = isKeepScreenOn;
+
+    const currentWindow = this.mainWindow;
+    if (currentWindow !== null) {
+      await this.applyWindowKeepScreenOn(currentWindow, isKeepScreenOn);
+    }
+
+    const subWindows: Array<window.Window> = [];
+    this.subWindows.forEach((subWindow: window.Window): void => {
+      subWindows.push(subWindow);
+    });
+    for (let index = 0; index < subWindows.length; index++) {
+      await this.applyWindowKeepScreenOn(subWindows[index], isKeepScreenOn);
+    }
+    logger.info(TAG, '设置窗口屏幕常亮状态: enabled=' + String(isKeepScreenOn) + ', subWindowCount=' + String(subWindows.length));
+  }
+
   async setWindowSize(width: number, height: number): Promise<void> {
     const currentWindow = this.mainWindow;
     if (!currentWindow) {
@@ -301,6 +321,9 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
     try {
       const subWindow = await this.windowStage.createSubWindow(name);
       this.subWindows.set(name, subWindow);
+      if (this.keepScreenOn) {
+        await this.applyWindowKeepScreenOn(subWindow, true);
+      }
       logger.info(TAG, '创建子窗口成功: name=' + name);
       return subWindow;
     } catch (error) {
@@ -412,6 +435,9 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
       this.unregisterWindowListeners();
       this.mainWindow = nextWindow;
       this.registerWindowListeners(nextWindow);
+      if (this.keepScreenOn) {
+        void this.applyWindowKeepScreenOn(nextWindow, true);
+      }
       logger.info(TAG, '从阶段绑定主窗口成功: reason=' + reason);
     } catch (error) {
       logger.error(
@@ -431,6 +457,15 @@ export class PlatformWindowManagerFacade implements IPlatformWindowManager {
         TAG,
         '注册窗口阶段监听器失败: ' + this.errorToString(error as Object | string | number | boolean)
       );
+    }
+  }
+
+  private async applyWindowKeepScreenOn(targetWindow: window.Window, isKeepScreenOn: boolean): Promise<void> {
+    try {
+      await targetWindow.setWindowKeepScreenOn(isKeepScreenOn);
+    } catch (error) {
+      const message: string = error instanceof Error ? error.message : String(error);
+      logger.warn(TAG, '窗口屏幕常亮 API 调用失败: enabled=' + String(isKeepScreenOn) + ', error=' + message);
     }
   }
 

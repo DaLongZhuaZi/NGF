@@ -1353,12 +1353,6 @@ struct NGFStarterMainMenuPage {
   ): void {
     Button() {
       Stack({ alignContent: Alignment.Start }) {
-        Column() {}
-          .width('100%')
-          .height('100%')
-          .backgroundColor(Color.Transparent)
-          .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
-
         Row({ space: 12 }) {
           Column({ space: 6 }) {
             Text(badge)
@@ -1481,12 +1475,6 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildHdsDemoCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 12 }) {
         Text($r('app.string.ui_str_2030'))
           .fontSize(18)

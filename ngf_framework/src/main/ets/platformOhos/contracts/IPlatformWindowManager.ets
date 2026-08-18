@@ -271,6 +271,7 @@ export interface IPlatformWindowManager {
   subscribe(listenerId: string, observer: IPlatformWindowSnapshotObserver): void;
   unsubscribe(listenerId: string): void;
   isReady(): boolean;
+  setWindowKeepScreenOn(isKeepScreenOn: boolean): Promise<void>;
   setWindowSize(width: number, height: number): Promise<void>;
   setWindowPosition(x: number, y: number): Promise<void>;
   setWindowMaximize(): Promise<void>;

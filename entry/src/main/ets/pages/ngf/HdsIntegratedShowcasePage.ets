@@ -582,12 +582,6 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildHeroCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 12 }) {
         Text($r('app.string.ui_str_2139'))
           .fontSize(24)
@@ -642,12 +636,6 @@ export struct HdsIntegratedShowcasePage {
   private buildCapabilityCard(card: NGFHdsIntegratedCapabilityCard, index: number): void {
     Button() {
       Stack({ alignContent: Alignment.Start }) {
-        Column() {}
-          .width('100%')
-          .height('100%')
-          .backgroundColor(Color.Transparent)
-          .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
-
         Row({ space: 12 }) {
           Column({ space: 6 }) {
             Text(card.title)
@@ -714,12 +702,6 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildFactCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 10 }) {
         Text($r('app.string.ui_str_2143'))
           .fontSize(18)
@@ -760,12 +742,6 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildComponentSection(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 14 }) {
         SubHeader({
           primaryTitle: $r('app.string.ui_str_2082'),
@@ -868,12 +844,6 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildLayoutSection(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 14 }) {
         SubHeader({
           primaryTitle: $r('app.string.ui_str_2084'),
@@ -1162,12 +1132,6 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildVerificationCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 10 }) {
         Text($r('app.string.ui_str_2168'))
           .fontSize(18)

@@ -316,12 +316,6 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildHeroCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 12 }) {
         Text('MainMenuPage → HdsNavigation')
           .fontSize(24)
@@ -376,12 +370,6 @@ export struct HdsNavigationOfficialShowcasePage {
   private buildActionCard(card: NGFHdsOfficialActionCard): void {
     Button() {
       Stack({ alignContent: Alignment.Start }) {
-        Column() {}
-          .width('100%')
-          .height('100%')
-          .backgroundColor(Color.Transparent)
-          .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
-
         Row({ space: 12 }) {
           Column({ space: 6 }) {
             Text(card.title)
@@ -448,12 +436,6 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildFactCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 10 }) {
         Text($r('app.string.ui_str_2185'))
           .fontSize(18)
@@ -494,12 +476,6 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildApi26SystemMaterialCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 12 }) {
         Text($r('app.string.api26_visual_migration_title'))
           .fontSize(18)
@@ -562,12 +538,6 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildVerificationCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column() {}
-        .width('100%')
-        .height('100%')
-        .backgroundColor(Color.Transparent)
-        .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
-
       Column({ space: 10 }) {
         Text($r('app.string.ui_str_2168'))
           .fontSize(18)

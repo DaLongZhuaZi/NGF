@@ -16,6 +16,7 @@ class SettingsManager {
   private readonly booleanValues: Map<string, boolean> = new Map<string, boolean>();
   private preferences: dataPreferences.Preferences | null = null;
   private initialized: boolean = false;
+  private initializationPromise: Promise<void> | null = null;
 
   private constructor() {
     // 私有构造函数，确保单例模式
@@ -33,6 +34,22 @@ class SettingsManager {
       logger.debug(TAG, '已初始化，跳过');
       return;
     }
+    const pending = this.initializationPromise;
+    if (pending !== null) {
+      await pending;
+      return;
+    }
+
+    const initializationTask: Promise<void> = this.initializeInternal(context);
+    this.initializationPromise = initializationTask;
+    try {
+      await initializationTask;
+    } finally {
+      this.initializationPromise = null;
+    }
+  }
+
+  private async initializeInternal(context: common.UIAbilityContext): Promise<void> {
     try {
       this.preferences = await dataPreferences.getPreferences(context, PREFERENCES_NAME);
       await this.loadFromPreferences();

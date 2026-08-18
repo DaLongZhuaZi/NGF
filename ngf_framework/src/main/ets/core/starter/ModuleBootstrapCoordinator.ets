@@ -227,6 +227,7 @@ export class NGFModuleBootstrapCoordinator {
     serviceTokens.push('ngf.platform.window_controller');
     serviceTokens.push('ngf.platform.page_policy_resolver');
     serviceTokens.push('ngf.platform.context_bridge');
+    serviceTokens.push('ngf.platform.screen_keep_awake');
     this.registerDefaultModule(
       new NGFModuleDefinition('ngf.platform.ohos', CORE_SERVICES_PHASE, 10, dependencies, serviceTokens),
       ngfPlatformOhosIntegrationFacade

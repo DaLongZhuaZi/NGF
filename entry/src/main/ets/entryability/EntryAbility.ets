@@ -11,6 +11,7 @@ import { ngfI18nManagerFacade } from 'ngf_framework';
 import { ngfHoldingAwarenessFacade } from 'ngf_framework';
 import { ngfDeviceAdaptationFacade } from 'ngf_framework';
 import { ngfVisualEffectsFacade } from 'ngf_framework';
+import { ngfScreenKeepAwakeFacade } from 'ngf_framework';
 import { logger } from 'ngf_framework';
 import { crashAnalytics } from 'ngf_framework';
 import { ngfContinuationManagerFacade } from 'ngf_framework';
@@ -23,6 +24,7 @@ export default class EntryAbility extends UIAbility {
     setContext(abilityContext);
     uiContextManager.bindAbilityContext(this.context as common.UIAbilityContext);
     const bootstrapResult = ngfStarterKernel.bootstrap();
+    void ngfScreenKeepAwakeFacade.initialize(this.context as common.UIAbilityContext);
     crashAnalytics.initialize();
     logger.startup(TAG, 'NGF 引导启动完成', '成功=' + bootstrapResult);
 
@@ -76,6 +78,7 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     logger.lifecycle(TAG, '生命周期: onWindowStageCreate');
     ngfPlatformWindowManagerFacade.bindWindowStage(windowStage);
+    ngfScreenKeepAwakeFacade.onWindowStageCreate();
     ngfDeviceAdaptationFacade.bindWindowStage(windowStage);
 
     windowStage.loadContent('pages/ngf/MainMenuPage', (err: BusinessError): void => {
@@ -88,6 +91,7 @@ export default class EntryAbility extends UIAbility {
   }
 
   onWindowStageDestroy(): void {
+    ngfScreenKeepAwakeFacade.onWindowStageDestroy();
     ngfDeviceAdaptationFacade.clearWindowStage();
     ngfPlatformWindowManagerFacade.clearWindowStage();
     logger.lifecycle(TAG, '生命周期: onWindowStageDestroy');
@@ -95,12 +99,14 @@ export default class EntryAbility extends UIAbility {
 
   onForeground(): void {
     logger.lifecycle(TAG, '生命周期: onForeground');
+    ngfScreenKeepAwakeFacade.onForeground();
     ngfDeviceAdaptationFacade.refresh('ability_foreground');
     void ngfHoldingAwarenessFacade.resume();
   }
 
   onBackground(): void {
     logger.lifecycle(TAG, '生命周期: onBackground');
+    ngfScreenKeepAwakeFacade.onBackground();
   }
 
   onConfigurationUpdate(config: Configuration): void {

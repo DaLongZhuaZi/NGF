@@ -5335,6 +5335,14 @@
     {
       "name": "settings_language_english",
       "value": "English"
+    },
+    {
+      "name": "settings_screen_title",
+      "value": "Screen"
+    },
+    {
+      "name": "settings_keep_screen_on",
+      "value": "Keep Screen On"
     }
   ]
 }
