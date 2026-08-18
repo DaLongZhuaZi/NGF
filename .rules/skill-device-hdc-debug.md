@@ -190,20 +190,28 @@ Test-Path '<可能的 DevEco SDK>\default\openharmony\toolchains\hdb.exe'
 
 如果某个日志命令组合在本机失败或超时，把失败命令和原因写入 `.local-rules/device-hdc.local.md`。不要把未验证命令写入共享流程。
 
-### 6.5 NGF 应用日志过滤（domain / tag）
+### 6.5 NGF 应用日志采集（domain / tag，修复后）
 
-过滤 NGF 应用自身日志时，**不能用 `ngf`/`bundleName` 做关键词**（hilog 输出里不出现这些），要用 Logger 实际注册的 hilog 参数：
+过滤 NGF 应用自身日志时，**不能用 `ngf`/`bundleName` 做关键词**（hilog 输出里 tag 是 Logger 注册值，不在消息里），要用 Logger 实际注册的 hilog 参数：
 
 - 实现位置：`ngf_framework/src/main/ets/utils/Logger.ets`。
 - hilog tag：`wwssadad`（源码 `const Flag = 'wwssadad'`）。
-- hilog domain：`0x0000`（源码 `const LOG_DOMAIN = 0x0000`）。
+- hilog domain：`0x1F00`（源码 `const LOG_DOMAIN = 0x1F00`；hilog 输出里显示为 `A01F00`，`A` 表示 app 域）。
+- 消息统一带 `[NGF] ` 前缀，也可用 `[NGF]` 做关键词。
 
 ```powershell
-& $HDC -t $TARGET shell hilog --tail=200 --regex wwssadad
-& $HDC -t $TARGET shell hilog --tail=200 | Select-String 'wwssadad|0x0000'
+# 推荐：按 tag 或 domain 过滤(应用日志在 app buffer, 裸 hilog --tail 只显示 core 域)
+& $HDC -t $TARGET shell hilog -T wwssadad
+& $HDC -t $TARGET shell hilog -D 0x1F00
+# 全量抓取后用 PowerShell 侧 grep(最稳)
+& $HDC -t $TARGET shell hilog | Select-String 'A01F00|[NGF]|wwssadad'
 ```
 
-> ⚠️ 已知问题（真机实测 2026-08-18）：`LOG_DOMAIN = 0x0000` 为无效/保留 domain，导致 NGF 应用日志在真机上**完全不输出**（冷启动全量日志无应用痕迹）。若按上述命令过滤仍无任何日志，不是命令写错，而是 Logger 的 domain 需要改为非零值后重新构建。修复前，真机回归只能依赖 `aa dump -l`/`pidof`/`aa dump -r` 等结构性验证，无法采集应用 hilog。
+> ⚠️ 真机实测坑（2026-08-18，已修复 domain）：
+> 1. 根因：`LOG_DOMAIN = 0x0000` 为保留/无效域，应用日志在真机上完全不输出。改为 `0x1F00` 后日志恢复可见（domain 显示 `A01F00`）。
+> 2. 裸 `hilog --tail` 默认只显示 core 域，看不到 app 域日志；必须用 `-T`/`-D` 过滤或全量 + grep `A01F00`。
+> 3. `force-stop` 后立即 `aa start` 冷启动，应用 hilog 日志可能短时间读不到（`-T`/`-D` 返回空），延后重试或避免频繁 force-stop。
+> 4. hdc 连续多次 `shell hilog` 调用可能导致后几次 stdout 为空，单次调用最稳。
 
 ---
 

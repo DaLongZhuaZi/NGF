@@ -32,7 +32,8 @@ export enum LogLevel {
 }
 
 // 🏷️ 默认的日志输出领域（Domain），一般固定为应用的一个标识
-const LOG_DOMAIN = 0x0000;
+// 注意: 0x0000 为保留/无效域, 真机上会导致应用日志被 hilog 丢弃; 须用非零自定义域(0x0000~0xFFFF)
+const LOG_DOMAIN = 0x1F00;
 
 // 🎨 日志级别对应的中文标识和特殊符号
 export const LOG_LEVEL_SYMBOLS: Map<number, string> = new Map<number, string>([
