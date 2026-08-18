@@ -70,6 +70,28 @@ Test-Path '<可能的 DevEco SDK>\default\openharmony\toolchains\hdb.exe'
 
 把设备型号/API 版本写入 `.local-rules/device-hdc.local.md`，用于后续判断 SDK 与设备是否匹配。
 
+### 3.4 网络连接真机（hdc tconn）
+
+真机通过 WiFi 网络调试时，先建立 TCP 连接（IP:端口来自真机的「HDC 端口」），再 `list targets` 就能看到该 target：
+
+```powershell
+& $HDC tconn <ip>:<port>       # 例: & $HDC tconn 192.168.5.133:45069
+& $HDC list targets -v        # 确认 target 状态为 Connected
+```
+
+> `tconn` 重复连接会返回 `Target is connected, repeat operation`，属正常幂等提示。
+
+### 3.5 真机 API 版本匹配（关键！）
+
+安装前必须先确认 **设备 API 版本 ≥ HAP 的 `compatibleSdkVersion`**，否则 `install` 会被拒绝：
+
+```powershell
+& $HDC -t $TARGET shell param get const.ohos.apiversion   # 设备 API
+# 对比工程 build-profile.json5 的 compatibleSdkVersion
+```
+
+实测教训：API 26 的 NGF（compatibleSdkVersion 26.0.0）装不到 API 24 的真机（如 ADA-AL00U / nova 12 Ultra），只能装到 API 26 设备（如 MLR-AL10 / MatePad Mini / OpenHarmony 7.0.0）。不同设备 API 不同，务必逐台确认。
+
 ---
 
 ## 4. 安装与包信息
@@ -167,6 +189,21 @@ Test-Path '<可能的 DevEco SDK>\default\openharmony\toolchains\hdb.exe'
 ### 6.4 命令组合黑名单
 
 如果某个日志命令组合在本机失败或超时，把失败命令和原因写入 `.local-rules/device-hdc.local.md`。不要把未验证命令写入共享流程。
+
+### 6.5 NGF 应用日志过滤（domain / tag）
+
+过滤 NGF 应用自身日志时，**不能用 `ngf`/`bundleName` 做关键词**（hilog 输出里不出现这些），要用 Logger 实际注册的 hilog 参数：
+
+- 实现位置：`ngf_framework/src/main/ets/utils/Logger.ets`。
+- hilog tag：`wwssadad`（源码 `const Flag = 'wwssadad'`）。
+- hilog domain：`0x0000`（源码 `const LOG_DOMAIN = 0x0000`）。
+
+```powershell
+& $HDC -t $TARGET shell hilog --tail=200 --regex wwssadad
+& $HDC -t $TARGET shell hilog --tail=200 | Select-String 'wwssadad|0x0000'
+```
+
+> ⚠️ 已知问题（真机实测 2026-08-18）：`LOG_DOMAIN = 0x0000` 为无效/保留 domain，导致 NGF 应用日志在真机上**完全不输出**（冷启动全量日志无应用痕迹）。若按上述命令过滤仍无任何日志，不是命令写错，而是 Logger 的 domain 需要改为非零值后重新构建。修复前，真机回归只能依赖 `aa dump -l`/`pidof`/`aa dump -r` 等结构性验证，无法采集应用 hilog。
 
 ---
 
