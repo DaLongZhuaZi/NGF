@@ -52,6 +52,7 @@
 | [`.rules/skill-device-hdc-debug.md`](.rules/skill-device-hdc-debug.md) | 涉及 `hdb`/`hdc`、模拟器/真机连接、HAP 安装、命令行启动/停止应用、设备运行状态、HiLog、bugreport、`aa appdebug` 时 |
 | [`.rules/skill-app-release.md`](.rules/skill-app-release.md) | 涉及修改应用包名、应用图标、版本号、打包发布、申请证书、生成 p12/csr 文件或上架 AGC 时 |
 | [`.rules/skill-ci-build.md`](.rules/skill-ci-build.md) | 用户提到 CI / 云端构建 / 免 DevEco Studio / GitHub Actions / 镜像 / 自动发布 Release；涉及 `.github/workflows/`、`harmonyos-ci`、`strip_signing.py`；接入新项目到 CI、新增 API 版本镜像、排查 CI 构建报错时 |
+| [`.rules/skill-automation-test.md`](.rules/skill-automation-test.md) | 用户提到 自动化测试 / 单元测试 / 集成测试 / 回归测试 / hypium / 断言 / 测试覆盖率；涉及 `entry/src/test/`、`entry/src/ohosTest/`、`*.test.ets`、`@ohos/hypium`、`@ohos/hamock`；从下载 hypium 测试工具包开始，搭建测试环境、编写测试用例、运行测试、排查测试失败时 |
 | [`.rules/skill-ui-symbols.md`](.rules/skill-ui-symbols.md) | 涉及在 UI 中添加图标、状态提示、字符串带图；发现或准备新增 Emoji 作为 UI 标识 |
 | [`.rules/skill-i18n.md`](.rules/skill-i18n.md) | 涉及新建 UI 界面、修改页面文案、输出面向用户的 Toast/Dialog、配置 HdsNavigation/HdsNavDestination 标题时 |
 | [`.rules/skill-project-rule-governance.md`](.rules/skill-project-rule-governance.md) | 涉及项目规则、Agent Harness、持续性用户偏好、项目级架构/产品决策；Agent 发现已验证的重复项目模式；需要创建、更新或读取 `.agent-rules/` 时 |

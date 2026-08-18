@@ -28,6 +28,21 @@
 **验证**：交付前回看本条；涉及 CI/构建/镜像时实际引用 `.rules/skill-ci-build.md` 与 `docs/CI_Guide.md`；证书类文件不进入工作区提交。
 **更新时间**：2026-08-17
 
+### PR-003 NGF 自动化测试与回归测试 harness 约定
+
+**状态**：active
+**范围**：NGF 仓库的单元测试、集成测试与回归测试；新增测试用例、搭建测试环境、维护测试目录。
+**指令**：
+1. 测试框架统一用 `@ohos/hypium`（配套 `@ohos/hamock`），依赖已在根 `oh-package.json5` 的 devDependencies 就绪（1.0.25 / 1.0.0）。
+2. 目录结构：本地单元测试放 `entry/src/test/`（`List.test.ets` 为聚合入口 `export default function testsuite()`）；设备集成测试放 `entry/src/ohosTest/`（含 `module.json5` + `OpenHarmonyTestRunner`）。
+3. 涉及测试时先读 `.rules/skill-automation-test.md`；参考已落地案例 `F:\DevEcoStudioProject\Coder` 与 `F:\DevEcoStudioProject\manxia` 的 `entry/src/test` / `entry/src/ohosTest`。
+4. 在 IDE 外搭建/补齐测试环境时，从下载 devecotesting-hypium 工具包开始（API 26 用 26.0.0.400、API 23/24 用 6.1.0.210），注意官方直链带时效签名（约 2 小时）。
+5. 回归测试围绕「已稳定契约」写断言，引用主代码路径 `../main/ets/...`，改动后重跑确保不破坏既有行为。
+**来源**：用户要求参考 Coder/manxia 的 hypium 实际案例，在 NGF 建立自动化测试、回归测试流程与 harness。
+**证据**：`@ohos/hypium`/`@ohos/hamock` 已在 oh-package.json5；Coder（30+ LocalUnit + Ability.test）、manxia（LocalUnit + Legado 一致性/回归测试）已验证。
+**验证**：交付前回看本条；新增测试按 §4/§5 结构落地；测试用例 import `@ohos/hypium` 且入口正确聚合。
+**更新时间**：2026-08-18
+
 ## Candidate Rules
 
 当前没有待验证的候选规则。

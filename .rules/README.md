@@ -47,6 +47,7 @@
 | **应用启动** | [skill-ngf-app-harness.md](skill-ngf-app-harness.md) | 使用 NGF 新建、迁移、拆分或长期维护独立 App/应用模块；为 App 建立专属规则与 Harness。 |
 | **应用发布** | [skill-app-release.md](skill-app-release.md) | 修改应用名、包名、图标、版本号、签名证书、p12/csr、打包发布、AGC 上架。 |
 | **应用发布** | [skill-ci-build.md](skill-ci-build.md) | 用户提到 CI / 云构建 / 免 DevEco / GitHub Actions / 镜像 / 自动发布；涉及 `.github/workflows`、`harmonyos-ci`、`strip_signing`；接入新项目到 CI、新增 API 版本镜像、CI 构建排障。 |
+| **测试验证** | [skill-automation-test.md](skill-automation-test.md) | 用户提到 自动化测试 / 单元测试 / 集成测试 / 回归测试 / hypium / 断言；涉及 `entry/src/test`、`entry/src/ohosTest`、`*.test.ets`、`@ohos/hypium`、`@ohos/hamock`；从下载 hypium 测试工具包开始搭建测试环境、运行测试、排查测试失败。 |
 | **规则维护** | [skill-rules-update.md](skill-rules-update.md) | 开发者明确要求新增、修改、合并、删除、自动触发化或沉淀 `.rules/`/`AGENTS.md` 规则。 |
 
 ---
@@ -62,6 +63,7 @@
 - **构建或编译报错**：`skill-arkts-error-fixes.md` -> 相关 API/页面技能；运行时问题再读 `skill-arkts-runtime-fix.md` 与 `skill-arkts-debug.md`。
 - **设备端调试/启动**：`skill-device-hdc-debug.md` -> `skill-arkts-debug.md` 或 `skill-arkts-runtime-fix.md`。
 - **CI 云端构建 / 免 DevEco / 镜像 / 流水线**：`skill-ci-build.md` -> 消费方 `docs/CI_Guide.md`（如需具体步骤） -> `.agent-rules/project-rules.md`（项目专属 CI 事实）。
+- **自动化测试 / 回归测试 / hypium**：`skill-automation-test.md` -> `.agent-rules/project-rules.md`（项目专属测试 harness 约定） -> 参考 `Coder`/`manxia` 的 `entry/src/test` 与 `entry/src/ohosTest` 实际案例。
 - **规则库维护**：`skill-rules-update.md` -> 被修改的目标规则文件 -> `AGENTS.md` 与本索引同步复核。
 
 > 主规范文件为根目录 `AGENTS.md`，本规则库是对 `AGENTS.md` 的具体技能补充，两者互为参考，`AGENTS.md` 优先级更高。
