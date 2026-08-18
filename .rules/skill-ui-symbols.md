@@ -87,3 +87,10 @@ Text() {
 | 文件 | 说明 |
 |------|------|
 | `SystemSymbolCatalog.ets` | 包含了系统中可用系统 Symbol 名称的完整列表，不知道名字时可查阅此文件。 |
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载）：见 [official-doc-links.md](official-doc-links.md)
+- HDS 设计系统（图标/符号规范）：https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/ui-design-introduction
+- ArkUI 组件通用属性与方法（SymbolGlyph 等）：见 official-doc-links.md §2
+

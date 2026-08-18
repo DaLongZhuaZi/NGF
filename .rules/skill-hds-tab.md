@@ -153,3 +153,11 @@ HdsTabs({ barPosition: BarPosition.End, controller: this.tabsController }) {
 | `entry/src/main/ets/pages/ngf/MainMenuPage.ets` | 根导航主页，已配置标准的 `bottomInsetVp` 避让与 `barBottomMargin` 样式。 |
 | `entry/src/main/ets/pages/ngf/HdsIntegratedShowcasePage.ets` | 综合示例页，内含多处 `HdsTabs` 布局。 |
 | `ngf_framework/src/main/ets/uiShell/components/NGFHdsTabsFactory.ets` | HdsTabs 通用封装工厂类。 |
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载）：见 [official-doc-links.md](official-doc-links.md)
+- ArkUI 声明式 UI 开发总览：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-development-overview
+- 状态装饰器总览：https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/arkts-decorator-overview
+- HDS 设计系统入门：https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/ui-design-introduction
+

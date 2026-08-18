@@ -168,3 +168,11 @@ ngfSystem.publishSystemEvent('ngf.intent.action.SUBMIT_TASK', payload);
 | `ngf.task.progress` | Executor 调用 updateCallback 时 | `NGFTaskInfo` (序列化 JSON) |
 | `ngf.task.completed` | 任务正常执行结束时 | `NGFTaskInfo` (序列化 JSON) |
 | `ngf.task.failed` | 任务抛出异常失败时 | `NGFTaskInfo` (序列化 JSON) |
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考）：见 [official-doc-links.md](official-doc-links.md)
+- 通知 @ohos.notificationManager：见 official-doc-links.md §2
+- 连续任务/长时任务指南：见 official-doc-links.md §2（`continuous-task` 主题）
+
+> 后台任务/通知涉及系统调度与权限，具体行为以官方 `harmonyos-references` 参考页与 `module.json5` 已声明权限为准。

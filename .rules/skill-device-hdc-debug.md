@@ -215,6 +215,18 @@ Test-Path '<可能的 DevEco SDK>\default\openharmony\toolchains\hdb.exe'
 
 ---
 
+## 6A. UI 自动化能力（模拟点击 / 截图 / 控件树）交叉引用
+
+设备端 UI 自动化（模拟点击、手势注入、截图、控件树 dump、图片识别断言）的完整方法已沉淀在 `.rules/skill-automation-test.md` §7A，这里只给出与 hdc 调试的衔接要点：
+
+- 核心工具是设备端 `/system/bin/uitest`，通过 `hdc shell uitest <command>` 调用。
+- 常见命令：`uitest uiInput click <x> <y>`（模拟点击）、`uitest uiInput swipe/back/keyEvent`（手势/按键）、`uitest screenCap -p <path>`（截图）、`uitest dumpLayout -p <path>`（控件树）。
+- 坐标一律是**物理像素**，与 `dumpLayout` 的 `bounds` 同坐标系，直接复用。
+- 截图/控件树文件先写到设备端（如 `/data/local/tmp/`），再用 `hdc file recv <remote> <local>` 拉回本地分析。
+- 需要「点击 → 日志 → 视觉」三段闭环断言时，按 automation-test §7A.3 的标准四步执行。
+
+---
+
 ## 7. 应用等待调试与 bugreport
 
 ### 7.1 查看、设置、取消等待调试

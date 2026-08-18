@@ -89,3 +89,8 @@ $env:DEVECO_SDK_HOME='<包含 default/openharmony 的 DevEco SDK 根目录>'; & 
 ```
 
 只记录本机事实，不复制共享规则。不要记录密钥、证书密码、token、账号等敏感信息。
+
+## 5. 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载/DevEco Studio 下载）：见 [official-doc-links.md](official-doc-links.md)
+- DevEco Studio / SDK 下载：从官方下载中心进入 https://developer.huawei.com/consumer/cn/download/

@@ -76,3 +76,9 @@ ngfPlatformWindowManagerFacade.createSubWindow('unique_sub_window_name').then((s
 ### 4.4 悬浮窗样式与 UI
 - **透明背景**：如果子窗口需要表现为半透明或浮层，请在它的根布局元素上设置透明或半透明的 `backgroundColor`。
 - **系统栏穿透**：子窗口默认可能不在沉浸式下。如果需要穿透状态栏，需在其对应的 page 组件里调用 `window` API 或者框架沉浸式组件。
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考）：见 [official-doc-links.md](official-doc-links.md)
+- 窗口管理 @ohos.window 参考：https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-window
+- 多窗口/子窗口开发指南：在 `developer.huawei.com/consumer/cn/doc/harmonyos-guides/` 站内搜索「窗口」「子窗口」

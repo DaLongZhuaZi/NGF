@@ -389,3 +389,13 @@ struct MyAdaptivePage {
 | `ngf_framework/src/main/ets/deviceAwareness/contracts/IHoldingAwarenessManager.ets` | `NGFHoldingUiAnchor`、`NGFHoldingAwarenessSide`、`NGFHoldingAwarenessSnapshot` |
 | `pages/ngf/NGFSettingsPage.ets` | 综合使用示例参考 |
 | `pages/ngf/NGFDeviceAwarenessPage.ets` | 握持感知详细演示参考 |
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考）：见 [official-doc-links.md](official-doc-links.md)
+- 国际化 @ohos.i18n：见 official-doc-links.md §2
+- 设备信息 @ohos.deviceInfo：见 official-doc-links.md §2
+- 首选项 @ohos.data.preferences：见 official-doc-links.md §2
+- 多模感知 @ohos.multimodalAwareness（握持感知底层）：见 official-doc-links.md §2
+
+> 上述管理器均以 `ngf_framework` 的 facade/contract 为封装边界；涉及底层系统 API 的行为差异时先查对应 `harmonyos-references` 参考页确认。

@@ -32,3 +32,9 @@ python scripts/i18n_updater.py '[{"name":"btn_ok","zh":"确定","en":"OK"}, {"na
 1. **生成翻译对**：在脑海中确定其 `name`、`zh` 和 `en`。
 2. **运行脚本**：使用 `run_command` 调用 `scripts/i18n_updater.py` 写入资源配置。
 3. **编写代码**：在 `.ets` 文件中，安全地使用 `$r('app.string.name')` 引用你刚才创建的文本。
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考）：见 [official-doc-links.md](official-doc-links.md)
+- 国际化 @ohos.i18n 参考：见 official-doc-links.md §2
+- 多语言资源（L10n）：https://developer.huawei.com/consumer/cn/doc/HarmonyOS-Guides/l10n-multilingual-resources

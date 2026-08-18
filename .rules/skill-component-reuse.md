@@ -48,3 +48,8 @@ import {
 
 **强硬约束：**
 如果你在 `entry` 层发现你需要一个 `MD5/SHA` 哈希函数，**严禁自己写，必须使用 `securityToolkit`**；如果你需要打日志，**严禁使用原生的 `console.log`，必须使用 `logger`**。
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考）：见 [official-doc-links.md](official-doc-links.md)
+- securityToolkit（哈希/加解密）与 Logger 能力以 `ngf_framework` 现有实现为准；涉及具体 API 时查官网 `harmonyos-references`

@@ -55,7 +55,7 @@
 
 ## 4. 新增 API 版本镜像（在 harmonyos-ci 仓库）
 
-1. 取得与目标 API 匹配的 Linux (x86-64) command-line-tools 直链（官网需登录+签名，或社区镜像分片）。
+1. 取得与目标 API 匹配的 Linux (x86-64) command-line-tools 直链：从官方下载中心 https://developer.huawei.com/consumer/cn/download/ 搜索「commandline-tools」获取（需登录+签名），或使用社区镜像分片（见 official-doc-links.md §5）。
 2. 在 harmonyos-ci 仓库运行 **Build CI image**（workflow_dispatch）：填 `clt_zip_url`、`clt_version`、`image_tag`。
 3. 构建成功后会自动推送镜像 + 发布一条正式 Release（非 prerelease）作为构建公告。
 
@@ -104,3 +104,11 @@ docker run --rm -v "$PWD":/workspace ghcr.io/dalongzhuazi/harmonyos-ci:api26 \
 - **write_package denied**：跨仓库写已存在 ghcr package 要用 PAT 而非 GITHUB_TOKEN。
 - **子模块悬空**：`.gitmodules` 指向的 commit 未推送到远端会 `not our ref`；先推送子模块。
 - **hvigor 版本不匹配**：镜像 tag 与 `compatibleSdkVersion` 不符；换对应 API 的镜像 tag。
+
+## 8. 官方参考
+
+- 官方文档索引（构建/打包/发布/命令行人工具）：见 [official-doc-links.md](official-doc-links.md) §4
+- hvigor 构建工具：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-hvigor
+- 应用签名/HAP 打包：见 official-doc-links.md §4（`ide-signing`）
+- 命令行人工具（hap-sign-tool/hdc/aa/bm/hilog）：见 official-doc-links.md §4
+- harmonyos-ci 镜像仓库：https://github.com/DaLongZhuaZi/harmonyos-ci（tags: api23/api24/api26/api26b2）

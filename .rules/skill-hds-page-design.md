@@ -220,3 +220,11 @@ secondaryGlowColor: '#32A4F2D8'  // 青色光晕
 | `entry/src/main/ets/pages/ngf/MainMenuPage.ets` | `buildNavDestination` Builder，新页面在此注册 |
 | `entry/src/main/ets/pages/ngf/HdsIntegratedShowcasePage.ets` | 综合示例页，可参考布局模式 |
 | `entry/src/main/ets/pages/ngf/HdsNavigationOfficialShowcasePage.ets` | 官方 HDS 示例，可参考 Material/Effect 用法 |
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载）：见 [official-doc-links.md](official-doc-links.md)
+- ArkUI 声明式 UI 开发总览：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-development-overview
+- 状态装饰器总览：https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/arkts-decorator-overview
+- HDS 设计系统入门：https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/ui-design-introduction
+

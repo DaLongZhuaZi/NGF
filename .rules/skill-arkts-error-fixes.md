@@ -187,3 +187,14 @@ if (display !== null) {
   - **SDK 版本错误**：API level 不匹配，检查 `build-profile.json5` 中的 `compileSdkVersion`
 - 修复错误后，再次运行 `build_project`
 - 如果增量构建意外失败，建议删除 `.hvigor` 和 `build` 目录进行干净构建
+
+---
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载）：见 [official-doc-links.md](official-doc-links.md)
+- ArkTS 语言基础与介绍：https://developer.huawei.com/consumer/cn/doc/doccenter-getting-started/introduction-to-arkts
+- ArkTS 编码风格指南：https://developer.huawei.com/consumer/cn/doc/doccenter-getting-started/arkts-coding-style-guide
+- ArkTS 迁移背景（TS/JS → ArkTS）：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-migration-background
+- ArkTS 装饰器总览：https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/arkts-decorator-overview
+

@@ -121,3 +121,10 @@ $env:DEVECO_SDK_HOME='<包含 default/openharmony 的 DevEco SDK 根目录>'; & 
 - **绝对禁止**使用任何与 Android APK 相关的签名工具（如 `apksigner`、`keytool`）来处理 HarmonyOS Next 产物。
 - **绝对禁止**在没有任何 `.p7b` 授权配置的情况下，强行劝导用户执行 release 打包并承诺可以直接安装。
 - 当用户询问上架步骤时，必须严格按照本文件中**六个步骤**的顺序进行解释，并明确指出必须要去“AppGallery Connect”操作。
+
+## 4. 官方参考
+
+- 官方文档索引（构建/打包/发布/AGC）：见 [official-doc-links.md](official-doc-links.md) §4
+- AppGallery Connect 入口：https://developer.huawei.com/consumer/cn/service/josp/agc/index.html
+- 应用签名/HAP 打包指南：见 official-doc-links.md §4（`ide-signing` 主题）
+- 命令行人工具（hap-sign-tool / hdc / aa / bm）：见 official-doc-links.md §4

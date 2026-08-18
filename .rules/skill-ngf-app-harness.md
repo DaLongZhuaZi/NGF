@@ -92,3 +92,9 @@ Harness 建立完成后，`AGENTS.md` 必须要求后续 Agent：
 - [ ] 已区分已确认规则、个人偏好、机器事实、开放决策和候选模式。
 - [ ] 已保留 NGF 框架与具体 App 的职责边界。
 - [ ] 已明确本次是否执行构建、运行、设备验证或仅静态复核。
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载）：见 [official-doc-links.md](official-doc-links.md)
+- 构建工具 hvigor：见 official-doc-links.md §4
+- 项目规则与 Harness 治理：见 [skill-project-rule-governance.md](skill-project-rule-governance.md)

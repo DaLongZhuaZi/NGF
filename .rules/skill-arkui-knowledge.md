@@ -233,3 +233,12 @@ this.getUIContext().showAlertDialog({
 | ArkTS 语言规则、模板字面量、动态属性访问 | `skill-arkts-standards` |
 | 编译报错、类型错误、构建失败 | `skill-arkts-error-fixes` |
 | 运行时崩溃、白屏、jscrash 日志 | `skill-arkts-runtime-fix` |
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载）：见 [official-doc-links.md](official-doc-links.md)
+- ArkUI 声明式 UI 开发总览：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-development-overview
+- 组件通用方法与属性参考：https://developer.huawei.com/consumer/cn/doc/harmonyos-references/ts-component-common
+- 状态装饰器总览：https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/arkts-decorator-overview
+- 导航 Navigation/NavDestination：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-navigation-navigation
+

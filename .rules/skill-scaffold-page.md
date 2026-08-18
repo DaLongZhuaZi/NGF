@@ -113,3 +113,9 @@ export struct YourFeaturePage {
 - [ ] 是否正确通过 `'ngf_framework'` 导入了组件工厂？
 - [ ] 是否在内容容器的 `padding.top` 中使用了 `this.topInsetVp` 动态避让变量？
 - [ ] 是否已经在 `MainMenuPage` 完成了路由分发？
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考）：见 [official-doc-links.md](official-doc-links.md)
+- HDS 设计系统入门：https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/ui-design-introduction
+- ArkUI 声明式 UI 开发总览：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-development-overview

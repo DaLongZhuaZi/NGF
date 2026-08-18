@@ -86,3 +86,12 @@
 | ArkUI 组件、布局、状态装饰器 | `skill-arkui-knowledge` |
 | ArkTS 项目调试工作流（含日志插桩） | `skill-arkts-debug` |
 | 需要设备连接、启动应用、采集 HiLog、bugreport | `skill-device-hdc-debug` |
+
+---
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载）：见 [official-doc-links.md](official-doc-links.md)
+- ArkTS 迁移背景（排查语法/兼容性崩溃）：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-migration-background
+- 设备端 HiLog / faultlog 采集：见 [skill-device-hdc-debug.md](skill-device-hdc-debug.md) §6/§7
+

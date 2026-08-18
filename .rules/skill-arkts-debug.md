@@ -78,3 +78,12 @@ aboutToAppear() {
 | 需要设备连接、启动应用、采集 HiLog 或 bugreport | `skill-device-hdc-debug` |
 | 需要修改 UI 组件 | `skill-arkui-knowledge` |
 | 语法合规问题 | `skill-arkts-standards` |
+
+---
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载）：见 [official-doc-links.md](official-doc-links.md)
+- ArkTS 编码风格指南：https://developer.huawei.com/consumer/cn/doc/doccenter-getting-started/arkts-coding-style-guide
+- 设备端日志采集与调试命令：见 [skill-device-hdc-debug.md](skill-device-hdc-debug.md)
+

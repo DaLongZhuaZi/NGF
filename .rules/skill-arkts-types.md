@@ -84,3 +84,14 @@ List() {
 | 文件 | 说明 |
 |------|------|
 | `pages/ngf/NGFTaskManagerPage.ets` | 已在此文件中验证并清除了所有与 `Map`、`ForEach`、`any` 相关的 ArkTS 编译警告 |
+
+---
+
+## 官方参考
+
+- 官方文档索引（总入口/API 参考/工具下载）：见 [official-doc-links.md](official-doc-links.md)
+- ArkTS 语言基础与介绍：https://developer.huawei.com/consumer/cn/doc/doccenter-getting-started/introduction-to-arkts
+- ArkTS 编码风格指南：https://developer.huawei.com/consumer/cn/doc/doccenter-getting-started/arkts-coding-style-guide
+- ArkTS 迁移背景（TS/JS → ArkTS）：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-migration-background
+- ArkTS 装饰器总览：https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/arkts-decorator-overview
+
