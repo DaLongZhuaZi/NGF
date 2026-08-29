@@ -17,6 +17,11 @@
 | `NGFHdsTitleBarOptionsFactory` | 配置 HDS 顶栏 | 帮你快速生成符合 Material 等级和状态栏避让逻辑的 HdsTitleBarOptions 对象 |
 | `NGFImmersiveTopChromeUnderlay` | 页面顶部光效底板 | 用于在纯净页面顶部渲染一层玻璃质感和渐变发光的光效层 |
 | `NGFImmersiveTopChromePresetFactory` | 预设光效生成器 | 配合 `NGFImmersiveTopChromeUnderlay` 快速生成深蓝、亮色等光晕参数 |
+| `NGFHdsEffectPresetFactory` | HDS 特效预设工厂 | 构建 `PressShadow`/`PointLight`/`FlowLight`/`Combined` 预设，见 `NGFHdsEffectPresets.ets` |
+| `NGFHdsPointLightPresetSpec` | 点光预设规格 | `color` 字段可被外部覆盖以注入 `HdsColorPicker` 选中色（API26 新增导出） |
+| `NGFHdsInteractiveEffectPreset` | 交互特效预设 | 封装 `backgroundEffect` + `visualEffectPreset` + 缩放/位移/阴影 |
+| `NGFHdsMaterialSurfacePreset` | 材质表面预设 | 封装 `SystemMaterialParams` + 三档 MaterialLevel 视觉参数 |
+| `NGFHdsSceneFlowPreset` | 流光场景预设 | 封装 `DualEdgeFlowLightWithMaskParam` + 帧率区间 |
 | `AboutSheetContent` | 弹窗/面板底座 | 标准的关于/信息展示面板壳层（半屏弹窗） |
 
 **如何使用**：

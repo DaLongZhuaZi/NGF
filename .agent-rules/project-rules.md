@@ -43,6 +43,21 @@
 **验证**：交付前回看本条；新增测试按 §4/§5 结构落地；测试用例 import `@ohos/hypium` 且入口正确聚合。
 **更新时间**：2026-08-18
 
+### PR-004 API26 组件级沉浸光感与 HdsColorPicker 接入约定
+
+**状态**：active
+**范围**：NGF 仓库 HDS 展示页（`pages/ngf/HdsNavigationOfficialShowcasePage.ets`）及后续新建/改造 HDS 页面时，涉及 API26 组件级沉浸光感、`HdsColorPicker`、`ImmersiveMaterial`、`hdsEffect` 点光/按压阴影的接入。
+**指令**：
+1. 能力分层互斥：使用 `.systemMaterial(ImmersiveMaterial{interactive:true, lightEffect})` 接管按压反馈后，不要再叠加 `.visualEffect(hdsEffect 链)`，两者会重复渲染按压反馈，导致性能下降且视觉异常。
+2. `HdsColorPicker` 选中颜色必须存到 `@State` 变量，再由该变量驱动 `VisualEffect` 重建；颜色注入通过修改 `NGFHdsPointLightPresetSpec.color` 后调用 `basePreset.buildVisualEffect()` 走工厂方法，不要在页面层直接 `new hdsEffect.HdsEffectBuilder()`。
+3. `ngfVisualEffectsFacade.buildImmersiveMaterialForTabs()` 返回 `uiMaterial.ImmersiveMaterial | undefined`，调用方需做空值兼容（返回 `undefined` 表示设备/策略不支持）。
+4. 三档 `MaterialLevel`（GENTLE/SMOOTH/EXQUISITE）的视觉差异由 `SystemMaterialParams.materialLevel` 驱动，系统材质引擎按设备算力自动适配模糊/高光/阴影，不需要手写 `linearGradient` + `shadow` + `border` 模拟材质层次。
+5. `NGFHdsPointLightPresetSpec` 已纳入 `ngf_framework` 的 `uiShell/index.ets` barrel 导出，页面层可 `import { NGFHdsPointLightPresetSpec } from 'ngf_framework'`。
+**来源**：用户要求针对新增的 API26 优化内容完成文档与技能修改。
+**证据**：`entry/src/main/ets/pages/ngf/HdsNavigationOfficialShowcasePage.ets` 的 `buildColorPickerSection`/`buildCustomPointLightVisualEffect`/`buildMaterialPanelContent`；`ngf_framework/src/main/ets/uiShell/index.ets` 新增 `NGFHdsPointLightPresetSpec` 导出；`hvigorw assembleHap` → BUILD SUCCESSFUL。
+**验证**：交付前回看本条；HDS 页面涉及 API26 光感/材质/颜色选择器时，实际引用 `.rules/skill-hds-page-design.md` §8 与 `.rules/skill-arkui-knowledge.md` §10。
+**更新时间**：2026-08-28
+
 ## Candidate Rules
 
 当前没有待验证的候选规则。

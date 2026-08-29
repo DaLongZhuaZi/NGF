@@ -212,14 +212,113 @@ secondaryGlowColor: '#32A4F2D8'  // 青色光晕
 | `NGFImmersiveTopChromePresetFactory` | 底板预设光效构建器 |
 | `NGFPageWindowSupport` | 窗口策略辅助类（支持动态获取状态栏高度） |
 
-## 8. 关键业务文件路径速查
+## 8. API26 组件级沉浸光感与材质接入（HdsColorPicker / ImmersiveMaterial / 组件级光感）
+
+本次（API26 / 5.1.0）在 `HdsNavigationOfficialShowcasePage` 接入了三项新能力，后续新建或改造 HDS 页面时，优先复用以下模式，不要旁路新增一套平行实现。
+
+### 8.1 HdsColorPicker（API26 Beta2 新增组件）
+
+**用途**：让用户自选点光颜色，选中颜色实时注入 `hdsEffect.PointLightEffect`。
+
+**接入要点**：
+- 从 `@kit.UIDesignKit` 导入 `HdsColorPicker`、`HdsColorPickerOptions`、`HdsColorPickerTabType`。
+- 组件参数：`initialColor: string`、`initialFavoriteColors: Array<string>`、`options: HdsColorPickerOptions`。
+- `options` 内 `tabs` 字段是 `Array<HdsColorPickerTabType>`，可选 `GRID` / `SPECTRUM` / `SLIDERS`，顺序即 Tab 顺序。
+- 回调：`onColorSelected: (color: string) => void`、`onFavoriteColorsUpdate: (favorites: Array<string>) => void`。
+- 选中颜色必须存到 `@State` 变量（如 `customPointLightColor`），再由该变量驱动 `VisualEffect` 重建，ArkUI 才会建立状态依赖并触发重绘。
+- 收藏列表建议也用 `@State` 承接，避免组件内部状态与外部不同步。
+
+**示例片段**（EffectPage `buildColorPickerSection`）：
+
+```typescript
+HdsColorPicker({
+  initialColor: this.customPointLightColor,
+  initialFavoriteColors: this.favoriteColors,
+  options: {
+    circleRadius: 14,
+    tabs: [
+      HdsColorPickerTabType.GRID,
+      HdsColorPickerTabType.SPECTRUM,
+      HdsColorPickerTabType.SLIDERS
+    ]
+  } as HdsColorPickerOptions,
+  onColorSelected: (color: string): void => {
+    this.customPointLightColor = color;
+  },
+  onFavoriteColorsUpdate: (favorites: Array<string>): void => {
+    this.favoriteColors = favorites;
+  }
+})
+```
+
+### 8.2 ImmersiveMaterial（API26 新增系统材质）
+
+**用途**：让系统材质引擎接管容器的模糊/高光/阴影，按 `ImmersiveStyle` 与设备算力自动适配三档视觉差异，替代手写 `linearGradient` + `shadow` + `border` 模拟材质层次。
+
+**接入要点**：
+- 通过 `ngfVisualEffectsFacade.buildImmersiveMaterialForTabs()` 获取 `uiMaterial.ImmersiveMaterial | undefined`（返回 `undefined` 表示设备/策略不支持，调用方需做空值兼容）。
+- 应用方式：在目标容器上调用 `.systemMaterial(ngfVisualEffectsFacade.buildImmersiveMaterialForTabs())`。
+- `buildImmersiveMaterialForTabs()` 内部已启用 `interactive: true` + `lightEffect`，即 API26 组件级沉浸光感，按压形变和触点光感由系统接管。
+- **重要**：一旦使用 `systemMaterial(ImmersiveMaterial)`，不要再叠加 `.visualEffect(hdsEffect 链)`，两者会重复渲染按压反馈，导致性能下降且视觉异常。
+- 三档 `MaterialLevel`（GENTLE/SMOOTH/EXQUISITE）的视觉差异由 `SystemMaterialParams.materialLevel` 驱动，`NGFHdsEffectPresetFactory.buildMaterialSurfacePreset(...)` 已封装该参数注入。
+
+**示例片段**（MaterialPage `buildMaterialPanelContent`）：
+
+```typescript
+Column({ space: 14 }) {
+  // ...标题栏、规格卡片、描述...
+}
+.width('100%')
+.padding(16)
+.borderRadius(24)
+.border({ width: preset.borderWidth, color: preset.borderColor })
+.backgroundEffect(preset.backgroundEffect)
+// API26 ImmersiveMaterial 接管三档视觉差异（模糊/高光/阴影）+ 组件级沉浸光感
+.systemMaterial(ngfVisualEffectsFacade.buildImmersiveMaterialForTabs())
+.scale(preset.scaleOptions)
+```
+
+### 8.3 组件级沉浸光感 vs `hdsEffect` 手动链
+
+**API26 能力分层**：
+
+| 能力 | 接入方式 | 适用场景 |
+|------|---------|---------|
+| 组件级沉浸光感 | `.systemMaterial(ImmersiveMaterial{interactive:true, lightEffect})` | 容器整体按压反馈、触点光感 |
+| `hdsEffect` 点光/按压阴影 | `.visualEffect(hdsEffect.HdsEffectBuilder().pointLight(...).buildEffect())` | 需要自定义点光颜色/强度/边框羽化参数时 |
+| `HdsVisualComponent` + `HdsSceneController` | `.scene(HdsSceneType.DUAL_EDGE_FLOW_LIGHT_WITH_BACKGROUND_MASK, controller)` | 流光场景动画 |
+
+**决策原则**：
+- 若只需要「按压下沉 + 触点光感」的标准反馈，用 `systemMaterial(ImmersiveMaterial)`，不要手写 `hdsEffect` 链。
+- 若需要让用户通过 `HdsColorPicker` 自定义点光颜色，则保留 `hdsEffect` 链，用 `NGFHdsPointLightPresetSpec.color` 注入选中颜色（见 EffectPage `buildCustomPointLightVisualEffect`）。
+- 若需要流光场景动画，用 `HdsVisualComponent` + `HdsSceneController`，不要用 `hdsEffect` 模拟。
+
+### 8.4 框架导出扩展
+
+本次为支持 `HdsColorPicker` 颜色注入，在 `ngf_framework` 的 `uiShell/index.ets` barrel 中新增导出：
+
+| 新增导出 | 来源 | 用途 |
+|---------|------|------|
+| `NGFHdsPointLightPresetSpec` | `./components/NGFHdsEffectPresets` | 点光预设规格类，`color` 字段可被外部覆盖以注入 `HdsColorPicker` 选中色 |
+
+`NGFHdsEffectPresetFactory.buildPointLightPreset(pressed)` 返回的 `NGFHdsInteractiveEffectPreset` 中，`visualEffectPreset.pointLight` 即为 `NGFHdsPointLightPresetSpec` 实例，外部可直接修改其 `color` 字段后调用 `buildVisualEffect()` 重建 `VisualEffect`。
+
+**ArkTS 合规提醒**：
+- `NGFHdsPointLightPresetSpec | null` 的空值判断必须显式 `=== null`，不要用 `!` 非空断言（ArkTS 禁止 definite assignment assertion）。
+- 修改 `pointLight.color` 后，`VisualEffect` 重建需通过 `basePreset.buildVisualEffect()` 走工厂方法，不要在页面层直接 `new hdsEffect.HdsEffectBuilder()`（`hdsEffect` 命名空间未在页面层导入，且会绕过框架封装）。
+
+---
+
+## 9. 关键业务文件路径速查
 
 | 文件 | 说明 |
 |------|------|
 | `entry/src/main/ets/pages/ngf/HdsDemoRoutes.ets` | `NGFHdsDemoRouteName` 路由常量 |
 | `entry/src/main/ets/pages/ngf/MainMenuPage.ets` | `buildNavDestination` Builder，新页面在此注册 |
 | `entry/src/main/ets/pages/ngf/HdsIntegratedShowcasePage.ets` | 综合示例页，可参考布局模式 |
-| `entry/src/main/ets/pages/ngf/HdsNavigationOfficialShowcasePage.ets` | 官方 HDS 示例，可参考 Material/Effect 用法 |
+| `entry/src/main/ets/pages/ngf/HdsNavigationOfficialShowcasePage.ets` | 官方 HDS 示例，可参考 Material/Effect/HdsColorPicker 用法 |
+| `ngf_framework/src/main/ets/uiShell/components/NGFHdsEffectPresets.ets` | `NGFHdsPointLightPresetSpec` / `NGFHdsEffectPresetFactory` 等预设工厂 |
+| `ngf_framework/src/main/ets/uiShell/index.ets` | uiShell barrel 导出（含本次新增 `NGFHdsPointLightPresetSpec`） |
 
 ## 官方参考
 

@@ -1,5 +1,8 @@
 import {
   hdsMaterial,
+  HdsColorPicker,
+  HdsColorPickerOptions,
+  HdsColorPickerTabType,
   HdsNavDestination,
   HdsNavDestinationTitleMode,
   HdsSceneController,
@@ -21,6 +24,7 @@ import {
   NGFHdsInteractiveEffectPreset,
   NGFHdsInteractiveEffectPresetKind,
   NGFHdsMaterialSurfacePreset,
+  NGFHdsPointLightPresetSpec,
   NGFHdsSceneFlowPreset
 } from 'ngf_framework';
 import { NGFPageWindowName, NGFPageWindowSupport } from './NGFPageWindowSupport';
@@ -963,18 +967,13 @@ export struct HdsNavigationOfficialMaterialPage {
     }
     .width('100%')
     .padding(16)
-    .linearGradient({
-      angle: 135,
-      colors: [
-        [item.gradientStart, 0],
-        [item.gradientEnd + 'A0', 1]
-      ]
-    })
     .borderRadius(24)
     .border({ width: preset.borderWidth, color: preset.borderColor })
-    .shadow(preset.shadowOptions)
     .backgroundEffect(preset.backgroundEffect)
-    .visualEffect(preset.buildVisualEffect())
+    // API26 ImmersiveMaterial: 系统材质引擎接管三档视觉差异(模糊/高光/阴影)，
+    // interactive:true + lightEffect 由系统接管按压形变和触点光感，
+    // 不再依赖手写 linearGradient + shadow + hdsEffect 链。
+    .systemMaterial(ngfVisualEffectsFacade.buildImmersiveMaterialForTabs())
     .scale(preset.scaleOptions)
     .translate(preset.translateOptions)
     .animation({
@@ -1031,6 +1030,9 @@ export struct HdsNavigationOfficialEffectPage {
   @State private activeEffectEntryId: string = '';
   @State private clickPulseEffectEntryId: string = '';
   @State private clickPulseStrength: number = 0;
+  // API26 HdsColorPicker: 用户自选点光颜色,实时注入 PointLight 效果
+  @State private customPointLightColor: string = '#F5FFFFFF';
+  @State private favoriteColors: Array<string> = ['#F5FFFFFF', '#FCD34D', '#A78BFA', '#22D3EE'];
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   private readonly scroller: Scroller = new Scroller();
@@ -1274,6 +1276,9 @@ export struct HdsNavigationOfficialEffectPage {
             ForEach(this.effectEntries, (entry: NGFHdsOfficialEffectEntry): void => {
               this.buildEffectEntryCard(entry)
             }, (entry: NGFHdsOfficialEffectEntry): string => entry.id)
+
+            // API26 HdsColorPicker: 自定义点光颜色,实时注入 PointLight 效果
+            this.buildColorPickerSection()
           }
           .width('100%')
           .padding({
@@ -1324,6 +1329,68 @@ export struct HdsNavigationOfficialEffectPage {
     } else {
       this.buildFlowLightSceneCard(entry);
     }
+  }
+
+  /**
+   * API26 HdsColorPicker 区块
+   * 用户通过颜色选择器自选点光颜色,选中后实时注入下方 PointLight 卡片的 hdsEffect。
+   */
+  @Builder
+  private buildColorPickerSection(): void {
+    Column({ space: 10 }) {
+      Row({ space: 8 }) {
+        Text('自定义点光颜色')
+          .fontSize(16)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_primary'))
+          .layoutWeight(1)
+
+        // 当前选中颜色色块预览
+        Column()
+          .width(28)
+          .height(28)
+          .borderRadius(14)
+          .backgroundColor(this.customPointLightColor)
+          .border({ width: 1.5, color: '#99FFFFFF' })
+      }
+      .width('100%')
+
+      Text('API26 HdsColorPicker: 选中颜色后,上方 PointLight 卡片的 hdsEffect 点光会实时变色。')
+        .width('100%')
+        .fontSize(12)
+        .lineHeight(18)
+        .fontColor($r('app.color.text_secondary'))
+
+      // HdsColorPicker 组件(API26 Beta2 新增)
+      HdsColorPicker({
+        initialColor: this.customPointLightColor,
+        initialFavoriteColors: this.favoriteColors,
+        options: {
+          circleRadius: 14,
+          tabs: [
+            HdsColorPickerTabType.GRID,
+            HdsColorPickerTabType.SPECTRUM,
+            HdsColorPickerTabType.SLIDERS
+          ]
+        } as HdsColorPickerOptions,
+        onColorSelected: (color: string): void => {
+          this.customPointLightColor = color;
+          logger.info(TAG, 'HdsColorPicker 选中颜色: ' + color);
+        },
+        onFavoriteColorsUpdate: (favorites: Array<string>): void => {
+          this.favoriteColors = favorites;
+          logger.info(TAG, 'HdsColorPicker 收藏列表更新: ' + favorites.length + ' 个颜色');
+        }
+      })
+      .width('100%')
+      .borderRadius(16)
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.background_surface'))
+    .borderRadius(20)
+    .border({ width: 1, color: $r('app.color.glass_border_light') })
+    .shadow({ radius: 10, color: '#14000000', offsetX: 0, offsetY: 4 })
   }
 
   @Builder
@@ -1555,6 +1622,22 @@ export struct HdsNavigationOfficialEffectPage {
     this.buildPointLightCardContent(entry, this.buildInteractivePreset(entry))
   }
 
+  /**
+   * 构建 PointLight 卡片的自定义 visualEffect。
+   * 使用 HdsColorPicker 选中的 customPointLightColor 替换默认点光颜色,
+   * 让用户能直观看到点光颜色随选择实时变化。
+   */
+  private buildCustomPointLightVisualEffect(entry: NGFHdsOfficialEffectEntry, preset: NGFHdsInteractiveEffectPreset): VisualEffect {
+    const basePreset: NGFHdsInteractiveEffectPreset =
+      NGFHdsEffectPresetFactory.buildPointLightPreset(this.isEffectEntryEffectActive(entry.id));
+    const pointLight: NGFHdsPointLightPresetSpec | null = basePreset.visualEffectPreset.pointLight;
+    if (pointLight === null) {
+      return preset.buildVisualEffect();
+    }
+    pointLight.color = this.customPointLightColor;
+    return basePreset.buildVisualEffect();
+  }
+
   @Builder
   private buildPointLightCardContent(
     entry: NGFHdsOfficialEffectEntry,
@@ -1649,7 +1732,7 @@ export struct HdsNavigationOfficialEffectPage {
       duration: 300,
       curve: Curve.FastOutSlowIn
     })
-    .visualEffect(preset.buildVisualEffect())
+    .visualEffect(this.buildCustomPointLightVisualEffect(entry, preset))
     .onTouch((event: TouchEvent): void => {
       this.handleEffectEntryTouch(entry.id, event);
     })

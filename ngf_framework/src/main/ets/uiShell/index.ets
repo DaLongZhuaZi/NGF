@@ -38,6 +38,7 @@ export {
   NGFHdsInteractiveEffectPreset,
   NGFHdsInteractiveEffectPresetKind,
   NGFHdsMaterialSurfacePreset,
+  NGFHdsPointLightPresetSpec,
   NGFHdsSceneFlowPreset
 } from './components/NGFHdsEffectPresets';
 export { AboutSheetContent } from './components/AboutSheetContent';

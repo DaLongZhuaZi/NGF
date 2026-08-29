@@ -226,7 +226,64 @@ this.getUIContext().showAlertDialog({
 - [ ] 保留现有业务流程、页面注册、资源命名和导航架构
 - [ ] 未经明确要求，不进行状态管理迁移、导航重写或广泛重构
 
-## 10. 与其他规则的边界
+## 10. API26 组件级沉浸光感与 HdsColorPicker
+
+API26（5.1.0）新增了组件级沉浸光感和 `HdsColorPicker` 组件，以下是 ArkUI 层面的接入知识。页面级布局与 HDS 顶栏相关内容见 [skill-hds-page-design.md](skill-hds-page-design.md) §8。
+
+### 10.1 HdsColorPicker（API26 Beta2）
+
+**导入**：`import { HdsColorPicker, HdsColorPickerOptions, HdsColorPickerTabType } from '@kit.UIDesignKit';`
+
+**构造参数**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `initialColor` | `string` | 初始选中颜色（如 `'#F5FFFFFF'`） |
+| `initialFavoriteColors` | `Array<string>` | 初始收藏颜色列表 |
+| `options` | `HdsColorPickerOptions` | 圆半径、Tab 配置等 |
+
+**回调**：
+
+| 回调 | 签名 | 触发时机 |
+|------|------|---------|
+| `onColorSelected` | `(color: string) => void` | 用户选中颜色时 |
+| `onFavoriteColorsUpdate` | `(favorites: Array<string>) => void` | 收藏列表变化时 |
+
+**Tab 类型枚举**：`HdsColorPickerTabType.GRID` / `SPECTRUM` / `SLIDERS`，顺序即 Tab 显示顺序。
+
+**ArkUI 状态依赖要点**：
+- `onColorSelected` 回调中的 `color` 必须赋值给 `@State` 变量（如 `this.customPointLightColor = color`），再由该变量驱动 `VisualEffect` 重建，ArkUI 才会建立状态依赖并触发重绘。
+- 若直接在回调中修改非 `@State` 成员变量，UI 不会刷新。
+- `options` 必须用 `as HdsColorPickerOptions` 显式断言（ArkTS 类型安全规则）。
+
+### 10.2 组件级沉浸光感（systemMaterial + ImmersiveMaterial）
+
+**API26 能力分层**：
+
+| 能力 | 接入方式 | 适用场景 |
+|------|---------|---------|
+| 组件级沉浸光感 | `.systemMaterial(ImmersiveMaterial{interactive:true, lightEffect})` | 容器整体按压反馈、触点光感 |
+| `hdsEffect` 点光/按压阴影 | `.visualEffect(hdsEffect.HdsEffectBuilder().pointLight(...).buildEffect())` | 需要自定义点光颜色/强度/边框羽化参数时 |
+| `HdsVisualComponent` + `HdsSceneController` | `.scene(HdsSceneType.DUAL_EDGE_FLOW_LIGHT_WITH_BACKGROUND_MASK, controller)` | 流光场景动画 |
+
+**关键规则**：
+- **互斥**：一旦使用 `systemMaterial(ImmersiveMaterial)`，不要再叠加 `.visualEffect(hdsEffect 链)`，两者会重复渲染按压反馈，导致性能下降且视觉异常。
+- **空值兼容**：`ngfVisualEffectsFacade.buildImmersiveMaterialForTabs()` 返回 `uiMaterial.ImmersiveMaterial | undefined`，调用方需做空值兼容（返回 `undefined` 表示设备/策略不支持）。
+- **三档视觉差异**：由 `SystemMaterialParams.materialLevel`（GENTLE/SMOOTH/EXQUISITE）驱动，系统材质引擎按设备算力自动适配模糊/高光/阴影，不需要手写 `linearGradient` + `shadow` + `border` 模拟材质层次。
+
+### 10.3 决策原则
+
+| 需求 | 推荐方式 | 不推荐 |
+|------|---------|--------|
+| 标准按压下沉 + 触点光感 | `systemMaterial(ImmersiveMaterial)` | 手写 `hdsEffect` 链 |
+| 用户自选点光颜色（`HdsColorPicker`） | 保留 `hdsEffect` 链，用 `NGFHdsPointLightPresetSpec.color` 注入选中色 | 在页面层直接 `new hdsEffect.HdsEffectBuilder()` |
+| 流光场景动画 | `HdsVisualComponent` + `HdsSceneController` | 用 `hdsEffect` 模拟 |
+
+**ArkTS 合规提醒**：
+- `NGFHdsPointLightPresetSpec | null` 的空值判断必须显式 `=== null`，不要用 `!` 非空断言（ArkTS 禁止 definite assignment assertion）。
+- 修改 `pointLight.color` 后，`VisualEffect` 重建需通过 `basePreset.buildVisualEffect()` 走工厂方法，不要在页面层直接 `new hdsEffect.HdsEffectBuilder()`（`hdsEffect` 命名空间未在页面层导入，且会绕过框架封装）。
+
+## 11. 与其他规则的边界
 
 | 场景 | 使用规则 |
 |------|---------|
