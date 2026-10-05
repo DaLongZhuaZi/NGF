@@ -31,8 +31,6 @@ if ((Test-Path -LiteralPath $bundle) -and -not (Test-Path -LiteralPath (Join-Pat
   $historyClone = Join-Path ([System.IO.Path]::GetTempPath()) ('ngf-history-restore-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
   & git clone $bundle $historyClone
   if ($LASTEXITCODE -ne 0) { throw 'Failed to restore Git history bundle.' }
-  & robocopy $historyClone $destinationPath /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /XJ /NFL /NDL /NP /XD (Join-Path $historyClone '.git')
-  if ($LASTEXITCODE -gt 7) { throw "Failed to overlay Git history with robocopy code $LASTEXITCODE." }
   Move-Item -LiteralPath (Join-Path $historyClone '.git') -Destination (Join-Path $destinationPath '.git')
   Remove-Item -LiteralPath $historyClone -Recurse -Force
 }
