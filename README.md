@@ -116,6 +116,7 @@ push `v*` tag 会触发 `sign-and-release.yml`。所需 Secrets（证书/密钥�
 |------|------|
 | [框架内部架构详解](ngf_framework/src/main/ets/README.md) | 给想深入了解 NGF 底层实现的硬核开发者阅读 |
 | [框架业务化指南](.rules/skill-app-release.md) | 如何修改包名、申请证书并上架到华为应用市场 |
+| [GitHub / Gitea 双线同步指南](docs/Repository_Sync_Guide.md) | 公开源与私有完整备份的边界、备份和恢复流程 |
 
 ---
 

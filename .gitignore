@@ -112,3 +112,7 @@ desktop.ini
 *.key
 *.keystore
 *.jks
+
+# Private backup tooling staging
+/tools/backup/.staging/
+/tools/backup/.tmp/

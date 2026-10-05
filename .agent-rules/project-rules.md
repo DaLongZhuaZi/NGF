@@ -58,6 +58,16 @@
 **验证**：交付前回看本条；HDS 页面涉及 API26 光感/材质/颜色选择器时，实际引用 `.rules/skill-hds-page-design.md` §8 与 `.rules/skill-arkui-knowledge.md` §10。
 **更新时间**：2026-08-28
 
+### PR-005 GitHub 公开源与 Gitea 私有完整备份双线约定
+
+**状态**：active
+**范围**：NGF 主仓库的公开发布、私有完整备份、工作区恢复与远端配置。
+**指令**：GitHub `origin` 只承载可公开发布的代码和工具；Gitea `backup` 承载包含被忽略配置、证书和 Git 历史 bundle 的私有完整备份。不得把两个源配置为同一工作区的多个 push 目标，也不得将私有备份内容自动推送到 GitHub。完整备份和恢复统一使用 `tools/backup/` 脚本，并先恢复到隔离目录校验。
+**来源**：用户明确要求在同时存在公开 GitHub 源和私有 Gitea/NAS 源时建立双线同步。
+**证据**：`docs/Repository_Sync_Guide.md`、`tools/backup/Invoke-NgfPrivateBackup.ps1`、`tools/backup/Restore-NgfPrivateBackup.ps1`、根 `.gitignore` 的证书排除规则，以及冻结工作区中已存在的 `nas-backup` remote。
+**验证**：交付前检查公开工作区不包含私有备份目录和证书；备份脚本使用 `git add -f current` 纳入被忽略文件；恢复脚本默认拒绝覆盖已存在目录。
+**更新时间**：2026-09-13
+
 ## Candidate Rules
 
 当前没有待验证的候选规则。
