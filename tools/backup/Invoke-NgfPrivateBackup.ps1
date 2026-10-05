@@ -16,6 +16,9 @@ $backupPath = [System.IO.Path]::GetFullPath($BackupRepo)
 if (-not (Test-Path -LiteralPath (Join-Path $rootPath '.git'))) { throw "Root is not a Git worktree: $rootPath" }
 if ($backupPath.TrimEnd('\') -eq $rootPath.TrimEnd('\')) { throw 'BackupRepo must be different from Root.' }
 if ($backupPath.StartsWith($rootPath.TrimEnd('\') + '\', [System.StringComparison]::OrdinalIgnoreCase)) { throw 'BackupRepo must be outside the NGF worktree.' }
+$isShallow = (& git -C $rootPath rev-parse --is-shallow-repository).Trim()
+if ($LASTEXITCODE -ne 0) { throw 'Failed to inspect whether the source repository is shallow.' }
+if ($isShallow -eq 'true') { throw 'Source repository is shallow. Fetch complete Git history before creating a private backup.' }
 
 New-Item -ItemType Directory -Path $backupPath -Force | Out-Null
 if (-not (Test-Path -LiteralPath (Join-Path $backupPath '.git'))) {
