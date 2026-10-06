@@ -327,6 +327,18 @@
     {
       "name": "background_error",
       "value": "#1A0A0A"
+    },
+    {
+      "name": "elderly_glass_text_primary",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "elderly_glass_text_secondary",
+      "value": "#E8EEF6"
+    },
+    {
+      "name": "elderly_glass_text_meta",
+      "value": "#C9D6E6"
     }
   ]
 }

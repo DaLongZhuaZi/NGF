@@ -5211,6 +5211,22 @@
     {
       "name": "about_copyright_text",
       "value": "© 2025 DaLongzhuazi. All rights reserved."
+    },
+    {
+      "name": "ngf_elderly_mode_standard_name",
+      "value": "Senior Mode"
+    },
+    {
+      "name": "ngf_elderly_mode_alias_family",
+      "value": "Family Mode"
+    },
+    {
+      "name": "ngf_elderly_mode_alias_care",
+      "value": "Care Mode"
+    },
+    {
+      "name": "ngf_elderly_mode_alias_solicitude",
+      "value": "Solicitude Mode"
     }
   ]
 }

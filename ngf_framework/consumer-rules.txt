@@ -1,0 +1,1 @@
+# No additional consumer keep rules are required by the NGF framework module.

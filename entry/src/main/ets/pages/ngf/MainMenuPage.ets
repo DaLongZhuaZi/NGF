@@ -7,6 +7,7 @@ import { NGFEventPayload } from 'ngf_framework';
 import { NGFLogLevel } from 'ngf_framework';
 import { NGFPhaseState } from 'ngf_framework';
 import { NGFControlStyleTokens } from 'ngf_framework';
+
 import { NGFMaterialSheetOptions } from 'ngf_framework';
 import { NGFMaterialSurfaceTokens } from 'ngf_framework';
 import { ngfOverlayManagerFacade } from 'ngf_framework';
@@ -39,6 +40,24 @@ import { NGFDemoWorkflowPage } from './NGFDemoWorkflowPage';
 import { NGFDemoDeviceDisplayPage } from './NGFDemoDeviceDisplayPage';
 import { NGFSystemResourcePreviewPage } from './SystemResourcePreviewPage';
 import { NGFTaskManagerPage } from './NGFTaskManagerPage';
+import { NGFAccessibilityShowcasePage } from './NGFAccessibilityShowcasePage';
+import { getElderlyModeDisplayName } from 'ngf_framework';
+// ── 适老呈现层（.rules/skill-elderly-ui.md）──────────────────────────────
+// 同一页面 + 策略切换：**不复制页面**，功能与普通版天然一致。
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFAccessibilityStateSnapshot,
+  NGFInclusiveDesignPolicy,
+  NGFInclusiveDesignResolved,
+  NGFInclusiveDesignTokens,
+  NGFUiContext,
+  NGFAccessibleDialogCloseButton,
+  NGFDialogClosePosition,
+  ngfAccessibilityFacade,
+  resolveInclusiveDesignTokens,
+  resolveUiContextForPolicy
+} from 'ngf_framework';
 import { NGFCapabilitiesTabContent } from './NGFCapabilitiesTabContent';
 import { NGFCapabilitiesNetworkPage } from './NGFCapabilitiesNetworkPage';
 import { NGFCapabilitiesDatabasePage } from './NGFCapabilitiesDatabasePage';
@@ -53,6 +72,18 @@ const TAG: string = 'NGFStarterMainMenuPage';
 const NGF_MAIN_MENU_CONTENT_TOP_INSET: number = 112;
 const NGF_MAIN_MENU_HEADER_HEIGHT: number = 356;
 const NGF_MAIN_MENU_HEADER_CONTENT_TOP_PADDING: number = 54;
+
+// ── 适老呈现层常量（.rules/skill-elderly-ui.md）──────────────────────────
+/** 适老版主要文字下限（vp）—— 工信厅信管函〔2021〕67号 附件2 §1.1「不小于 18 dp/pt」 */
+const NGF_MAIN_MENU_ELDERLY_MIN_FONT_VP: number = 18;
+/** 行距倍数 —— 附件2 §1.2「段落内文字的行距至少为 1.3 倍」 */
+const NGF_MAIN_MENU_LINE_HEIGHT_RATIO: number = 1.3;
+/**
+ * 适老版底部标签栏高度（vp）。
+ * 附件2 §2.1：适老版界面主要组件点击区不小于 60×60；标签栏是最主要导航组件，
+ * 默认 56 vp 高度下实测标签项仅约 48 vp，故适老档抬到 72 以保证 ≥60。
+ */
+const NGF_MAIN_MENU_ELDERLY_TAB_BAR_HEIGHT: number = 72;
 
 class NGFMainMenuActionKey {
   static readonly OPEN_OFFICIAL_NAVIGATION: string = NGFHdsDemoRouteName.OFFICIAL_NAVIGATION;
@@ -69,6 +100,7 @@ class NGFMainMenuActionKey {
   static readonly DEMO_TASK_MANAGER: string = NGFHdsDemoRouteName.TASK_MANAGER;
   static readonly DEMO_ERROR_RECOVERY: string = NGFHdsDemoRouteName.DEMO_ERROR_RECOVERY;
   static readonly DEMO_SYNC_MANAGER: string = NGFHdsDemoRouteName.DEMO_SYNC_MANAGER;
+  static readonly ACCESSIBILITY_SHOWCASE: string = NGFHdsDemoRouteName.ACCESSIBILITY_SHOWCASE;
   static readonly DEMO_MULTITON_SYMBOL: string = 'action.demo_multiton_symbol';
   static readonly DEMO_MULTITON_DATA: string = 'action.demo_multiton_data';
   static readonly DEMO_SUB_WINDOW_SETTINGS: string = 'action.demo_sub_window_settings';
@@ -288,7 +320,34 @@ class NGFMainMenuGlassEffectFactory {
   }
 }
 
+/**
+ * `@Builder` 的**对象参数**。
+ *
+ * ## ⚠️ 为什么必须是对象（真机实测的 bug，与 NGFSettingsPage 同源）
+ *
+ * ArkUI 的 `@Builder` 只有**按引用传递参数**时才建立状态依赖。
+ * 用位置参数传基本类型（`buildXxx(label, value)`）时，
+ * 里面渲染的文本会**停在首次构建的结果**，之后状态变化不再刷新。
+ *
+ * 2026-10-06 真机实测（设置页）：点「深色」后按钮的 `selected` 已变成 `true`，
+ * 但「当前主题」那一行**仍然显示「跟随系统」** —— 功能是通的，**显示行没更新**。
+ *
+ * 与根 `AGENTS.md` §7.4 的要求一致：
+ * 「动态文本不要通过通用 `@Builder` 方法的字符串参数层层传递后再渲染」。
+ */
+export interface NGFPerfInfoRowParams {
+  label: string;
+  value: string;
+}
+
+/** `buildHeaderGlassChip` 的参数，理由同上 */
+export interface NGFHeaderGlassChipParams {
+  label: ResourceStr;
+  value: ResourceStr;
+}
+
 @Entry
+
 @Component
 struct NGFStarterMainMenuPage {
   @State private pathStack: NavPathStack = new NavPathStack();
@@ -323,6 +382,32 @@ struct NGFStarterMainMenuPage {
   private effectiveMaterialLevel: number = hdsMaterial.MaterialLevel.ADAPTIVE;
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
+  // ── 适老呈现层状态 ──────────────────────────────────────────────────
+  /** 当前生效的包容性设计策略（用户显式选择优先于系统推导） */
+  @State private a11yPolicy: NGFInclusiveDesignPolicy = ngfAccessibilityFacade.getPolicy();
+  /** 由策略解析出的设计令牌：字号 / 行高 / 触控目标等一律从这里取 */
+  @State private a11yTokens: NGFInclusiveDesignTokens = resolveInclusiveDesignTokens({
+    policy: ngfAccessibilityFacade.getPolicy(),
+    context: resolveUiContextForPolicy(ngfAccessibilityFacade.getPolicy())
+  });
+  /** 是否处于适老版界面（决定 §1.1/§1.2/§2.1 的档位） */
+  @State private isElderlyUi: boolean =
+    resolveUiContextForPolicy(ngfAccessibilityFacade.getPolicy()) === NGFUiContext.ELDERLY_PAGE;
+  /** 系统/本应用适老模式是否可判定；不可判定时不得声称处于适老版 */
+  @State private seniorModeResolved: boolean = ngfAccessibilityFacade.getStateSnapshot().seniorModeResolved;
+  /** 本应用适老模式开关（附件2 §3.1「长辈版」） */
+  @State private appSeniorMode: boolean = ngfAccessibilityFacade.getStateSnapshot().appSeniorModeEnabled;
+  /**
+   * **系统级**关怀模式是否开启。
+   *
+   * 与 `appSeniorMode` 必须分开：
+   * - 系统开启时，**系统会接管**应用内开关 —— 即使我们写 `setSeniorModeStateForSelf(false)`，
+   *   系统也会把它同步回来（官方：「重新开启系统关怀模式时，原先被关闭的App会同步恢复开启」）。
+   * - 因此此时应用内开关应**禁用**，否则表现为「拨到关又立刻弹回开」，用户会以为开关坏了。
+   */
+  @State private systemSeniorMode: boolean = ngfAccessibilityFacade.getStateSnapshot().seniorModeEnabled;
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
   private readonly scroller0: Scroller = new Scroller();
   private readonly scroller1: Scroller = new Scroller();
   private readonly scroller2: Scroller = new Scroller();
@@ -342,6 +427,8 @@ struct NGFStarterMainMenuPage {
     if (uiContext) {
       uiContextManager.bindUIContext(uiContext);
     }
+    // 适老呈现层：订阅平台无障碍/包容性策略（与 aboutToDisappear 的 detach 成对）
+    this.attachAccessibilityBinding();
     this.starter.logger.setLevel(NGFLogLevel.DEBUG);
     this.attachStarterEventListeners();
     this.isCoreReady = this.starter.bootstrap();
@@ -389,6 +476,13 @@ struct NGFStarterMainMenuPage {
     }
   }
 
+  // ── 玻璃面板文字色 ──────────────────────────────────────────────────
+  //
+  // 注：曾一度在适老档改用浅色高对比文字来绕开对比度问题，但那只是**治标**。
+  // 真正的根因是普通组件的系统材质不再生效、导致面板背景被置空
+  // （见 NGFMaterialSurfaceTokens.shouldUseSystemMaterialSurface 的说明）。
+  // 根因修好后，这里恢复成统一的玻璃面板文字色，普通档与适老档共用。
+
   private resolveGlassPrimaryTextColor(): ResourceColor {
     return $r('app.color.text_primary');
   }
@@ -402,8 +496,177 @@ struct NGFStarterMainMenuPage {
   }
 
   aboutToDisappear(): void {
+    // 官方硬性要求：订阅必须成对取消，否则可能在生命周期结束后回调导致崩溃
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
     this.detachStarterEventListeners();
     uiContextManager.clearUIContext();
+  }
+
+  // ── 适老呈现层：订阅 + 令牌刷新 ──────────────────────────────────────
+
+  /** 订阅平台无障碍/包容性策略变化，并把令牌重新解析到 @State */
+  private attachAccessibilityBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onAccessibilityStateChanged: (snapshot: NGFAccessibilityStateSnapshot): void => {
+        this.seniorModeResolved = snapshot.seniorModeResolved;
+        this.appSeniorMode = snapshot.appSeniorModeEnabled;
+        this.systemSeniorMode = snapshot.seniorModeEnabled;
+        this.refreshInclusiveTokens();
+      },
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yPolicy = resolved.policy;
+        this.refreshInclusiveTokens();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 重新解析令牌与适老档位（策略变化后必须调用） */
+  private refreshInclusiveTokens(): void {
+    const policy: NGFInclusiveDesignPolicy = this.a11yPolicy;
+    const context: NGFUiContext = resolveUiContextForPolicy(policy);
+    this.isElderlyUi = context === NGFUiContext.ELDERLY_PAGE;
+    this.a11yTokens = resolveInclusiveDesignTokens({ policy: policy, context: context });
+  }
+
+  // ── 适老呈现层：字号 / 行高 / 触控目标 ───────────────────────────────
+  //
+  // 设计原则：**普通版视觉零回归**。
+  // 普通档下 a11yFont 原样返回、a11yLineHeight 返回 0（SDK 语义：≤0 = 沿用默认行高），
+  // 因此这些包装对现有普通版是完全透明的；只有适老档才抬到规范下限。
+
+  /**
+   * 适老版字号：附件2 §1.1「适老版界面……主要文字信息不小于 18 dp/pt」。
+   * 普通档原样返回，不改动现有视觉。
+   */
+  private a11yFont(normalFontSize: number): number {
+    if (!this.isElderlyUi) {
+      return normalFontSize;
+    }
+    return Math.max(NGF_MAIN_MENU_ELDERLY_MIN_FONT_VP, normalFontSize);
+  }
+
+  /**
+   * 适老版行高：附件2 §1.2「段落内文字的行距至少为 1.3 倍」。
+   * 普通档返回 **0** —— SDK 明确「小于等于 0 时行高不受限、随字号自适应」，即默认行为。
+   */
+  private a11yLineHeight(fontSize: number): number {
+    if (!this.isElderlyUi) {
+      return 0;
+    }
+    return Math.round(fontSize * NGF_MAIN_MENU_LINE_HEIGHT_RATIO * 100) / 100;
+  }
+
+  /**
+   * 适老版行高（原本已有显式行高的 Text 用）。
+   * 普通档保留页面原有行高值，避免改变现有版式。
+   */
+  private a11yExplicitLineHeight(fontSize: number, normalLineHeight: number): number {
+    if (!this.isElderlyUi) {
+      return normalLineHeight;
+    }
+    return Math.round(fontSize * NGF_MAIN_MENU_LINE_HEIGHT_RATIO * 100) / 100;
+  }
+
+  /**
+   * 浮窗选项。
+   *
+   * **关闭键（附件2 §2.4）**：规范要求「关闭按钮只可在左上、右上、中央底部，
+   * 且最小点击响应区域不能小于 44×44 dp/pt」。
+   * 实测 ArkUI/HDS 内置关闭键（`showClose: true`）位置合规（右上），但尺寸只有 **40×40 vp**，
+   * 低于 §2.4 下限。因此本页浮窗**关掉内置键**，改由内容区提供
+   * `NGFAccessibleDialogCloseButton`（点击区取 `dialogCloseTarget` = 44，位置右上）。
+   */
+  private buildSheetOptions(): NGFMaterialSheetOptions {
+    const options: NGFMaterialSheetOptions = new NGFMaterialSheetOptions(
+      ngfVisualEffectsFacade.buildSystemMaterialForSheet(),
+      ngfVisualEffectsFacade.shouldUseSystemMaterialSurface()
+    );
+    options.showClose = false;
+    return options;
+  }
+
+  /**
+   * 段落间距：附件2 §1.2「段落间距至少比行距大 1.3 倍」。
+   *
+   * 适老档取令牌算出的 `paragraphSpacing`（= 正文行高 × 1.3 = 23.4 × 1.3 ≈ **30.4 vp**）；
+   * 普通档原样返回，不改现有版式。
+   *
+   * **适用范围**：卡片之间、卡片内标题与说明之间这类**独立内容块**的分隔。
+   * 卡片内「标签 / 值」这种成对且紧耦合的排版不按段落间距拉开，否则卡片会被撑得过高，
+   * 反而降低一屏信息量（§2.3「充足操作时间」的意图是减少操作负担，不是减少可见信息）。
+   */
+  /**
+   * 组内间距（标签/值、图标/文字等**紧耦合**元素之间）。
+   * 适老档按 ×1.6 放大但不套用段落间距 —— 附件2 §1.2 的「段落间距」针对独立段落，
+   * 把标签与值也拉到 30 vp 会撑高卡片、降低一屏信息量。
+   */
+  private a11yGroupSpacing(normalSpacing: number): number {
+    return this.isElderlyUi ? Math.round(normalSpacing * 1.6) : normalSpacing;
+  }
+
+  private a11yParagraphSpacing(normalSpacing: number): number {
+    if (!this.isElderlyUi) {
+      return normalSpacing;
+    }
+    return Math.max(normalSpacing, this.a11yTokens.paragraphSpacing);
+  }
+
+  /**
+   * 主要组件最小点击区：附件2 §2.1。
+   * 适老版界面 60×60；其他页面 44×44（由令牌按上下文给出）。
+   */
+  private a11yTouchTarget(): number {
+    return this.a11yTokens.minTouchTarget;
+  }
+
+  /**
+   * 动效时长：随"减少动效"策略缩放。
+   * **规范未规定动效**，这是 NGF 自有行为（系统只给布尔"减少动效"信号）。
+   */
+  /**
+   * 切换本应用适老模式（附件2 §3.1「长辈版」）。
+   * 关闭时回落普通版；两种模式是**同一页面**的两种呈现，功能集合完全一致。
+   */
+  private handleToggleSeniorMode(isOn: boolean): void {
+    // 系统关怀模式接管时**不写入**：写了也会被系统同步回来，
+    // 只会让开关闪烁、并与系统设置产生无意义的争抢。
+    if (this.systemSeniorMode) {
+      this.starter.logger.info(TAG, '系统关怀模式已接管，忽略应用内开关操作');
+      return;
+    }
+    ngfAccessibilityFacade.setAppSeniorMode(isOn)
+      .then((): void => {
+        this.appSeniorMode = ngfAccessibilityFacade.getStateSnapshot().appSeniorModeEnabled;
+        this.refreshInclusiveTokens();
+      })
+      .catch((error: Error): void => {
+        // 失败时把开关拨回真实状态，避免 UI 与平台不一致
+        this.appSeniorMode = ngfAccessibilityFacade.getStateSnapshot().appSeniorModeEnabled;
+        this.starter.logger.warn(TAG, '切换长辈版失败: ' + error.message);
+      });
+  }
+
+  private a11yMotionDuration(normalMs: number): number {
+    return Math.round(normalMs * this.a11yTokens.motionDurationScale);
+  }
+
+  /** 底部标签栏高度：适老版需保证标签项点击区 ≥60（§2.1 主要组件） */
+  private a11yTabBarHeight(): number {
+    return this.isElderlyUi ? NGF_MAIN_MENU_ELDERLY_TAB_BAR_HEIGHT : 56;
+  }
+
+  /** 内容底部避让：跟随标签栏高度，避免最后一张卡片被浮动标签栏遮住 */
+  private a11yContentBottomInset(): number {
+    return this.a11yTabBarHeight() + 20;
   }
 
   private attachStarterEventListeners(): void {
@@ -565,7 +828,8 @@ struct NGFStarterMainMenuPage {
       actionKey === NGFMainMenuActionKey.SYSTEM_RESOURCE_PREVIEW ||
       actionKey === NGFMainMenuActionKey.DEMO_TASK_MANAGER ||
       actionKey === NGFMainMenuActionKey.DEMO_ERROR_RECOVERY ||
-      actionKey === NGFMainMenuActionKey.DEMO_SYNC_MANAGER) {
+      actionKey === NGFMainMenuActionKey.DEMO_SYNC_MANAGER ||
+      actionKey === NGFMainMenuActionKey.ACCESSIBILITY_SHOWCASE) {
       this.handleOpenHdsDemoTap(actionKey, labelStr);
       return;
     }
@@ -866,7 +1130,7 @@ struct NGFStarterMainMenuPage {
         HdsTabs({ barPosition: BarPosition.End, controller: this.tabsController }) {
           TabContent() {
             Scroll(this.scroller0) {
-              Column({ space: 12 }) {
+              Column({ space: this.a11yParagraphSpacing(12) }) {
                 this.buildHeaderActionSwiper()
                 this.buildHdsDemoCard()
                 this.buildStatusCard()
@@ -877,7 +1141,7 @@ struct NGFStarterMainMenuPage {
                 left: 16,
                 right: 16,
                 top: this.topInsetVp,
-                bottom: 76
+                bottom: this.a11yContentBottomInset()
               })
             }
             .width('100%')
@@ -891,7 +1155,7 @@ struct NGFStarterMainMenuPage {
 
           TabContent() {
             Scroll(this.scroller1) {
-              Column({ space: 12 }) {
+              Column({ space: this.a11yParagraphSpacing(12) }) {
                 this.buildDemoTaskManagerCard()
                 this.buildDemoSecurityPerfCard()
                 this.buildDemoDataStorageCard()
@@ -900,6 +1164,7 @@ struct NGFStarterMainMenuPage {
                 this.buildSystemResourcePreviewCard()
                 this.buildDemoErrorRecoveryCard()
                 this.buildDemoSyncManagerCard()
+                this.buildAccessibilityShowcaseCard()
                 this.buildDemoMultitonSymbolCard()
                 this.buildDemoMultitonDataCard()
                 this.buildDemoSubWindowSettingsCard()
@@ -912,7 +1177,7 @@ struct NGFStarterMainMenuPage {
                 left: 16,
                 right: 16,
                 top: this.topInsetVp,
-                bottom: 76
+                bottom: this.a11yContentBottomInset()
               })
             }
             .width('100%')
@@ -926,7 +1191,7 @@ struct NGFStarterMainMenuPage {
 
           TabContent() {
             Scroll(this.scroller2) {
-              Column({ space: 12 }) {
+              Column({ space: this.a11yParagraphSpacing(12) }) {
                 NGFCapabilitiesTabContent({
                   onActionTap: (actionKey: string, label: ResourceStr) => {
                     this.handleFeatureActionTap(actionKey, label);
@@ -938,7 +1203,7 @@ struct NGFStarterMainMenuPage {
                 left: 16,
                 right: 16,
                 top: this.topInsetVp,
-                bottom: 76
+                bottom: this.a11yContentBottomInset()
               })
             }
             .width('100%')
@@ -952,7 +1217,7 @@ struct NGFStarterMainMenuPage {
 
           TabContent() {
             Scroll(this.scroller3) {
-              Column({ space: 12 }) {
+              Column({ space: this.a11yParagraphSpacing(12) }) {
                 NGFDeviceAwarenessPage()
               }
               .width('100%')
@@ -960,7 +1225,7 @@ struct NGFStarterMainMenuPage {
                 left: 16,
                 right: 16,
                 top: this.topInsetVp,
-                bottom: 76
+                bottom: this.a11yContentBottomInset()
               })
             }
             .width('100%')
@@ -974,7 +1239,9 @@ struct NGFStarterMainMenuPage {
 
           TabContent() {
             Scroll(this.scroller4) {
-              Column({ space: 12 }) {
+              Column({ space: this.a11yParagraphSpacing(12) }) {
+                // 附件2 §3.1「长辈版」入口 —— 普通版与适老版共用同一个开关
+                this.buildElderlyModeCard()
                 NGFSettingsPage()
               }
               .width('100%')
@@ -982,7 +1249,7 @@ struct NGFStarterMainMenuPage {
                 left: 16,
                 right: 16,
                 top: this.topInsetVp,
-                bottom: 76
+                bottom: this.a11yContentBottomInset()
               })
             }
             .width('100%')
@@ -997,6 +1264,13 @@ struct NGFStarterMainMenuPage {
         .width('100%')
         .height('100%')
         .barMode(BarMode.Fixed)
+        // 适老档抬高标签栏，保证标签项点击区高度 ≥60（附件2 §2.1）
+        //
+        // ⚠️ 不要在这里用 .barWidth() 去拉宽 —— 2026-10-06 实测：
+        // 设置 barWidth 会让浮动底栏的**背景胶囊与图标错位**（普通档下前两个图标
+        // 完全落在胶囊外），且百分比语义与预期相反（'100%' 反而比 '40%' 更窄）。
+        // 宽度交给 HDS 浮动样式自行计算，见 .agent-rules/project-rules.md PR-010。
+        .barHeight(this.a11yTabBarHeight())
         .barOverlap(true)
         .barFloatingStyle({
           adaptToHandedness: true,
@@ -1020,7 +1294,11 @@ struct NGFStarterMainMenuPage {
     .titleBar(NGFHdsTitleBarOptionsFactory.build(
       'NGF MainMenuPage',
       $r('app.string.ui_str_2020'),
-      NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_primary'), this.useSysMat),
+      // 标题栏文字由工厂**硬编码为白色**（app.color.text_white），
+      // 因此它的底色必须是深色或透明。原先传的是 background_primary（浅色 #F3F7FB）——
+      // 系统材质正常时走材质、这条回退从没被走到过；材质失效后回退到浅色，
+      // 白字压浅底实测不可读。改为透明，让页面自己的沉浸底板（深色渐变）透上来。
+      Color.Transparent,
       this.resolveEffectiveHdsMaterialLevel(),
       true,
       false
@@ -1038,16 +1316,19 @@ struct NGFStarterMainMenuPage {
 
   @Builder
   private buildTabItem(title: ResourceStr, symbolName: string, tabIndex: number): void {
-    Column({ space: 4 }) {
+    Column({ space: this.a11yGroupSpacing(4) }) {
+      // 底栏图标：标签文字已提供语义
       SymbolGlyph($r(symbolName))
-        .fontSize(this.selectedTabIndex === tabIndex ? 24 : 22)
+        .fontSize(this.a11yFont(this.selectedTabIndex === tabIndex ? 24 : 22))
         .fontWeight(this.selectedTabIndex === tabIndex ? FontWeight.Bold : FontWeight.Normal)
         .fontColor([this.selectedTabIndex === tabIndex
           ? $r('app.color.button_primary')
           : $r('app.color.text_secondary')])
         .symbolEffect(new BounceSymbolEffect(EffectScope.WHOLE, EffectDirection.UP), this.selectedTabIndex === tabIndex)
+        .accessibilityLevel('no')
       Text(title)
-        .fontSize(11)
+        .fontSize(this.a11yFont(11))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(11)))
         .fontColor(this.selectedTabIndex === tabIndex
           ? $r('app.color.button_primary')
           : $r('app.color.text_secondary'))
@@ -1056,11 +1337,29 @@ struct NGFStarterMainMenuPage {
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Center)
+    // 附件2 §2.1：适老版主要组件点击区 ≥60×60；标签栏是最主要的导航组件
+    .constraintSize({ minHeight: this.a11yTouchTarget() })
+    // 附件2 §1.4：颜色不得是唯一区分手段 —— 适老档给选中项再加一层**形状**冗余
+    // （圆角底片 + 描边），这样即使色觉异常也能分辨当前所在标签。
+    .borderRadius(this.isElderlyUi ? 16 : 0)
+    .backgroundColor(this.isElderlyUi && this.selectedTabIndex === tabIndex
+      ? $r('app.color.glass_chip_overlay')
+      : $r('app.color.background_transparent'))
+    .border({
+      width: this.isElderlyUi && this.selectedTabIndex === tabIndex ? 2 : 0,
+      color: this.isElderlyUi && this.selectedTabIndex === tabIndex
+        ? $r('app.color.button_primary')
+        : $r('app.color.background_transparent')
+    })
     .scale(this.pressedTabIndex === tabIndex
       ? { x: 0.92, y: 0.92 }
       : { x: 1, y: 1 })
     .opacity(this.pressedTabIndex === tabIndex ? 0.8 : 1)
-    .animation({ duration: 180, curve: Curve.EaseOut })
+    .animation({ duration: this.a11yMotionDuration(180), curve: Curve.EaseOut })
+    // 无障碍：底栏标签是**互斥单选**语义 → accessibilitySelected（不是 accessibilityChecked）。
+    // 官方对照表：Selected 用于「单选列表、标签页等互斥选择」；
+    // Checked 用于「复选框、开关等二态/三态组件」—— 用错会被读成「已勾选」。
+    .accessibilitySelected(this.selectedTabIndex === tabIndex)
     .onTouch((event: TouchEvent): void => {
       if (event.type === TouchType.Down) {
         this.pressedTabIndex = tabIndex;
@@ -1185,6 +1484,8 @@ struct NGFStarterMainMenuPage {
       NGFDemoErrorRecoveryPage()
     } else if (name === NGFHdsDemoRouteName.DEMO_SYNC_MANAGER) {
       NGFDemoSyncManagerPage()
+    } else if (name === NGFHdsDemoRouteName.ACCESSIBILITY_SHOWCASE) {
+      NGFAccessibilityShowcasePage()
     }
   }
 
@@ -1222,29 +1523,30 @@ struct NGFStarterMainMenuPage {
         .backgroundColor(Color.Transparent)
         .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
-      Column({ space: 14 }) {
+      Column({ space: this.a11yGroupSpacing(14) }) {
         Text('NGF MainMenuPage')
-          .fontSize(28)
+          .fontSize(this.a11yFont(28))
+          .lineHeight(this.a11yLineHeight(this.a11yFont(28)))
           .fontWeight(FontWeight.Bold)
           .fontColor(this.resolveGlassPrimaryTextColor())
 
         Text(this.statusMessage)
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yFont(13))
+          .lineHeight(this.a11yExplicitLineHeight(this.a11yFont(13), 20))
           .fontColor(this.resolveGlassSecondaryTextColor())
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-        Column({ space: 10 }) {
+        Column({ space: this.a11yGroupSpacing(10) }) {
           Row({ space: 10 }) {
-            this.buildHeaderGlassChip($r('app.string.ui_str_2026'), this.lifecycleState.phaseName + ' · ' + this.lifecycleState.progress + '%')
-            this.buildHeaderGlassChip($r('app.string.ui_str_2027'), this.moduleSuccessCount + '/' + this.moduleTotalCount)
+            this.buildHeaderGlassChip({ label: $r('app.string.ui_str_2026'), value: this.lifecycleState.phaseName + ' · ' + this.lifecycleState.progress + '%' })
+            this.buildHeaderGlassChip({ label: $r('app.string.ui_str_2027'), value: this.moduleSuccessCount + '/' + this.moduleTotalCount })
           }
           .width('100%')
 
           Row({ space: 10 }) {
-            this.buildHeaderGlassChip($r('app.string.ui_str_2028'), this.windowDisplayMode + ' · ' + this.windowStatus)
-            this.buildHeaderGlassChip($r('app.string.ui_str_2029'), String(this.demoEventCount))
+            this.buildHeaderGlassChip({ label: $r('app.string.ui_str_2028'), value: this.windowDisplayMode + ' · ' + this.windowStatus })
+            this.buildHeaderGlassChip({ label: $r('app.string.ui_str_2029'), value: String(this.demoEventCount) })
           }
           .width('100%')
         }
@@ -1262,7 +1564,6 @@ struct NGFStarterMainMenuPage {
         color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_strong'), this.useSysMat)
       })
       .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
     .height('100%')
@@ -1277,9 +1578,10 @@ struct NGFStarterMainMenuPage {
         .backgroundColor(Color.Transparent)
         .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
-      Column({ space: 12 }) {
+      Column({ space: this.a11yParagraphSpacing(12) }) {
         Text($r('app.string.ui_str_2037'))
-          .fontSize(18)
+          .fontSize(this.a11yFont(18))
+          .lineHeight(this.a11yLineHeight(this.a11yFont(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor(this.resolveGlassPrimaryTextColor())
 
@@ -1310,22 +1612,23 @@ struct NGFStarterMainMenuPage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
       .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
     .height('100%')
   }
 
   @Builder
-  private buildHeaderGlassChip(label: ResourceStr, value: ResourceStr): void {
-    Column({ space: 4 }) {
-      Text(label)
-        .fontSize(11)
+  private buildHeaderGlassChip(params: NGFHeaderGlassChipParams): void {
+    Column({ space: this.a11yGroupSpacing(4) }) {
+      Text(params.label)
+        .fontSize(this.a11yFont(11))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(11)))
         .fontWeight(FontWeight.Medium)
         .fontColor(this.resolveGlassMetaTextColor())
 
-      Text(value)
-        .fontSize(12)
+      Text(params.value)
+        .fontSize(this.a11yFont(12))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
         .fontWeight(FontWeight.Medium)
         .fontColor(this.resolveGlassPrimaryTextColor())
         .maxLines(2)
@@ -1341,7 +1644,10 @@ struct NGFStarterMainMenuPage {
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareControlShadow(this.useSysMat))
     .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroChipEffect())
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
+    // 无障碍分组（官方「使用建议」：对复杂布局减少冗余播报）。
+    // 不分组时读屏把「标签」与「数值」当成**两个独立节点**，
+    // 用户会听到一个孤立的数值，不知道它属于哪个标签。
+    .accessibilityGroup(true)
   }
 
   @Builder
@@ -1354,23 +1660,25 @@ struct NGFStarterMainMenuPage {
     Button() {
       Stack({ alignContent: Alignment.Start }) {
         Row({ space: 12 }) {
-          Column({ space: 6 }) {
+          Column({ space: this.a11yGroupSpacing(6) }) {
             Text(badge)
-              .fontSize(10)
+              .fontSize(this.a11yFont(10))
+              .lineHeight(this.a11yLineHeight(this.a11yFont(10)))
               .fontWeight(FontWeight.Medium)
               .fontColor(this.resolveGlassMetaTextColor())
 
             Text(title)
               .width('100%')
-              .fontSize(15)
+              .fontSize(this.a11yFont(15))
+              .lineHeight(this.a11yLineHeight(this.a11yFont(15)))
               .fontWeight(FontWeight.Medium)
               .fontColor(this.resolveGlassPrimaryTextColor())
               .maxLines(2)
 
             Text(subtitle)
               .width('100%')
-              .fontSize(12)
-              .lineHeight(18)
+              .fontSize(this.a11yFont(12))
+              .lineHeight(this.a11yExplicitLineHeight(this.a11yFont(12), 18))
               .fontColor(this.resolveGlassSecondaryTextColor())
               .maxLines(2)
           }
@@ -1379,7 +1687,8 @@ struct NGFStarterMainMenuPage {
 
           Row() {
             Text('›')
-              .fontSize(22)
+              .fontSize(this.a11yFont(22))
+              .lineHeight(this.a11yLineHeight(this.a11yFont(22)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
               .margin({ bottom: 4 })
@@ -1389,11 +1698,15 @@ struct NGFStarterMainMenuPage {
           .borderRadius(14)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
           .justifyContent(FlexAlign.Center)
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         }
         .width('100%')
         .alignItems(VerticalAlign.Center)
-        .padding({ left: 16, right: 16, top: 14, bottom: 14 })
+        .padding({
+          left: 16,
+          right: 16,
+          top: this.isElderlyUi ? 20 : 14,
+          bottom: this.isElderlyUi ? 20 : 14
+        })
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
         .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
         .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
@@ -1403,12 +1716,13 @@ struct NGFStarterMainMenuPage {
         })
         .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
         .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
       }
       .width('100%')
     }
     .width('100%')
     .padding(0)
+    // 附件2 §2.1：主要组件点击区下限（适老版 60×60 / 其他页面 44×44）
+    .constraintSize({ minHeight: this.a11yTouchTarget() })
     .backgroundColor($r('app.color.background_transparent'))
     .buttonStyle(ButtonStyleMode.NORMAL)
     .controlSize(ControlSize.NORMAL)
@@ -1431,14 +1745,16 @@ struct NGFStarterMainMenuPage {
           .backgroundColor(Color.Transparent)
           .borderRadius(NGFMaterialSurfaceTokens.CONTROL_RADIUS)
 
-        Column({ space: 8 }) {
+        Column({ space: this.a11yGroupSpacing(8) }) {
           Text(badge)
-            .fontSize(10)
+            .fontSize(this.a11yFont(10))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(10)))
             .fontWeight(FontWeight.Medium)
             .fontColor(this.resolveGlassMetaTextColor())
 
           Text(title)
-            .fontSize(14)
+            .fontSize(this.a11yFont(14))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(14)))
             .fontWeight(FontWeight.Medium)
             .fontColor(this.resolveGlassPrimaryTextColor())
             .maxLines(1)
@@ -1456,12 +1772,12 @@ struct NGFStarterMainMenuPage {
         })
         .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareControlShadow(this.useSysMat))
         .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
       }
       .width('100%')
     }
     .layoutWeight(1)
     .height('100%')
+    .constraintSize({ minHeight: this.a11yTouchTarget() })
     .backgroundColor($r('app.color.background_transparent'))
     .buttonStyle(ButtonStyleMode.NORMAL)
     .controlSize(ControlSize.SMALL)
@@ -1475,20 +1791,21 @@ struct NGFStarterMainMenuPage {
   @Builder
   private buildHdsDemoCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 12 }) {
+      Column({ space: this.a11yParagraphSpacing(12) }) {
         Text($r('app.string.ui_str_2030'))
-          .fontSize(18)
+          .fontSize(this.a11yFont(18))
+          .lineHeight(this.a11yLineHeight(this.a11yFont(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor(this.resolveGlassPrimaryTextColor())
 
         Text($r('app.string.ui_str_2031'))
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yFont(13))
+          .lineHeight(this.a11yExplicitLineHeight(this.a11yFont(13), 20))
           .fontColor(this.resolveGlassSecondaryTextColor())
 
         Text($r('app.string.ui_str_2032'))
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yFont(13))
+          .lineHeight(this.a11yExplicitLineHeight(this.a11yFont(13), 20))
           .fontColor(this.resolveGlassSecondaryTextColor())
 
         this.buildFeatureActionButton(
@@ -1516,7 +1833,6 @@ struct NGFStarterMainMenuPage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
       .visualEffect(NGFMainMenuGlassEffectFactory.buildHeroSurfaceEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
   }
@@ -1593,6 +1909,149 @@ struct NGFStarterMainMenuPage {
   }
 
   @Builder
+  private buildAccessibilityShowcaseCard(): void {
+    this.buildFeatureActionButton(
+      'A11Y',
+      $r('app.string.a11y_showcase_title'),
+      $r('app.string.a11y_showcase_subtitle'),
+      NGFMainMenuActionKey.ACCESSIBILITY_SHOWCASE
+    )
+  }
+
+  /**
+   * 「长辈版」入口卡片（附件2 §3.1）
+   *
+   * 规范原文要求：**应将「长辈版」作为标准功能名**，并设置「亲情版」「关爱版」「关怀版」
+   * 等别名作为**搜索关键字**。因此这里：
+   * - 显示名走 i18n（`getElderlyModeDisplayName()`），zh_CN 下即「长辈版」；
+   * - 别名原样列出，作为可被搜索命中的关键字提示。
+   *
+   * §1.4：开关状态**不能只靠颜色**表达，所以同时给出「已开启 / 已关闭」文字。
+   */
+  /**
+   * 描述**生效**的适老状态与来源。
+   *
+   * 三个信号来源必须能区分，否则用户看到「已关闭」却是大字会无从判断：
+   * 1. 应用内开关开启 → 已开启
+   * 2. 仅系统关怀模式开启 → 已生效 · 由系统关怀模式开启
+   * 3. 都没有 → 已关闭
+   */
+  private describeElderlyEffectiveState(): ResourceStr {
+    if (!this.isElderlyUi) {
+      return $r('app.string.elderly_mode_state_off');
+    }
+    // 系统接管时**一律**显示「由系统关怀模式开启」——
+    // 即使应用内开关恰好也是开的，真正的控制方仍是系统（开关已锁定）。
+    if (this.systemSeniorMode) {
+      return $r('app.string.elderly_mode_state_system');
+    }
+    if (this.appSeniorMode) {
+      return $r('app.string.elderly_mode_state_on');
+    }
+    return $r('app.string.elderly_mode_state_off');
+  }
+
+  @Builder
+  private buildElderlyModeCard(): void {
+    Column({ space: this.isElderlyUi ? 14 : 10 }) {
+      Row() {
+        Column({ space: this.a11yGroupSpacing(6) }) {
+          Text($r('app.string.elderly_mode_badge'))
+            .fontSize(this.a11yFont(10))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(10)))
+            .fontWeight(FontWeight.Medium)
+            .fontColor(this.resolveGlassMetaTextColor())
+
+          Text(getElderlyModeDisplayName())
+            .width('100%')
+            .fontSize(this.a11yFont(15))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(15)))
+            .fontWeight(FontWeight.Medium)
+            .fontColor(this.resolveGlassPrimaryTextColor())
+            .maxLines(1)
+
+          Text($r('app.string.elderly_mode_desc'))
+            .width('100%')
+            .fontSize(this.a11yFont(12))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
+            .fontColor(this.resolveGlassSecondaryTextColor())
+            .maxLines(3)
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Start)
+
+        // ⚠️ 开关位置必须反映**生效**状态：
+        // 系统关怀模式开启时，应用内开关即使为关，界面也已经是适老档 ——
+        // 此时开关若显示为关，用户会以为功能没生效（2026-10-06 用户实际报告过）。
+        Toggle({ type: ToggleType.Switch, isOn: this.isElderlyUi })
+          // 无障碍：开关与左侧的文字是**兄弟节点**，不关联的话读屏只会念
+          // 「开关，开启」，用户不知道这是「长辈版」的开关。
+          // ⚠️ 必须先解析成 **string** 再传：
+          // ArkUI 的 accessibilityText 是 `(value: string)` 与 `(text: Resource)`
+          // **两个独立重载**，**不接受 `ResourceStr` 联合类型**（实测编译报
+          // "Type 'string' is not assignable to type 'Resource'"）。
+          // 这与框架内部处理 `textHint` 的方式一致（见 NGFAccessibilityAttributeBinder）。
+          .accessibilityText(resolveResourceString(this.getUIContext().getHostContext(), getElderlyModeDisplayName()))
+          // 补充说明当前是「谁在生效」—— 系统接管时应用内开关是锁定的，
+          // 只说「已禁用」不足以解释原因（见 PR-013 / PR-015）。
+          .accessibilityDescription(resolveResourceString(this.getUIContext().getHostContext(), this.describeElderlyEffectiveState()))
+          .constraintSize({ minWidth: this.a11yTouchTarget(), minHeight: this.a11yTouchTarget() })
+          // 系统关怀模式接管时**禁用**应用内开关：
+          // 此时写 setSeniorModeStateForSelf 会被系统同步回来，
+          // 表现为「拨到关又立刻弹回开」，用户会以为开关坏了 —— 这就是「和系统设置打架」。
+          .enabled(this.seniorModeResolved && !this.systemSeniorMode)
+          .onChange((isOn: boolean): void => {
+            this.handleToggleSeniorMode(isOn);
+          })
+      }
+      .width('100%')
+      .alignItems(VerticalAlign.Center)
+
+      // §1.4 非颜色冗余：状态用文字表达；§3.1 别名作为可搜索关键字提示
+      Row({ space: 10 }) {
+        // ⚠️ 必须显示**生效**状态，而不是只显示应用内开关。
+        // 系统关怀模式开启时，应用内开关可能仍是关的，但界面已经是适老档 ——
+        // 只显示开关状态会出现「显示已关闭、界面却是大字」的自相矛盾，
+        // 用户无法判断到底是哪个信号在起作用。
+        Text(this.describeElderlyEffectiveState())
+          .fontSize(this.a11yFont(12))
+          .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
+          .fontWeight(FontWeight.Medium)
+          .fontColor(this.resolveGlassPrimaryTextColor())
+
+        Text($r('app.string.elderly_mode_aliases_hint'))
+          .layoutWeight(1)
+          .fontSize(this.a11yFont(12))
+          .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
+          .fontColor(this.resolveGlassSecondaryTextColor())
+          .maxLines(2)
+      }
+      .width('100%')
+      .alignItems(VerticalAlign.Top)
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
+    .padding({
+      left: 16,
+      right: 16,
+      top: this.isElderlyUi ? 20 : 14,
+      bottom: this.isElderlyUi ? 20 : 14
+    })
+    .constraintSize({ minHeight: this.a11yTouchTarget() })
+    .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
+    .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
+    .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
+    .border({
+      width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
+      color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_light'), this.useSysMat)
+    })
+    .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
+    // 面板材质必须与卡片一致：缺了这两行，文字会直接压在沉浸式渐变上，
+    // 实测对比度只有 1.3~2.3（附件2 §1.3 要求 ≥4.5），见 .agent-state 的像素实测记录。
+    .visualEffect(NGFMainMenuGlassEffectFactory.buildActionButtonEffect())
+  }
+
+  @Builder
   private buildDemoMultitonSymbolCard(): void {
     this.buildFeatureActionButton(
       'MULTI',
@@ -1634,41 +2093,52 @@ struct NGFStarterMainMenuPage {
 
   @Builder
   private buildStatusCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yGroupSpacing(8) }) {
       Text($r('app.string.ui_str_2057'))
-        .fontSize(16)
+        .fontSize(this.a11yFont(16))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(16)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
       Text($r('app.string.ui_str_2058', this.isCoreReady ? 'ready' : 'not_ready'))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2059', this.lifecycleState.phaseName))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2060', String(this.lifecycleState.progress)))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2061', this.lifecycleState.isCompleted ? 'true' : 'false'))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2062', String(this.demoEventCount)))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2063', String(this.lastEventType)))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2005', String(this.starter.errorHandler.getRecentErrorCount())))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2064', String(this.modulePhaseName)))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2065', String(this.moduleSuccessCount), String(this.moduleTotalCount)))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2066', String(this.moduleFailureCount)))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
@@ -1681,32 +2151,44 @@ struct NGFStarterMainMenuPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     .onClick(() => {
       this.isStatusDetailSheetOpen = true;
     })
     .bindSheet(
       $$this.isStatusDetailSheetOpen,
       this.buildStatusDetailSheetContent(),
-      new NGFMaterialSheetOptions(
-        ngfVisualEffectsFacade.buildSystemMaterialForSheet(),
-        ngfVisualEffectsFacade.shouldUseSystemMaterialSurface()
-      )
+      this.buildSheetOptions()
     )
   }
 
   @Builder
   private buildStatusDetailSheetContent(): void {
-    Column({ space: 0 }) {
-      Row() {
-        Text($r('app.string.ui_str_2057'))
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .fontColor($r('app.color.text_primary'))
+    Column({ space: this.a11yGroupSpacing(0) }) {
+      // 附件2 §2.4：关闭键只在右上（等三种位置之一），且点击区 ≥44×44
+      Stack({ alignContent: Alignment.TopEnd }) {
+        Row() {
+          Text($r('app.string.ui_str_2057'))
+            .fontSize(this.a11yFont(18))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(18)))
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+        }
+        .width('100%')
+        .justifyContent(FlexAlign.Center)
+
+        NGFAccessibleDialogCloseButton({
+          componentId: 'a11y_status_sheet_close',
+          closePosition: NGFDialogClosePosition.TOP_RIGHT,
+          label: $r('app.string.a11y_sheet_close'),
+          minTouchTarget: this.a11yTokens.dialogCloseTarget,
+          onClose: (): void => {
+            this.isStatusDetailSheetOpen = false;
+          }
+        })
+        .margin({ right: 10, top: 6 })
       }
       .width('100%')
       .padding({ top: 12, bottom: 4 })
-      .justifyContent(FlexAlign.Center)
 
       List({ space: 12 }) {
         ListItem() { this.buildModuleDetailCard() }
@@ -1725,30 +2207,37 @@ struct NGFStarterMainMenuPage {
 
   @Builder
   private buildWindowMonitorCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yGroupSpacing(8) }) {
       Text($r('app.string.ui_str_2067'))
-        .fontSize(16)
+        .fontSize(this.a11yFont(16))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(16)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
       Text($r('app.string.ui_str_2068', this.windowReady ? 'true' : 'false'))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2069', this.windowActivePage.length > 0 ? this.windowActivePage : '-'))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2070', this.windowDisplayMode))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2071', this.windowStatus))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text($r('app.string.ui_str_2072', this.resolveWindowUpdatedAtText()))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
       Text(this.windowSnapshotJson)
         .width('100%')
-        .fontSize(11)
+        .fontSize(this.a11yFont(11))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(11)))
         .fontColor($r('app.color.text_secondary'))
         .maxLines(6)
     }
@@ -1762,7 +2251,6 @@ struct NGFStarterMainMenuPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     .onClick(() => {
       this.runtimeStatus = ngfDeviceAdaptationFacade.getDeviceRuntimeStatus();
       this.isPerformanceSheetOpen = true;
@@ -1770,25 +2258,38 @@ struct NGFStarterMainMenuPage {
     .bindSheet(
       $$this.isPerformanceSheetOpen,
       this.buildPerformanceSheetContent(),
-      new NGFMaterialSheetOptions(
-        ngfVisualEffectsFacade.buildSystemMaterialForSheet(),
-        ngfVisualEffectsFacade.shouldUseSystemMaterialSurface()
-      )
+      this.buildSheetOptions()
     )
   }
 
   @Builder
   private buildPerformanceSheetContent(): void {
-    Column({ space: 0 }) {
-      Row() {
-        Text($r('app.string.monitor_panel_title'))
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .fontColor($r('app.color.text_primary'))
+    Column({ space: this.a11yGroupSpacing(0) }) {
+      // 附件2 §2.4：关闭键只在右上（等三种位置之一），且点击区 ≥44×44
+      Stack({ alignContent: Alignment.TopEnd }) {
+        Row() {
+          Text($r('app.string.monitor_panel_title'))
+            .fontSize(this.a11yFont(18))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(18)))
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+        }
+        .width('100%')
+        .justifyContent(FlexAlign.Center)
+
+        NGFAccessibleDialogCloseButton({
+          componentId: 'a11y_perf_sheet_close',
+          closePosition: NGFDialogClosePosition.TOP_RIGHT,
+          label: $r('app.string.a11y_sheet_close'),
+          minTouchTarget: this.a11yTokens.dialogCloseTarget,
+          onClose: (): void => {
+            this.isPerformanceSheetOpen = false;
+          }
+        })
+        .margin({ right: 10, top: 6 })
       }
       .width('100%')
       .padding({ top: 12, bottom: 4 })
-      .justifyContent(FlexAlign.Center)
 
       List({ space: 12 }) {
         ListItem() { this.buildPerfProcessCard() }
@@ -1837,18 +2338,19 @@ struct NGFStarterMainMenuPage {
 
   @Builder
   private buildPerfProcessCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yGroupSpacing(10) }) {
       Text($r('app.string.monitor_process_uptime'))
-        .fontSize(14)
+        .fontSize(this.a11yFont(14))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(14)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
         .width('100%')
 
-      this.buildPerfInfoRow('PID / UID', String(this.runtimeStatus?.processId) + ' / ' + String(this.runtimeStatus?.uid))
+      this.buildPerfInfoRow({ label: 'PID / UID', value: String(this.runtimeStatus?.processId) + ' / ' + String(this.runtimeStatus?.uid) })
       this.buildPerfDivider()
-      this.buildPerfInfoRow('架构', this.runtimeStatus?.is64Bit ? '64-bit' : '32-bit')
+      this.buildPerfInfoRow({ label: '架构', value: this.runtimeStatus?.is64Bit ? '64-bit' : '32-bit' })
       this.buildPerfDivider()
-      this.buildPerfInfoRow('运行时间 (uptime)', this.formatUptime(this.runtimeStatus?.uptime))
+      this.buildPerfInfoRow({ label: '运行时间 (uptime)', value: this.formatUptime(this.runtimeStatus?.uptime) })
     }
     .width('100%')
     .padding(14)
@@ -1859,23 +2361,24 @@ struct NGFStarterMainMenuPage {
       width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
     })
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildPerfMemoryCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yGroupSpacing(10) }) {
       Text($r('app.string.monitor_memory_info'))
-        .fontSize(14)
+        .fontSize(this.a11yFont(14))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(14)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
         .width('100%')
 
-      this.buildPerfInfoRow('App 内存限制', String(this.runtimeStatus?.appMemoryLimit || 0) + ' MB')
+      this.buildPerfInfoRow({ label: 'App 内存限制', value: String(this.runtimeStatus?.appMemoryLimit || 0) + ' MB' })
       this.buildPerfDivider()
       
       Text($r('app.string.monitor_native_memory'))
-        .fontSize(13)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
         .width('100%')
       
@@ -1885,7 +2388,8 @@ struct NGFStarterMainMenuPage {
         .color($r('app.color.button_primary'))
         
       Text(String(((this.runtimeStatus?.appNativeMemSize || 0) / 1024).toFixed(1)) + ' MB')
-        .fontSize(12)
+        .fontSize(this.a11yFont(12))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
         .fontColor($r('app.color.text_primary'))
         .width('100%')
         .textAlign(TextAlign.End)
@@ -1899,39 +2403,41 @@ struct NGFStarterMainMenuPage {
       width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
     })
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildPerfCpuCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yGroupSpacing(10) }) {
       Text($r('app.string.monitor_cpu_usage'))
-        .fontSize(14)
+        .fontSize(this.a11yFont(14))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(14)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       Row() {
-        Column({ space: 8 }) {
+        Column({ space: this.a11yGroupSpacing(8) }) {
           Progress({ value: (this.runtimeStatus?.systemCpuUsage || 0) * 100, total: 100, type: ProgressType.Ring })
             .width(64)
             .height(64)
             .color($r('app.color.button_primary'))
             .style({ strokeWidth: 6 })
           Text('系统 CPU\\n' + String(((this.runtimeStatus?.systemCpuUsage || 0) * 100).toFixed(1)) + '%')
-            .fontSize(12)
+            .fontSize(this.a11yFont(12))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
             .fontColor($r('app.color.text_primary'))
             .textAlign(TextAlign.Center)
         }.layoutWeight(1)
 
-        Column({ space: 8 }) {
+        Column({ space: this.a11yGroupSpacing(8) }) {
           Progress({ value: (this.runtimeStatus?.appCpuUsage || 0) * 100, total: 100, type: ProgressType.Ring })
             .width(64)
             .height(64)
             .color($r('app.color.button_primary'))
             .style({ strokeWidth: 6 })
           Text('APP CPU\\n' + String(((this.runtimeStatus?.appCpuUsage || 0) * 100).toFixed(1)) + '%')
-            .fontSize(12)
+            .fontSize(this.a11yFont(12))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
             .fontColor($r('app.color.text_primary'))
             .textAlign(TextAlign.Center)
         }.layoutWeight(1)
@@ -1948,21 +2454,22 @@ struct NGFStarterMainMenuPage {
       width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
     })
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildPerfBatteryCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yGroupSpacing(10) }) {
       Text($r('app.string.monitor_battery_temp'))
-        .fontSize(14)
+        .fontSize(this.a11yFont(14))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(14)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
         .width('100%')
 
       Row({ space: 8 }) {
         Text($r('app.string.monitor_battery_level'))
-          .fontSize(13)
+          .fontSize(this.a11yFont(13))
+          .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
           .fontColor($r('app.color.text_secondary'))
         Progress({ value: this.runtimeStatus?.batterySOC || 0, total: 100, type: ProgressType.Capsule })
           .layoutWeight(1)
@@ -1970,15 +2477,16 @@ struct NGFStarterMainMenuPage {
           .color(this.runtimeStatus?.batterySOC && this.runtimeStatus.batterySOC < 20 ? Color.Red : 
                 (this.runtimeStatus?.isCharging ? Color.Green : $r('app.color.button_primary')))
         Text(String(this.runtimeStatus?.batterySOC || 0) + '%')
-          .fontSize(13)
+          .fontSize(this.a11yFont(13))
+          .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
           .fontColor($r('app.color.text_primary'))
           .fontWeight(FontWeight.Medium)
       }.width('100%')
       
       this.buildPerfDivider()
-      this.buildPerfInfoRow('温度', String(((this.runtimeStatus?.batteryTemperature || 0) / 10).toFixed(1)) + ' °C')
+      this.buildPerfInfoRow({ label: '温度', value: String(((this.runtimeStatus?.batteryTemperature || 0) / 10).toFixed(1)) + ' °C' })
       this.buildPerfDivider()
-      this.buildPerfInfoRow('充电状态', this.runtimeStatus?.isCharging ? '充电中 / 已满' : '未充电')
+      this.buildPerfInfoRow({ label: '充电状态', value: this.runtimeStatus?.isCharging ? '充电中 / 已满' : '未充电' })
     }
     .width('100%')
     .padding(14)
@@ -1989,14 +2497,14 @@ struct NGFStarterMainMenuPage {
       width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
     })
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildPerfThreadsCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yGroupSpacing(10) }) {
       Text($r('app.string.monitor_thread_info'))
-        .fontSize(14)
+        .fontSize(this.a11yFont(14))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(14)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
         .width('100%')
@@ -2005,14 +2513,16 @@ struct NGFStarterMainMenuPage {
         ForEach(this.runtimeStatus.threads.slice(0, 10), (thread: NGFAppThreadInfo, index: number) => {
           Row({ space: 8 }) {
             Text('TID: ' + thread.threadId)
-              .fontSize(12)
+              .fontSize(this.a11yFont(12))
+              .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
               .fontColor($r('app.color.text_secondary'))
               .width(60)
             Progress({ value: thread.cpuUsage * 100, total: 100, type: ProgressType.Linear })
               .layoutWeight(1)
               .color($r('app.color.button_primary'))
             Text(String((thread.cpuUsage * 100).toFixed(1)) + '%')
-              .fontSize(12)
+              .fontSize(this.a11yFont(12))
+              .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
               .fontColor($r('app.color.text_primary'))
               .width(44)
               .textAlign(TextAlign.End)
@@ -2024,7 +2534,8 @@ struct NGFStarterMainMenuPage {
         }, (thread: NGFAppThreadInfo) => String(thread.threadId))
       } else {
         Text($r('app.string.monitor_no_thread_data'))
-          .fontSize(13)
+          .fontSize(this.a11yFont(13))
+          .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
           .fontColor($r('app.color.text_secondary'))
       }
     }
@@ -2037,24 +2548,29 @@ struct NGFStarterMainMenuPage {
       width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_subtle'), this.useSysMat)
     })
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
-  private buildPerfInfoRow(label: string, value: string): void {
+  private buildPerfInfoRow(params: NGFPerfInfoRowParams): void {
     Row() {
-      Text(label)
-        .fontSize(13)
+      Text(params.label)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_secondary'))
         .layoutWeight(1)
-      Text(value)
-        .fontSize(13)
+      Text(params.value)
+        .fontSize(this.a11yFont(13))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
         .fontColor($r('app.color.text_primary'))
         .fontWeight(FontWeight.Medium)
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
     }
     .width('100%')
+    // 无障碍分组（官方「使用建议」：对复杂布局减少冗余播报）。
+    // 不分组时读屏把「标签」与「数值」当成**两个独立节点**，
+    // 用户会听到一个孤立的数值，不知道它属于哪个标签。
+    .accessibilityGroup(true)
   }
 
   @Builder
@@ -2074,52 +2590,59 @@ struct NGFStarterMainMenuPage {
 
   @Builder
   private buildModuleDetailCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yGroupSpacing(8) }) {
       Text($r('app.string.ui_str_2073'))
-        .fontSize(16)
+        .fontSize(this.a11yFont(16))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(16)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
       if (this.moduleDetails.length <= 0) {
         Text($r('app.string.ui_str_2074'))
           .width('100%')
-          .fontSize(12)
+          .fontSize(this.a11yFont(12))
+          .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
           .fontColor($r('app.color.text_secondary'))
       } else {
-        Column({ space: 8 }) {
+        Column({ space: this.a11yGroupSpacing(8) }) {
           ForEach(this.moduleDetails, (entry: NGFStarterModuleDetailEntry) => {
-            Column({ space: 4 }) {
+            Column({ space: this.a11yGroupSpacing(4) }) {
               Text(entry.id + '. ' + entry.moduleName)
                 .width('100%')
-                .fontSize(13)
+                .fontSize(this.a11yFont(13))
+                .lineHeight(this.a11yLineHeight(this.a11yFont(13)))
                 .fontWeight(FontWeight.Medium)
                 .fontColor($r('app.color.text_primary'))
               Text($r('app.string.ui_str_2075', entry.phaseName))
                 .width('100%')
-                .fontSize(12)
+                .fontSize(this.a11yFont(12))
+                .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
                 .fontColor($r('app.color.text_secondary'))
               Text($r('app.string.ui_str_2076', entry.statusText))
                 .width('100%')
-                .fontSize(12)
+                .fontSize(this.a11yFont(12))
+                .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
                 .fontColor($r('app.color.text_secondary'))
               Text($r('app.string.ui_str_2077', entry.dependencyText))
                 .width('100%')
-                .fontSize(12)
+                .fontSize(this.a11yFont(12))
+                .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
                 .fontColor($r('app.color.text_secondary'))
               Text($r('app.string.ui_str_2078', entry.serviceTokenText))
                 .width('100%')
-                .fontSize(12)
+                .fontSize(this.a11yFont(12))
+                .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
                 .fontColor($r('app.color.text_secondary'))
               Text($r('app.string.ui_str_2079', entry.messageText))
                 .width('100%')
-                .fontSize(12)
+                .fontSize(this.a11yFont(12))
+                .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
                 .fontColor($r('app.color.text_secondary'))
             }
             .width('100%')
             .padding(10)
             .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_secondary'), this.useSysMat))
             .borderRadius(10)
-            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           }, (entry: NGFStarterModuleDetailEntry): string => 'starter_module_' + entry.id)
         }
         .width('100%')
@@ -2135,22 +2658,23 @@ struct NGFStarterMainMenuPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildLogCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yGroupSpacing(8) }) {
       Text($r('app.string.ui_str_2080'))
-        .fontSize(16)
+        .fontSize(this.a11yFont(16))
+        .lineHeight(this.a11yLineHeight(this.a11yFont(16)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
-      Column({ space: 4 }) {
+      Column({ space: this.a11yGroupSpacing(4) }) {
         ForEach(this.logs, (entry: NGFStarterLogEntry) => {
           Text(entry.text)
             .width('100%')
-            .fontSize(12)
+            .fontSize(this.a11yFont(12))
+            .lineHeight(this.a11yLineHeight(this.a11yFont(12)))
             .fontColor($r('app.color.text_secondary'))
             .textAlign(TextAlign.Start)
         }, (entry: NGFStarterLogEntry): string => 'starter_log_' + entry.id)
@@ -2159,7 +2683,6 @@ struct NGFStarterMainMenuPage {
       .padding(10)
       .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_secondary'), this.useSysMat))
       .borderRadius(10)
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
     }
     .width('100%')
     .padding(14)
@@ -2171,7 +2694,6 @@ struct NGFStarterMainMenuPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder

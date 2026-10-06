@@ -427,6 +427,10 @@
     {
       "name": "background_surface",
       "value": "#1E1E1E"
+    },
+    {
+      "name": "ngf_text_error",
+      "value": "#F87171"
     }
   ]
 }

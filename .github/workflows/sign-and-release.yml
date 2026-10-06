@@ -36,25 +36,62 @@ jobs:
           OWNER: ${{ github.repository_owner }}
         run: |
           owner=$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')
-          echo "image=ghcr.io/${owner}/harmonyos-ci:api26" >> "$GITHUB_OUTPUT"
+          # 与 build.yml 保持同一 tag；必须与 compatibleSdkVersion (26.0.0) 对齐
+          echo "image=ghcr.io/${owner}/harmonyos-ci:api26r" >> "$GITHUB_OUTPUT"
+
+  # ⚠️ 必须用独立的 guard job 来探测 Secrets。
+  #
+  # **GitHub Actions 不允许在 `if:` 里使用 `secrets` 上下文** ——
+  # 它只在 `env:` / `with:` / `run:` 中可用。
+  # 之前的写法是 `if: secrets.SIGNING_CERT != '' && ...`，
+  # 导致整个 workflow **校验失败、0 秒报错**（不是"跳过"，是"打红"），
+  # 每次 push 都产生一个假的失败记录。
+  #
+  # 正确做法：在 `env:` 里把 secrets 读进环境变量（合法），
+  # 在 `run:` 里判断并写 `$GITHUB_OUTPUT`，下游 job 用 `needs.guard.outputs.*` 判断。
+  guard:
+    name: 探测签名 Secrets / Detect signing secrets
+    runs-on: ubuntu-latest
+    outputs:
+      has-signing: ${{ steps.check.outputs.has_signing }}
+    steps:
+      - name: 检查 Secrets 是否齐全 / Check secrets completeness
+        id: check
+        env:
+          SIGNING_CERT: ${{ secrets.SIGNING_CERT }}
+          SIGNING_PROFILE: ${{ secrets.SIGNING_PROFILE }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          missing=""
+          [ -n "$SIGNING_CERT" ]     || missing="$missing SIGNING_CERT"
+          [ -n "$SIGNING_PROFILE" ]  || missing="$missing SIGNING_PROFILE"
+          [ -n "$SIGNING_KEY" ]      || missing="$missing SIGNING_KEY"
+          [ -n "$SIGNING_KEY_ALIAS" ]|| missing="$missing SIGNING_KEY_ALIAS"
+          [ -n "$KEYSTORE_PASSWORD" ]|| missing="$missing KEYSTORE_PASSWORD"
+          [ -n "$KEY_PASSWORD" ]     || missing="$missing KEY_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "has_signing=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::未配置签名 Secrets，跳过签名与 Release。缺失:$missing"
+          else
+            echo "has_signing=true" >> "$GITHUB_OUTPUT"
+            echo "签名 Secrets 齐全，将执行签名与 Release。"
+          fi
 
   sign-and-release:
     name: 构建签名并发布 / Build, sign & release
-    needs: prepare
+    needs: [prepare, guard]
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare.outputs.image }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    # 签名材料未配置时跳过(见 guide job), 避免 tag 构建误报红
-    if: >-
-      secrets.SIGNING_CERT != '' &&
-      secrets.SIGNING_PROFILE != '' &&
-      secrets.SIGNING_KEY != '' &&
-      secrets.SIGNING_KEY_ALIAS != '' &&
-      secrets.KEYSTORE_PASSWORD != '' &&
-      secrets.KEY_PASSWORD != ''
+    # 签名材料未配置时跳过(见 guide job), 避免 tag 构建误报红。
+    # ⚠️ 这里只能用 needs.*.outputs.* —— 不能用 secrets.*（见上面 guard 的说明）。
+    if: needs.guard.outputs.has-signing == 'true'
     steps:
       - name: Checkout 检出代码 / Checkout
         uses: actions/checkout@v4

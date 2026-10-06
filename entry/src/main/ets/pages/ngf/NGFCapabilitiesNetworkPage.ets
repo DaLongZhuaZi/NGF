@@ -1,3 +1,12 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  a11yTouchTarget,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from 'ngf_framework';
@@ -20,6 +29,37 @@ const DEMO_TOP_CHROME: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFa
 
 @Component
 export struct NGFCapabilitiesNetworkPage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private statusMessage: ResourceStr = '';
@@ -27,6 +67,7 @@ export struct NGFCapabilitiesNetworkPage {
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
       this.topInsetVp = inset;
     });
@@ -39,7 +80,7 @@ export struct NGFCapabilitiesNetworkPage {
         NGFImmersiveTopChromeUnderlay({ spec: DEMO_TOP_CHROME })
 
         Scroll() {
-          Column({ space: 12 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
             this.buildTitleCard()
             this.buildNetworkActionCard()
           }
@@ -76,19 +117,21 @@ export struct NGFCapabilitiesNetworkPage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     NGFPageWindowSupport.restoreMainMenu();
   }
 
   @Builder
   private buildTitleCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Text($r('app.string.card_network_title'))
-        .fontSize(22)
+        .fontSize(this.a11yScale.font(22))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
       Text($r('app.string.card_network_desc'))
-        .fontSize(13)
-        .lineHeight(20)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
         .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
@@ -97,38 +140,37 @@ export struct NGFCapabilitiesNetworkPage {
     .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
     .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   @Builder
   private buildNetworkActionCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       Button($r('app.string.btn_fetch_data'))
         .width('100%')
         .height(44)
-        .fontSize(14)
+        .fontSize(this.a11yScale.font(14))
         .borderRadius(12)
         .fontColor($r('app.color.text_primary'))
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .onClick((): void => {
           void this.handleFetchData();
         })
 
       if (this.responseData.length > 0) {
         Text(this.responseData)
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_body'))
           .width('100%')
           .padding(10)
           .borderRadius(10)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
       }
 
       if ((typeof this.statusMessage === "string" ? this.statusMessage : '').length > 0) {
         Text(this.statusMessage)
-          .fontSize(12)
+          .fontSize(this.a11yScale.font(12))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
           .fontColor($r('app.color.tag_green'))
           .width('100%')
       }
@@ -143,7 +185,6 @@ export struct NGFCapabilitiesNetworkPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   private async handleFetchData(): Promise<void> {

@@ -36,6 +36,25 @@
 
 > 注：上表精确文档 ID 需以 developer.huawei.com/consumer/cn/doc/ 站内搜索为准；此处给出官方主题路径，现场核对时在总入口搜索模块名（如 @ohos.window、@ohos.notificationManager）。
 
+### 2.1 无障碍与适老化（专门入口）
+
+| 文档 | URL |
+|------|-----|
+| 支持无障碍（ArkUI 开发指导） | https://developer.huawei.com/consumer/cn/doc/doccenter-capabilities/arkts-universal-attributes-accessibility |
+| 无障碍属性 API 参考 | https://developer.huawei.com/consumer/cn/doc/harmonyos-references/ts-universal-attributes-accessibility |
+| Accessibility Kit（无障碍服务） | https://developer.huawei.com/consumer/cn/doc/harmonyos-references/accessibility-arkts |
+| 支持适老化（ArkUI） | https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/arkui-support-for-aging-adaptation-V5 |
+| configuration 标签（字体跟随系统） | https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/app-configuration-file |
+| 应用内关怀模式与系统设置同步 | https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/eldercare-senior-mode-description |
+
+> ⚠️ **这些页面都是 Angular SPA，`web_fetch` 只能拿到约 1.7KB 的空壳。**
+> 取原文请改用 **OpenHarmony 文档镜像的 raw markdown**（同一份内容、可直接读）：
+> ```text
+> https://raw.githubusercontent.com/openharmony/docs/master/zh-cn/application-dev/ui/arkts-universal-attributes-accessibility.md
+> https://raw.githubusercontent.com/openharmony/docs/master/zh-cn/application-dev/ui/arkui-support-for-aging-adaptation.md
+> https://raw.githubusercontent.com/openharmony/docs/master/zh-cn/application-dev/quick-start/app-configuration-file.md
+> ```
+
 ## 3. 测试与 UI 自动化
 
 | 资源 | URL |

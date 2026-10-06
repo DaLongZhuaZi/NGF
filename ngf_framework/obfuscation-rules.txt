@@ -1,0 +1,6 @@
+# NGF framework module obfuscation rules.
+# Keep this file in sync with the module-level release build profile.
+-enable-property-obfuscation
+-enable-toplevel-obfuscation
+-enable-filename-obfuscation
+-enable-export-obfuscation

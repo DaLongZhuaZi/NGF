@@ -43,7 +43,16 @@ export class NGFMaterialSheetOptions implements SheetOptions {
   preferType: SheetType = SheetType.BOTTOM;
   detents: [SheetSize, SheetSize] = [SheetSize.LARGE, SheetSize.MEDIUM];
   dragBar: boolean = true;
-  showClose: boolean | Resource = false;
+  /**
+   * 是否显示浮窗关闭键。
+   *
+   * ArkUI 的 `showClose` **默认就是 true**；这里曾显式改成 false，等于**全应用的浮窗都没有关闭键**，
+   * 违反工信厅信管函〔2021〕67号 附件2 §2.4：
+   * 「关闭按钮只可在左上、右上、中央底部，且最小点击响应区域不能小于44×44dp/pt」——
+   * 该条款**预设了关闭按钮存在**；只能拖拽关闭对老年用户尤其不友好。
+   * 现恢复 SDK 默认值 true；关闭键的实际位置与尺寸需在设备上复核（见设计文档 §3.10）。
+   */
+  showClose: boolean | Resource = true;
   blurStyle: BlurStyle = BlurStyle.NONE;
   maskColor: ResourceColor = '#66000000';
   backgroundColor: ResourceColor;
@@ -71,23 +80,29 @@ export class NGFMaterialSurfaceTokens {
   static readonly SHEET_RADIUS: number = 28;
   static readonly BORDER_WIDTH: number = 1;
 
+  /**
+   * 普通组件是否改用「系统材质」表面。
+   *
+   * ## 为什么现在**恒为 false**
+   *
+   * **不再生效**。而这个开关一旦为 true，上面所有 `buildMaterialAware*` 助手就会
+   * 把背景 / 边框 / 模糊 / 阴影**全部置空**（返回 `Color.Transparent` 或 `undefined`），
+   * 文字直接压在沉浸式渐变上，**对比度反而下降**。
+   *
+   * 设备端像素实测（模拟器 `127.0.0.1:5555`，densityPixels=2.75）：
+   * 深色正文在半透明深蓝底上只有 **1.49 ~ 2.28 : 1**，远低于附件2 §1.3 要求的 4.5:1。
+   *
+   * 因此普通组件**一律走普通玻璃模糊材质**（`backgroundEffect` + 半透明底色 + 描边 + 阴影）。
+   *
+   * ## HDS 底栏不受影响
+   *
+   * 底栏用的是 `barFloatingStyle({ systemMaterialEffect: ... })`，
+   * 那是**另一套 API**，不经过本函数，因此仍然保留系统材质。
+   *
+   * @deprecated 参数保留仅为兼容既有调用点；函数恒返回 false。
+   */
   static shouldUseSystemMaterialSurface(useSystemMaterial?: boolean): boolean {
-    if (useSystemMaterial !== undefined) {
-      return useSystemMaterial;
-    }
-    const policy: string | undefined = AppStorage.get<string>(NGF_SYSTEM_MATERIAL_POLICY_KEY);
-    if (policy === NGFSystemMaterialPolicy.DISABLED) {
-      return false;
-    }
-    if (policy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
-      return true;
-    }
-
-    const state: number | undefined = AppStorage.get<number>(NGF_SYSTEM_MATERIAL_STATE_KEY);
-    if (state === undefined) {
-      return true;
-    }
-    return state !== uiMaterial.MaterialState.DISABLE;
+    return false;
   }
 
   static buildMaterialAwareSurfaceBackground(fallback: ResourceColor, useSystemMaterial?: boolean): ResourceColor {

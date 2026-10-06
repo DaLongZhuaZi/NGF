@@ -5329,6 +5329,10 @@
       "value": "系统材质类型"
     },
     {
+      "name": "settings_font_scale",
+      "value": "系统字体缩放"
+    },
+    {
       "name": "settings_api_version_label",
       "value": "API 版本"
     },
@@ -5351,6 +5355,234 @@
     {
       "name": "settings_keep_screen_on",
       "value": "保持屏幕常亮"
+    },
+    {
+      "name": "a11y_showcase_title",
+      "value": "无障碍与适老化验证"
+    },
+    {
+      "name": "a11y_showcase_subtitle",
+      "value": "API 26 证据 · 语义契约 · 设计策略 · 可复用组件"
+    },
+    {
+      "name": "a11y_section_snapshot",
+      "value": "平台状态快照"
+    },
+    {
+      "name": "a11y_section_policy",
+      "value": "生效策略与设计令牌"
+    },
+    {
+      "name": "a11y_section_components",
+      "value": "可复用组件样例"
+    },
+    {
+      "name": "a11y_section_audit",
+      "value": "语义审计"
+    },
+    {
+      "name": "a11y_label_accessibility",
+      "value": "系统无障碍总开关"
+    },
+    {
+      "name": "a11y_label_screen_reader",
+      "value": "读屏状态"
+    },
+    {
+      "name": "a11y_label_touch_guide",
+      "value": "触摸探索"
+    },
+    {
+      "name": "a11y_label_touch_mode",
+      "value": "触摸模式"
+    },
+    {
+      "name": "a11y_label_animation_reduce",
+      "value": "减少动效"
+    },
+    {
+      "name": "a11y_label_senior_mode",
+      "value": "系统适老模式"
+    },
+    {
+      "name": "a11y_label_app_senior_mode",
+      "value": "本应用适老模式"
+    },
+    {
+      "name": "a11y_senior_unresolved",
+      "value": "尚未查询完成"
+    },
+    {
+      "name": "a11y_action_enable_senior",
+      "value": "开启本应用适老模式"
+    },
+    {
+      "name": "a11y_action_disable_senior",
+      "value": "关闭本应用适老模式"
+    },
+    {
+      "name": "a11y_action_set_user_policy",
+      "value": "应用增强档策略"
+    },
+    {
+      "name": "a11y_action_clear_user_policy",
+      "value": "恢复跟随系统"
+    },
+    {
+      "name": "a11y_label_text_scale",
+      "value": "文本缩放"
+    },
+    {
+      "name": "a11y_label_touch_target_policy",
+      "value": "触控目标档"
+    },
+    {
+      "name": "a11y_label_contrast",
+      "value": "对比度档"
+    },
+    {
+      "name": "a11y_label_motion",
+      "value": "动效档"
+    },
+    {
+      "name": "a11y_label_density",
+      "value": "密度档"
+    },
+    {
+      "name": "a11y_token_font",
+      "value": "正文最小字号"
+    },
+    {
+      "name": "a11y_token_touch",
+      "value": "最小点击区"
+    },
+    {
+      "name": "a11y_token_line_height",
+      "value": "正文行高"
+    },
+    {
+      "name": "a11y_token_contrast",
+      "value": "文本对比度下限"
+    },
+    {
+      "name": "a11y_token_motion_scale",
+      "value": "动效时长倍率"
+    },
+    {
+      "name": "a11y_token_dialog_close",
+      "value": "关闭键最小点击区"
+    },
+    {
+      "name": "a11y_demo_button",
+      "value": "示例无障碍按钮"
+    },
+    {
+      "name": "a11y_demo_button_desc",
+      "value": "触发后写入一条验证日志"
+    },
+    {
+      "name": "a11y_demo_list_title",
+      "value": "示例列表项"
+    },
+    {
+      "name": "a11y_demo_list_state",
+      "value": "已选中"
+    },
+    {
+      "name": "a11y_demo_list_support",
+      "value": "辅助信息：验证分组朗读顺序"
+    },
+    {
+      "name": "a11y_demo_dialog_close",
+      "value": "关闭浮窗"
+    },
+    {
+      "name": "a11y_audit_pass",
+      "value": "语义审计通过"
+    },
+    {
+      "name": "a11y_audit_issues",
+      "value": "语义审计问题数：%s"
+    },
+    {
+      "name": "a11y_log_prefix",
+      "value": "验证日志"
+    },
+    {
+      "name": "a11y_log_empty",
+      "value": "暂无日志"
+    },
+    {
+      "name": "a11y_section_form",
+      "value": "表单字段（不分组方案）"
+    },
+    {
+      "name": "a11y_demo_field_label",
+      "value": "示例字段"
+    },
+    {
+      "name": "a11y_demo_field_required",
+      "value": "必填"
+    },
+    {
+      "name": "a11y_demo_field_error_prefix",
+      "value": "错误："
+    },
+    {
+      "name": "a11y_demo_field_error",
+      "value": "输入内容不符合要求"
+    },
+    {
+      "name": "a11y_demo_field_help",
+      "value": "帮助信息：用于验证不分组方案下输入框仍可聚焦编辑"
+    },
+    {
+      "name": "a11y_demo_field_placeholder",
+      "value": "请输入内容"
+    },
+    {
+      "name": "a11y_action_toggle_field_error",
+      "value": "切换字段错误态"
+    },
+    {
+      "name": "a11y_note_form_not_grouped",
+      "value": "该字段未使用 accessibilityGroup：分组会让输入框失去独立焦点，无法编辑"
+    },
+    {
+      "name": "a11y_action_announce_status",
+      "value": "播报当前状态"
+    },
+    {
+      "name": "a11y_announce_demo",
+      "value": "无障碍验证页：已发送一条播报"
+    },
+    {
+      "name": "elderly_mode_badge",
+      "value": "ACCESSIBILITY"
+    },
+    {
+      "name": "elderly_mode_desc",
+      "value": "放大字号、加大点击区域、提高对比度；功能与普通版完全一致"
+    },
+    {
+      "name": "elderly_mode_state_on",
+      "value": "已开启"
+    },
+    {
+      "name": "elderly_mode_state_off",
+      "value": "已关闭"
+    },
+    {
+      "name": "elderly_mode_aliases_hint",
+      "value": "别名（可作为搜索关键字）：亲情版 / 关爱版 / 关怀版"
+    },
+    {
+      "name": "elderly_mode_state_system",
+      "value": "已生效 · 由系统关怀模式开启（应用内开关已锁定）"
+    },
+    {
+      "name": "a11y_sheet_close",
+      "value": "关闭"
     }
   ]
 }

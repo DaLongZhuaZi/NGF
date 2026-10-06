@@ -1,3 +1,10 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding
+} from '../utils/NGFAccessibilityLifecycleBinding';
+import { NGFInclusiveDesignResolved } from '../../deviceAwareness/contracts/IAccessibilityManager';
+import { NGFA11yTextScale, resolveA11yTextScale, resolveA11yTextScaleForCurrent } from '../utils/NGFA11yTextScale';
+import { ngfAccessibilityFacade } from '../../deviceAwareness/facades/AccessibilityFacade';
 import { hdsMaterial, HdsTabs, HdsTabsController, HdsTabsFloatingStyle, SystemMaterialParams } from '@kit.UIDesignKit';
 
 class NGFHdsTabsSystemMaterialParams implements SystemMaterialParams {
@@ -34,6 +41,31 @@ export class NGFHdsTabItem {
 
 @Component
 export struct NGFHdsImmersiveTabs {
+  /** 适老呈现层：字号经缩放器取；普通档原样返回 */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  aboutToAppear(): void {
+    if (this.a11yBinding === null) {
+      const listener: NGFAccessibilityBindingListener = {
+        onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+          this.a11yScale = resolveA11yTextScaleForCurrent();
+        }
+      };
+      this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+      this.a11yBinding.attach();
+    }
+  }
+
+  aboutToDisappear(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   private controller: HdsTabsController = new HdsTabsController();
   private items: Array<NGFHdsTabItem> = [];
   @Prop private selectedIndex: number = 0;
@@ -76,9 +108,10 @@ export struct NGFHdsImmersiveTabs {
 
   @Builder
   private buildTabBarItem(item: NGFHdsTabItem, isSelected: boolean): void {
-    Column({ space: 4 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(4, 18) }) {
       Text(item.title)
-        .fontSize(11)
+        .fontSize(this.a11yScale.font(11))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
         .fontColor(isSelected ? $r('app.color.button_primary') : $r('app.color.text_secondary'))
         .fontWeight(isSelected ? FontWeight.Medium : FontWeight.Normal)
     }

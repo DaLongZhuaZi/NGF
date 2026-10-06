@@ -1,3 +1,12 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  a11yTouchTarget,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from 'ngf_framework';
@@ -27,6 +36,37 @@ export interface TaskRecord {
 
 @Component
 export struct NGFCapabilitiesDatabasePage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private isDbInitialized: boolean = false;
@@ -36,10 +76,12 @@ export struct NGFCapabilitiesDatabasePage {
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   async aboutToAppear(): Promise<void> {
+    this.attachA11yBinding();
     await this.initDatabase();
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     NGFPageWindowSupport.restoreMainMenu();
   }
 
@@ -140,6 +182,8 @@ export struct NGFCapabilitiesDatabasePage {
     return h + ':' + m + ':' + s;
   }
 
+
+
   build() {
     HdsNavDestination() {
       Stack({ alignContent: Alignment.TopStart }) {
@@ -183,36 +227,37 @@ export struct NGFCapabilitiesDatabasePage {
 
   @Builder
   private buildTitleCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Row() {
         Text($r('app.string.card_rdb_title'))
-          .fontSize(20)
+          .fontSize(this.a11yScale.font(20))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(20)))
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_primary'))
         Blank()
         if (this.isDbInitialized) {
           Text($r('app.string.db_connected'))
-            .fontSize(12)
+            .fontSize(this.a11yScale.font(12))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
             .fontColor($r('app.color.text_primary'))
             .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .padding({ left: 8, right: 8, top: 4, bottom: 4 })
             .borderRadius(8)
-            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         } else {
           Text($r('app.string.db_disconnected'))
-            .fontSize(12)
+            .fontSize(this.a11yScale.font(12))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
             .fontColor($r('app.color.text_primary'))
             .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .padding({ left: 8, right: 8, top: 4, bottom: 4 })
             .borderRadius(8)
-            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         }
       }
       .width('100%')
       
       Text($r('app.string.card_rdb_desc'))
-        .fontSize(13)
-        .lineHeight(20)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
         .fontColor($r('app.color.text_secondary'))
         .width('100%')
     }
@@ -222,13 +267,12 @@ export struct NGFCapabilitiesDatabasePage {
     .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
     .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     .margin({ bottom: 16 })
   }
 
   @Builder
   private buildInputCard(): void {
-    Column({ space: 12 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
       TextInput({ placeholder: $r('app.string.db_input_placeholder'), text: this.inputText })
         .onChange((value: string) => {
           this.inputText = value;
@@ -239,7 +283,6 @@ export struct NGFCapabilitiesDatabasePage {
         .placeholderColor($r('app.color.text_tertiary'))
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
         .borderRadius(12)
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .onSubmit(() => {
           void this.handleAddTask();
         })
@@ -248,11 +291,10 @@ export struct NGFCapabilitiesDatabasePage {
         Button($r('app.string.db_btn_insert'))
           .layoutWeight(1)
           .height(44)
-          .fontSize(14)
+          .fontSize(this.a11yScale.font(14))
           .borderRadius(12)
           .fontColor($r('app.color.text_primary'))
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .enabled(this.isDbInitialized && this.inputText.trim().length > 0 && !this.isProcessing)
           .onClick(() => {
             void this.handleAddTask();
@@ -261,11 +303,10 @@ export struct NGFCapabilitiesDatabasePage {
         Button($r('app.string.db_btn_clear_all'))
           .layoutWeight(1)
           .height(44)
-          .fontSize(14)
+          .fontSize(this.a11yScale.font(14))
           .borderRadius(12)
           .fontColor($r('app.color.text_primary'))
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .enabled(this.isDbInitialized && this.tasks.length > 0 && !this.isProcessing)
           .onClick(() => {
             void this.handleClearAll();
@@ -279,16 +320,16 @@ export struct NGFCapabilitiesDatabasePage {
     .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwarePanelBackgroundEffect(this.useSysMat))
     .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     .margin({ bottom: 16 })
   }
 
   @Builder
   private buildDataList(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Row() {
         Text($r('app.string.db_records_title', this.tasks.length))
-          .fontSize(14)
+          .fontSize(this.a11yScale.font(14))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_secondary'))
         Blank()
@@ -302,7 +343,8 @@ export struct NGFCapabilitiesDatabasePage {
       if (this.tasks.length === 0) {
         Column() {
           Text($r('app.string.db_no_records'))
-            .fontSize(14)
+            .fontSize(this.a11yScale.font(14))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
             .fontColor($r('app.color.text_tertiary'))
         }
         .width('100%')
@@ -329,14 +371,16 @@ export struct NGFCapabilitiesDatabasePage {
   @Builder
   private buildTaskItem(task: TaskRecord): void {
     Row({ space: 12 }) {
-      Column({ space: 4 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(4, 18) }) {
         Text(task.content)
-          .fontSize(15)
+          .fontSize(this.a11yScale.font(15))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(15)))
           .fontColor($r('app.color.text_primary'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
         Text($r('app.string.db_record_item', task.id, this.formatTime(task.timestamp)))
-          .fontSize(12)
+          .fontSize(this.a11yScale.font(12))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
           .fontColor($r('app.color.text_tertiary'))
       }
       .layoutWeight(1)
@@ -344,13 +388,12 @@ export struct NGFCapabilitiesDatabasePage {
 
       Button($r('app.string.db_btn_delete'))
         .width(60)
-        .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+        .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
         .controlSize(ControlSize.SMALL)
-        .fontSize(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE)
+        .fontSize(this.a11yScale.font(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE))
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
         .fontColor('#EF4444')
         .borderRadius(8)
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         .onClick(() => {
           void this.handleDeleteTask(task.id);
         })
@@ -364,6 +407,5 @@ export struct NGFCapabilitiesDatabasePage {
       width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 }

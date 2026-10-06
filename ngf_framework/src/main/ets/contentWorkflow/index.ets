@@ -5,6 +5,7 @@ export { IRateLimitPolicy } from './contracts/IRateLimitPolicy';
 export {
   IWorkflowDefinitionManager,
   NGFWorkflowDefinition,
+  NGFWorkflowParallelGroup,
   NGFWorkflowStepDefinition,
   NGFWorkflowStepCondition,
   NGFWorkflowExecutionResult,

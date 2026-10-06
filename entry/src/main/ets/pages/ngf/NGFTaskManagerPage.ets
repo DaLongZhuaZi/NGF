@@ -1,3 +1,12 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  a11yTouchTarget,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
 import { HdsNavDestination, hdsMaterial } from '@kit.UIDesignKit';
 import { NGFHdsTitleBarOptionsFactory } from 'ngf_framework';
 import {
@@ -24,6 +33,37 @@ const DEMO_TOP_CHROME_BLUE: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePre
 
 @Component
 export struct NGFTaskManagerPage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private tasks: Array<NGFTaskInfo> = [];
@@ -31,6 +71,7 @@ export struct NGFTaskManagerPage {
   private readonly listenerId = 'NGFTaskManagerPage_Listener';
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, DEMO_TOP_CHROME_BLUE.metrics.contentTopInset, (inset) => {
       this.topInsetVp = inset;
     });
@@ -45,6 +86,7 @@ export struct NGFTaskManagerPage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     NGFPageWindowSupport.restoreMainMenu();
     ngfSystem.unsubscribeSystemEvent('ngf.task.started', this.listenerId);
     ngfSystem.unsubscribeSystemEvent('ngf.task.progress', this.listenerId);
@@ -64,11 +106,12 @@ export struct NGFTaskManagerPage {
         NGFImmersiveTopChromeUnderlay({ spec: DEMO_TOP_CHROME_BLUE })
 
         Scroll() {
-          Column({ space: 16 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(16, 18) }) {
             this.buildTitleCard()
             
             Text($r('app.string.task_manager_test_queue'))
-              .fontSize(14)
+              .fontSize(this.a11yScale.font(14))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_secondary'))
               .margin({ top: 8, bottom: -8 })
@@ -77,16 +120,16 @@ export struct NGFTaskManagerPage {
               .width('100%')
               .height(NGFControlStyleTokens.NORMAL_BUTTON_HEIGHT)
               .controlSize(ControlSize.NORMAL)
-              .fontSize(14)
+              .fontSize(this.a11yScale.font(14))
               .fontColor($r('app.color.text_primary'))
 .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-              .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
               .onClick(() => {
                 this.submitMockDownloadTask();
               })
 
             Text($r('app.string.task_manager_test_notify'))
-              .fontSize(14)
+              .fontSize(this.a11yScale.font(14))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_secondary'))
               .margin({ top: 8, bottom: -8 })
@@ -95,48 +138,44 @@ export struct NGFTaskManagerPage {
               Button($r('app.string.task_manager_basic_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
-                .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+                .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
                 .controlSize(ControlSize.SMALL)
-                .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+                .fontSize(this.a11yScale.font(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE))
                 .fontColor($r('app.color.text_primary'))
 .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .margin({ bottom: 12 })
                 .onClick(() => this.testBasicNotification())
 
               Button($r('app.string.task_manager_longtext_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
-                .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+                .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
                 .controlSize(ControlSize.SMALL)
-                .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+                .fontSize(this.a11yScale.font(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE))
                 .fontColor($r('app.color.text_primary'))
 .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .margin({ bottom: 12 })
                 .onClick(() => this.testLongTextNotification())
 
               Button($r('app.string.task_manager_multiline_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
-                .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+                .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
                 .controlSize(ControlSize.SMALL)
-                .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+                .fontSize(this.a11yScale.font(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE))
                 .fontColor($r('app.color.text_primary'))
 .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .margin({ bottom: 12 })
                 .onClick(() => this.testMultiLineNotification())
 
               Button($r('app.string.task_manager_custom_notify'), { type: ButtonType.Normal })
                 .borderRadius(8)
                 .width('48%')
-                .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+                .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
                 .controlSize(ControlSize.SMALL)
-                .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+                .fontSize(this.a11yScale.font(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE))
                 .fontColor($r('app.color.text_primary'))
 .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
                 .margin({ bottom: 12 })
                 .onClick(() => this.testCustomNotification())
             }
@@ -187,14 +226,15 @@ export struct NGFTaskManagerPage {
 
   @Builder
   private buildTitleCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Text($r('app.string.task_manager_route_label'))
-        .fontSize(22)
+        .fontSize(this.a11yScale.font(22))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
       Text($r('app.string.task_manager_intro'))
-        .fontSize(13)
-        .lineHeight(20)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
         .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
@@ -203,7 +243,6 @@ export struct NGFTaskManagerPage {
     .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
     .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   private submitMockDownloadTask() {
@@ -304,29 +343,71 @@ export struct NGFTaskManagerPage {
 
 @Component
 struct TaskListItem {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @ObjectLink task: NGFTaskInfo;
   @Prop useSysMat: boolean = true;
+  aboutToAppear(): void {
+    this.attachA11yBinding();
+  }
+
+  aboutToDisappear(): void {
+    this.detachA11yBinding();
+  }
+
+
 
   build() {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Row() {
         Text(this.task.name)
-          .fontSize(16)
+          .fontSize(this.a11yScale.font(16))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
           .layoutWeight(1)
         Text(this.task.state)
-          .fontSize(12)
+          .fontSize(this.a11yScale.font(12))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
           .fontColor(this.getStateColor(this.task.state))
           .padding({ left: 8, right: 8, top: 4, bottom: 4 })
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_secondary'), this.useSysMat))
           .borderRadius(12)
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
       }
       .width('100%')
 
       Text(this.task.message)
-        .fontSize(14)
+        .fontSize(this.a11yScale.font(14))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
         .fontColor($r('app.color.text_secondary'))
 
       if (this.task.total > 0) {
@@ -345,7 +426,6 @@ struct TaskListItem {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.panel_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   private getStateColor(state: string): ResourceColor {

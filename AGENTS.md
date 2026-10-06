@@ -55,6 +55,8 @@
 | [`.rules/skill-automation-test.md`](.rules/skill-automation-test.md) | 用户提到 自动化测试 / 单元测试 / 集成测试 / 回归测试 / hypium / 断言 / 测试覆盖率；涉及 `entry/src/test/`、`entry/src/ohosTest/`、`*.test.ets`、`@ohos/hypium`、`@ohos/hamock`；从下载 hypium 测试工具包开始，搭建测试环境、编写测试用例、运行测试、排查测试失败时。也覆盖 UI 自动化：模拟点击 / 自动点击 / 截图断言 / 图片识别(OCR) / 控件树 dump / 手势注入 / `uitest` / `snapshot_display` / 端到端 UI 回归 |
 | [`.rules/skill-ui-symbols.md`](.rules/skill-ui-symbols.md) | 涉及在 UI 中添加图标、状态提示、字符串带图；发现或准备新增 Emoji 作为 UI 标识 |
 | [`.rules/skill-i18n.md`](.rules/skill-i18n.md) | 涉及新建 UI 界面、修改页面文案、输出面向用户的 Toast/Dialog、配置 HdsNavigation/HdsNavDestination 标题时 |
+| [`.rules/skill-accessibility.md`](.rules/skill-accessibility.md) | 用户提到 无障碍 / 读屏 / 屏幕朗读 / 辅助工具 / `accessibilityText` / 无障碍焦点 / TalkBack；**新增或修改任何可交互组件**；需要让应用被辅助工具正确识别；准备做无障碍验收时 |
+| [`.rules/skill-elderly-ui.md`](.rules/skill-elderly-ui.md) | 用户提到 适老化 / 适老版 / 长辈版 / 老年模式 / 关怀版 / 亲情版 / 关爱版；准备把已有页面改造为适老版；需要核对触控目标 44/48/60 dp/pt、字号 18/30 dp/pt、行距 1.3 倍、对比度 4.5:1 等指标；需要证明「适老版与普通版功能一致」时 |
 | [`.rules/skill-project-rule-governance.md`](.rules/skill-project-rule-governance.md) | 涉及项目规则、Agent Harness、持续性用户偏好、项目级架构/产品决策；Agent 发现已验证的重复项目模式；需要创建、更新或读取 `.agent-rules/` 时 |
 | [`.rules/skill-ngf-app-harness.md`](.rules/skill-ngf-app-harness.md) | 用户要求使用 NGF 新建、迁移、拆分或长期维护独立 App/应用模块；需要为 App 建立专属 Agent 规则和 Harness 时 |
 | [`.rules/skill-rules-update.md`](.rules/skill-rules-update.md) | 开发者明确要求新增、修改、合并、删除、自动触发化或沉淀 `.rules/`/`AGENTS.md` 规则时 |

@@ -1,23 +1,57 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding
+} from '../../uiShell/utils/NGFAccessibilityLifecycleBinding';
+import { NGFInclusiveDesignResolved } from '../../deviceAwareness/contracts/IAccessibilityManager';
+import { NGFA11yTextScale, resolveA11yTextScale, resolveA11yTextScaleForCurrent } from '../../uiShell/utils/NGFA11yTextScale';
+import { ngfAccessibilityFacade } from '../../deviceAwareness/facades/AccessibilityFacade';
 import { logger } from '../../utils/Logger';
 
 @Component
 export struct NGFWorkflowVisualizer {
+  /** 适老呈现层：字号经缩放器取；普通档原样返回（零视觉回归） */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台适老策略；与 detach 成对（SDK 硬性要求） */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding === null) {
+      const listener: NGFAccessibilityBindingListener = {
+        onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+          this.a11yScale = resolveA11yTextScaleForCurrent();
+        }
+      };
+      this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+      this.a11yBinding.attach();
+    }
+  }
+
   @State workflows: Array<string> = [];
   @State selectedWorkflow: string = '';
   @State isExecuting: boolean = false;
   @State executionResult: string = '';
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     logger.info('NGFWorkflowVisualizer', '可视化调试器初始化');
     // 在真实场景下这里会调用 ngfWorkflowDefinitionManagerFacade.listWorkflowNames()
     // 此处简化为 UI 骨架
     this.workflows = ['example_workflow_1', 'example_parallel_workflow'];
   }
 
+  aboutToDisappear(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
   build() {
-    Column({ space: 16 }) {
+    Column({ space: this.a11yScale.groupSpacing(16) }) {
       Text('Workflow Visual Debugger')
-        .fontSize(24)
+        .fontSize(this.a11yScale.font(24))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(24)))
         .fontWeight(FontWeight.Bold)
         .margin({ top: 16 })
 
@@ -26,7 +60,8 @@ export struct NGFWorkflowVisualizer {
           ListItem() {
             Row() {
               Text(wfName)
-                .fontSize(16)
+                .fontSize(this.a11yScale.font(16))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
                 .fontColor(this.selectedWorkflow === wfName ? Color.Blue : Color.Black)
               Blank()
               Button('Run')
@@ -47,12 +82,13 @@ export struct NGFWorkflowVisualizer {
 
       Divider()
 
-      Column({ space: 8 }) {
+      Column({ space: this.a11yScale.groupSpacing(8) }) {
         Text('Execution Log:')
           .fontWeight(FontWeight.Bold)
         Scroll() {
           Text(this.executionResult)
-            .fontSize(14)
+            .fontSize(this.a11yScale.font(14))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
             .fontFamily('monospace')
             .fontColor(this.isExecuting ? Color.Orange : (this.executionResult.includes('FAILED') ? Color.Red : Color.Green))
         }

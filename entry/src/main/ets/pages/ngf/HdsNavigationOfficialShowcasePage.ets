@@ -1,4 +1,13 @@
 import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  a11yTouchTarget,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
+import {
   hdsMaterial,
   HdsColorPicker,
   HdsColorPickerOptions,
@@ -184,6 +193,37 @@ class NGFHdsOfficialEffectEntry {
 
 @Component
 export struct HdsNavigationOfficialShowcasePage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private lastActionText: ResourceStr = $r('app.string.ui_str_2170');
@@ -222,6 +262,7 @@ export struct HdsNavigationOfficialShowcasePage {
   ];
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
       this.topInsetVp = inset;
     });
@@ -230,6 +271,7 @@ export struct HdsNavigationOfficialShowcasePage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     logger.lifecycle(TAG, '官方展示即将消失');
   }
 
@@ -264,7 +306,7 @@ export struct HdsNavigationOfficialShowcasePage {
         NGFImmersiveTopChromeUnderlay({ spec: HDS_OFFICIAL_SHOWCASE_TOP_CHROME_SPEC })
 
         Scroll(this.scroller) {
-          Column({ space: 16 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(16, 18) }) {
             this.buildHeroCard()
             this.buildEntryCardList()
             this.buildFactCard()
@@ -320,23 +362,26 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildHeroCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 12 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
         Text('MainMenuPage → HdsNavigation')
-          .fontSize(24)
+          .fontSize(this.a11yScale.font(24))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(24)))
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_primary'))
 
         Text($r('app.string.ui_str_2182'))
-          .fontSize(14)
-          .lineHeight(22)
+          .fontSize(this.a11yScale.font(14))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(14), 22))
           .fontColor($r('app.color.text_secondary'))
 
         Text(this.lastActionText)
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_tertiary'))
 
         Text($r('app.string.ui_str_2183', this.openedCount))
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_tertiary'))
       }
       .width('100%')
@@ -350,16 +395,16 @@ export struct HdsNavigationOfficialShowcasePage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
       .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
   }
 
   @Builder
   private buildEntryCardList(): void {
-    Column({ space: 12 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
       Text($r('app.string.ui_str_2184'))
-        .fontSize(18)
+        .fontSize(this.a11yScale.font(18))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
@@ -375,23 +420,25 @@ export struct HdsNavigationOfficialShowcasePage {
     Button() {
       Stack({ alignContent: Alignment.Start }) {
         Row({ space: 12 }) {
-          Column({ space: 6 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
             Text(card.title)
-              .fontSize(10)
+              .fontSize(this.a11yScale.font(10))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(10)))
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_tertiary'))
 
             Text(card.subtitle)
               .width('100%')
-              .fontSize(15)
+              .fontSize(this.a11yScale.font(15))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(15)))
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_primary'))
               .maxLines(2)
 
             Text(card.description)
               .width('100%')
-              .fontSize(12)
-              .lineHeight(18)
+              .fontSize(this.a11yScale.font(12))
+              .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(12), 18))
               .fontColor($r('app.color.text_secondary'))
               .maxLines(2)
           }
@@ -400,7 +447,8 @@ export struct HdsNavigationOfficialShowcasePage {
 
           Row() {
             Text('›')
-              .fontSize(22)
+              .fontSize(this.a11yScale.font(22))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
               .margin({ bottom: 4 })
@@ -410,7 +458,6 @@ export struct HdsNavigationOfficialShowcasePage {
           .borderRadius(14)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
           .justifyContent(FlexAlign.Center)
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         }
         .width('100%')
         .alignItems(VerticalAlign.Center)
@@ -424,7 +471,6 @@ export struct HdsNavigationOfficialShowcasePage {
         })
         .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
         .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
       }
       .width('100%')
     }
@@ -440,25 +486,29 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildFactCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 10 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
         Text($r('app.string.ui_str_2185'))
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
 
         Text($r('app.string.ui_str_2186'))
           .width('100%')
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_secondary'))
 
         Text($r('app.string.ui_str_2187'))
           .width('100%')
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_secondary'))
 
         Text($r('app.string.ui_str_2188'))
           .width('100%')
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_secondary'))
       }
       .width('100%')
@@ -472,7 +522,6 @@ export struct HdsNavigationOfficialShowcasePage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
       .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     }
     .width('100%')
   }
@@ -480,9 +529,10 @@ export struct HdsNavigationOfficialShowcasePage {
   @Builder
   private buildApi26SystemMaterialCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 12 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
         Text($r('app.string.api26_visual_migration_title'))
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
 
@@ -495,8 +545,8 @@ export struct HdsNavigationOfficialShowcasePage {
 
         Text($r('app.string.settings_system_material_policy'))
           .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
           .fontColor($r('app.color.text_secondary'))
       }
       .width('100%')
@@ -510,7 +560,6 @@ export struct HdsNavigationOfficialShowcasePage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
       .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
   }
@@ -519,7 +568,8 @@ export struct HdsNavigationOfficialShowcasePage {
   private buildApi26SystemMaterialSample(label: ResourceStr): void {
     Column() {
       Text(label)
-        .fontSize(12)
+        .fontSize(this.a11yScale.font(12))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
         .maxLines(2)
@@ -536,22 +586,22 @@ export struct HdsNavigationOfficialShowcasePage {
       width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.glass_border_light'), this.useSysMat)
     })
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
   }
 
   @Builder
   private buildVerificationCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 10 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
         Text($r('app.string.ui_str_2168'))
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
 
         Text($r('app.string.ui_str_2189'))
           .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
           .fontColor($r('app.color.text_secondary'))
       }
       .width('100%')
@@ -565,7 +615,6 @@ export struct HdsNavigationOfficialShowcasePage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
       .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     }
     .width('100%')
   }
@@ -573,6 +622,37 @@ export struct HdsNavigationOfficialShowcasePage {
 
 @Component
 export struct HdsNavigationOfficialOverviewPage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
@@ -599,6 +679,7 @@ export struct HdsNavigationOfficialOverviewPage {
   ];
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
       this.topInsetVp = inset;
     });
@@ -607,6 +688,7 @@ export struct HdsNavigationOfficialOverviewPage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     NGFPageWindowSupport.restore(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
     logger.lifecycle(TAG, '官方概览即将消失');
   }
@@ -629,17 +711,18 @@ export struct HdsNavigationOfficialOverviewPage {
         NGFImmersiveTopChromeUnderlay({ spec: HDS_OFFICIAL_OVERVIEW_TOP_CHROME_SPEC })
 
         Scroll(this.scroller) {
-          Column({ space: 14 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(14, 18) }) {
             Text($r('app.string.ui_str_2171'))
               .width('100%')
-              .fontSize(22)
+              .fontSize(this.a11yScale.font(22))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
 
             Text($r('app.string.ui_str_2196'))
               .width('100%')
-              .fontSize(14)
-              .lineHeight(22)
+              .fontSize(this.a11yScale.font(14))
+              .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(14), 22))
               .fontColor($r('app.color.text_secondary'))
 
             ForEach(this.overviewItems, (item: NGFHdsOfficialHighlightItem): void => {
@@ -688,22 +771,24 @@ export struct HdsNavigationOfficialOverviewPage {
 
   @Builder
   private buildOverviewHighlightCard(item: NGFHdsOfficialHighlightItem): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Row({ space: 8 }) {
         Text('●')
-          .fontSize(14)
+          .fontSize(this.a11yScale.font(14))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
           .fontColor(item.accentColor)
 
         Text(item.title)
-          .fontSize(16)
+          .fontSize(this.a11yScale.font(16))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_white'))
       }
 
       Text(item.description)
         .width('100%')
-        .fontSize(13)
-        .lineHeight(20)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
         .fontColor($r('app.color.text_glass_body'))
     }
     .width('100%')
@@ -726,6 +811,37 @@ export struct HdsNavigationOfficialOverviewPage {
 
 @Component
 export struct HdsNavigationOfficialMaterialPage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private pressedMaterialItemId: string = '';
@@ -763,6 +879,7 @@ export struct HdsNavigationOfficialMaterialPage {
   ];
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
       this.topInsetVp = inset;
     });
@@ -771,6 +888,7 @@ export struct HdsNavigationOfficialMaterialPage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     NGFPageWindowSupport.restore(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
     logger.lifecycle(TAG, '官方材质即将消失');
   }
@@ -826,17 +944,18 @@ export struct HdsNavigationOfficialMaterialPage {
         NGFImmersiveTopChromeUnderlay({ spec: HDS_OFFICIAL_MATERIAL_TOP_CHROME_SPEC })
 
         Scroll(this.scroller) {
-          Column({ space: 14 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(14, 18) }) {
             Text($r('app.string.ui_str_2174'))
               .width('100%')
-              .fontSize(22)
+              .fontSize(this.a11yScale.font(22))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
 
             Text($r('app.string.ui_str_2204'))
               .width('100%')
-              .fontSize(14)
-              .lineHeight(22)
+              .fontSize(this.a11yScale.font(14))
+              .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(14), 22))
               .fontColor($r('app.color.text_secondary'))
 
             ForEach(this.materialItems, (item: NGFHdsOfficialMaterialItem): void => {
@@ -893,8 +1012,8 @@ export struct HdsNavigationOfficialMaterialPage {
     item: NGFHdsOfficialMaterialItem,
     preset: NGFHdsMaterialSurfacePreset
   ): void {
-    Column({ space: 14 }) {
-      Column({ space: 6 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(14, 18) }) {
+      Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
         Row({ space: 8 }) {
           Circle()
             .width(12)
@@ -902,19 +1021,22 @@ export struct HdsNavigationOfficialMaterialPage {
             .fill('#FFFFFF')
 
           Text(typeof item.title === 'string' ? item.title.replace(/.*— /, '') : item.title)
-            .fontSize(16)
+            .fontSize(this.a11yScale.font(16))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
             .fontWeight(FontWeight.Medium)
             .fontColor('#FFFFFF')
         }
 
         Row({ space: 6 }) {
           Text(preset.effectLabel)
-            .fontSize(12)
+            .fontSize(this.a11yScale.font(12))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
             .fontColor('#E6FFFFFF')
             .layoutWeight(1)
 
           Text(preset.levelLabel)
-            .fontSize(10)
+            .fontSize(this.a11yScale.font(10))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(10)))
             .fontWeight(FontWeight.Bold)
             .fontColor('#FFFFFF')
             .opacity(0.7)
@@ -942,7 +1064,7 @@ export struct HdsNavigationOfficialMaterialPage {
       }
       .width('100%')
 
-      Column({ space: 8 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
         this.buildMaterialApiLine('backgroundEffect', preset.backgroundEffect.getSummary())
         this.buildMaterialApiLine('pointLight', preset.visualEffectPreset.getPointLightSummary())
         this.buildMaterialApiLine('preset API', preset.getApiSummary())
@@ -955,14 +1077,14 @@ export struct HdsNavigationOfficialMaterialPage {
 
       Text(item.description)
         .width('100%')
-        .fontSize(13)
-        .lineHeight(20)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
         .fontColor('#E6FFFFFF')
 
       Text(this.isMaterialItemPressed(item.id) ? $r('app.string.ui_str_2206') : $r('app.string.ui_str_2207'))
         .width('100%')
-        .fontSize(12)
-        .lineHeight(18)
+        .fontSize(this.a11yScale.font(12))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(12), 18))
         .fontColor('#BFFFFFFF')
     }
     .width('100%')
@@ -973,7 +1095,6 @@ export struct HdsNavigationOfficialMaterialPage {
     // API26 ImmersiveMaterial: 系统材质引擎接管三档视觉差异(模糊/高光/阴影)，
     // interactive:true + lightEffect 由系统接管按压形变和触点光感，
     // 不再依赖手写 linearGradient + shadow + hdsEffect 链。
-    .systemMaterial(ngfVisualEffectsFacade.buildImmersiveMaterialForTabs())
     .scale(preset.scaleOptions)
     .translate(preset.translateOptions)
     .animation({
@@ -987,19 +1108,25 @@ export struct HdsNavigationOfficialMaterialPage {
 
   @Builder
   private buildMaterialApiMetric(label: ResourceStr, value: ResourceStr): void {
-    Column({ space: 4 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(4, 18) }) {
       Text(label)
-        .fontSize(11)
+        .fontSize(this.a11yScale.font(11))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
         .fontColor('#99FFFFFF')
 
       Text(value)
-        .fontSize(14)
+        .fontSize(this.a11yScale.font(14))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
         .fontWeight(FontWeight.Bold)
         .fontColor('#FFFFFF')
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
     }
     .layoutWeight(1)
+    // 无障碍分组（官方「使用建议」：对复杂布局减少冗余播报）。
+    // 不分组时读屏把「标签」与「数值」当成**两个独立节点**，
+    // 用户会听到一个孤立的数值，不知道它属于哪个标签。
+    .accessibilityGroup(true)
   }
 
   @Builder
@@ -1007,22 +1134,59 @@ export struct HdsNavigationOfficialMaterialPage {
     Row({ space: 8 }) {
       Text(label)
         .width(116)
-        .fontSize(11)
+        .fontSize(this.a11yScale.font(11))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
         .fontColor('#99FFFFFF')
 
       Text(value)
         .layoutWeight(1)
-        .fontSize(11)
+        .fontSize(this.a11yScale.font(11))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
         .fontColor('#F2FFFFFF')
         .maxLines(2)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
     }
     .width('100%')
+    // 无障碍分组（官方「使用建议」：对复杂布局减少冗余播报）。
+    // 不分组时读屏把「标签」与「数值」当成**两个独立节点**，
+    // 用户会听到一个孤立的数值，不知道它属于哪个标签。
+    .accessibilityGroup(true)
   }
 }
 
 @Component
 export struct HdsNavigationOfficialEffectPage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private lastEffectText: ResourceStr = $r('app.string.ui_str_2208');
@@ -1079,6 +1243,7 @@ export struct HdsNavigationOfficialEffectPage {
   private clickPulseClearTimer: number = -1;
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
       this.topInsetVp = inset;
     });
@@ -1088,6 +1253,7 @@ export struct HdsNavigationOfficialEffectPage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     this.clearClickPulseTimers();
     this.flowLightSceneController.stop();
     NGFPageWindowSupport.restore(NGFPageWindowName.HDS_OFFICIAL_NAVIGATION);
@@ -1255,22 +1421,24 @@ export struct HdsNavigationOfficialEffectPage {
         NGFImmersiveTopChromeUnderlay({ spec: HDS_OFFICIAL_EFFECT_TOP_CHROME_SPEC })
 
         Scroll(this.scroller) {
-          Column({ space: 14 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(14, 18) }) {
             Text($r('app.string.ui_str_2176'))
               .width('100%')
-              .fontSize(22)
+              .fontSize(this.a11yScale.font(22))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
 
             Text($r('app.string.ui_str_2225'))
               .width('100%')
-              .fontSize(14)
-              .lineHeight(22)
+              .fontSize(this.a11yScale.font(14))
+              .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(14), 22))
               .fontColor($r('app.color.text_secondary'))
 
             Text(this.lastEffectText)
               .width('100%')
-              .fontSize(13)
+              .fontSize(this.a11yScale.font(13))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
               .fontColor($r('app.color.text_secondary'))
 
             ForEach(this.effectEntries, (entry: NGFHdsOfficialEffectEntry): void => {
@@ -1337,10 +1505,11 @@ export struct HdsNavigationOfficialEffectPage {
    */
   @Builder
   private buildColorPickerSection(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       Row({ space: 8 }) {
         Text('自定义点光颜色')
-          .fontSize(16)
+          .fontSize(this.a11yScale.font(16))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
           .layoutWeight(1)
@@ -1357,8 +1526,8 @@ export struct HdsNavigationOfficialEffectPage {
 
       Text('API26 HdsColorPicker: 选中颜色后,上方 PointLight 卡片的 hdsEffect 点光会实时变色。')
         .width('100%')
-        .fontSize(12)
-        .lineHeight(18)
+        .fontSize(this.a11yScale.font(12))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(12), 18))
         .fontColor($r('app.color.text_secondary'))
 
       // HdsColorPicker 组件(API26 Beta2 新增)
@@ -1396,7 +1565,8 @@ export struct HdsNavigationOfficialEffectPage {
   @Builder
   private buildEffectActivationBadge(active: boolean): void {
     Text(active ? $r('app.string.ui_str_2227') : $r('app.string.ui_str_2228'))
-      .fontSize(11)
+      .fontSize(this.a11yScale.font(11))
+      .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
       .fontWeight(FontWeight.Bold)
       .fontColor(active ? '#07111F' : '#CCFFFFFF')
       .padding({ left: 8, right: 8, top: 3, bottom: 3 })
@@ -1523,7 +1693,7 @@ export struct HdsNavigationOfficialEffectPage {
         this.buildEffectClickPulseLayer(entry)
       }
 
-      Column({ space: 10 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
         Row({ space: 8 }) {
           ForEach([1, 2, 3, 4], (level: number): void => {
             Column()
@@ -1536,7 +1706,8 @@ export struct HdsNavigationOfficialEffectPage {
           }, (level: number): string => 'shadow-bar-' + level)
 
           Text(entry.effectLabel)
-            .fontSize(12)
+            .fontSize(this.a11yScale.font(12))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
             .fontColor('#DDEBFF')
             .layoutWeight(1)
             .textAlign(TextAlign.End)
@@ -1548,32 +1719,35 @@ export struct HdsNavigationOfficialEffectPage {
 
         Text(entry.title)
           .width('100%')
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.panel_background'))
           .textAlign(TextAlign.Start)
 
         Text(entry.description)
           .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
           .fontColor('#E6FFFFFF')
           .textAlign(TextAlign.Start)
 
         Text(preset.apiSummary)
           .width('100%')
-          .fontSize(11)
-          .lineHeight(16)
+          .fontSize(this.a11yScale.font(11))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(11), 16))
           .fontColor('#DDEBFF')
           .textAlign(TextAlign.Start)
 
         Row({ space: 6 }) {
           Text($r('app.string.ui_str_2229'))
-            .fontSize(11)
+            .fontSize(this.a11yScale.font(11))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
             .fontColor('#B3FFFFFF')
 
           Text(preset.stateText)
-            .fontSize(11)
+            .fontSize(this.a11yScale.font(11))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
             .fontColor(this.isEffectEntryEffectActive(entry.id) ? '#FCD34D' : '#99FFFFFF')
         }
         .width('100%')
@@ -1651,7 +1825,7 @@ export struct HdsNavigationOfficialEffectPage {
         this.buildEffectClickPulseLayer(entry)
       }
 
-      Column({ space: 10 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
         Row({ space: 8 }) {
           Circle()
             .width(20)
@@ -1660,11 +1834,13 @@ export struct HdsNavigationOfficialEffectPage {
             .opacity(this.isEffectEntryEffectActive(entry.id) ? 0.9 : 0.3)
 
           Text(entry.effectLabel)
-            .fontSize(11)
+            .fontSize(this.a11yScale.font(11))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
             .fontColor('#B3FFFFFF')
 
           Text(this.isEffectEntryEffectActive(entry.id) ? '● ' + entry.badgeLabel : $r('app.string.ui_str_2230'))
-            .fontSize(11)
+            .fontSize(this.a11yScale.font(11))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
             .fontColor(this.isEffectEntryEffectActive(entry.id) ? '#FCD34D' : '#99FFFFFF')
             .layoutWeight(1)
             .textAlign(TextAlign.End)
@@ -1676,28 +1852,30 @@ export struct HdsNavigationOfficialEffectPage {
 
         Text(entry.title)
           .width('100%')
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.panel_background'))
           .textAlign(TextAlign.Start)
 
         Text(entry.description)
           .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
           .fontColor('#E6FFFFFF')
           .textAlign(TextAlign.Start)
 
         Text(preset.apiSummary)
           .width('100%')
-          .fontSize(11)
-          .lineHeight(16)
+          .fontSize(this.a11yScale.font(11))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(11), 16))
           .fontColor('#EDE9FE')
           .textAlign(TextAlign.Start)
 
         Text(preset.stateText)
           .width('100%')
-          .fontSize(11)
+          .fontSize(this.a11yScale.font(11))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
           .fontColor(this.isEffectEntryEffectActive(entry.id) ? '#FCD34D' : '#99FFFFFF')
           .textAlign(TextAlign.Start)
       }
@@ -1810,7 +1988,7 @@ export struct HdsNavigationOfficialEffectPage {
         this.buildEffectClickPulseLayer(entry)
       }
 
-      Column({ space: 10 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
         Row({ space: 8 }) {
           ForEach([1, 2, 3, 4], (level: number): void => {
             Column()
@@ -1822,7 +2000,8 @@ export struct HdsNavigationOfficialEffectPage {
           }, (level: number): string => 'flow-bar-' + level)
 
           Text(entry.effectLabel)
-            .fontSize(13)
+            .fontSize(this.a11yScale.font(13))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
             .fontWeight(FontWeight.Bold)
             .fontColor(this.isEffectEntryEffectActive(entry.id) ? '#BFF7FF' : '#C9F5FF')
             .layoutWeight(1)
@@ -1835,28 +2014,30 @@ export struct HdsNavigationOfficialEffectPage {
 
         Text(entry.title)
           .width('100%')
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor('#F7FEFF')
           .textAlign(TextAlign.Start)
 
         Text(entry.description)
           .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
           .fontColor('#E6FFFFFF')
           .textAlign(TextAlign.Start)
 
         Text(scenePreset.apiSummary)
           .width('100%')
-          .fontSize(11)
-          .lineHeight(16)
+          .fontSize(this.a11yScale.font(11))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(11), 16))
           .fontColor('#CFFAFE')
           .textAlign(TextAlign.Start)
 
         Text(scenePreset.stateText)
           .width('100%')
-          .fontSize(11)
+          .fontSize(this.a11yScale.font(11))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
           .fontColor(this.isEffectEntryEffectActive(entry.id) ? '#FCD34D' : '#99FFFFFF')
           .textAlign(TextAlign.Start)
       }

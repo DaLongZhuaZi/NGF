@@ -18,6 +18,7 @@ export class NGFHdsDemoRouteName {
   static readonly CAPABILITY_SECURITY: string = 'ngf.capability.security';
   static readonly CAPABILITY_HARDWARE: string = 'ngf.capability.hardware';
   static readonly CAPABILITY_MEDIA: string = 'ngf.capability.media';
+  static readonly ACCESSIBILITY_SHOWCASE: string = 'ngf.accessibility.showcase';
 }
 
 

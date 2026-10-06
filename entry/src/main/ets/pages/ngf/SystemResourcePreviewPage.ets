@@ -1,3 +1,12 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  a11yTouchTarget,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
 import { HdsNavDestination, HdsNavDestinationTitleMode } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { pasteboard } from '@kit.BasicServicesKit';
@@ -39,6 +48,37 @@ type NGFSystemSymbolError = Error | string | number | boolean | null | undefined
 
 @Component
 export struct NGFSystemResourcePreviewPage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private selectedGroupName: string = '';
@@ -59,6 +99,7 @@ export struct NGFSystemResourcePreviewPage {
   private readonly scroller: Scroller = new Scroller();
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
       this.topInsetVp = inset;
     });
@@ -69,6 +110,7 @@ export struct NGFSystemResourcePreviewPage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     NGFPageWindowSupport.restoreMainMenu();
   }
 
@@ -78,7 +120,7 @@ export struct NGFSystemResourcePreviewPage {
         NGFImmersiveTopChromeUnderlay({ spec: SYSTEM_SYMBOL_TOP_CHROME })
 
         Scroll(this.scroller) {
-          Column({ space: 12 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
             this.buildSummaryPanel()
             this.buildDropZonePanel()
             this.buildSearchPanel()
@@ -147,20 +189,22 @@ export struct NGFSystemResourcePreviewPage {
         .backgroundColor(Color.Transparent)
         .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
-      Column({ space: 12 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
         Row({ space: 12 }) {
           this.buildPreviewGlyph(this.selectedSymbolName, 46, $r('app.color.text_primary'))
 
-          Column({ space: 5 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(5, 18) }) {
             Text(this.selectedSymbolName)
-              .fontSize(18)
+              .fontSize(this.a11yScale.font(18))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
               .maxLines(2)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
 
             Text(this.getSelectedSymbolReference())
-              .fontSize(12)
+              .fontSize(this.a11yScale.font(12))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
               .fontColor($r('app.color.text_secondary'))
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -181,27 +225,30 @@ export struct NGFSystemResourcePreviewPage {
         Row({ space: 10 }) {
           Button() {
             Row({ space: 6 }) {
+              // 装饰图标：按钮文字紧随其后
               SymbolGlyph($r('sys.symbol.doc_plaintext_and_checkmark'))
-                .fontSize(17)
+                .fontSize(this.a11yScale.font(17))
                 .fontColor([this.resolveGlassActionTextColor(true)])
+                .accessibilityLevel('no')
               Text($r('app.string.ui_str_2441'))
-                .fontSize(13)
+                .fontSize(this.a11yScale.font(13))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
                 .fontWeight(FontWeight.Medium)
                 .fontColor(this.resolveGlassActionTextColor(true))
             }
           }
-          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
           .controlSize(ControlSize.SMALL)
           .padding({ left: 14, right: 14 })
           .borderRadius(12)
           .backgroundColor(this.resolveGlassPrimaryActionBackground())
-          .systemMaterial(this.resolveGlassPrimaryActionMaterial())
           .onClick((): void => {
             void this.copySymbolName(this.selectedSymbolName);
           })
 
           Text(this.statusText)
-            .fontSize(12)
+            .fontSize(this.a11yScale.font(12))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
             .fontColor($r('app.color.text_secondary'))
             .layoutWeight(1)
             .maxLines(2)
@@ -215,16 +262,16 @@ export struct NGFSystemResourcePreviewPage {
       .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
       .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
   }
 
   @Builder
   private buildDropZonePanel(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       Text(this.droppedSymbol ? '已接收拖放 Symbol: ' + this.droppedSymbol : '长按拖拽下方 Symbol 到此处，测试 UDMF')
-        .fontSize(14)
+        .fontSize(this.a11yScale.font(14))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
         .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
@@ -238,7 +285,6 @@ export struct NGFSystemResourcePreviewPage {
       color: this.resolveGlassDropZoneBorderColor(),
       style: BorderStyle.Dashed
     })
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     .onDrop((event: DragEvent, extraParams: string) => {
       try {
         const data = event.getData();
@@ -258,12 +304,14 @@ export struct NGFSystemResourcePreviewPage {
 
   @Builder
   private buildMetricPill(label: ResourceStr, value: ResourceStr): void {
-    Column({ space: 2 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(2, 18) }) {
       Text(label)
-        .fontSize(11)
+        .fontSize(this.a11yScale.font(11))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
         .fontColor($r('app.color.text_secondary'))
       Text(value)
-        .fontSize(15)
+        .fontSize(this.a11yScale.font(15))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(15)))
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
         .maxLines(1)
@@ -273,12 +321,15 @@ export struct NGFSystemResourcePreviewPage {
     .backgroundColor(this.resolveGlassFloatingControlBackground())
     .backgroundEffect(this.buildGlassControlBackgroundEffect())
     .borderRadius(12)
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
+    // 无障碍分组（官方「使用建议」：对复杂布局减少冗余播报）。
+    // 不分组时读屏把「标签」与「数值」当成**两个独立节点**，
+    // 用户会听到一个孤立的数值，不知道它属于哪个标签。
+    .accessibilityGroup(true)
   }
 
   @Builder
   private buildSearchPanel(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       Search({ value: this.searchText, placeholder: $r('app.string.ui_str_2442') })
         .width('100%')
         .height(44)
@@ -288,7 +339,6 @@ export struct NGFSystemResourcePreviewPage {
         .placeholderColor($r('app.color.text_tertiary'))
         .textFont({ size: 14 })
         .placeholderFont({ size: 14 })
-        .systemMaterial(this.resolveGlassFloatingControlMaterial())
         .onChange((value: string): void => {
           this.searchText = value;
           if (value.trim().length <= 0) {
@@ -302,25 +352,26 @@ export struct NGFSystemResourcePreviewPage {
 
       Row({ space: 8 }) {
         Button($r('app.string.ui_str_2444'))
-          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
           .controlSize(ControlSize.SMALL)
-          .fontSize(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE)
+          .fontSize(this.a11yScale.font(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE))
           .fontColor(this.resolveGlassActionTextColor(!this.isSearching))
           .backgroundColor(this.resolveGlassSegmentButtonBackground(!this.isSearching))
           .borderRadius(12)
-          .systemMaterial(this.resolveGlassSegmentButtonMaterial(!this.isSearching))
           .onClick((): void => {
             this.clearSearch();
           })
 
         if (this.isSearching) {
           Text($r('app.string.search_results_status', this.searchResults.length, this.getVisibleSearchResultCount()))
-            .fontSize(12)
+            .fontSize(this.a11yScale.font(12))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
             .fontColor($r('app.color.text_secondary'))
             .layoutWeight(1)
         } else {
           Text(this.getSelectedGroupSummaryText())
-            .fontSize(12)
+            .fontSize(this.a11yScale.font(12))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
             .fontColor($r('app.color.text_secondary'))
             .layoutWeight(1)
             .maxLines(1)
@@ -337,20 +388,21 @@ export struct NGFSystemResourcePreviewPage {
     .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
     .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
     .shadow(this.buildGlassPanelShadow())
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildGroupPanel(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       Row() {
         Text($r('app.string.ui_str_2445'))
-          .fontSize(16)
+          .fontSize(this.a11yScale.font(16))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
         Blank()
         Text(String(SYSTEM_SYMBOL_GROUPS.length))
-          .fontSize(12)
+          .fontSize(this.a11yScale.font(12))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
           .fontColor($r('app.color.text_tertiary'))
       }
       .width('100%')
@@ -360,21 +412,22 @@ export struct NGFSystemResourcePreviewPage {
           Button() {
             Row({ space: 6 }) {
               Text(group.name)
-                .fontSize(12)
+                .fontSize(this.a11yScale.font(12))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
                 .fontWeight(this.isSelectedGroup(group.name) ? FontWeight.Medium : FontWeight.Normal)
                 .fontColor(this.resolveGlassActionTextColor(this.isSelectedGroup(group.name)))
                 .maxLines(1)
               Text(String(group.items.length))
-                .fontSize(11)
+                .fontSize(this.a11yScale.font(11))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
                 .fontColor(this.resolveGlassActionMetaColor(this.isSelectedGroup(group.name)))
             }
           }
-          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
           .controlSize(ControlSize.SMALL)
           .padding({ left: 12, right: 12 })
           .borderRadius(14)
           .backgroundColor(this.resolveGlassSegmentButtonBackground(this.isSelectedGroup(group.name)))
-          .systemMaterial(this.resolveGlassSegmentButtonMaterial(this.isSelectedGroup(group.name)))
           .margin({ right: 8, bottom: 8 })
           .onClick((): void => {
             this.selectGroup(group.name);
@@ -390,12 +443,11 @@ export struct NGFSystemResourcePreviewPage {
     .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
     .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
     .shadow(this.buildGlassPanelShadow())
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildSymbolGridPanel(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       this.buildGridHeader(this.getCurrentGridItemCount(), this.getVisibleCurrentGridItemCount())
       this.buildCurrentSymbolGrid()
     }
@@ -406,25 +458,30 @@ export struct NGFSystemResourcePreviewPage {
     .borderRadius(18)
     .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
     .shadow(this.buildGlassPanelShadow())
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildSearchResultsPanel(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       this.buildGridHeader(this.searchResults.length, this.getVisibleSearchResultCount())
 
       if (this.searchResults.length <= 0) {
-        Column({ space: 10 }) {
+        Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
+          // 空态插图：纯装饰，含义由下面的文字传达。
+          // 整组作为**一个**信息单元播报，避免读屏用户听到孤立的图标。
           SymbolGlyph($r('sys.symbol.magnifyingglass'))
-            .fontSize(44)
+            .fontSize(this.a11yScale.font(44))
             .fontColor([$r('app.color.text_tertiary')])
+            .accessibilityLevel('no')
           Text($r('app.string.ui_str_2446'))
-            .fontSize(14)
+            .fontSize(this.a11yScale.font(14))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
             .fontColor($r('app.color.text_secondary'))
         }
         .width('100%')
         .padding({ top: 36, bottom: 36 })
+        // 官方「使用建议」：分组优化 —— 对复杂布局减少冗余播报
+        .accessibilityGroup(true)
       } else {
         this.buildSearchSymbolGrid()
       }
@@ -436,14 +493,14 @@ export struct NGFSystemResourcePreviewPage {
     .borderRadius(18)
     .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
     .shadow(this.buildGlassPanelShadow())
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildGridHeader(totalCount: number, visibleCount: number): void {
     Row() {
       Text(this.isSearching ? $r('app.string.ui_str_2447') : this.getCurrentGroupName())
-        .fontSize(16)
+        .fontSize(this.a11yScale.font(16))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
         .layoutWeight(1)
@@ -451,7 +508,8 @@ export struct NGFSystemResourcePreviewPage {
         .textOverflow({ overflow: TextOverflow.Ellipsis })
 
       Text(visibleCount + '/' + totalCount)
-        .fontSize(12)
+        .fontSize(this.a11yScale.font(12))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
         .fontColor($r('app.color.text_tertiary'))
     }
     .width('100%')
@@ -491,7 +549,7 @@ export struct NGFSystemResourcePreviewPage {
 
   @Builder
   private buildDragPreview(itemName: string): void {
-    Column({ space: 7 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(7, 18) }) {
       this.buildPreviewGlyph(itemName, 32, $r('app.color.text_primary'))
     }
     .width(60)
@@ -499,17 +557,16 @@ export struct NGFSystemResourcePreviewPage {
     .justifyContent(FlexAlign.Center)
     .borderRadius(12)
     .backgroundColor(this.resolveGlassFloatingControlBackground())
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
   }
 
   @Builder
   private buildSymbolCell(itemName: string): void {
-    Column({ space: 7 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(7, 18) }) {
       this.buildPreviewGlyph(itemName, 27, this.getSymbolIconColor(itemName))
 
       Text(itemName)
-        .fontSize(9)
-        .lineHeight(12)
+        .fontSize(this.a11yScale.font(9))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(9), 12))
         .fontWeight(this.isSelectedSymbol(itemName) ? FontWeight.Medium : FontWeight.Normal)
         .fontColor(this.getSymbolTextColor(itemName))
         .maxLines(2)
@@ -526,7 +583,6 @@ export struct NGFSystemResourcePreviewPage {
       width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(this.isSelectedSymbol(itemName) ? 1.5 : 1, this.useSysMat),
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
-    .systemMaterial(this.getSymbolCellMaterial(itemName))
     .onClick((): void => {
       this.selectSymbol(itemName);
       void this.copySymbolName(itemName);
@@ -546,9 +602,11 @@ export struct NGFSystemResourcePreviewPage {
 
   @Builder
   private buildPreviewGlyph(itemName: string, size: number, color: ResourceColor): void {
+    // 装饰图标：含义由相邻文字传达
     SymbolGlyph($r('sys.symbol.' + itemName))
-      .fontSize(size)
+      .fontSize(this.a11yScale.font(size))
       .fontColor([color])
+      .accessibilityLevel('no')
   }
 
   private ensureSelectedSymbol(): void {
@@ -757,14 +815,18 @@ export struct NGFSystemResourcePreviewPage {
       : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl();
   }
 
+  /**
+   * 是否改用「系统材质」的透明表面。
+   *
+   * ⚠️ **不要在这里再写一份判断。**
+   * 本方法原先**复制**了 `NGFMaterialSurfaceTokens.shouldUseSystemMaterialSurface()` 的逻辑，
+   * 于是「普通组件不再使用系统材质」这个决策（项目规则 **PR-006**）传不到本页：
+   * 面板背景被判为透明、模糊与描边一并被置空，深色文字直接压在沉浸式渐变上，
+   * 实测对比度只有 1.5~2.3:1（附件2 §1.3 要求 4.5:1）。
+   * 现统一委托给令牌层，**决策只保留一处**。
+   */
   private shouldUseTransparentSystemMaterialSurface(): boolean {
-    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
-      return false;
-    }
-    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
-      return true;
-    }
-    return this.systemMaterialState !== uiMaterial.MaterialState.DISABLE;
+    return NGFMaterialSurfaceTokens.shouldUseSystemMaterialSurface();
   }
 
   private resolveGlassPanelBackground(): ResourceColor {

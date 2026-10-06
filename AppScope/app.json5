@@ -6,7 +6,11 @@
     "versionName": "1.0.0",
     "buildVersion": "1",
     "icon": "$media:layered_image",
-    "label": "$string:app_name"
+    "label": "$string:app_name",
+    // 适老化：让应用字体跟随系统设置（附件2 §1.1 要求最大字体不小于 30 dp/pt）。
+    // 详见 AppScope/resources/base/profile/configuration.json 与
+    // ngf_framework 的 NGF_APP_FONT_SIZE_MAX_SCALE 说明。
+    "configuration": "$profile:configuration"
   }
 }
 

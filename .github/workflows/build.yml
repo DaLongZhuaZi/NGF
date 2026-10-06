@@ -4,7 +4,7 @@ name: Build HAP (构建 / Build)
 # main/master 时自动发布一个滚动(nightly)Release。签名 + 版本化 Release 见 sign-and-release.yml(v* tag)。
 # Cloud build for NGF (API 26): produces an unsigned debug HAP, archives the artifact, and auto-publishes
 # a rolling (nightly) Release on push to main/master. Signed + versioned releases live in sign-and-release.yml.
-# 镜像 / Image: ghcr.io/<owner>/harmonyos-ci:api26 (由 harmonyos-ci 仓库统一构建, 锁定与 API 26 匹配的
+# 镜像 / Image: ghcr.io/<owner>/harmonyos-ci:api26r (由 harmonyos-ci 仓库统一构建, 锁定与 API 26 匹配的
 # command-line-tools + hvigor + ohpm + SDK, public 可复用)。
 
 on:
@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       image:
-        description: '覆盖 CI 镜像 / Override CI image (ghcr.io/owner/harmonyos-ci:api26)'
+        description: '覆盖 CI 镜像 / Override CI image (ghcr.io/owner/harmonyos-ci:api26r)'
         required: false
         default: ''
 
@@ -47,7 +47,12 @@ jobs:
             image="$INPUT_IMAGE"
           else
             owner=$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')
-            image="ghcr.io/${owner}/harmonyos-ci:api26"
+            # tag 必须与工程的 compatibleSdkVersion 对齐（build-profile.json5 = 26.0.0）：
+          #   api26r  = command-line-tools 26.0.0.821 = API 26 正式版，与 DevEco Studio 26 Release 内置 SDK 一致
+          #   api26b2 = 26.0.0.621 = Beta2
+          #   api26   = 26.0.0.461 = Beta1  ← 曾用此 tag，缺 HdsColorPicker（Beta2 新增）导致 CI 编译失败
+          # 见 https://github.com/DaLongZhuaZi/harmonyos-ci 的 docs/CI_Guide.md「选哪个 tag」
+          image="ghcr.io/${owner}/harmonyos-ci:api26r"
           fi
           echo "Use CI image / 使用镜像: $image"
           echo "image=$image" >> "$GITHUB_OUTPUT"

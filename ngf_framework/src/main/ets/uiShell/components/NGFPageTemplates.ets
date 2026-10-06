@@ -7,6 +7,10 @@
  *  - NGFFormPageTemplate   — 表单页（字段 slot + Submit 按钮）
  */
 
+import { NGFAccessibilityLifecycleBinding, NGFAccessibilityBindingListener } from '../utils/NGFAccessibilityLifecycleBinding';
+import { NGFInclusiveDesignResolved } from '../../deviceAwareness/contracts/IAccessibilityManager';
+import { NGFA11yTextScale, a11yTouchTarget, resolveA11yTextScale, resolveA11yTextScaleForCurrent } from '../utils/NGFA11yTextScale';
+import { ngfAccessibilityFacade } from '../../deviceAwareness/facades/AccessibilityFacade';
 import {
   NGFImmersiveTopChromePresetFactory,
   NGFImmersiveTopChromeSpec,
@@ -35,6 +39,37 @@ export class NGFKeyValueEntry {
 
 @Component
 export struct NGFListPageTemplate {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   /** 顶部沉浸底板色彩配置 */
   spec: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFactory.build(
@@ -58,22 +93,33 @@ export struct NGFListPageTemplate {
   @BuilderParam contentBuilder: () => void = this.defaultBuilder;
   /** 底部自定义区域（列表下方） */
   @BuilderParam footerBuilder: () => void = this.defaultBuilder;
+  aboutToAppear(): void {
+    this.attachA11yBinding();
+  }
+
+  aboutToDisappear(): void {
+    this.detachA11yBinding();
+  }
+
+
 
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
       NGFImmersiveTopChromeUnderlay({ spec: this.spec })
 
       Scroll() {
-        Column({ space: 10 }) {
+        Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
           // 标题卡片
-          Column({ space: 6 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
             Text(this.title)
-              .fontSize(20)
+              .fontSize(this.a11yScale.font(20))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(20)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
             if ((typeof this.subtitle === 'string' ? this.subtitle : '').length > 0) {
               Text(this.subtitle)
-                .fontSize(13)
+                .fontSize(this.a11yScale.font(13))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
                 .fontColor($r('app.color.text_tertiary'))
             }
           }
@@ -86,22 +132,26 @@ export struct NGFListPageTemplate {
           // 列表内容：优先使用 contentBuilder，否则使用默认 items
           if (this.items.length === 0) {
             Text(this.emptyHint)
-              .fontSize(14)
+              .fontSize(this.a11yScale.font(14))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
               .fontColor($r('app.color.text_muted'))
               .width('100%')
               .textAlign(TextAlign.Center)
               .padding({ top: 40, bottom: 40 })
           } else {
-            Column({ space: 6 }) {
+            Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
               ForEach(this.items, (item: string, index: number) => {
                 Row({ space: 12 }) {
                   Text(item)
-                    .fontSize(14)
+                    .fontSize(this.a11yScale.font(14))
+                    .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
                     .fontColor($r('app.color.text_body'))
                     .layoutWeight(1)
+                  // 装饰箭头：列表项文字已提供语义
                   SymbolGlyph($r('sys.symbol.chevron_right'))
-                    .fontSize(16)
+                    .fontSize(this.a11yScale.font(16))
                     .fontColor([$r('app.color.text_muted')])
+                    .accessibilityLevel('no')
                 }
                 .width('100%')
                 .padding({ left: 14, right: 14, top: 12, bottom: 12 })
@@ -111,7 +161,6 @@ export struct NGFListPageTemplate {
                   width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
                   color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
                 })
-                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
                 .onClick((): void => {
                   this.onItemTap(item, index);
                 })
@@ -146,6 +195,37 @@ export struct NGFListPageTemplate {
 
 @Component
 export struct NGFDetailPageTemplate {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   spec: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFactory.build(
     '#0A0F1A', '#142040', '#08101E', '#6366F1D8', '#A5B4FCD8', 160, 88
@@ -157,22 +237,33 @@ export struct NGFDetailPageTemplate {
 
   /** 底部操作区 Slot */
   @BuilderParam footerSlot: () => void = this.defaultBuilder;
+  aboutToAppear(): void {
+    this.attachA11yBinding();
+  }
+
+  aboutToDisappear(): void {
+    this.detachA11yBinding();
+  }
+
+
 
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
       NGFImmersiveTopChromeUnderlay({ spec: this.spec })
 
       Scroll() {
-        Column({ space: 12 }) {
+        Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
           // 标题区
-          Column({ space: 6 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
             Text(this.title)
-              .fontSize(20)
+              .fontSize(this.a11yScale.font(20))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(20)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
             if ((typeof this.subtitle === 'string' ? this.subtitle : '').length > 0) {
               Text(this.subtitle)
-                .fontSize(13)
+                .fontSize(this.a11yScale.font(13))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
                 .fontColor($r('app.color.text_tertiary'))
             }
           }
@@ -180,15 +271,17 @@ export struct NGFDetailPageTemplate {
           .alignItems(HorizontalAlign.Start)
 
           // KeyValue 列表
-          Column({ space: 1 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(1, 18) }) {
             ForEach(this.entries, (entry: NGFKeyValueEntry, index: number) => {
               Row({ space: 12 }) {
                 Text(entry.label)
-                  .fontSize(13)
+                  .fontSize(this.a11yScale.font(13))
+                  .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
                   .fontColor($r('app.color.text_tertiary'))
                   .width('38%')
                 Text(entry.value)
-                  .fontSize(13)
+                  .fontSize(this.a11yScale.font(13))
+                  .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
                   .fontColor($r('app.color.text_body'))
                   .fontWeight(FontWeight.Medium)
                   .layoutWeight(1)
@@ -229,6 +322,37 @@ export struct NGFDetailPageTemplate {
 
 @Component
 export struct NGFFormPageTemplate {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
   spec: NGFImmersiveTopChromeSpec = NGFImmersiveTopChromePresetFactory.build(
     '#0F0A1A', '#1E1145', '#0A0618', '#818CF8D8', '#C7D2FED8', 160, 88
@@ -242,22 +366,33 @@ export struct NGFFormPageTemplate {
 
   /** 表单字段 Slot */
   @BuilderParam formFields: () => void = this.defaultBuilder;
+  aboutToAppear(): void {
+    this.attachA11yBinding();
+  }
+
+  aboutToDisappear(): void {
+    this.detachA11yBinding();
+  }
+
+
 
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
       NGFImmersiveTopChromeUnderlay({ spec: this.spec })
 
       Scroll() {
-        Column({ space: 14 }) {
+        Column({ space: this.a11yScale.paragraphSpacing(14, 18) }) {
           // 标题区
-          Column({ space: 6 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
             Text(this.title)
-              .fontSize(20)
+              .fontSize(this.a11yScale.font(20))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(20)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
             if ((typeof this.subtitle === 'string' ? this.subtitle : '').length > 0) {
               Text(this.subtitle)
-                .fontSize(13)
+                .fontSize(this.a11yScale.font(13))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
                 .fontColor($r('app.color.text_tertiary'))
             }
           }
@@ -265,7 +400,7 @@ export struct NGFFormPageTemplate {
           .alignItems(HorizontalAlign.Start)
 
           // 表单内容区
-          Column({ space: 12 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
             this.formFields()
           }
           .width('100%')
@@ -276,20 +411,16 @@ export struct NGFFormPageTemplate {
             width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
             color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
           })
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
 
           // Submit 按钮
           Button(this.submitLabel)
             .width('100%')
             .height(46)
-            .fontSize(15)
+            .fontSize(this.a11yScale.font(15))
             .fontWeight(FontWeight.Medium)
             .borderRadius(14)
             .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .fontColor(this.submitEnabled ? $r('app.color.text_primary') : $r('app.color.text_muted'))
-            .systemMaterial(this.submitEnabled
-              ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
-              : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
             .enabled(this.submitEnabled)
             .onClick((): void => {
               this.onSubmit();

@@ -5321,6 +5321,10 @@
       "value": "System Material Type"
     },
     {
+      "name": "settings_font_scale",
+      "value": "System font scale"
+    },
+    {
       "name": "settings_api_version_label",
       "value": "API Version"
     },
@@ -5343,6 +5347,234 @@
     {
       "name": "settings_keep_screen_on",
       "value": "Keep Screen On"
+    },
+    {
+      "name": "a11y_showcase_title",
+      "value": "Accessibility & Senior Mode"
+    },
+    {
+      "name": "a11y_showcase_subtitle",
+      "value": "API 26 evidence · semantics · policy · reusable components"
+    },
+    {
+      "name": "a11y_section_snapshot",
+      "value": "Platform state snapshot"
+    },
+    {
+      "name": "a11y_section_policy",
+      "value": "Effective policy & design tokens"
+    },
+    {
+      "name": "a11y_section_components",
+      "value": "Reusable component samples"
+    },
+    {
+      "name": "a11y_section_audit",
+      "value": "Semantics audit"
+    },
+    {
+      "name": "a11y_label_accessibility",
+      "value": "System accessibility switch"
+    },
+    {
+      "name": "a11y_label_screen_reader",
+      "value": "Screen reader"
+    },
+    {
+      "name": "a11y_label_touch_guide",
+      "value": "Touch guide"
+    },
+    {
+      "name": "a11y_label_touch_mode",
+      "value": "Touch mode"
+    },
+    {
+      "name": "a11y_label_animation_reduce",
+      "value": "Reduce motion"
+    },
+    {
+      "name": "a11y_label_senior_mode",
+      "value": "System senior mode"
+    },
+    {
+      "name": "a11y_label_app_senior_mode",
+      "value": "App senior mode"
+    },
+    {
+      "name": "a11y_senior_unresolved",
+      "value": "Not resolved yet"
+    },
+    {
+      "name": "a11y_action_enable_senior",
+      "value": "Enable app senior mode"
+    },
+    {
+      "name": "a11y_action_disable_senior",
+      "value": "Disable app senior mode"
+    },
+    {
+      "name": "a11y_action_set_user_policy",
+      "value": "Apply enhanced policy"
+    },
+    {
+      "name": "a11y_action_clear_user_policy",
+      "value": "Follow system again"
+    },
+    {
+      "name": "a11y_label_text_scale",
+      "value": "Text scale"
+    },
+    {
+      "name": "a11y_label_touch_target_policy",
+      "value": "Touch target"
+    },
+    {
+      "name": "a11y_label_contrast",
+      "value": "Contrast"
+    },
+    {
+      "name": "a11y_label_motion",
+      "value": "Motion"
+    },
+    {
+      "name": "a11y_label_density",
+      "value": "Density"
+    },
+    {
+      "name": "a11y_token_font",
+      "value": "Min body font"
+    },
+    {
+      "name": "a11y_token_touch",
+      "value": "Min touch target"
+    },
+    {
+      "name": "a11y_token_line_height",
+      "value": "Body line height"
+    },
+    {
+      "name": "a11y_token_contrast",
+      "value": "Min text contrast"
+    },
+    {
+      "name": "a11y_token_motion_scale",
+      "value": "Motion duration scale"
+    },
+    {
+      "name": "a11y_token_dialog_close",
+      "value": "Min close target"
+    },
+    {
+      "name": "a11y_demo_button",
+      "value": "Sample accessible button"
+    },
+    {
+      "name": "a11y_demo_button_desc",
+      "value": "Writes a verification log entry"
+    },
+    {
+      "name": "a11y_demo_list_title",
+      "value": "Sample list item"
+    },
+    {
+      "name": "a11y_demo_list_state",
+      "value": "Selected"
+    },
+    {
+      "name": "a11y_demo_list_support",
+      "value": "Supporting info: verifies grouped reading order"
+    },
+    {
+      "name": "a11y_demo_dialog_close",
+      "value": "Close dialog"
+    },
+    {
+      "name": "a11y_audit_pass",
+      "value": "Semantics audit passed"
+    },
+    {
+      "name": "a11y_audit_issues",
+      "value": "Semantics audit issues: %s"
+    },
+    {
+      "name": "a11y_log_prefix",
+      "value": "Verification log"
+    },
+    {
+      "name": "a11y_log_empty",
+      "value": "No log yet"
+    },
+    {
+      "name": "a11y_section_form",
+      "value": "Form field (non-grouped)"
+    },
+    {
+      "name": "a11y_demo_field_label",
+      "value": "Sample field"
+    },
+    {
+      "name": "a11y_demo_field_required",
+      "value": "Required"
+    },
+    {
+      "name": "a11y_demo_field_error_prefix",
+      "value": "Error: "
+    },
+    {
+      "name": "a11y_demo_field_error",
+      "value": "Input is invalid"
+    },
+    {
+      "name": "a11y_demo_field_help",
+      "value": "Help: verifies the input stays focusable and editable without grouping"
+    },
+    {
+      "name": "a11y_demo_field_placeholder",
+      "value": "Enter text"
+    },
+    {
+      "name": "a11y_action_toggle_field_error",
+      "value": "Toggle field error state"
+    },
+    {
+      "name": "a11y_note_form_not_grouped",
+      "value": "This field is not grouped: grouping would remove the input's own focus and make it uneditable"
+    },
+    {
+      "name": "a11y_action_announce_status",
+      "value": "Announce current state"
+    },
+    {
+      "name": "a11y_announce_demo",
+      "value": "Accessibility showcase: an announcement was sent"
+    },
+    {
+      "name": "elderly_mode_badge",
+      "value": "ACCESSIBILITY"
+    },
+    {
+      "name": "elderly_mode_desc",
+      "value": "Larger text, bigger touch targets, higher contrast; all features stay the same"
+    },
+    {
+      "name": "elderly_mode_state_on",
+      "value": "On"
+    },
+    {
+      "name": "elderly_mode_state_off",
+      "value": "Off"
+    },
+    {
+      "name": "elderly_mode_aliases_hint",
+      "value": "Aliases (searchable): 亲情版 / 关爱版 / 关怀版"
+    },
+    {
+      "name": "elderly_mode_state_system",
+      "value": "Active · controlled by system Care Mode (in-app switch locked)"
+    },
+    {
+      "name": "a11y_sheet_close",
+      "value": "Close"
     }
   ]
 }

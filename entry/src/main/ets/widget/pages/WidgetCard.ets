@@ -1,8 +1,41 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
 let storage = new LocalStorage();
 
 @Entry(storage)
 @Component
 struct WidgetCard {
+  /** 适老呈现层：字号经缩放器取；普通档原样返回 */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  aboutToAppear(): void {
+    if (this.a11yBinding === null) {
+      const listener: NGFAccessibilityBindingListener = {
+        onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+          this.a11yScale = resolveA11yTextScaleForCurrent();
+        }
+      };
+      this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+      this.a11yBinding.attach();
+    }
+  }
+
+  aboutToDisappear(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @LocalStorageProp('frameworkStatus') frameworkStatus: string = '初始化中...';
   @LocalStorageProp('lastUpdate') lastUpdate: string = '--:--:--';
 
@@ -10,16 +43,20 @@ struct WidgetCard {
     Column() {
       // Header
       Row() {
+        // 装饰图标：标题文字紧随其后
         Image($r('app.media.startIcon'))
           .width(20).height(20).margin({ right: 8 })
+          .accessibilityLevel('no')
         Text($r('app.string.widget_title'))
-          .fontSize(14)
+          .fontSize(this.a11yScale.font(14))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
           .fontWeight(FontWeight.Bold)
           .fontColor('#333333')
         Blank()
         // Refresh Button
         Text('↻')
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontColor('#666666')
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
@@ -36,12 +73,14 @@ struct WidgetCard {
       // Status Content
       Column() {
         Text(this.frameworkStatus)
-          .fontSize(20)
+          .fontSize(this.a11yScale.font(20))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(20)))
           .fontWeight(FontWeight.Medium)
           .fontColor('#007DFF')
           .margin({ top: 8, bottom: 4 })
         Text('最后更新: ' + this.lastUpdate)
-          .fontSize(10)
+          .fontSize(this.a11yScale.font(10))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(10)))
           .fontColor('#999999')
       }
       .layoutWeight(1)
@@ -53,7 +92,7 @@ struct WidgetCard {
       Row() {
         // Router Action 1
         Button('主应用')
-          .fontSize(10)
+          .fontSize(this.a11yScale.font(10))
           .height(24)
           .backgroundColor('#F1F3F5')
           .fontColor('#333333')
@@ -67,7 +106,7 @@ struct WidgetCard {
         
         // Router Action 2
         Button('独立实例')
-          .fontSize(10)
+          .fontSize(this.a11yScale.font(10))
           .height(24)
           .backgroundColor('#E8F3FF')
           .fontColor('#007DFF')

@@ -11,6 +11,7 @@ export {
   NGFFrameworkRuntimeSnapshot
 } from './contracts/IModuleBootstrap';
 export { IServiceContainer } from './contracts/IServiceContainer';
+export { ContainerLifecycle, DependencyContainer, DependencyFactory } from './DependencyContainer';
 export { NGFServiceRegistration, NGFServiceMetadataResult } from './contracts/NGFServiceRegistration';
 export {
   INGFService,

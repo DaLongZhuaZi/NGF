@@ -1,3 +1,12 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  a11yTouchTarget,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from 'ngf_framework';
@@ -95,6 +104,37 @@ class DemoSyncHandler implements ISyncDataHandler {
 
 @Component
 export struct NGFDemoSyncManagerPage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private isOnline: boolean = false;
@@ -108,6 +148,7 @@ export struct NGFDemoSyncManagerPage {
   private nextItemId: number = 1;
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
       this.topInsetVp = inset;
     });
@@ -118,6 +159,7 @@ export struct NGFDemoSyncManagerPage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     NGFPageWindowSupport.restoreMainMenu();
   }
 
@@ -199,7 +241,7 @@ export struct NGFDemoSyncManagerPage {
         NGFImmersiveTopChromeUnderlay({ spec: DEMO_TOP_CHROME })
 
         Scroll() {
-          Column({ space: 12 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
             this.buildTitleCard()
             this.buildNetworkCard()
             this.buildQueueCard()
@@ -240,14 +282,15 @@ export struct NGFDemoSyncManagerPage {
 
   @Builder
   private buildTitleCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Text($r('app.string.demo_sync_title'))
-        .fontSize(22)
+        .fontSize(this.a11yScale.font(22))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
       Text($r('app.string.demo_sync_desc'))
-        .fontSize(13)
-        .lineHeight(20)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
         .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
@@ -256,33 +299,33 @@ export struct NGFDemoSyncManagerPage {
     .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
     .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   @Builder
   private buildNetworkCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       Row({ space: 10 }) {
-        Column({ space: 4 }) {
+        Column({ space: this.a11yScale.paragraphSpacing(4, 18) }) {
           Text($r('app.string.sync_network_label'))
-            .fontSize(16)
+            .fontSize(this.a11yScale.font(16))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_body'))
           Text(this.isOnline ? $r('app.string.sync_online') : $r('app.string.sync_offline'))
-            .fontSize(13)
+            .fontSize(this.a11yScale.font(13))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
             .fontColor(this.isOnline ? $r('app.color.tag_green') : $r('app.color.tag_red'))
         }
         .alignItems(HorizontalAlign.Start)
         .layoutWeight(1)
 
         Button(this.isOnline ? $r('app.string.sync_go_offline') : $r('app.string.sync_go_online'))
-          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
           .controlSize(ControlSize.SMALL)
-          .fontSize(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE)
+          .fontSize(this.a11yScale.font(NGFControlStyleTokens.SEGMENT_BUTTON_FONT_SIZE))
           .fontColor($r('app.color.text_primary'))
           .borderRadius(10)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             this.handleToggleNetwork();
           })
@@ -291,11 +334,16 @@ export struct NGFDemoSyncManagerPage {
 
       if ((typeof this.statusMessage === 'string' ? this.statusMessage : '').length > 0) {
         Row({ space: 6 }) {
+          // 装饰图标：状态说明文字在右侧，图标不应单独成为焦点
+          // 装饰图标：旁边已有文字，避免冗余播报
           SymbolGlyph($r('sys.symbol.info_circle'))
-            .fontSize(12)
+            .fontSize(this.a11yScale.font(12))
             .fontColor([$r('app.color.text_muted')])
+            .accessibilityLevel('no')
+            .accessibilityLevel('no')
           Text(this.statusMessage)
-            .fontSize(12)
+            .fontSize(this.a11yScale.font(12))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
             .fontColor($r('app.color.text_muted'))
             .layoutWeight(1)
         }
@@ -312,92 +360,100 @@ export struct NGFDemoSyncManagerPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildQueueCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       Row({ space: 8 }) {
         Text($r('app.string.sync_queue_label'))
-          .fontSize(16)
+          .fontSize(this.a11yScale.font(16))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_body'))
           .layoutWeight(1)
         Text(String(this.queueSize))
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_primary'))
       }
       .width('100%')
 
       Text($r('app.string.sync_queue_hint'))
-        .fontSize(12)
+        .fontSize(this.a11yScale.font(12))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
         .fontColor($r('app.color.text_tertiary'))
 
       Row({ space: 8 }) {
         Button() {
           Row({ space: 4 }) {
+            // 装饰图标：旁边已有文字，避免冗余播报
             SymbolGlyph($r('sys.symbol.plus'))
-              .fontSize(14)
+              .fontSize(this.a11yScale.font(14))
               .fontColor([$r('app.color.text_primary')])
+              .accessibilityLevel('no')
             Text($r('app.string.sync_enqueue_create'))
-              .fontSize(12)
+              .fontSize(this.a11yScale.font(12))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
               .fontColor($r('app.color.text_primary'))
           }
           .width('100%')
           .justifyContent(FlexAlign.Center)
         }
         .layoutWeight(1)
-        .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+        .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
         .controlSize(ControlSize.SMALL)
         .borderRadius(10)
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         .onClick((): void => {
           this.handleEnqueue(NGFSyncOperation.CREATE);
         })
 
         Button() {
           Row({ space: 4 }) {
+            // 装饰图标：旁边已有文字，避免冗余播报
             SymbolGlyph($r('sys.symbol.square_and_pencil'))
-              .fontSize(14)
+              .fontSize(this.a11yScale.font(14))
               .fontColor([$r('app.color.text_primary')])
+              .accessibilityLevel('no')
             Text($r('app.string.sync_enqueue_update'))
-              .fontSize(12)
+              .fontSize(this.a11yScale.font(12))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
               .fontColor($r('app.color.text_primary'))
           }
           .width('100%')
           .justifyContent(FlexAlign.Center)
         }
         .layoutWeight(1)
-        .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+        .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
         .controlSize(ControlSize.SMALL)
         .borderRadius(10)
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         .onClick((): void => {
           this.handleEnqueue(NGFSyncOperation.UPDATE);
         })
 
         Button() {
           Row({ space: 4 }) {
+            // 装饰图标：旁边已有文字，避免冗余播报
             SymbolGlyph($r('sys.symbol.xmark'))
-              .fontSize(14)
+              .fontSize(this.a11yScale.font(14))
               .fontColor([$r('app.color.text_primary')])
+              .accessibilityLevel('no')
             Text($r('app.string.sync_enqueue_delete'))
-              .fontSize(12)
+              .fontSize(this.a11yScale.font(12))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
               .fontColor($r('app.color.text_primary'))
           }
           .width('100%')
           .justifyContent(FlexAlign.Center)
         }
         .layoutWeight(1)
-        .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+        .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
         .controlSize(ControlSize.SMALL)
         .borderRadius(10)
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         .onClick((): void => {
           this.handleEnqueue(NGFSyncOperation.DELETE);
         })
@@ -409,11 +465,10 @@ export struct NGFDemoSyncManagerPage {
           .layoutWeight(2)
           .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
           .controlSize(ControlSize.SMALL)
-          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontSize(this.a11yScale.font(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE))
           .fontColor($r('app.color.text_primary'))
           .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             void this.handleFlush();
           })
@@ -422,11 +477,10 @@ export struct NGFDemoSyncManagerPage {
           .layoutWeight(1)
           .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
           .controlSize(ControlSize.SMALL)
-          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontSize(this.a11yScale.font(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE))
           .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
           .fontColor($r('app.color.text_body'))
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           .onClick((): void => {
             this.handleClearQueue();
           })
@@ -434,20 +488,21 @@ export struct NGFDemoSyncManagerPage {
       .width('100%')
 
       if (this.queueItems.length > 0) {
-        Column({ space: 4 }) {
+        Column({ space: this.a11yScale.paragraphSpacing(4, 18) }) {
           ForEach(this.queueItems, (item: NGFSyncQueueDisplay) => {
             Row({ space: 8 }) {
               Text(item.operation)
-                .fontSize(11)
+                .fontSize(this.a11yScale.font(11))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
                 .fontWeight(FontWeight.Bold)
                 .fontColor($r('app.color.text_primary'))
                 .padding({ left: 6, right: 6, top: 2, bottom: 2 })
                 .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
                 .borderRadius(4)
-                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
 
               Text(item.payload)
-                .fontSize(11)
+                .fontSize(this.a11yScale.font(11))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
                 .fontColor($r('app.color.text_muted'))
                 .maxLines(1)
                 .layoutWeight(1)
@@ -456,7 +511,6 @@ export struct NGFDemoSyncManagerPage {
             .padding({ top: 5, bottom: 5, left: 10, right: 10 })
             .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .borderRadius(8)
-            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           }, (item: NGFSyncQueueDisplay): string => 'q_' + item.id)
         }
         .width('100%')
@@ -472,14 +526,14 @@ export struct NGFDemoSyncManagerPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildStrategyCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       Text($r('app.string.sync_strategy_label'))
-        .fontSize(16)
+        .fontSize(this.a11yScale.font(16))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
@@ -500,25 +554,21 @@ export struct NGFDemoSyncManagerPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildStrategyButton(strategy: NGFConflictStrategy, label: ResourceStr): void {
     Button(label)
       .layoutWeight(1)
-      .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+      .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
       .controlSize(ControlSize.SMALL)
-      .fontSize(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE)
+      .fontSize(this.a11yScale.font(NGFControlStyleTokens.DENSE_BUTTON_FONT_SIZE))
       .borderRadius(10)
       .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
       .fontColor(this.conflictStrategy === strategy
         ? $r('app.color.text_primary')
         : $r('app.color.text_secondary'))
       .fontWeight(this.conflictStrategy === strategy ? FontWeight.Bold : FontWeight.Normal)
-      .systemMaterial(this.conflictStrategy === strategy
-        ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
-        : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
       .onClick((): void => {
         this.handleSetStrategy(strategy);
       })
@@ -527,9 +577,10 @@ export struct NGFDemoSyncManagerPage {
   @Builder
   private buildResultCard(): void {
     if (this.lastResult !== null) {
-      Column({ space: 8 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
         Text($r('app.string.sync_result_label'))
-          .fontSize(16)
+          .fontSize(this.a11yScale.font(16))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_body'))
 
@@ -541,11 +592,14 @@ export struct NGFDemoSyncManagerPage {
         .width('100%')
 
         Row({ space: 6 }) {
+          // 装饰图标：旁边已有文字，避免冗余播报
           SymbolGlyph((this.lastResult as NGFSyncResultDisplay).success ? $r('sys.symbol.checkmark_circle') : $r('sys.symbol.exclamationmark_triangle'))
-            .fontSize(14)
+            .fontSize(this.a11yScale.font(14))
             .fontColor([(this.lastResult as NGFSyncResultDisplay).success ? $r('app.color.tag_green') : $r('app.color.tag_red')])
+            .accessibilityLevel('no')
           Text((this.lastResult as NGFSyncResultDisplay).success ? $r('app.string.sync_result_success') : $r('app.string.sync_result_partial'))
-            .fontSize(13)
+            .fontSize(this.a11yScale.font(13))
+            .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
             .fontColor((this.lastResult as NGFSyncResultDisplay).success ? $r('app.color.tag_green') : $r('app.color.tag_red'))
             .fontWeight(FontWeight.Medium)
         }
@@ -562,26 +616,30 @@ export struct NGFDemoSyncManagerPage {
         color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     }
   }
 
   @Builder
   private buildResultStat(label: ResourceStr, value: string, color: string): void {
-    Column({ space: 4 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(4, 18) }) {
       Text(value)
-        .fontSize(22)
+        .fontSize(this.a11yScale.font(22))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
         .fontWeight(FontWeight.Bold)
         .fontColor(color)
       Text(label)
-        .fontSize(11)
+        .fontSize(this.a11yScale.font(11))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
         .fontColor($r('app.color.text_muted'))
     }
     .layoutWeight(1)
     .padding({ top: 10, bottom: 10 })
     .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
     .borderRadius(12)
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
     .alignItems(HorizontalAlign.Center)
+    // 无障碍分组（官方「使用建议」：对复杂布局减少冗余播报）。
+    // 不分组时读屏把「标签」与「数值」当成**两个独立节点**，
+    // 用户会听到一个孤立的数值，不知道它属于哪个标签。
+    .accessibilityGroup(true)
   }
 }

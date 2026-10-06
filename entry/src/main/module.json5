@@ -18,6 +18,21 @@
       {
         "name": "ohos.arkui.UIMaterial.state",
         "value": "enable"
+      },
+      // 声明本应用接入系统「关怀模式」（长辈模式 / 关爱版），且**应用内有独立开关**。
+      //
+      // 依据（HarmonyOS 官方指南《应用内关怀模式与系统设置同步》）：
+      // 「从 API 版本 26.0.0 开始，可通过如下接口设置/获取『设置』中应用管理页面内
+      //   本应用关怀模式开关状态，以及实现对其开关状态监听。」
+      // 声明 independent_control 后，用户才能在
+      // 「设置 > 关怀和无障碍 > 关怀模式 > 应用管理」中看到并管理本应用。
+      //
+      // 与代码的对应关系：本应用**有**独立的长辈版开关，并调用了
+      // accessibility.setSeniorModeStateForSelf / getSeniorModeStateForSelf，
+      // 因此**必须**声明 independent_control；若只是想跟随系统，则不应声明。
+      {
+        "name": "senior_mode",
+        "value": "independent_control"
       }
     ],
     "requestPermissions": [

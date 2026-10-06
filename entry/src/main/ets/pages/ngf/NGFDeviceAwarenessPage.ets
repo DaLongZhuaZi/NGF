@@ -1,3 +1,12 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFAccessibilityStateSnapshot,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import uiMaterial from '@ohos.arkui.uiMaterial';
 import {
@@ -33,15 +42,43 @@ const TAG: string = 'NGFDeviceAwarenessPage';
 struct NGFDeviceAwarenessStatusRow {
   @Prop label: ResourceStr = '';
   @Prop value: ResourceStr = '';
+  /**
+   * 适老呈现层。这里**不接收 `@Prop a11yScale`**：ArkTS 的 `@Prop` 会深拷贝对象，
+   * 类实例经拷贝后原型可能丢失、方法不可用；因此改为本组件自持状态 + 自己的订阅。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  aboutToAppear(): void {
+    if (this.a11yBinding === null) {
+      const listener: NGFAccessibilityBindingListener = {
+        onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+          this.a11yScale = resolveA11yTextScaleForCurrent();
+        }
+      };
+      this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+      this.a11yBinding.attach();
+    }
+  }
+
+  aboutToDisappear(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
 
   build() {
     Row() {
       Text(this.label)
-        .fontSize(14)
+        .fontSize(this.a11yScale.font(14))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
         .fontColor($r('app.color.text_secondary'))
         .layoutWeight(1)
       Text(this.value)
-        .fontSize(14)
+        .fontSize(this.a11yScale.font(14))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
         .fontColor($r('app.color.text_primary'))
         .fontWeight(FontWeight.Medium)
     }
@@ -51,6 +88,38 @@ struct NGFDeviceAwarenessStatusRow {
 
 @Component
 export struct NGFDeviceAwarenessPage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高一律经缩放器取。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 aboutToDisappear 的 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      },
+      onAccessibilityStateChanged: (snapshot: NGFAccessibilityStateSnapshot): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
   @State private preferredAnchor: NGFHoldingUiAnchor = NGFHoldingUiAnchor.RIGHT;
   @State private holdingSide: NGFHoldingAwarenessSide = NGFHoldingAwarenessSide.UNKNOWN;
   @State private holdingSource: NGFHoldingAwarenessSource = NGFHoldingAwarenessSource.DEFAULT;
@@ -92,6 +161,7 @@ export struct NGFDeviceAwarenessPage {
   };
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     this.attachLiveStateListeners();
     this.applyDeviceInfo(ngfDeviceAdaptationFacade.getDeviceInfo());
     this.applyHoldingSnapshot(ngfHoldingAwarenessFacade.getSnapshot());
@@ -102,18 +172,21 @@ export struct NGFDeviceAwarenessPage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     this.detachLiveStateListeners();
   }
 
   build() {
-    Column({ space: 12 }) {
-      Column({ space: 4 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
+      Column({ space: this.a11yScale.paragraphSpacing(4, 18) }) {
         Text(this.buildHoldingSummary())
-          .fontSize(15)
+          .fontSize(this.a11yScale.font(15))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(15)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
         Text(this.buildDeviceSummary())
-          .fontSize(12)
+          .fontSize(this.a11yScale.font(12))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
           .fontColor($r('app.color.text_secondary'))
       }
       .width('100%')
@@ -123,7 +196,6 @@ export struct NGFDeviceAwarenessPage {
       .borderRadius(NGFMaterialSurfaceTokens.CONTROL_RADIUS)
       .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
       .shadow(this.buildGlassPanelShadow())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
 
       this.buildHoldingCard()
       this.buildDeviceCard()
@@ -134,9 +206,10 @@ export struct NGFDeviceAwarenessPage {
 
   @Builder
   private buildHoldingCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Text($r('app.string.ui_str_2348'))
-        .fontSize(18)
+        .fontSize(this.a11yScale.font(18))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
 
@@ -158,14 +231,14 @@ export struct NGFDeviceAwarenessPage {
     .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
     .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
     .shadow(this.buildGlassPanelShadow())
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildDeviceCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Text($r('app.string.ui_str_2349'))
-        .fontSize(18)
+        .fontSize(this.a11yScale.font(18))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
 
@@ -188,14 +261,14 @@ export struct NGFDeviceAwarenessPage {
     .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
     .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
     .shadow(this.buildGlassPanelShadow())
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildVisualEffectsCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Text($r('app.string.ui_str_2350'))
-        .fontSize(18)
+        .fontSize(this.a11yScale.font(18))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
 
@@ -210,7 +283,6 @@ export struct NGFDeviceAwarenessPage {
     .borderRadius(NGFMaterialSurfaceTokens.PANEL_RADIUS)
     .border({ width: this.resolveGlassPanelBorderWidth(), color: this.resolveGlassPanelBorderColor() })
     .shadow(this.buildGlassPanelShadow())
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -342,14 +414,18 @@ export struct NGFDeviceAwarenessPage {
     NGFDeviceAwarenessStatusRow({ label: $r('app.string.ui_str_2382'), value: this.supportsImmersive ? $r('app.string.ui_str_2358') : $r('app.string.ui_str_2359') })
   }
 
+  /**
+   * 是否改用「系统材质」的透明表面。
+   *
+   * ⚠️ **不要在这里再写一份判断。**
+   * 本方法原先**复制**了 `NGFMaterialSurfaceTokens.shouldUseSystemMaterialSurface()` 的逻辑，
+   * 于是「普通组件不再使用系统材质」这个决策（项目规则 **PR-006**）传不到本页：
+   * 面板背景被判为透明、模糊与描边一并被置空，深色文字直接压在沉浸式渐变上，
+   * 实测对比度只有 1.5~2.3:1（附件2 §1.3 要求 4.5:1）。
+   * 现统一委托给令牌层，**决策只保留一处**。
+   */
   private shouldUseTransparentSystemMaterialSurface(): boolean {
-    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.DISABLED) {
-      return false;
-    }
-    if (this.systemMaterialPolicy === NGFSystemMaterialPolicy.FORCE_IMMERSIVE) {
-      return true;
-    }
-    return this.systemMaterialState !== uiMaterial.MaterialState.DISABLE;
+    return NGFMaterialSurfaceTokens.shouldUseSystemMaterialSurface();
   }
 
   private resolveGlassPanelBackground(): ResourceColor {

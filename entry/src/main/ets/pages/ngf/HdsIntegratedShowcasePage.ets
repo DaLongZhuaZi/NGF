@@ -1,4 +1,13 @@
 import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  a11yTouchTarget,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
+import {
   ChipGroup,
   ChipGroupItemOptions,
   OperationType,
@@ -120,6 +129,37 @@ class NGFHdsIntegratedMotionSlide {
 
 @Component
 export struct HdsIntegratedShowcasePage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private lastActionText: ResourceStr = $r('app.string.ui_str_2081');
@@ -293,6 +333,7 @@ export struct HdsIntegratedShowcasePage {
   ];
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
       this.topInsetVp = inset;
     });
@@ -308,6 +349,7 @@ export struct HdsIntegratedShowcasePage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     NGFPageWindowSupport.restoreMainMenu();
     logger.lifecycle(TAG, '即将消失');
   }
@@ -529,7 +571,7 @@ export struct HdsIntegratedShowcasePage {
         NGFImmersiveTopChromeUnderlay({ spec: HDS_INTEGRATED_TOP_CHROME_SPEC })
 
         Scroll(this.scroller) {
-          Column({ space: 16 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(16, 18) }) {
             this.buildHeroCard()
             this.buildCapabilityEntryList()
             this.buildFactCard()
@@ -582,23 +624,26 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildHeroCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 12 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
         Text($r('app.string.ui_str_2139'))
-          .fontSize(24)
+          .fontSize(this.a11yScale.font(24))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(24)))
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_primary'))
 
         Text($r('app.string.ui_str_2140'))
-          .fontSize(14)
-          .lineHeight(22)
+          .fontSize(this.a11yScale.font(14))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(14), 22))
           .fontColor($r('app.color.text_secondary'))
 
         Text(this.lastActionText)
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_tertiary'))
 
         Text($r('app.string.ui_str_2141', this.capabilityCards[this.selectedCapabilityIndexes[0]].title))
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_tertiary'))
       }
       .width('100%')
@@ -612,16 +657,16 @@ export struct HdsIntegratedShowcasePage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
       .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
   }
 
   @Builder
   private buildCapabilityEntryList(): void {
-    Column({ space: 12 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
       Text($r('app.string.ui_str_2142'))
-        .fontSize(18)
+        .fontSize(this.a11yScale.font(18))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_primary'))
 
@@ -637,23 +682,25 @@ export struct HdsIntegratedShowcasePage {
     Button() {
       Stack({ alignContent: Alignment.Start }) {
         Row({ space: 12 }) {
-          Column({ space: 6 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
             Text(card.title)
-              .fontSize(10)
+              .fontSize(this.a11yScale.font(10))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(10)))
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_tertiary'))
 
             Text(card.subtitle)
               .width('100%')
-              .fontSize(15)
+              .fontSize(this.a11yScale.font(15))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(15)))
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_primary'))
               .maxLines(2)
 
             Text(card.description)
               .width('100%')
-              .fontSize(12)
-              .lineHeight(18)
+              .fontSize(this.a11yScale.font(12))
+              .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(12), 18))
               .fontColor($r('app.color.text_secondary'))
               .maxLines(2)
           }
@@ -662,7 +709,8 @@ export struct HdsIntegratedShowcasePage {
 
           Row() {
             Text('›')
-              .fontSize(22)
+              .fontSize(this.a11yScale.font(22))
+              .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
               .margin({ bottom: 4 })
@@ -672,7 +720,6 @@ export struct HdsIntegratedShowcasePage {
           .borderRadius(14)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.panel_background'), this.useSysMat))
           .justifyContent(FlexAlign.Center)
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
         }
         .width('100%')
         .alignItems(VerticalAlign.Center)
@@ -686,7 +733,6 @@ export struct HdsIntegratedShowcasePage {
         })
         .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
         .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
       }
       .width('100%')
     }
@@ -702,25 +748,29 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildFactCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 10 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
         Text($r('app.string.ui_str_2143'))
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
 
         Text($r('app.string.ui_str_2144'))
           .width('100%')
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_secondary'))
 
         Text($r('app.string.ui_str_2145'))
           .width('100%')
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_secondary'))
 
         Text($r('app.string.ui_str_2146'))
           .width('100%')
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_secondary'))
       }
       .width('100%')
@@ -734,7 +784,6 @@ export struct HdsIntegratedShowcasePage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
       .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     }
     .width('100%')
   }
@@ -742,7 +791,7 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildComponentSection(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 14 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(14, 18) }) {
         SubHeader({
           primaryTitle: $r('app.string.ui_str_2082'),
           secondaryTitle: $r('app.string.ui_str_2147'),
@@ -767,7 +816,6 @@ export struct HdsIntegratedShowcasePage {
             width: NGFMaterialSurfaceTokens.buildMaterialAwareBorderWidth(1, this.useSysMat),
             color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(NGF_HDS_INTEGRATED_COMPONENT_CONTROL_BORDER, this.useSysMat)
           })
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onChange((value: string): void => {
             this.componentSearchValue = value;
           })
@@ -784,7 +832,8 @@ export struct HdsIntegratedShowcasePage {
 
         Text($r('app.string.ui_str_2153', this.resolveComponentGroupLabel(), $r('app.string.ui_str_2090'), this.buildVisibleComponentCards().length))
           .width('100%')
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_secondary'))
 
         ForEach(this.buildVisibleComponentCards(), (card: NGFHdsIntegratedComponentCard): void => {
@@ -802,30 +851,31 @@ export struct HdsIntegratedShowcasePage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
       .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
   }
 
   @Builder
   private buildComponentExampleCard(card: NGFHdsIntegratedComponentCard): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Row() {
         Text(card.title)
-          .fontSize(17)
+          .fontSize(this.a11yScale.font(17))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(17)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
         Blank()
         Text(card.group)
-          .fontSize(12)
+          .fontSize(this.a11yScale.font(12))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
           .fontColor(card.accentColor)
       }
       .width('100%')
 
       Text(card.tag + ' · ' + card.description)
         .width('100%')
-        .fontSize(13)
-        .lineHeight(20)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
         .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
@@ -838,13 +888,12 @@ export struct HdsIntegratedShowcasePage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(NGF_HDS_INTEGRATED_INNER_BORDER, this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildLayoutSection(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 14 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(14, 18) }) {
         SubHeader({
           primaryTitle: $r('app.string.ui_str_2084'),
           secondaryTitle: $r('app.string.ui_str_2154')
@@ -878,7 +927,6 @@ export struct HdsIntegratedShowcasePage {
           },
           thermoCtrl: true
         })
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .onChange((index: number): void => {
           this.layoutTabIndex = index;
           this.lastActionText = $r('app.string.ui_str_2155', index === 0 ? $r('app.string.ui_str_2107') : index === 1 ? $r('app.string.ui_str_2112') : $r('app.string.ui_str_2117'));
@@ -896,14 +944,13 @@ export struct HdsIntegratedShowcasePage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
       .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
   }
 
   @Builder
   private buildLayoutTabPanel(section: ResourceStr): void {
-    Column({ space: 12 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
       ForEach(this.buildLayoutCardsBySection(section), (card: NGFHdsIntegratedLayoutCard): void => {
         this.buildLayoutCard(card)
       }, (card: NGFHdsIntegratedLayoutCard): string => card.id)
@@ -922,17 +969,18 @@ export struct HdsIntegratedShowcasePage {
         .backgroundColor($r('app.color.glass_divider'))
         .borderRadius(4)
 
-      Column({ space: 6 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
         Text(card.title)
           .width('100%')
-          .fontSize(16)
+          .fontSize(this.a11yScale.font(16))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
 
         Text(card.description)
           .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
           .fontColor($r('app.color.text_secondary'))
       }
       .layoutWeight(1)
@@ -948,12 +996,11 @@ export struct HdsIntegratedShowcasePage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(NGF_HDS_INTEGRATED_INNER_BORDER, this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildMotionSection(): void {
-    Column({ space: 14 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(14, 18) }) {
       SubHeader({
         primaryTitle: $r('app.string.ui_str_2087'),
         secondaryTitle: $r('app.string.ui_str_2156')
@@ -971,7 +1018,8 @@ export struct HdsIntegratedShowcasePage {
 
       Text($r('app.string.ui_str_2161', this.resolveMotionModeLabel(), this.motionAutoPlayEnabled ? $r('app.string.ui_str_2159') : $r('app.string.ui_str_2160'), this.motionIntervalValue))
         .width('100%')
-        .fontSize(13)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
         .fontColor($r('app.color.text_secondary'))
 
       Swiper(this.swiperController) {
@@ -999,7 +1047,6 @@ export struct HdsIntegratedShowcasePage {
         this.motionCurrentIndex = index;
         logger.info(TAG, '动效轮播切换: index=' + index);
       })
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
 
       this.buildMotionSelectorRow()
       this.buildMotionActionRow()
@@ -1014,7 +1061,6 @@ export struct HdsIntegratedShowcasePage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor(this.isFocusedCapability('motion') ? '#14B8A666' : $r('app.color.glass_border_subtle'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   @Builder
@@ -1026,22 +1072,24 @@ export struct HdsIntegratedShowcasePage {
         .backgroundColor(Color.Transparent)
         .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
 
-      Column({ space: 10 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
         Text(slide.title)
           .width('100%')
-          .fontSize(20)
+          .fontSize(this.a11yScale.font(20))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(20)))
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_primary'))
 
         Text(slide.subtitle)
           .width('100%')
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_secondary'))
 
         Text(slide.description)
           .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
           .fontColor($r('app.color.text_secondary'))
       }
       .width('100%')
@@ -1053,7 +1101,6 @@ export struct HdsIntegratedShowcasePage {
       .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
       .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
     }
     .width('100%')
     .height('100%')
@@ -1068,14 +1115,11 @@ export struct HdsIntegratedShowcasePage {
       ForEach(this.motionSlides, (slide: NGFHdsIntegratedMotionSlide, index: number): void => {
         Button(String(index + 1))
           .width(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
-          .height(NGFControlStyleTokens.DENSE_BUTTON_HEIGHT)
+          .height(a11yTouchTarget(this.a11yScale.isElderly, NGFControlStyleTokens.DENSE_BUTTON_HEIGHT))
           .controlSize(ControlSize.SMALL)
           .buttonStyle(ButtonStyleMode.NORMAL)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND, this.useSysMat))
           .fontColor($r('app.color.text_primary'))
-          .systemMaterial(this.motionCurrentIndex === index
-            ? ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl()
-            : ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           .onClick((): void => {
             this.selectMotionSlide(index);
           })
@@ -1094,7 +1138,6 @@ export struct HdsIntegratedShowcasePage {
         .controlSize(ControlSize.NORMAL)
         .buttonStyle(ButtonStyleMode.NORMAL)
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND, this.useSysMat))
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .fontColor($r('app.color.text_primary'))
         .onClick((): void => {
           this.shiftMotionSlide(-1);
@@ -1107,7 +1150,6 @@ export struct HdsIntegratedShowcasePage {
         .buttonStyle(ButtonStyleMode.NORMAL)
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND, this.useSysMat))
         .fontColor($r('app.color.text_primary'))
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .onClick((): void => {
           this.motionAutoPlayEnabled = !this.motionAutoPlayEnabled;
           this.lastActionText = this.motionAutoPlayEnabled ? $r('app.string.ui_str_2165') : $r('app.string.ui_str_2166');
@@ -1121,7 +1163,6 @@ export struct HdsIntegratedShowcasePage {
         .buttonStyle(ButtonStyleMode.NORMAL)
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground(NGF_HDS_INTEGRATED_INACTIVE_BUTTON_BACKGROUND, this.useSysMat))
         .fontColor($r('app.color.text_primary'))
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
         .onClick((): void => {
           this.shiftMotionSlide(1);
         })
@@ -1132,16 +1173,17 @@ export struct HdsIntegratedShowcasePage {
   @Builder
   private buildVerificationCard(): void {
     Stack({ alignContent: Alignment.TopStart }) {
-      Column({ space: 10 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
         Text($r('app.string.ui_str_2168'))
-          .fontSize(18)
+          .fontSize(this.a11yScale.font(18))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(18)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
 
         Text($r('app.string.ui_str_2169'))
           .width('100%')
-          .fontSize(13)
-          .lineHeight(20)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
           .fontColor($r('app.color.text_secondary'))
       }
       .width('100%')
@@ -1155,7 +1197,6 @@ export struct HdsIntegratedShowcasePage {
       })
       .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
       .visualEffect(NGFHdsEffectPresetFactory.buildPrimaryCardEffect())
-      .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
     }
     .width('100%')
   }

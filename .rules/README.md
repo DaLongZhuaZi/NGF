@@ -45,6 +45,8 @@
 | **设备调试** | [skill-device-hdc-debug.md](skill-device-hdc-debug.md) | `hdb`/`hdc`、模拟器/真机连接、HAP 安装、应用启动/停止、HiLog、bugreport、`aa appdebug`。 |
 | **UI 规范** | [skill-ui-symbols.md](skill-ui-symbols.md) | UI 图标、状态提示、符号标识、发现或准备新增 Emoji。 |
 | **UI 规范** | [skill-i18n.md](skill-i18n.md) | 新建 UI、修改页面文案、Toast/Dialog 文案、HDS 导航标题、面向用户文本。 |
+| **无障碍** | [skill-accessibility.md](skill-accessibility.md) | 用户提到 无障碍/读屏/屏幕朗读/辅助工具/`accessibilityText`/无障碍焦点/TalkBack；**新增或修改任何可交互组件**；需要让应用被辅助工具正确识别；准备做无障碍验收。 |
+| **适老化** | [skill-elderly-ui.md](skill-elderly-ui.md) | 用户提到"适老化""适老版""长辈版""老年模式""关怀版/亲情版/关爱版"；准备改造已有页面以适配老年用户；需要核对触控目标 44/48/60 dp/pt、字号 18/30 dp/pt、行距 1.3 倍、对比度 4.5:1 等指标；需要证明"适老版与普通版功能一致"。 |
 | **项目治理** | [skill-project-rule-governance.md](skill-project-rule-governance.md) | 项目规则、Agent Harness、持续性用户偏好、项目级架构/产品决策；发现已验证重复模式；需要操作 `.agent-rules/`。 |
 | **应用启动** | [skill-ngf-app-harness.md](skill-ngf-app-harness.md) | 使用 NGF 新建、迁移、拆分或长期维护独立 App/应用模块；为 App 建立专属规则与 Harness。 |
 | **应用发布** | [skill-app-release.md](skill-app-release.md) | 修改应用名、包名、图标、版本号、签名证书、p12/csr、打包发布、AGC 上架。 |
@@ -60,6 +62,7 @@
 - **陌生环境/环境漂移**：`skill-llm-onboarding.md` -> `skill-local-rules.md` -> `.local-rules/README.md`。
 - **任意 `.ets` 修改**：`skill-arkts-standards.md` 必读；涉及集合/回调再读 `skill-arkts-types.md`；涉及 UI 再读 `skill-arkui-knowledge.md`。
 - **新建 HDS 页面**：`skill-scaffold-page.md` -> `skill-hds-page-design.md` -> `skill-i18n.md` -> `skill-ui-symbols.md`。
+- **适老化改造**：`skill-elderly-ui.md` -> `skill-accessibility.md`（无障碍语义，**与适老化是两件事**）-> `skill-i18n.md`（文案）-> `skill-automation-test.md`（一致性验证）。
 - **新建 NGF App/应用模块**：`skill-ngf-app-harness.md` -> `skill-project-rule-governance.md` -> `skill-component-reuse.md` -> 目标领域技能。
 - **项目规则/偏好/Harness**：`skill-project-rule-governance.md` -> 目标领域技能；涉及共享框架规则时再等待开发者明确触发 `skill-rules-update.md`。
 - **构建或编译报错**：`skill-arkts-error-fixes.md` -> 相关 API/页面技能；运行时问题再读 `skill-arkts-runtime-fix.md` 与 `skill-arkts-debug.md`。

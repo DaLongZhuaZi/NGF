@@ -15,14 +15,47 @@ import {
 } from '@kit.UIDesignKit';
 import { NGFHdsEffectPresetFactory } from './NGFHdsEffectPresets';
 
+/**
+ * 标题栏无障碍配置。
+ *
+ * 来源：HDS 的 `HdsNavigationTitle`（`@hms.hds.hdsBaseComponent.d.ets`）暴露了
+ * `mainTitleAccessibilityText` / `subTitleAccessibilityText`（**@since 6.1.0(23)，即 API 23**）
+ * 与 `mainTitleId` / `subTitleId`（**@since 6.0.0(20)，即 API 20**）。
+ *
+ * 注意：`HdsNavigationTitleBarOptions` **本身没有**无障碍字段，标题无障碍只能经
+ * `content.title` 这条路径下发 —— 所以 NGF 必须在 `NGFHdsNavigationTitle` 上补齐，
+ * 否则调用方**没有任何办法**给标题提供朗读文本。
+ */
+export interface NGFHdsTitleBarAccessibilityConfig {
+  /** 主标题朗读文本；标题是缩写、纯图标或需要补充语境时必填 */
+  mainTitleAccessibilityText?: ResourceStr;
+  /** 副标题朗读文本 */
+  subTitleAccessibilityText?: ResourceStr;
+  /** 主标题组件 ID，供无障碍焦点跳转定位 */
+  mainTitleId?: string;
+  /** 副标题组件 ID */
+  subTitleId?: string;
+}
+
 class NGFHdsNavigationTitle implements HdsNavigationTitle {
   mainTitle: ResourceStr;
   subTitle?: ResourceStr;
+  mainTitleAccessibilityText?: ResourceStr;
+  subTitleAccessibilityText?: ResourceStr;
+  mainTitleId?: string;
+  subTitleId?: string;
 
-  constructor(mainTitle: ResourceStr, subTitle?: ResourceStr) {
+  constructor(mainTitle: ResourceStr, subTitle?: ResourceStr,
+    accessibility?: NGFHdsTitleBarAccessibilityConfig) {
     this.mainTitle = mainTitle;
     if (subTitle !== undefined) {
       this.subTitle = subTitle;
+    }
+    if (accessibility !== undefined) {
+      this.mainTitleAccessibilityText = accessibility.mainTitleAccessibilityText;
+      this.subTitleAccessibilityText = accessibility.subTitleAccessibilityText;
+      this.mainTitleId = accessibility.mainTitleId;
+      this.subTitleId = accessibility.subTitleId;
     }
   }
 }
@@ -139,7 +172,8 @@ export class NGFHdsTitleBarOptionsFactory {
     backgroundColor: ResourceColor,
     materialLevel: hdsMaterial.MaterialLevel,
     avoidLayoutSafeArea: boolean = false,
-    enableComponentSafeArea: boolean = false
+    enableComponentSafeArea: boolean = false,
+    accessibility?: NGFHdsTitleBarAccessibilityConfig
   ): HdsNavigationTitleBarOptions {
     const originalTitleStyle = new NGFHdsNavigationTitleStyle($r('app.color.text_white'), $r('app.color.glass_chip_overlay'));
     const scrollTitleStyle = new NGFHdsNavigationTitleStyle($r('app.color.text_white'), $r('app.color.text_white_medium'));
@@ -150,7 +184,10 @@ export class NGFHdsTitleBarOptionsFactory {
     const originalBarStyle = new NGFHdsNavigationTitleBarStyle(originalBackgroundStyle, originalContentStyle);
     const scrollBarStyle = new NGFHdsNavigationTitleBarStyle(scrollBackgroundStyle, scrollContentStyle);
     const materialParams = NGFHdsEffectPresetFactory.buildSystemMaterialParams(hdsMaterial.MaterialType.IMMERSIVE, materialLevel);
-    const content = new NGFHdsTitleBarContentOptions(new NGFHdsNavigationTitle(mainTitle, subTitle));
+    // 标题无障碍只能经 content.title 下发，见 NGFHdsTitleBarAccessibilityConfig 的说明
+    const content = new NGFHdsTitleBarContentOptions(
+      new NGFHdsNavigationTitle(mainTitle, subTitle, accessibility)
+    );
     const style = new NGFHdsTitleBarStyleOptions(originalBarStyle, scrollBarStyle, materialParams);
     return new NGFHdsNavigationTitleBarOptions(content, style, avoidLayoutSafeArea, enableComponentSafeArea);
   }

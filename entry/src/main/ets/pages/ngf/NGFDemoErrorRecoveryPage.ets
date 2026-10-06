@@ -1,3 +1,12 @@
+import {
+  NGFAccessibilityBindingListener,
+  NGFAccessibilityLifecycleBinding,
+  NGFA11yTextScale,
+  NGFInclusiveDesignResolved,
+  a11yTouchTarget,
+  ngfAccessibilityFacade,
+  resolveA11yTextScaleForCurrent
+} from 'ngf_framework';
 import { HdsNavDestination } from '@kit.UIDesignKit';
 import { hdsMaterial } from '@kit.UIDesignKit';
 import { logger } from 'ngf_framework';
@@ -38,6 +47,37 @@ class NGFErrorLogEntry {
 
 @Component
 export struct NGFDemoErrorRecoveryPage {
+  /**
+   * 适老呈现层（.rules/skill-elderly-ui.md）：字号 / 行高 / 点击区一律经缩放器取。
+   * 普通档原样返回（零视觉回归），适老档抬到附件2 §1.1（≥18）与 §1.2（行距 ≥1.3 倍）。
+   */
+  @State private a11yScale: NGFA11yTextScale = resolveA11yTextScaleForCurrent();
+  private a11yBinding: NGFAccessibilityLifecycleBinding | null = null;
+
+  /** 订阅平台策略变化；与 detach 严格成对 */
+  private attachA11yBinding(): void {
+    if (this.a11yBinding !== null) {
+      return;
+    }
+    const listener: NGFAccessibilityBindingListener = {
+      onInclusiveDesignChanged: (resolved: NGFInclusiveDesignResolved): void => {
+        this.a11yScale = resolveA11yTextScaleForCurrent();
+      }
+    };
+    this.a11yBinding = new NGFAccessibilityLifecycleBinding(listener);
+    this.a11yBinding.attach();
+  }
+
+  /** 取消订阅（幂等） */
+  private detachA11yBinding(): void {
+    const binding: NGFAccessibilityLifecycleBinding | null = this.a11yBinding;
+    if (binding !== null) {
+      binding.detach();
+      this.a11yBinding = null;
+    }
+  }
+
+
   @State private pathStack: NavPathStack = new NavPathStack();
   @State private topInsetVp: number = 108;
   @State private statusMessage: ResourceStr = '';
@@ -47,6 +87,7 @@ export struct NGFDemoErrorRecoveryPage {
   @StorageProp('ngf_visual_effects_should_use_system_material_surface') private useSysMat: boolean = true;
 
   aboutToAppear(): void {
+    this.attachA11yBinding();
     NGFPageWindowSupport.loadDynamicTopInset(this.getUIContext(), 108, 108, (inset) => {
       this.topInsetVp = inset;
     });
@@ -55,6 +96,7 @@ export struct NGFDemoErrorRecoveryPage {
   }
 
   aboutToDisappear(): void {
+    this.detachA11yBinding();
     NGFPageWindowSupport.restoreMainMenu();
   }
 
@@ -114,7 +156,7 @@ export struct NGFDemoErrorRecoveryPage {
         NGFImmersiveTopChromeUnderlay({ spec: DEMO_TOP_CHROME })
 
         Scroll() {
-          Column({ space: 12 }) {
+          Column({ space: this.a11yScale.paragraphSpacing(12, 18) }) {
             this.buildTitleCard()
             this.buildTriggerCard()
             this.buildStrategyCard()
@@ -154,14 +196,15 @@ export struct NGFDemoErrorRecoveryPage {
 
   @Builder
   private buildTitleCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Text($r('app.string.demo_error_recovery_title'))
-        .fontSize(22)
+        .fontSize(this.a11yScale.font(22))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(22)))
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.text_primary'))
       Text($r('app.string.demo_error_recovery_desc'))
-        .fontSize(13)
-        .lineHeight(20)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 20))
         .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
@@ -170,32 +213,31 @@ export struct NGFDemoErrorRecoveryPage {
     .backgroundEffect(NGFMaterialSurfaceTokens.buildMaterialAwareProminentBackgroundEffect(this.useSysMat))
     .borderRadius(NGFMaterialSurfaceTokens.PROMINENT_RADIUS)
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwareProminentShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForProminentPanel())
   }
 
   @Builder
   private buildTriggerCard(): void {
-    Column({ space: 10 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(10, 18) }) {
       Text($r('app.string.err_trigger_section'))
-        .fontSize(16)
+        .fontSize(this.a11yScale.font(16))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
       Text($r('app.string.err_trigger_desc'))
-        .fontSize(13)
-        .lineHeight(19)
+        .fontSize(this.a11yScale.font(13))
+        .lineHeight(this.a11yScale.explicitLineHeight(this.a11yScale.font(13), 19))
         .fontColor($r('app.color.text_tertiary'))
 
-      Column({ space: 8 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
         Button($r('app.string.err_trigger_low'))
           .width('100%')
           .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
           .controlSize(ControlSize.SMALL)
-          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontSize(this.a11yScale.font(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE))
           .fontColor($r('app.color.text_primary'))
           .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           .onClick((): void => {
             void this.handleTriggerError(NGFErrorSeverity.LOW);
           })
@@ -204,11 +246,10 @@ export struct NGFDemoErrorRecoveryPage {
           .width('100%')
           .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
           .controlSize(ControlSize.SMALL)
-          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontSize(this.a11yScale.font(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE))
           .fontColor($r('app.color.text_primary'))
           .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           .onClick((): void => {
             void this.handleTriggerError(NGFErrorSeverity.MEDIUM);
           })
@@ -217,11 +258,10 @@ export struct NGFDemoErrorRecoveryPage {
           .width('100%')
           .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
           .controlSize(ControlSize.SMALL)
-          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontSize(this.a11yScale.font(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE))
           .fontColor($r('app.color.text_primary'))
           .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           .onClick((): void => {
             void this.handleTriggerError(NGFErrorSeverity.HIGH);
           })
@@ -230,11 +270,10 @@ export struct NGFDemoErrorRecoveryPage {
           .width('100%')
           .height(NGFControlStyleTokens.FORM_CONTROL_MIN_HEIGHT)
           .controlSize(ControlSize.SMALL)
-          .fontSize(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE)
+          .fontSize(this.a11yScale.font(NGFControlStyleTokens.FORM_CONTROL_FONT_SIZE))
           .fontColor($r('app.color.text_primary'))
           .borderRadius(NGFControlStyleTokens.FORM_CONTROL_RADIUS)
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForFloatingControl())
           .onClick((): void => {
             void this.handleTriggerError(NGFErrorSeverity.CRITICAL);
           })
@@ -243,7 +282,8 @@ export struct NGFDemoErrorRecoveryPage {
 
       if ((typeof this.statusMessage === 'string' ? this.statusMessage : '').length > 0) {
         Text(this.statusMessage)
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_body'))
           .width('100%')
           .padding({ top: 4 })
@@ -251,10 +291,12 @@ export struct NGFDemoErrorRecoveryPage {
 
       Row({ space: 8 }) {
         Text($r('app.string.err_recent_count'))
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_tertiary'))
         Text(String(this.recentErrorCount))
-          .fontSize(14)
+          .fontSize(this.a11yScale.font(14))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(14)))
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.tag_red'))
       }
@@ -269,30 +311,30 @@ export struct NGFDemoErrorRecoveryPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
   private buildStrategyCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Row({ space: 8 }) {
         Text($r('app.string.err_strategy_section'))
-          .fontSize(16)
+          .fontSize(this.a11yScale.font(16))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_body'))
           .layoutWeight(1)
         Text(this.strategyRegistered ? $r('app.string.err_strategy_active') : $r('app.string.err_strategy_inactive'))
-          .fontSize(12)
+          .fontSize(this.a11yScale.font(12))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
           .fontWeight(FontWeight.Medium)
           .fontColor(this.strategyRegistered ? $r('app.color.tag_green') : $r('app.color.tag_red'))
           .padding({ left: 10, right: 10, top: 3, bottom: 3 })
           .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
           .borderRadius(8)
-          .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
       }
       .width('100%')
 
-      Column({ space: 6 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
         this.buildStrategyRule($r('app.string.err_rule_low'), $r('app.string.err_rule_low_desc'))
         this.buildStrategyRule($r('app.string.err_rule_medium'), $r('app.string.err_rule_medium_desc'))
         this.buildStrategyRule($r('app.string.err_rule_high'), $r('app.string.err_rule_high_desc'))
@@ -310,7 +352,6 @@ export struct NGFDemoErrorRecoveryPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 
   @Builder
@@ -321,15 +362,16 @@ export struct NGFDemoErrorRecoveryPage {
         .height(32)
         .borderRadius(2)
         .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-        .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
 
-      Column({ space: 2 }) {
+      Column({ space: this.a11yScale.paragraphSpacing(2, 18) }) {
         Text(level)
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_body'))
         Text(desc)
-          .fontSize(11)
+          .fontSize(this.a11yScale.font(11))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
           .fontColor($r('app.color.text_muted'))
       }
       .alignItems(HorizontalAlign.Start)
@@ -339,54 +381,60 @@ export struct NGFDemoErrorRecoveryPage {
     .padding({ left: 10, right: 10, top: 6, bottom: 6 })
     .borderRadius(10)
     .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
+    // 无障碍分组（官方「使用建议」：对复杂布局减少冗余播报）。
+    // 不分组时读屏把「标签」与「数值」当成**两个独立节点**，
+    // 用户会听到一个孤立的数值，不知道它属于哪个标签。
+    .accessibilityGroup(true)
   }
 
   @Builder
   private buildLogCard(): void {
-    Column({ space: 8 }) {
+    Column({ space: this.a11yScale.paragraphSpacing(8, 18) }) {
       Text($r('app.string.err_log_section'))
-        .fontSize(16)
+        .fontSize(this.a11yScale.font(16))
+        .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(16)))
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_body'))
 
       if (this.errorLog.length === 0) {
         Text($r('app.string.err_log_empty'))
-          .fontSize(13)
+          .fontSize(this.a11yScale.font(13))
+          .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(13)))
           .fontColor($r('app.color.text_muted'))
           .width('100%')
           .textAlign(TextAlign.Center)
           .padding({ top: 12, bottom: 12 })
       } else {
-        Column({ space: 6 }) {
+        Column({ space: this.a11yScale.paragraphSpacing(6, 18) }) {
           ForEach(this.errorLog, (entry: NGFErrorLogEntry) => {
             Row() {
-              Column({ space: 2 }) {
+              Column({ space: this.a11yScale.paragraphSpacing(2, 18) }) {
                 Text(entry.label)
-                  .fontSize(12)
+                  .fontSize(this.a11yScale.font(12))
+                  .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(12)))
                   .fontColor($r('app.color.text_body'))
                   .maxLines(1)
                 Text(entry.timestamp)
-                  .fontSize(11)
+                  .fontSize(this.a11yScale.font(11))
+                  .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
                   .fontColor($r('app.color.text_muted'))
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
 
               Text(entry.recovered ? $r('app.string.err_recovered_tag') : $r('app.string.err_failed_tag'))
-                .fontSize(11)
+                .fontSize(this.a11yScale.font(11))
+                .lineHeight(this.a11yScale.lineHeight(this.a11yScale.font(11)))
                 .fontWeight(FontWeight.Medium)
                 .fontColor(entry.recovered ? $r('app.color.tag_green') : $r('app.color.tag_red'))
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
                 .borderRadius(6)
-                .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
             }
             .width('100%')
             .padding({ top: 6, bottom: 6, left: 10, right: 10 })
             .backgroundColor(NGFMaterialSurfaceTokens.buildMaterialAwareSurfaceBackground($r('app.color.background_surface'), this.useSysMat))
             .borderRadius(10)
-            .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForLightEffectControl())
           }, (entry: NGFErrorLogEntry): string => 'err_' + entry.id)
         }
         .width('100%')
@@ -402,6 +450,5 @@ export struct NGFDemoErrorRecoveryPage {
       color: NGFMaterialSurfaceTokens.buildMaterialAwareBorderColor($r('app.color.card_border'), this.useSysMat)
     })
     .shadow(NGFMaterialSurfaceTokens.buildMaterialAwarePanelShadow(this.useSysMat))
-    .systemMaterial(ngfVisualEffectsFacade.buildSystemMaterialForPanel())
   }
 }
