@@ -66,7 +66,27 @@
 **来源**：用户明确要求在同时存在公开 GitHub 源和私有 Gitea/NAS 源时建立双线同步。
 **证据**：`docs/Repository_Sync_Guide.md`、`tools/backup/Invoke-NgfPrivateBackup.ps1`、`tools/backup/Restore-NgfPrivateBackup.ps1`、根 `.gitignore` 的证书排除规则，以及冻结工作区中已存在的 `nas-backup` remote。
 **验证**：交付前检查公开工作区不包含私有备份目录和证书；备份脚本使用 `git add -f current` 纳入被忽略文件；恢复脚本默认拒绝覆盖已存在目录。
-**更新时间**：2026-09-13
+**更新时间**：2026-10-06
+
+**修订（2026-10-06）：补入第三条公开镜像 GitCode**
+
+实际存在**三个**远程，此前只记录了前两个，导致 GitCode 长期收不到提交：
+
+| 远程名 | 平台 | 地址 | 定位 |
+|---|---|---|---|
+| `origin` | GitHub | `https://github.com/DaLongZhuaZi/NGF.git` | 公开主源 |
+| `backup` | Gitea（NAS） | `http://192.168.5.146:3333/DLZZ/NGF.git` | 私有完整备份（含被忽略文件、证书、bundle） |
+| **`gitcode`** | **GitCode** | **`https://gitcode.com/dlzz/NGF.git`** | **公开镜像** |
+
+**关键事实**：
+1. GitCode 仓库**已迁移为小写路径** `dlzz`（大写 `DLZZ` 会收到
+   「This repository moved. Please use the new location」提示，推送仍会成功，但应使用新地址）。
+2. **没有任何自动化会把提交推到 GitCode** —— 它既不在 `tools/backup/` 脚本里，
+   也不在 CI 里。**每次交付后必须手动 `git push gitcode main`**，否则会静默落后。
+3. 诊断方法：`git ls-remote gitcode refs/heads/main` 与 `git rev-parse HEAD` 比对。
+
+**验证**：交付后对三个远程各跑一次 `git ls-remote <remote> refs/heads/main`，
+三者都等于本地 `HEAD` 才算同步完成。
 
 ### PR-006 普通组件一律不使用系统材质，改用普通玻璃模糊材质
 
@@ -400,6 +420,45 @@ HarmonyOS 有两套**互不替代**的适老信号：
 > ⚠️ **验证手段的限制**：`dumpLayout` dump 的是**渲染树**，分组作用于**无障碍树** ——
 > 分组后 dump 里**仍然**能看到子 Text 节点，**无法用它验证分组是否生效**。
 > 分组效果只能靠**读屏服务实测**确认。
+
+### PR-018 CI 镜像 tag 必须与 `compatibleSdkVersion` 对齐，且禁止在 job 级 `if:` 里使用 `secrets`
+
+**状态**：active
+**范围**：`.github/workflows/` 下的全部工作流。
+
+**指令**：
+1. **镜像 tag 与 SDK 版本对齐** —— 本工程 `compatibleSdkVersion` 为 `26.0.0`，
+   必须使用 `ghcr.io/dalongzhuazi/harmonyos-ci:api26r`。
+   对照表（来源：harmonyos-ci `docs/CI_Guide.md`）：
+
+   | tag | command-line-tools | 适用 |
+   |---|---|---|
+   | `api26r` | **26.0.0.821** | **API 26 正式版 —— 与 DevEco Studio 26 Release 内置 SDK 一致** |
+   | `api26b2` | 26.0.0.621 | API 26 Beta2 |
+   | `api26` | 26.0.0.461 | API 26 Beta1（**旧**） |
+   | `api24` / `api23` | 6.1.1.300 / 6.1.0.818 | API 24 / 23 |
+
+2. **禁止在 job 级 `if:` 里使用 `secrets` 上下文** ——
+   GitHub Actions 只在 `env:` / `with:` / `run:` 中提供 `secrets`。
+   正确做法：加一个独立的 **guard job**，在 `env:` 里读 secrets（合法），
+   在 `run:` 里判断并写 `$GITHUB_OUTPUT`，下游用 `needs.<guard>.outputs.<flag>` 判断。
+
+**为什么（两次真实故障，2026-10-06 定位并修复）**：
+
+- **故障 1**：`build.yml` / `sign-and-release.yml` 用 `:api26`（Beta1，26.0.0.461），
+  而代码用了 `HdsColorPicker`（**Beta2 新增**）→ 编译报
+  **9×10505001 + 3 个 import 错误 + UI 语法错误**，`Build HAP` 自 **2026-08-29** 起连续失败。
+  改成 `:api26r` 后 **CI 立刻变绿**（2m49s，3 个 job 全成功）。
+- **故障 2**：`sign-and-release.yml` 的 job 级 `if: secrets.SIGNING_CERT != '' && …`
+  → **工作流校验失败**，每次 push 产生一条 **0 秒失败**记录，
+  名字是**文件路径** `.github/workflows/sign-and-release.yml`（而非 workflow 名）——
+  **看到这种形态就知道是校验错误，不是运行失败**。
+
+**排查方法**：
+- 镜像/编译问题：`gh run view <id> --log-failed`，看 `COMPILE RESULT` 与 import 行号；
+- 校验问题：`gh run list` 里出现**以文件路径为名字的 0 秒失败** → 用
+  `python -c "import yaml;yaml.safe_load(open(f))"` 校验语法，并重点查 `if:` 里是否用了
+  `secrets` / `env` 等**在该位置不可用的上下文**。
 
 ## Candidate Rules
 
