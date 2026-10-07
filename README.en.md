@@ -41,6 +41,7 @@ This project is extremely well suited for development with AI programming assist
 | 2️⃣ | [.rules/README.md](.rules/README.md) | **Skill index**: browse the various "superpowers" available to you, such as one-click page generation and component reuse. |
 | 3️⃣ | [.rules/skill-scaffold-page.md](.rules/skill-scaffold-page.md) | **Rapid page creation**: when you receive a "create a new page" instruction, directly use the template code in this file. |
 | 4️⃣ | [.rules/skill-component-reuse.md](.rules/skill-component-reuse.md) | **Reuse guide**: when developing features, learn how to call the existing dialogs, title bars, and core tools in the framework. |
+| 5️⃣ | [.rules/skill-accessibility.md](.rules/skill-accessibility.md) | **Accessibility**: required reading when adding or modifying **any interactive component** — labels, grouping, state, and correct binding. |
 
 > 💡 **Hint for Agents**: This project is a modular project (`ngf_framework` is the core library and `entry` is the business layer). When developing in `entry`, you must use `import { ... } from 'ngf_framework'` for imports.
 
@@ -56,6 +57,7 @@ NGF uses a highly cohesive and loosely coupled layered architecture to encapsula
 - 💾 **Data and Storage (data)**: Provides simple wrappers for a true LRU in-memory cache, Preferences, and relational databases (RDB).
 - ⚙️ **Workflow and Tasks (workflow & systemTasks)**: Supports complex asynchronous task orchestration, as well as long-running background tasks with a keep-alive lock and persistent system notification bar.
 - 📱 **Device Awareness (deviceAwareness)**: Supports foldable-device adaptation, one-hand/two-hand holding awareness, and detection of 13 hardware capabilities.
+- ♿ **Accessibility & Elderly Adaptation (accessibility & elderly)**: A complete accessibility semantics model (53 roles + 4 levels + actions/state/grouping) with an `AttributeModifier` binder; integrates with the system screen reader, touch guide, and state-change subscriptions. Elderly adaptation uses **two independent signals** (system Care Mode + system font scale) with a normative baseline of 18/30 dp fonts, 1.3x line spacing, 4.5:1 contrast, and 44/48/60 dp touch targets. Business pages opt in with a single `.attributeModifier(...)` call.
 - 🛠️ **Comprehensive Toolbox (utils)**: Includes performance monitoring, SHA/AES encryption and decryption security suites, a unified logging system, and more.
 
 ---
@@ -86,7 +88,8 @@ Three workflows under `.github/workflows/` provide a push-to-build HAP pipeline,
 
 ### First-time setup (one-time, ~15 minutes)
 
-1. **Prepare the CI image**: this project uses `ghcr.io/dalongzhuazi/harmonyos-ci:api26` (already built, public). Image build & maintenance is now centralized in the **[harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) repo** (Dockerfile + build workflow + multi-API tags); rebuild or add new API versions there, and just consume the image here.
+1. **Prepare the CI image**: this project uses `ghcr.io/dalongzhuazi/harmonyos-ci:api26r` (already built, public).
+   > ⚠️ **The tag must match `compatibleSdkVersion` in `build-profile.json5`**: this project is `26.0.0`, which maps to `api26r` (command-line-tools 26.0.0.821, identical to the SDK bundled with DevEco Studio 26 Release). Using the older `api26` (26.0.0.461 / API 26 Beta1) **fails to compile** — it lacks Beta2 components such as `HdsColorPicker`. See the tag table in harmonyos-ci's `docs/CI_Guide.md`. Image build & maintenance is now centralized in the **[harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) repo** (Dockerfile + build workflow + multi-API tags); rebuild or add new API versions there, and just consume the image here.
 2. **Done**: every push to the main branches now **builds automatically and auto-publishes a rolling `nightly` Release** (PRs build only, without releasing); download the `hap-unsigned` artifact / asset from the Action or Releases page (contains `entry-default-unsigned.hap`, installable after re-signing in DevEco Studio).
 
 > **Signing note**: `signingConfigs` in `build-profile.json5` points to developer-local certificate paths; CI strips it automatically via `.github/scripts/strip_signing.py` and produces **unsigned** HAPs — local signed builds are unaffected. This repo has no git submodules; if one is added later, enable `submodules: recursive` in the checkout step.
@@ -116,6 +119,11 @@ When signing secrets are not configured, tag builds **skip signing with a guidan
 |------|------|
 | [Detailed Internal Framework Architecture](ngf_framework/src/main/ets/README.md) | For hardcore developers who want to understand the underlying implementation of NGF |
 | [Framework Productization Guide](.rules/skill-app-release.md) | How to change the package name, apply for a certificate, and publish to Huawei AppGallery |
+| [Repository Sync Guide (GitHub / Gitea / GitCode)](docs/Repository_Sync_Guide.md) | Boundaries between the public source, the private full backup, and the public mirror; backup and restore procedures |
+| [Accessibility Skill](.rules/skill-accessibility.md) | Full rules for accessibility labels and binding: the three official prerequisites, the attribute table, grouping strategy, and audit method (Chinese) |
+| [Elderly-Adaptation Skill](.rules/skill-elderly-ui.md) | Elderly adaptation (a separate concern from accessibility): normative values, the two independent signals, per-item migration, and the acceptance checklist (Chinese) |
+| [Accessibility & Elderly Research Plan](docs/NGF_ACCESSIBILITY_ELDERLY_RESEARCH_PLAN.md) | Trackable research plan covering APIs, standards, design, and acceptance (Chinese) |
+| [Accessibility & Elderly Design](docs/NGF_ACCESSIBILITY_ELDERLY_DESIGN.md) | ArkTS/HarmonyOS API evidence, normative baseline, UI/UX, and implementation tasks (Chinese) |
 
 ---
 

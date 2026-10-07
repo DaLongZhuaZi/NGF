@@ -1,13 +1,38 @@
-# NGF GitHub / Gitea 双线同步指南
+# NGF 仓库同步指南（GitHub / Gitea / GitCode 三渠道）
 
 ## 1. 仓库职责
 
-| 仓库 | 可见性 | 职责 |
-|---|---|---|
-| GitHub origin | 公开 | 公开代码主线、文档、CI 和同步工具 |
-| Gitea backup/full | 私有 | 完整工作区备份、私有配置、证书、密钥材料和恢复证据 |
+| 远程名 | 平台 | 地址 | 可见性 | 职责 |
+|---|---|---|---|---|
+| `origin` | GitHub | `https://github.com/DaLongZhuaZi/NGF.git` | 公开 | **公开主源**：代码主线、文档、CI 和同步工具 |
+| `backup` | Gitea（NAS） | `http://192.168.5.146:3333/DLZZ/NGF.git` | 私有 | **私有完整备份**：完整工作区快照、被 `.gitignore` 排除的配置/证书、`git-history.bundle` |
+| `gitcode` | GitCode | `https://gitcode.com/dlzz/NGF.git` | 公开 | **公开镜像**：与 GitHub 内容一致的只读镜像 |
 
-两个仓库不是同一份内容的双 push 目标。GitHub 是公开发布线，Gitea 是私有灾备线。
+三者不是同一份内容的多个 push 目标：GitHub 是公开发布线，
+GitCode 是公开镜像线，Gitea 是私有灾备线。
+
+> ⚠️ **GitCode 已迁移为小写路径 `dlzz`。**
+> 推送到大写 `DLZZ` 仍会成功，但会收到
+> 「This repository moved. Please use the new location」提示。**请使用小写地址。**
+
+> 🔴 **GitCode 没有任何自动化同步机制** —— 它既不在 `tools/backup/` 脚本里，
+> 也不在 CI 里。**每次交付后必须手动执行 `git push gitcode main`**，
+> 否则它会静默落后（2026-10-06 实际发生过：落后 4 个提交无人发现）。
+
+### 1.1 交付后的同步检查（必须逐条做）
+
+```powershell
+# 本地 HEAD
+git rev-parse HEAD
+
+# 三个远程各查一次，三者都必须等于本地 HEAD
+git ls-remote origin  refs/heads/main
+git ls-remote backup  refs/heads/main
+git ls-remote gitcode refs/heads/main
+
+# 一次性推送
+git push origin main; git push backup main; git push gitcode main
+```
 
 ## 2. 内容边界
 

@@ -41,6 +41,7 @@ NGF 的设计初衷是**“随时可以变成你自己的 App”**。
 | 2️⃣ | [.rules/README.md](.rules/README.md) | **技能索引**：查阅你可以使用的各种“超能力”（如一键生成页面、复用组件等）。 |
 | 3️⃣ | [.rules/skill-scaffold-page.md](.rules/skill-scaffold-page.md) | **极速建页**：收到“新建页面”指令时，直接套用此文件中的模板代码。 |
 | 4️⃣ | [.rules/skill-component-reuse.md](.rules/skill-component-reuse.md) | **复用指南**：开发功能时，查阅如何调用框架里现成的弹窗、标题栏和核心工具。 |
+| 5️⃣ | [.rules/skill-accessibility.md](.rules/skill-accessibility.md) | **无障碍**：新增或修改任何**可交互组件**时必读 —— 标签、分组、状态与绑定的正确写法。 |
 
 > 💡 **给 Agent 的提示**：本项目是一个模块化工程（`ngf_framework` 为核心库，`entry` 为业务层），在 `entry` 中开发时，必须使用 `import { ... } from 'ngf_framework'` 进行导包。
 
@@ -56,6 +57,7 @@ NGF 采用高内聚低耦合的分层架构，将复杂的能力封装成了简�
 - 💾 **数据与存储 (data)**：提供真 LRU 内存缓存、偏好设置 (Preferences) 和关系型数据库 (RDB) 的极简封装。
 - ⚙️ **工作流与任务 (workflow & systemTasks)**：支持复杂的异步任务编排，以及带保活锁和常驻系统通知栏的后台长时任务。
 - 📱 **设备感知 (deviceAwareness)**：支持折叠屏适配、单手/双手握持感知、13项硬件能力探测。
+- ♿ **无障碍与适老化 (accessibility & elderly)**：完整的无障碍语义模型（53 个角色 + 4 个等级 + 动作/状态/分组）与 `AttributeModifier` 绑定器；接入系统读屏、触摸探索与状态变化订阅；适老化双信号（**系统关怀模式** + **系统字体缩放**）与 18/30 dp 字号、1.3 倍行距、4.5:1 对比度、44/48/60 dp 触控目标等规范基线。业务页面只需一行 `.attributeModifier(...)` 即可接入。
 - 🛠️ **全能工具箱 (utils)**：内置性能监控、SHA/AES 加解密安全套件、统一日志系统等。
 
 ---
@@ -86,7 +88,11 @@ NGF/
 
 ### 首次接入（一次性，约 15 分钟）
 
-1. **准备 CI 镜像**：本工程使用 `ghcr.io/dalongzhuazi/harmonyos-ci:api26`（已构建好、public）。镜像的构建/维护现已统一由 **[harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) 仓库**负责（Dockerfile + 构建 workflow + 多 API 版本 tag），需要重建或新增 API 版本时按该仓库说明操作即可；本仓库只需消费该镜像。
+1. **准备 CI 镜像**：本工程使用 `ghcr.io/dalongzhuazi/harmonyos-ci:api26r`（已构建好、public）。
+   > ⚠️ **tag 必须与 `build-profile.json5` 的 `compatibleSdkVersion` 对齐**：本工程为 `26.0.0`，
+   > 对应 `api26r`（command-line-tools 26.0.0.821，与 DevEco Studio 26 Release 内置 SDK 一致）。
+   > 用旧的 `api26`（26.0.0.461 / API 26 Beta1）会**编译失败** ——
+   > 缺 `HdsColorPicker` 等 Beta2 新增组件。tag 对照表见 harmonyos-ci 的 `docs/CI_Guide.md`。镜像的构建/维护现已统一由 **[harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) 仓库**负责（Dockerfile + 构建 workflow + 多 API 版本 tag），需要重建或新增 API 版本时按该仓库说明操作即可；本仓库只需消费该镜像。
 2. **完成**：之后每次 push 主分支都会**自动构建并自动发布 `nightly` 滚动 Release**（PR 仅构建不发布）；在 Action 页面或 Releases 页下载 `hap-unsigned` artifact / 产物（含 `entry-default-unsigned.hap`，可在 DevEco Studio 中重新签名后安装）。
 
 > **签名说明**：`build-profile.json5` 中的 `signingConfigs` 指向开发者本机证书路径，CI 会自动执行 `.github/scripts/strip_signing.py` 剥离该配置并产出**未签名** HAP，不影响本机签名构建。第一阶段 CI 不引入签名；本仓库无 git 子模块，若未来引入，请在 checkout 步骤开启 `submodules: recursive`。
@@ -116,7 +122,9 @@ push `v*` tag 会触发 `sign-and-release.yml`。所需 Secrets（证书/密钥�
 |------|------|
 | [框架内部架构详解](ngf_framework/src/main/ets/README.md) | 给想深入了解 NGF 底层实现的硬核开发者阅读 |
 | [框架业务化指南](.rules/skill-app-release.md) | 如何修改包名、申请证书并上架到华为应用市场 |
-| [GitHub / Gitea 双线同步指南](docs/Repository_Sync_Guide.md) | 公开源与私有完整备份的边界、备份和恢复流程 |
+| [仓库同步指南（GitHub / Gitea / GitCode）](docs/Repository_Sync_Guide.md) | 公开源、私有完整备份与公开镜像的边界、备份和恢复流程 |
+| [无障碍适配技能](.rules/skill-accessibility.md) | 无障碍标签与绑定的完整规范：官方三个前提、属性全表、分组策略、审计方法 |
+| [适老化适配技能](.rules/skill-elderly-ui.md) | 适老化（与无障碍是两件事）：规范数值、双信号、逐项改造与验收清单 |
 | [无障碍与适老化研究计划](docs/NGF_ACCESSIBILITY_ELDERLY_RESEARCH_PLAN.md) | API、标准、设计和验收的可追踪研究计划 |
 | [无障碍与适老化能力设计](docs/NGF_ACCESSIBILITY_ELDERLY_DESIGN.md) | ArkTS/HarmonyOS API 证据、标准基线、UI/UX 与实施任务 |
 

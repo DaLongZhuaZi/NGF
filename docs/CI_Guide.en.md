@@ -23,7 +23,21 @@ Trigger matrix:
 
 ## 2. Prerequisites
 
-- Image `ghcr.io/dalongzhuazi/harmonyos-ci:api26` is already built and public.
+- Image `ghcr.io/dalongzhuazi/harmonyos-ci:api26r` is already built and public.
+
+  > ⚠️ **The tag must match `compatibleSdkVersion` in `build-profile.json5`.**
+
+  | Image tag | command-line-tools | Applicable SDK | Notes |
+  |---|---|---|---|
+  | `api26r` | **26.0.0.821** | **API 26 Release** | **Identical to the SDK bundled with DevEco Studio 26 Release ← this project uses this one** |
+  | `api26b2` | 26.0.0.621 | API 26 Beta2 | |
+  | `api26` | 26.0.0.461 | API 26 Beta1 | **Old**; compiling this project with it fails |
+  | `api24` / `api23` | 6.1.1.300 / 6.1.0.818 | API 24 / 23 | |
+
+  > 🔴 **Real incident (fixed 2026-10-06)**: this project used `api26` (Beta1) while the code
+  > used `HdsColorPicker` (**added in Beta2**), so CI reported
+  > **9×10505001 + 3 import errors + a UI syntax error**, and `Build HAP` failed continuously
+  > since 2026-08-29. Switching to `api26r` fixed it immediately.
 - Image build & maintenance is centralized in the **[harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) repo** (Dockerfile + build workflow + multi-API tags); rebuild or add new API versions (e.g. api23, api24) there — this repo only consumes the image.
 
 ## 4. Three ways to build without DevEco Studio
@@ -38,7 +52,7 @@ Output: `entry/build/default/outputs/default/entry-default-unsigned.hap`, distri
 
 ### B. Local Docker (no DevEco, mirrors the cloud env)
 ```bash
-docker run --rm -v "$PWD":/workspace ghcr.io/dalongzhuazi/harmonyos-ci:api26 \\
+docker run --rm -v "$PWD":/workspace ghcr.io/dalongzhuazi/harmonyos-ci:api26r \\
   bash -lc 'ohpm install --all && hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon'
 ```
 

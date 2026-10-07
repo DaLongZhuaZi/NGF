@@ -29,10 +29,14 @@ NGF/
 │   ├── contracts/       # ISourceRegistry, ISourceLoader, ISourceRepository
 │   └── facades/         # SourceRegistryFacade, SourceLoaderFacade, SourceRepositoryFacade
 │
-├── uiShell/             # UI 壳层: 导航、页面策略、HDS 组件
+├── uiShell/             # UI 壳层: 导航、页面策略、HDS 组件、无障碍与适老化 UI
 │   ├── contracts/       # INavigationShell, IPagePolicyHost
 │   ├── facades/         # NavigationShellFacade, PagePolicyHostFacade
-│   └── components/      # HdsNavigationSupport, NGFImmersiveTopChrome, NGFHdsTabsFactory
+│   ├── components/      # HdsNavigationSupport, NGFImmersiveTopChrome, NGFHdsTabsFactory,
+│   │                    # NGFAccessibilityAttributeBinder（语义 → ArkUI 属性绑定）,
+│   │                    # NGFAccessible{Button,ListItem,FormField,DialogCloseButton}
+│   └── utils/           # NGFA11yTextScale（适老缩放器）, NGFA11yAttributeModifiers（基础组件修饰器）,
+│                        # NGFAccessibilityLifecycleBinding（订阅生命周期）, NGFContrastChecker
 │
 ├── uiTheme/             # 主题层: 颜色模式管理
 │   ├── contracts/       # IThemeManager
@@ -42,7 +46,7 @@ NGF/
 │   ├── contracts/       # II18nManager
 │   └── facades/         # I18nManagerFacade
 │
-├── deviceAwareness/     # 设备感知层: 握持、折叠、视觉效果
+├── deviceAwareness/     # 设备感知层: 握持、折叠、视觉效果、无障碍与适老化策略
 │   ├── contracts/       # IHoldingAwarenessManager, IDeviceAdaptationManager, IVisualEffectsManager
 │   └── facades/         # HoldingAwarenessFacade, DeviceAdaptationFacade, VisualEffectsFacade
 │
@@ -96,7 +100,9 @@ EntryAbility.onCreate()
 
 本框架可在**不安装 DevEco Studio**的情况下，通过 GitHub Actions 云端构建 HAP：
 - 工作流：`.github/workflows/`（`build.yml` 构建+自动发布、`sign-and-release.yml` tag 签名发布）
-- 镜像：`ghcr.io/<owner>/harmonyos-ci:api26`（构建/维护统一由 [harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) 仓库负责）
+- 镜像：`ghcr.io/<owner>/harmonyos-ci:api26r`（构建/维护统一由 [harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) 仓库负责）
+  > ⚠️ tag 必须与 `build-profile.json5` 的 `compatibleSdkVersion`（`26.0.0`）对齐；
+  > 用旧的 `api26`（Beta1）会因缺 `HdsColorPicker` 等 Beta2 组件而编译失败。
 - 详细步骤：[CI 免 DevEco Studio 构建指南](../../docs/CI_Guide.md) / [CI Build Guide (EN)](../../docs/CI_Guide.en.md)
 
 Build HAPs without DevEco Studio via GitHub Actions — see [`docs/CI_Guide.md`](../../docs/CI_Guide.md) / [`docs/CI_Guide.en.md`](../../docs/CI_Guide.en.md).
@@ -106,3 +112,6 @@ Build HAPs without DevEco Studio via GitHub Actions — see [`docs/CI_Guide.md`]
 - [框架现状与功能缺口分析](../../../../docs/NGF_FRAMEWORK_STATUS.md)
 - [实施计划](../../../../docs/development/NGF_IMPLEMENTATION_PLAN.md)
 - [API 23 迁移指南](../../../../docs/API23_Migration_Guide.md)
+- [无障碍适配技能](../../../../.rules/skill-accessibility.md) —— 标签、分组、状态与绑定的完整规范
+- [适老化适配技能](../../../../.rules/skill-elderly-ui.md) —— 与无障碍是两件事
+- [仓库同步指南](../../../../docs/Repository_Sync_Guide.md) —— GitHub / Gitea / GitCode 三渠道

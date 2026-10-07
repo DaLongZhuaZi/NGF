@@ -79,7 +79,8 @@ hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-dae
 # 产物路径(多模块用 find 兜底)
 #   <module>/build/default/outputs/default/entry-default-unsigned.hap
 # 本地无 DevEco 复现云端环境
-docker run --rm -v "$PWD":/workspace ghcr.io/dalongzhuazi/harmonyos-ci:api26 \
+# ⚠️ tag 必须与工程的 compatibleSdkVersion 对齐（本工程 26.0.0 → api26r）
+docker run --rm -v "$PWD":/workspace ghcr.io/dalongzhuazi/harmonyos-ci:api26r \
   bash -lc 'ohpm install --all && hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon'
 ```
 

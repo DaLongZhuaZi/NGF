@@ -1,9 +1,15 @@
-# NGF 双线备份工具
+# NGF 备份工具
 
-NGF 使用两条职责不同的仓库线：
+NGF 使用三条职责不同的仓库线：
 
-- GitHub origin：公开源，只保存可公开发布的代码、文档和同步工具。
-- Gitea backup：私有完整备份，保存工作区快照、被 .gitignore 排除的配置/证书，以及 Git 历史 bundle。
+- **GitHub `origin`**：公开主源，只保存可公开发布的代码、文档和同步工具。
+- **Gitea `backup`**：私有完整备份，保存工作区快照、被 .gitignore 排除的配置/证书，以及 Git 历史 bundle。
+- **GitCode `gitcode`**：公开镜像（`https://gitcode.com/dlzz/NGF.git`）。
+
+> ⚠️ **本脚本只处理 Gitea 私有备份，不推送 GitCode。**
+> GitCode 是**公开镜像**，需要手动 `git push gitcode main` ——
+> 它没有任何自动化同步机制，不推就会静默落后。详见
+> [仓库同步指南](../../docs/Repository_Sync_Guide.md)。
 
 私有备份仓库必须位于 NGF 工作区之外，且不能配置为 GitHub 的第二个 push URL。
 

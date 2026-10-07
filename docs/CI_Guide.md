@@ -23,7 +23,21 @@
 
 ## 2. 前置条件
 
-- 镜像 `ghcr.io/dalongzhuazi/harmonyos-ci:api26` 已就绪（public）。
+- 镜像 `ghcr.io/dalongzhuazi/harmonyos-ci:api26r` 已就绪（public）。
+
+  > ⚠️ **tag 必须与 `build-profile.json5` 的 `compatibleSdkVersion` 对齐。**
+
+  | 镜像 tag | command-line-tools | 适用 SDK | 说明 |
+  |---|---|---|---|
+  | `api26r` | **26.0.0.821** | **API 26 正式版** | **与 DevEco Studio 26 Release 内置 SDK 一致 ← 本工程用这个** |
+  | `api26b2` | 26.0.0.621 | API 26 Beta2 | |
+  | `api26` | 26.0.0.461 | API 26 Beta1 | **旧**；用它编译本工程会失败 |
+  | `api24` / `api23` | 6.1.1.300 / 6.1.0.818 | API 24 / 23 | |
+
+  > 🔴 **真实故障（2026-10-06 修复）**：本工程曾用 `api26`（Beta1），
+  > 而代码用了 `HdsColorPicker`（**Beta2 新增**），导致 CI 报
+  > **9×10505001 + 3 个 import 错误 + UI 语法错误**，`Build HAP` 自 2026-08-29 起连续失败。
+  > 改成 `api26r` 后立即恢复。
 - 镜像的构建/维护统一由 **[harmonyos-ci](https://github.com/DaLongZhuaZi/harmonyos-ci) 仓库**负责（Dockerfile + 构建 workflow + 多 API 版本 tag）；需要重建或新增 API 版本（如 api23、api24）时，按该仓库 README 操作即可，本仓库只消费镜像。
 
 ## 4. 免 DevEco Studio 的三种构建方式
@@ -38,7 +52,7 @@ hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-dae
 
 ### 方式 B：本地 Docker（不装 DevEco，复现云端环境）
 ```bash
-docker run --rm -v "$PWD":/workspace ghcr.io/dalongzhuazi/harmonyos-ci:api26 \\
+docker run --rm -v "$PWD":/workspace ghcr.io/dalongzhuazi/harmonyos-ci:api26r \\
   bash -lc 'ohpm install --all && hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon'
 ```
 
